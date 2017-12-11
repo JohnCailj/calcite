@@ -138,21 +138,21 @@ limitations under the License.
   </scm>
 
   <modules>
-    <module>cassandra</module>
+    <!--<module>cassandra</module>-->
     <module>core</module>
-    <module>druid</module>
-    <module>elasticsearch2</module>
-    <module>elasticsearch5</module>
-    <module>example</module>
-    <module>file</module>
-    <module>linq4j</module>
-    <module>mongodb</module>
-    <module>pig</module>
-    <module>piglet</module>
-    <module>plus</module>
-    <module>spark</module>
-    <module>splunk</module>
-    <module>ubenchmark</module>
+    <!--<module>druid</module>-->
+    <!--<module>elasticsearch2</module>-->
+    <!--<module>elasticsearch5</module>-->
+    <!--<module>example</module>-->
+    <!--<module>file</module>-->
+    <!--<module>linq4j</module>-->
+    <!--<module>mongodb</module>-->
+    <!--<module>pig</module>-->
+    <!--<module>piglet</module>-->
+    <!--<module>plus</module>-->
+    <!--<module>spark</module>-->
+    <!--<module>splunk</module>-->
+    <!--<module>ubenchmark</module>-->
   </modules>
 
   <!-- No dependencies here. Declare dependency VERSIONS in

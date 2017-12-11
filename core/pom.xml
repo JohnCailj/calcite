@@ -91,7 +91,6 @@ limitations under the License.
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>

@@ -23,7 +23,6 @@ import java.util.Set;
  * VolcanoPlannerPhaseRuleMappingInitializer describes an inteface for
  * initializing the mapping of {@link VolcanoPlannerPhase}s to sets of rule
  * descriptions.
- *
  * <p><b>Note:</b> Rule descriptions are obtained via
  * {@link org.apache.calcite.plan.RelOptRule#toString()}. By default they are
  * the class's simple name (e.g. class name sans package), unless the class is
@@ -33,19 +32,19 @@ import java.util.Set;
  * constructor.
  */
 public interface VolcanoPlannerPhaseRuleMappingInitializer {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Initializes a {@link VolcanoPlannerPhase}-to-rule map. Rules are
-   * specified by description (see above). When this method is called, the map
-   * will already be pre-initialized with empty sets for each
-   * VolcanoPlannerPhase. Implementations must not return having added or
-   * removed keys from the map, although it is safe to temporarily add or
-   * remove keys.
-   *
-   * @param phaseRuleMap a {@link VolcanoPlannerPhase}-to-rule map
-   */
-  void initialize(Map<VolcanoPlannerPhase, Set<String>> phaseRuleMap);
+    /**
+     * Initializes a {@link VolcanoPlannerPhase}-to-rule map. Rules are
+     * specified by description (see above). When this method is called, the map
+     * will already be pre-initialized with empty sets for each
+     * VolcanoPlannerPhase. Implementations must not return having added or
+     * removed keys from the map, although it is safe to temporarily add or
+     * remove keys.
+     *
+     * @param phaseRuleMap a {@link VolcanoPlannerPhase}-to-rule map
+     */
+    void initialize(Map<VolcanoPlannerPhase, Set<String>> phaseRuleMap);
 }
 
 // End VolcanoPlannerPhaseRuleMappingInitializer.java

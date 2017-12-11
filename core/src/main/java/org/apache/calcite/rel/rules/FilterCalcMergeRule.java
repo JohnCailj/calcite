@@ -35,54 +35,42 @@ import org.apache.calcite.rex.RexProgramBuilder;
  * @see FilterMergeRule
  */
 public class FilterCalcMergeRule extends RelOptRule {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  public static final FilterCalcMergeRule INSTANCE =
-      new FilterCalcMergeRule();
+    public static final FilterCalcMergeRule INSTANCE = new FilterCalcMergeRule();
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  private FilterCalcMergeRule() {
-    super(
-        operand(
-            Filter.class,
-            operand(LogicalCalc.class, any())));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    final LogicalFilter filter = call.rel(0);
-    final LogicalCalc calc = call.rel(1);
-
-    // Don't merge a filter onto a calc which contains windowed aggregates.
-    // That would effectively be pushing a multiset down through a filter.
-    // We'll have chance to merge later, when the over is expanded.
-    if (calc.getProgram().containsAggs()) {
-      return;
+    private FilterCalcMergeRule() {
+        super(operand(Filter.class, operand(LogicalCalc.class, any())));
     }
 
-    // Create a program containing the filter.
-    final RexBuilder rexBuilder = filter.getCluster().getRexBuilder();
-    final RexProgramBuilder progBuilder =
-        new RexProgramBuilder(
-            calc.getRowType(),
-            rexBuilder);
-    progBuilder.addIdentity();
-    progBuilder.addCondition(filter.getCondition());
-    RexProgram topProgram = progBuilder.getProgram();
-    RexProgram bottomProgram = calc.getProgram();
+    //~ Methods ----------------------------------------------------------------
 
-    // Merge the programs together.
-    RexProgram mergedProgram =
-        RexProgramBuilder.mergePrograms(
-            topProgram,
-            bottomProgram,
-            rexBuilder);
-    final LogicalCalc newCalc =
-        LogicalCalc.create(calc.getInput(), mergedProgram);
-    call.transformTo(newCalc);
-  }
+    public void onMatch(RelOptRuleCall call) {
+        final LogicalFilter filter = call.rel(0);
+        final LogicalCalc calc = call.rel(1);
+
+        // Don't merge a filter onto a calc which contains windowed aggregates.
+        // That would effectively be pushing a multiset down through a filter.
+        // We'll have chance to merge later, when the over is expanded.
+        if (calc.getProgram().containsAggs()) {
+            return;
+        }
+
+        // Create a program containing the filter.
+        final RexBuilder rexBuilder = filter.getCluster().getRexBuilder();
+        final RexProgramBuilder progBuilder = new RexProgramBuilder(calc.getRowType(), rexBuilder);
+        progBuilder.addIdentity();
+        progBuilder.addCondition(filter.getCondition());
+        RexProgram topProgram = progBuilder.getProgram();
+        RexProgram bottomProgram = calc.getProgram();
+
+        // Merge the programs together.
+        RexProgram mergedProgram = RexProgramBuilder.mergePrograms(topProgram, bottomProgram, rexBuilder);
+        final LogicalCalc newCalc = LogicalCalc.create(calc.getInput(), mergedProgram);
+        call.transformTo(newCalc);
+    }
 }
 
 // End FilterCalcMergeRule.java

@@ -19,11 +19,7 @@ package org.apache.calcite.rel.logical;
 import org.apache.calcite.plan.Convention;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelTraitSet;
-import org.apache.calcite.rel.RelDistribution;
-import org.apache.calcite.rel.RelDistributionTraitDef;
-import org.apache.calcite.rel.RelInput;
-import org.apache.calcite.rel.RelNode;
-import org.apache.calcite.rel.RelShuttle;
+import org.apache.calcite.rel.*;
 import org.apache.calcite.rel.core.Exchange;
 
 /**
@@ -31,45 +27,41 @@ import org.apache.calcite.rel.core.Exchange;
  * targeted at any particular engine or calling convention.
  */
 public final class LogicalExchange extends Exchange {
-  private LogicalExchange(RelOptCluster cluster, RelTraitSet traitSet,
-      RelNode input, RelDistribution distribution) {
-    super(cluster, traitSet, input, distribution);
-    assert traitSet.containsIfApplicable(Convention.NONE);
-  }
 
-  /**
-   * Creates a LogicalExchange by parsing serialized output.
-   */
-  public LogicalExchange(RelInput input) {
-    super(input);
-  }
+    private LogicalExchange(RelOptCluster cluster, RelTraitSet traitSet, RelNode input, RelDistribution distribution) {
+        super(cluster, traitSet, input, distribution);
+        assert traitSet.containsIfApplicable(Convention.NONE);
+    }
 
-  /**
-   * Creates a LogicalExchange.
-   *
-   * @param input     Input relational expression
-   * @param distribution Distribution specification
-   */
-  public static LogicalExchange create(RelNode input,
-      RelDistribution distribution) {
-    RelOptCluster cluster = input.getCluster();
-    distribution = RelDistributionTraitDef.INSTANCE.canonize(distribution);
-    RelTraitSet traitSet =
-        input.getTraitSet().replace(Convention.NONE).replace(distribution);
-    return new LogicalExchange(cluster, traitSet, input, distribution);
-  }
+    /**
+     * Creates a LogicalExchange by parsing serialized output.
+     */
+    public LogicalExchange(RelInput input) {
+        super(input);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    /**
+     * Creates a LogicalExchange.
+     *
+     * @param input        Input relational expression
+     * @param distribution Distribution specification
+     */
+    public static LogicalExchange create(RelNode input, RelDistribution distribution) {
+        RelOptCluster cluster = input.getCluster();
+        distribution = RelDistributionTraitDef.INSTANCE.canonize(distribution);
+        RelTraitSet traitSet = input.getTraitSet().replace(Convention.NONE).replace(distribution);
+        return new LogicalExchange(cluster, traitSet, input, distribution);
+    }
 
-  @Override public Exchange copy(RelTraitSet traitSet, RelNode newInput,
-      RelDistribution newDistribution) {
-    return new LogicalExchange(getCluster(), traitSet, newInput,
-        newDistribution);
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public RelNode accept(RelShuttle shuttle) {
-    return shuttle.visit(this);
-  }
+    @Override public Exchange copy(RelTraitSet traitSet, RelNode newInput, RelDistribution newDistribution) {
+        return new LogicalExchange(getCluster(), traitSet, newInput, newDistribution);
+    }
+
+    @Override public RelNode accept(RelShuttle shuttle) {
+        return shuttle.visit(this);
+    }
 }
 
 // End LogicalExchange.java

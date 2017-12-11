@@ -25,35 +25,37 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public abstract class SqlAlter extends SqlCall {
 
-  /** Scope of the operation. Values "SYSTEM" and "SESSION" are typical. */
-  String scope;
+    /**
+     * Scope of the operation. Values "SYSTEM" and "SESSION" are typical.
+     */
+    String scope;
 
-  public SqlAlter(SqlParserPos pos) {
-    this(pos, null);
-  }
-
-  public SqlAlter(SqlParserPos pos, String scope) {
-    super(pos);
-    this.scope = scope;
-  }
-
-  @Override public final void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (scope != null) {
-      writer.keyword("ALTER");
-      writer.keyword(scope);
+    public SqlAlter(SqlParserPos pos) {
+        this(pos, null);
     }
-    unparseAlterOperation(writer, leftPrec, rightPrec);
-  }
 
-  protected abstract void unparseAlterOperation(SqlWriter writer, int leftPrec, int rightPrec);
+    public SqlAlter(SqlParserPos pos, String scope) {
+        super(pos);
+        this.scope = scope;
+    }
 
-  public String getScope() {
-    return scope;
-  }
+    @Override public final void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+        if (scope != null) {
+            writer.keyword("ALTER");
+            writer.keyword(scope);
+        }
+        unparseAlterOperation(writer, leftPrec, rightPrec);
+    }
 
-  public void setScope(String scope) {
-    this.scope = scope;
-  }
+    protected abstract void unparseAlterOperation(SqlWriter writer, int leftPrec, int rightPrec);
+
+    public String getScope() {
+        return scope;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+    }
 
 }
 

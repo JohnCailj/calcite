@@ -29,41 +29,32 @@ import org.apache.calcite.rel.logical.LogicalFilter;
  * @see org.apache.calcite.rel.rules.ProjectMultiJoinMergeRule
  */
 public class FilterMultiJoinMergeRule extends RelOptRule {
-  public static final FilterMultiJoinMergeRule INSTANCE =
-      new FilterMultiJoinMergeRule();
 
-  //~ Constructors -----------------------------------------------------------
+    public static final FilterMultiJoinMergeRule INSTANCE = new FilterMultiJoinMergeRule();
 
-  /**
-   * Creates a FilterMultiJoinMergeRule.
-   */
-  private FilterMultiJoinMergeRule() {
-    super(
-        operand(LogicalFilter.class,
-            operand(MultiJoin.class, any())));
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
+    /**
+     * Creates a FilterMultiJoinMergeRule.
+     */
+    private FilterMultiJoinMergeRule() {
+        super(operand(LogicalFilter.class, operand(MultiJoin.class, any())));
+    }
 
-  public void onMatch(RelOptRuleCall call) {
-    LogicalFilter filter = call.rel(0);
-    MultiJoin multiJoin = call.rel(1);
+    //~ Methods ----------------------------------------------------------------
 
-    MultiJoin newMultiJoin =
-        new MultiJoin(
-            multiJoin.getCluster(),
-            multiJoin.getInputs(),
-            multiJoin.getJoinFilter(),
-            multiJoin.getRowType(),
-            multiJoin.isFullOuterJoin(),
-            multiJoin.getOuterJoinConditions(),
-            multiJoin.getJoinTypes(),
-            multiJoin.getProjFields(),
-            multiJoin.getJoinFieldRefCountsMap(),
-            filter.getCondition());
+    public void onMatch(RelOptRuleCall call) {
+        LogicalFilter filter = call.rel(0);
+        MultiJoin multiJoin = call.rel(1);
 
-    call.transformTo(newMultiJoin);
-  }
+        MultiJoin newMultiJoin = new MultiJoin(multiJoin.getCluster(), multiJoin.getInputs(), multiJoin.getJoinFilter(),
+                                               multiJoin.getRowType(), multiJoin.isFullOuterJoin(),
+                                               multiJoin.getOuterJoinConditions(), multiJoin.getJoinTypes(),
+                                               multiJoin.getProjFields(), multiJoin.getJoinFieldRefCountsMap(),
+                                               filter.getCondition());
+
+        call.transformTo(newMultiJoin);
+    }
 }
 
 // End FilterMultiJoinMergeRule.java

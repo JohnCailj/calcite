@@ -21,16 +21,16 @@ package org.apache.calcite.sql.parser;
  * un-parse successfully.
  */
 public class SqlUnParserTest extends SqlParserTest {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlUnParserTest() {
-  }
+    public SqlUnParserTest() {
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @Override protected Tester getTester() {
-    return new UnparsingTesterImpl();
-  }
+    @Override protected Tester getTester() {
+        return new UnparsingTesterImpl();
+    }
 }
 
 // End SqlUnParserTest.java

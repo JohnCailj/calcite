@@ -31,66 +31,67 @@ import static org.apache.calcite.util.Static.RESOURCE;
 /**
  * Implementation of {@link org.apache.calcite.schema.TableMacro} based on a
  * method.
-*/
-public class TableMacroImpl extends ReflectiveFunctionBase
-    implements TableMacro {
+ */
+public class TableMacroImpl extends ReflectiveFunctionBase implements TableMacro {
 
-  /** Private constructor; use {@link #create}. */
-  private TableMacroImpl(Method method) {
-    super(method);
-  }
+    /**
+     * Private constructor; use {@link #create}.
+     */
+    private TableMacroImpl(Method method) {
+        super(method);
+    }
 
-  /** Creates a {@code TableMacro} from a class, looking for an "eval"
-   * method. Returns null if there is no such method. */
-  public static TableMacro create(Class<?> clazz) {
-    final Method method = findMethod(clazz, "eval");
-    if (method == null) {
-      return null;
+    /**
+     * Creates a {@code TableMacro} from a class, looking for an "eval"
+     * method. Returns null if there is no such method.
+     */
+    public static TableMacro create(Class<?> clazz) {
+        final Method method = findMethod(clazz, "eval");
+        if (method == null) {
+            return null;
+        }
+        return create(method);
     }
-    return create(method);
-  }
 
-  /** Creates a {@code TableMacro} from a method. */
-  public static TableMacro create(final Method method) {
-    Class clazz = method.getDeclaringClass();
-    if (!Modifier.isStatic(method.getModifiers())) {
-      if (!classHasPublicZeroArgsConstructor(clazz)) {
-        throw RESOURCE.requireDefaultConstructor(clazz.getName()).ex();
-      }
+    /**
+     * Creates a {@code TableMacro} from a method.
+     */
+    public static TableMacro create(final Method method) {
+        Class clazz = method.getDeclaringClass();
+        if (!Modifier.isStatic(method.getModifiers())) {
+            if (!classHasPublicZeroArgsConstructor(clazz)) {
+                throw RESOURCE.requireDefaultConstructor(clazz.getName()).ex();
+            }
+        }
+        final Class<?> returnType = method.getReturnType();
+        if (!TranslatableTable.class.isAssignableFrom(returnType)) {
+            return null;
+        }
+        return new TableMacroImpl(method);
     }
-    final Class<?> returnType = method.getReturnType();
-    if (!TranslatableTable.class.isAssignableFrom(returnType)) {
-      return null;
-    }
-    return new TableMacroImpl(method);
-  }
 
-  /**
-   * Applies arguments to yield a table.
-   *
-   * @param arguments Arguments
-   * @return Table
-   */
-  public TranslatableTable apply(List<Object> arguments) {
-    try {
-      Object o = null;
-      if (!Modifier.isStatic(method.getModifiers())) {
-        final Constructor<?> constructor =
-            method.getDeclaringClass().getConstructor();
-        o = constructor.newInstance();
-      }
-      //noinspection unchecked
-      return (TranslatableTable) method.invoke(o, arguments.toArray());
-    } catch (IllegalArgumentException e) {
-      throw new RuntimeException("Expected "
-          + Arrays.toString(method.getParameterTypes()) + " actual "
-          + arguments,
-          e);
-    } catch (IllegalAccessException | InvocationTargetException
-        | NoSuchMethodException | InstantiationException e) {
-      throw new RuntimeException(e);
+    /**
+     * Applies arguments to yield a table.
+     *
+     * @param arguments Arguments
+     * @return Table
+     */
+    public TranslatableTable apply(List<Object> arguments) {
+        try {
+            Object o = null;
+            if (!Modifier.isStatic(method.getModifiers())) {
+                final Constructor<?> constructor = method.getDeclaringClass().getConstructor();
+                o = constructor.newInstance();
+            }
+            //noinspection unchecked
+            return (TranslatableTable) method.invoke(o, arguments.toArray());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(
+                    "Expected " + Arrays.toString(method.getParameterTypes()) + " actual " + arguments, e);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
-  }
 }
 
 // End TableMacroImpl.java

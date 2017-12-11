@@ -28,52 +28,44 @@ import org.apache.calcite.sql.type.SqlTypeName;
  * user-defined procedure.
  */
 public class ProcedureNamespace extends AbstractNamespace {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlValidatorScope scope;
+    private final SqlValidatorScope scope;
 
-  private final SqlCall call;
+    private final SqlCall call;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  ProcedureNamespace(
-      SqlValidatorImpl validator,
-      SqlValidatorScope scope,
-      SqlCall call,
-      SqlNode enclosingNode) {
-    super(validator, enclosingNode);
-    this.scope = scope;
-    this.call = call;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public RelDataType validateImpl(RelDataType targetRowType) {
-    validator.inferUnknownTypes(validator.unknownType, scope, call);
-    final RelDataType type = validator.deriveTypeImpl(scope, call);
-    final SqlOperator operator = call.getOperator();
-    final SqlCallBinding callBinding =
-        new SqlCallBinding(validator, scope, call);
-    if (operator instanceof SqlUserDefinedTableFunction) {
-      assert type.getSqlTypeName() == SqlTypeName.CURSOR
-          : "User-defined table function should have CURSOR type, not " + type;
-      final SqlUserDefinedTableFunction udf =
-          (SqlUserDefinedTableFunction) operator;
-      return udf.getRowType(validator.typeFactory, callBinding.operands());
-    } else if (operator instanceof SqlUserDefinedTableMacro) {
-      assert type.getSqlTypeName() == SqlTypeName.CURSOR
-          : "User-defined table macro should have CURSOR type, not " + type;
-      final SqlUserDefinedTableMacro udf =
-          (SqlUserDefinedTableMacro) operator;
-      return udf.getTable(validator.typeFactory, callBinding.operands())
-          .getRowType(validator.typeFactory);
+    ProcedureNamespace(SqlValidatorImpl validator, SqlValidatorScope scope, SqlCall call, SqlNode enclosingNode) {
+        super(validator, enclosingNode);
+        this.scope = scope;
+        this.call = call;
     }
-    return type;
-  }
 
-  public SqlNode getNode() {
-    return call;
-  }
+    //~ Methods ----------------------------------------------------------------
+
+    public RelDataType validateImpl(RelDataType targetRowType) {
+        validator.inferUnknownTypes(validator.unknownType, scope, call);
+        final RelDataType type = validator.deriveTypeImpl(scope, call);
+        final SqlOperator operator = call.getOperator();
+        final SqlCallBinding callBinding = new SqlCallBinding(validator, scope, call);
+        if (operator instanceof SqlUserDefinedTableFunction) {
+            assert type.getSqlTypeName() == SqlTypeName.CURSOR :
+                    "User-defined table function should have CURSOR type, not " + type;
+            final SqlUserDefinedTableFunction udf = (SqlUserDefinedTableFunction) operator;
+            return udf.getRowType(validator.typeFactory, callBinding.operands());
+        } else if (operator instanceof SqlUserDefinedTableMacro) {
+            assert type.getSqlTypeName() == SqlTypeName.CURSOR :
+                    "User-defined table macro should have CURSOR type, not " + type;
+            final SqlUserDefinedTableMacro udf = (SqlUserDefinedTableMacro) operator;
+            return udf.getTable(validator.typeFactory, callBinding.operands()).getRowType(validator.typeFactory);
+        }
+        return type;
+    }
+
+    public SqlNode getNode() {
+        return call;
+    }
 }
 
 // End ProcedureNamespace.java

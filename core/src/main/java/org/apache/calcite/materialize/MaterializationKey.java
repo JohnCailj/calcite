@@ -21,26 +21,24 @@ import java.util.UUID;
 
 /**
  * Unique identifier for a materialization.
- *
  * <p>It is immutable and can only be created by the
  * {@link MaterializationService}. For communicating with the service.</p>
  */
 public class MaterializationKey implements Serializable {
-  private final UUID uuid = UUID.randomUUID();
 
-  @Override public int hashCode() {
-    return uuid.hashCode();
-  }
+    private final UUID uuid = UUID.randomUUID();
 
-  @Override public boolean equals(Object obj) {
-    return this == obj
-        || obj instanceof MaterializationKey
-        && uuid.equals(((MaterializationKey) obj).uuid);
-  }
+    @Override public int hashCode() {
+        return uuid.hashCode();
+    }
 
-  @Override public String toString() {
-    return uuid.toString();
-  }
+    @Override public boolean equals(Object obj) {
+        return this == obj || obj instanceof MaterializationKey && uuid.equals(((MaterializationKey) obj).uuid);
+    }
+
+    @Override public String toString() {
+        return uuid.toString();
+    }
 }
 
 // End MaterializationKey.java

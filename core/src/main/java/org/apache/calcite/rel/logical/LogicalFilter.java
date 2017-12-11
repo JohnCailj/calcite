@@ -16,27 +16,19 @@
  */
 package org.apache.calcite.rel.logical;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
 import org.apache.calcite.plan.Convention;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelTraitSet;
-import org.apache.calcite.rel.RelCollation;
-import org.apache.calcite.rel.RelCollationTraitDef;
-import org.apache.calcite.rel.RelDistribution;
-import org.apache.calcite.rel.RelDistributionTraitDef;
-import org.apache.calcite.rel.RelInput;
-import org.apache.calcite.rel.RelNode;
-import org.apache.calcite.rel.RelShuttle;
-import org.apache.calcite.rel.RelWriter;
+import org.apache.calcite.rel.*;
 import org.apache.calcite.rel.core.CorrelationId;
 import org.apache.calcite.rel.core.Filter;
 import org.apache.calcite.rel.metadata.RelMdCollation;
 import org.apache.calcite.rel.metadata.RelMdDistribution;
 import org.apache.calcite.rel.metadata.RelMetadataQuery;
 import org.apache.calcite.rex.RexNode;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableSet;
 
 import java.util.List;
 import java.util.Set;
@@ -46,105 +38,95 @@ import java.util.Set;
  * not targeted at any particular engine or calling convention.
  */
 public final class LogicalFilter extends Filter {
-  private final ImmutableSet<CorrelationId> variablesSet;
 
-  //~ Constructors -----------------------------------------------------------
+    private final ImmutableSet<CorrelationId> variablesSet;
 
-  /**
-   * Creates a LogicalFilter.
-   *
-   * <p>Use {@link #create} unless you know what you're doing.
-   *
-   * @param cluster   Cluster that this relational expression belongs to
-   * @param child     Input relational expression
-   * @param condition Boolean expression which determines whether a row is
-   *                  allowed to pass
-   * @param variablesSet Correlation variables set by this relational expression
-   *                     to be used by nested expressions
-   */
-  public LogicalFilter(
-      RelOptCluster cluster,
-      RelTraitSet traitSet,
-      RelNode child,
-      RexNode condition,
-      ImmutableSet<CorrelationId> variablesSet) {
-    super(cluster, traitSet, child, condition);
-    this.variablesSet = Preconditions.checkNotNull(variablesSet);
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  @Deprecated // to be removed before 2.0
-  public LogicalFilter(
-      RelOptCluster cluster,
-      RelTraitSet traitSet,
-      RelNode child,
-      RexNode condition) {
-    this(cluster, traitSet, child, condition, ImmutableSet.<CorrelationId>of());
-  }
+    /**
+     * Creates a LogicalFilter.
+     * <p>Use {@link #create} unless you know what you're doing.
+     *
+     * @param cluster      Cluster that this relational expression belongs to
+     * @param child        Input relational expression
+     * @param condition    Boolean expression which determines whether a row is
+     *                     allowed to pass
+     * @param variablesSet Correlation variables set by this relational expression
+     *                     to be used by nested expressions
+     */
+    public LogicalFilter(RelOptCluster cluster, RelTraitSet traitSet, RelNode child, RexNode condition,
+                         ImmutableSet<CorrelationId> variablesSet) {
+        super(cluster, traitSet, child, condition);
+        this.variablesSet = Preconditions.checkNotNull(variablesSet);
+    }
 
-  @Deprecated // to be removed before 2.0
-  public LogicalFilter(
-      RelOptCluster cluster,
-      RelNode child,
-      RexNode condition) {
-    this(cluster, cluster.traitSetOf(Convention.NONE), child, condition,
-        ImmutableSet.<CorrelationId>of());
-  }
+    @Deprecated // to be removed before 2.0
+    public LogicalFilter(RelOptCluster cluster, RelTraitSet traitSet, RelNode child, RexNode condition) {
+        this(cluster, traitSet, child, condition, ImmutableSet.<CorrelationId>of());
+    }
 
-  /**
-   * Creates a LogicalFilter by parsing serialized output.
-   */
-  public LogicalFilter(RelInput input) {
-    super(input);
-    this.variablesSet = ImmutableSet.of();
-  }
+    @Deprecated // to be removed before 2.0
+    public LogicalFilter(RelOptCluster cluster, RelNode child, RexNode condition) {
+        this(cluster, cluster.traitSetOf(Convention.NONE), child, condition, ImmutableSet.<CorrelationId>of());
+    }
 
-  /** Creates a LogicalFilter. */
-  public static LogicalFilter create(final RelNode input, RexNode condition) {
-    return create(input, condition, ImmutableSet.<CorrelationId>of());
-  }
+    /**
+     * Creates a LogicalFilter by parsing serialized output.
+     */
+    public LogicalFilter(RelInput input) {
+        super(input);
+        this.variablesSet = ImmutableSet.of();
+    }
 
-  /** Creates a LogicalFilter. */
-  public static LogicalFilter create(final RelNode input, RexNode condition,
-      ImmutableSet<CorrelationId> variablesSet) {
-    final RelOptCluster cluster = input.getCluster();
-    final RelMetadataQuery mq = cluster.getMetadataQuery();
-    final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE)
-        .replaceIfs(RelCollationTraitDef.INSTANCE,
-            new Supplier<List<RelCollation>>() {
-              public List<RelCollation> get() {
-                return RelMdCollation.filter(mq, input);
-              }
-            })
-        .replaceIf(RelDistributionTraitDef.INSTANCE,
-            new Supplier<RelDistribution>() {
-              public RelDistribution get() {
-                return RelMdDistribution.filter(mq, input);
-              }
-            });
-    return new LogicalFilter(cluster, traitSet, input, condition, variablesSet);
-  }
+    /**
+     * Creates a LogicalFilter.
+     */
+    public static LogicalFilter create(final RelNode input, RexNode condition) {
+        return create(input, condition, ImmutableSet.<CorrelationId>of());
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    /**
+     * Creates a LogicalFilter.
+     */
+    public static LogicalFilter create(final RelNode input, RexNode condition,
+                                       ImmutableSet<CorrelationId> variablesSet) {
+        final RelOptCluster cluster = input.getCluster();
+        final RelMetadataQuery mq = cluster.getMetadataQuery();
+        final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE).replaceIfs(RelCollationTraitDef.INSTANCE,
+                                                                                    new Supplier<List<RelCollation>>() {
 
-  @Override public Set<CorrelationId> getVariablesSet() {
-    return variablesSet;
-  }
+                                                                                        public List<RelCollation> get() {
+                                                                                            return RelMdCollation.filter(
+                                                                                                    mq, input);
+                                                                                        }
+                                                                                    }).replaceIf(
+                RelDistributionTraitDef.INSTANCE, new Supplier<RelDistribution>() {
 
-  public LogicalFilter copy(RelTraitSet traitSet, RelNode input,
-      RexNode condition) {
-    assert traitSet.containsIfApplicable(Convention.NONE);
-    return new LogicalFilter(getCluster(), traitSet, input, condition,
-        variablesSet);
-  }
+                    public RelDistribution get() {
+                        return RelMdDistribution.filter(mq, input);
+                    }
+                });
+        return new LogicalFilter(cluster, traitSet, input, condition, variablesSet);
+    }
 
-  @Override public RelNode accept(RelShuttle shuttle) {
-    return shuttle.visit(this);
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public RelWriter explainTerms(RelWriter pw) {
-    return super.explainTerms(pw)
-        .itemIf("variablesSet", variablesSet, !variablesSet.isEmpty());
-  }
+    @Override public Set<CorrelationId> getVariablesSet() {
+        return variablesSet;
+    }
+
+    public LogicalFilter copy(RelTraitSet traitSet, RelNode input, RexNode condition) {
+        assert traitSet.containsIfApplicable(Convention.NONE);
+        return new LogicalFilter(getCluster(), traitSet, input, condition, variablesSet);
+    }
+
+    @Override public RelNode accept(RelShuttle shuttle) {
+        return shuttle.visit(this);
+    }
+
+    @Override public RelWriter explainTerms(RelWriter pw) {
+        return super.explainTerms(pw).itemIf("variablesSet", variablesSet, !variablesSet.isEmpty());
+    }
 }
 
 // End LogicalFilter.java

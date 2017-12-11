@@ -26,17 +26,18 @@ import org.apache.calcite.rel.convert.ConverterRule;
  * {@link ElasticsearchRel#CONVENTION} to {@link EnumerableConvention}.
  */
 public class ElasticsearchToEnumerableConverterRule extends ConverterRule {
-  public static final ConverterRule INSTANCE = new ElasticsearchToEnumerableConverterRule();
 
-  private ElasticsearchToEnumerableConverterRule() {
-    super(RelNode.class, ElasticsearchRel.CONVENTION, EnumerableConvention.INSTANCE,
-        "ElasticsearchToEnumerableConverterRule");
-  }
+    public static final ConverterRule INSTANCE = new ElasticsearchToEnumerableConverterRule();
 
-  @Override public RelNode convert(RelNode relNode) {
-    RelTraitSet newTraitSet = relNode.getTraitSet().replace(getOutConvention());
-    return new ElasticsearchToEnumerableConverter(relNode.getCluster(), newTraitSet, relNode);
-  }
+    private ElasticsearchToEnumerableConverterRule() {
+        super(RelNode.class, ElasticsearchRel.CONVENTION, EnumerableConvention.INSTANCE,
+              "ElasticsearchToEnumerableConverterRule");
+    }
+
+    @Override public RelNode convert(RelNode relNode) {
+        RelTraitSet newTraitSet = relNode.getTraitSet().replace(getOutConvention());
+        return new ElasticsearchToEnumerableConverter(relNode.getCluster(), newTraitSet, relNode);
+    }
 }
 
 // End ElasticsearchToEnumerableConverterRule.java

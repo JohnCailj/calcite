@@ -16,6 +16,8 @@
  */
 package org.apache.calcite.rel.rules;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.adapter.enumerable.EnumerableInterpreter;
 import org.apache.calcite.interpreter.Bindables;
 import org.apache.calcite.plan.RelOptRule;
@@ -31,9 +33,6 @@ import org.apache.calcite.util.ImmutableIntList;
 import org.apache.calcite.util.mapping.Mapping;
 import org.apache.calcite.util.mapping.Mappings;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 
 /**
@@ -41,86 +40,87 @@ import java.util.List;
  * on a {@link org.apache.calcite.rel.core.TableScan}
  * of a {@link org.apache.calcite.schema.ProjectableFilterableTable}
  * to a {@link org.apache.calcite.interpreter.Bindables.BindableTableScan}.
- *
  * <p>The {@link #INTERPRETER} variant allows an intervening
  * {@link org.apache.calcite.adapter.enumerable.EnumerableInterpreter}.
  *
  * @see FilterTableScanRule
  */
 public abstract class ProjectTableScanRule extends RelOptRule {
-  public static final Predicate<TableScan> PREDICATE =
-      new PredicateImpl<TableScan>() {
+
+    public static final Predicate<TableScan> PREDICATE = new PredicateImpl<TableScan>() {
+
         public boolean test(TableScan scan) {
-          // We can only push projects into a ProjectableFilterableTable.
-          final RelOptTable table = scan.getTable();
-          return table.unwrap(ProjectableFilterableTable.class) != null;
+            // We can only push projects into a ProjectableFilterableTable.
+            final RelOptTable table = scan.getTable();
+            return table.unwrap(ProjectableFilterableTable.class) != null;
         }
-      };
+    };
 
-  /** Rule that matches Project on TableScan. */
-  public static final ProjectTableScanRule INSTANCE =
-      new ProjectTableScanRule(
-          operand(Project.class,
-              operand(TableScan.class, null, PREDICATE, none())),
-          "ProjectScanRule") {
+    /**
+     * Rule that matches Project on TableScan.
+     */
+    public static final ProjectTableScanRule INSTANCE = new ProjectTableScanRule(
+            operand(Project.class, operand(TableScan.class, null, PREDICATE, none())), "ProjectScanRule") {
+
         @Override public void onMatch(RelOptRuleCall call) {
-          final Project project = call.rel(0);
-          final TableScan scan = call.rel(1);
-          apply(call, project, scan);
+            final Project project = call.rel(0);
+            final TableScan scan = call.rel(1);
+            apply(call, project, scan);
         }
-      };
+    };
 
-  /** Rule that matches Project on EnumerableInterpreter on TableScan. */
-  public static final ProjectTableScanRule INTERPRETER =
-      new ProjectTableScanRule(
-          operand(Project.class,
-              operand(EnumerableInterpreter.class,
-                  operand(TableScan.class, null, PREDICATE, none()))),
-          "ProjectScanRule:interpreter") {
+    /**
+     * Rule that matches Project on EnumerableInterpreter on TableScan.
+     */
+    public static final ProjectTableScanRule INTERPRETER = new ProjectTableScanRule(operand(Project.class,
+                                                                                            operand(EnumerableInterpreter.class,
+                                                                                                    operand(TableScan.class,
+                                                                                                            null,
+                                                                                                            PREDICATE,
+                                                                                                            none()))),
+                                                                                    "ProjectScanRule:interpreter") {
+
         @Override public void onMatch(RelOptRuleCall call) {
-          final Project project = call.rel(0);
-          final TableScan scan = call.rel(2);
-          apply(call, project, scan);
+            final Project project = call.rel(0);
+            final TableScan scan = call.rel(2);
+            apply(call, project, scan);
         }
-      };
+    };
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /** Creates a ProjectScanRule. */
-  private ProjectTableScanRule(RelOptRuleOperand operand, String description) {
-    super(operand, description);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  protected void apply(RelOptRuleCall call, Project project, TableScan scan) {
-    final RelOptTable table = scan.getTable();
-    assert table.unwrap(ProjectableFilterableTable.class) != null;
-
-    final Mappings.TargetMapping mapping = project.getMapping();
-    if (mapping == null
-        || Mappings.isIdentity(mapping)) {
-      return;
+    /**
+     * Creates a ProjectScanRule.
+     */
+    private ProjectTableScanRule(RelOptRuleOperand operand, String description) {
+        super(operand, description);
     }
 
-    final ImmutableIntList projects;
-    final ImmutableList<RexNode> filters;
-    if (scan instanceof Bindables.BindableTableScan) {
-      final Bindables.BindableTableScan bindableScan =
-          (Bindables.BindableTableScan) scan;
-      filters = bindableScan.filters;
-      projects = bindableScan.projects;
-    } else {
-      filters = ImmutableList.of();
-      projects = scan.identity();
-    }
+    //~ Methods ----------------------------------------------------------------
 
-    final List<Integer> projects2 =
-        Mappings.apply((Mapping) mapping, projects);
-    call.transformTo(
-        Bindables.BindableTableScan.create(scan.getCluster(), scan.getTable(),
-            filters, projects2));
-  }
+    protected void apply(RelOptRuleCall call, Project project, TableScan scan) {
+        final RelOptTable table = scan.getTable();
+        assert table.unwrap(ProjectableFilterableTable.class) != null;
+
+        final Mappings.TargetMapping mapping = project.getMapping();
+        if (mapping == null || Mappings.isIdentity(mapping)) {
+            return;
+        }
+
+        final ImmutableIntList projects;
+        final ImmutableList<RexNode> filters;
+        if (scan instanceof Bindables.BindableTableScan) {
+            final Bindables.BindableTableScan bindableScan = (Bindables.BindableTableScan) scan;
+            filters = bindableScan.filters;
+            projects = bindableScan.projects;
+        } else {
+            filters = ImmutableList.of();
+            projects = scan.identity();
+        }
+
+        final List<Integer> projects2 = Mappings.apply((Mapping) mapping, projects);
+        call.transformTo(Bindables.BindableTableScan.create(scan.getCluster(), scan.getTable(), filters, projects2));
+    }
 }
 
 // End ProjectTableScanRule.java

@@ -16,42 +16,40 @@
  */
 package org.apache.calcite.sql.type;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlCallBinding;
-
-import com.google.common.collect.ImmutableList;
 
 /**
  * ExplicitOperandTypeInferences implements {@link SqlOperandTypeInference} by
  * explicitly supplying a type for each parameter.
  */
 public class ExplicitOperandTypeInference implements SqlOperandTypeInference {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final ImmutableList<RelDataType> paramTypes;
+    private final ImmutableList<RelDataType> paramTypes;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /** Use
-   * {@link org.apache.calcite.sql.type.InferTypes#explicit(java.util.List)}. */
-  ExplicitOperandTypeInference(ImmutableList<RelDataType> paramTypes) {
-    this.paramTypes = paramTypes;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void inferOperandTypes(
-      SqlCallBinding callBinding,
-      RelDataType returnType,
-      RelDataType[] operandTypes) {
-    if (operandTypes.length != paramTypes.size()) {
-      // This call does not match the inference strategy.
-      // It's likely that we're just about to give a validation error.
-      // Don't make a fuss, just give up.
-      return;
+    /**
+     * Use
+     * {@link org.apache.calcite.sql.type.InferTypes#explicit(java.util.List)}.
+     */
+    ExplicitOperandTypeInference(ImmutableList<RelDataType> paramTypes) {
+        this.paramTypes = paramTypes;
     }
-    paramTypes.toArray(operandTypes);
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    public void inferOperandTypes(SqlCallBinding callBinding, RelDataType returnType, RelDataType[] operandTypes) {
+        if (operandTypes.length != paramTypes.size()) {
+            // This call does not match the inference strategy.
+            // It's likely that we're just about to give a validation error.
+            // Don't make a fuss, just give up.
+            return;
+        }
+        paramTypes.toArray(operandTypes);
+    }
 }
 
 // End ExplicitOperandTypeInference.java

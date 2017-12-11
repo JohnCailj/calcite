@@ -16,12 +16,11 @@
  */
 package org.apache.calcite.interpreter;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.apache.calcite.rel.core.Values;
 import org.apache.calcite.rex.RexLiteral;
 import org.apache.calcite.rex.RexNode;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import java.util.List;
 
@@ -30,41 +29,41 @@ import java.util.List;
  * {@link org.apache.calcite.rel.core.Values}.
  */
 public class ValuesNode implements Node {
-  private final Sink sink;
-  private final int fieldCount;
-  private final ImmutableList<Row> rows;
 
-  public ValuesNode(Interpreter interpreter, Values rel) {
-    this.sink = interpreter.sink(rel);
-    this.fieldCount = rel.getRowType().getFieldCount();
-    this.rows = createRows(interpreter, rel.getTuples());
-  }
+    private final Sink               sink;
+    private final int                fieldCount;
+    private final ImmutableList<Row> rows;
 
-  private ImmutableList<Row> createRows(Interpreter interpreter,
-      ImmutableList<ImmutableList<RexLiteral>> tuples) {
-    final List<RexNode> nodes = Lists.newArrayList();
-    for (ImmutableList<RexLiteral> tuple : tuples) {
-      nodes.addAll(tuple);
+    public ValuesNode(Interpreter interpreter, Values rel) {
+        this.sink = interpreter.sink(rel);
+        this.fieldCount = rel.getRowType().getFieldCount();
+        this.rows = createRows(interpreter, rel.getTuples());
     }
-    final Scalar scalar = interpreter.compile(nodes, null);
-    final Object[] values = new Object[nodes.size()];
-    final Context context = interpreter.createContext();
-    scalar.execute(context, values);
-    final ImmutableList.Builder<Row> rows = ImmutableList.builder();
-    Object[] subValues = new Object[fieldCount];
-    for (int i = 0; i < values.length; i += fieldCount) {
-      System.arraycopy(values, i, subValues, 0, fieldCount);
-      rows.add(Row.asCopy(subValues));
-    }
-    return rows.build();
-  }
 
-  public void run() throws InterruptedException {
-    for (Row row : rows) {
-      sink.send(row);
+    private ImmutableList<Row> createRows(Interpreter interpreter, ImmutableList<ImmutableList<RexLiteral>> tuples) {
+        final List<RexNode> nodes = Lists.newArrayList();
+        for (ImmutableList<RexLiteral> tuple : tuples) {
+            nodes.addAll(tuple);
+        }
+        final Scalar scalar = interpreter.compile(nodes, null);
+        final Object[] values = new Object[nodes.size()];
+        final Context context = interpreter.createContext();
+        scalar.execute(context, values);
+        final ImmutableList.Builder<Row> rows = ImmutableList.builder();
+        Object[] subValues = new Object[fieldCount];
+        for (int i = 0; i < values.length; i += fieldCount) {
+            System.arraycopy(values, i, subValues, 0, fieldCount);
+            rows.add(Row.asCopy(subValues));
+        }
+        return rows.build();
     }
-    sink.end();
-  }
+
+    public void run() throws InterruptedException {
+        for (Row row : rows) {
+            sink.send(row);
+        }
+        sink.end();
+    }
 }
 
 // End ValuesNode.java

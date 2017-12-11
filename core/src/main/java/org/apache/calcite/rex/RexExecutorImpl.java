@@ -16,151 +16,125 @@
  */
 package org.apache.calcite.rex;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.DataContext;
 import org.apache.calcite.adapter.enumerable.RexToLixTranslator;
 import org.apache.calcite.adapter.enumerable.RexToLixTranslator.InputGetter;
 import org.apache.calcite.adapter.java.JavaTypeFactory;
 import org.apache.calcite.jdbc.JavaTypeFactoryImpl;
-import org.apache.calcite.linq4j.tree.BlockBuilder;
-import org.apache.calcite.linq4j.tree.Expression;
-import org.apache.calcite.linq4j.tree.Expressions;
-import org.apache.calcite.linq4j.tree.IndexExpression;
-import org.apache.calcite.linq4j.tree.MethodCallExpression;
-import org.apache.calcite.linq4j.tree.MethodDeclaration;
-import org.apache.calcite.linq4j.tree.ParameterExpression;
+import org.apache.calcite.linq4j.tree.*;
 import org.apache.calcite.prepare.CalcitePrepareImpl;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.util.BuiltInMethod;
 import org.apache.calcite.util.Util;
 
-import com.google.common.collect.ImmutableList;
-
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.List;
 
 /**
-* Evaluates a {@link RexNode} expression.
-*/
+ * Evaluates a {@link RexNode} expression.
+ */
 public class RexExecutorImpl implements RexExecutor {
 
-  private final DataContext dataContext;
+    private final DataContext dataContext;
 
-  public RexExecutorImpl(DataContext dataContext) {
-    this.dataContext = dataContext;
-  }
-
-  private String compile(RexBuilder rexBuilder, List<RexNode> constExps,
-      RexToLixTranslator.InputGetter getter) {
-    final RelDataTypeFactory typeFactory = rexBuilder.getTypeFactory();
-    final RelDataType emptyRowType = typeFactory.builder().build();
-    return compile(rexBuilder, constExps, getter, emptyRowType);
-  }
-
-  private String compile(RexBuilder rexBuilder, List<RexNode> constExps,
-      RexToLixTranslator.InputGetter getter, RelDataType rowType) {
-    final RexProgramBuilder programBuilder =
-        new RexProgramBuilder(rowType, rexBuilder);
-    for (RexNode node : constExps) {
-      programBuilder.addProject(
-          node, "c" + programBuilder.getProjectList().size());
+    public RexExecutorImpl(DataContext dataContext) {
+        this.dataContext = dataContext;
     }
-    final JavaTypeFactoryImpl javaTypeFactory =
-        new JavaTypeFactoryImpl(rexBuilder.getTypeFactory().getTypeSystem());
-    final BlockBuilder blockBuilder = new BlockBuilder();
-    final ParameterExpression root0_ =
-        Expressions.parameter(Object.class, "root0");
-    final ParameterExpression root_ = DataContext.ROOT;
-    blockBuilder.add(
-        Expressions.declare(
-            Modifier.FINAL, root_,
-            Expressions.convert_(root0_, DataContext.class)));
-    final List<Expression> expressions =
-        RexToLixTranslator.translateProjects(programBuilder.getProgram(),
-        javaTypeFactory, blockBuilder, null, root_, getter, null);
-    blockBuilder.add(
-        Expressions.return_(null,
-            Expressions.newArrayInit(Object[].class, expressions)));
-    final MethodDeclaration methodDecl =
-        Expressions.methodDecl(Modifier.PUBLIC, Object[].class,
-            BuiltInMethod.FUNCTION1_APPLY.method.getName(),
-            ImmutableList.of(root0_), blockBuilder.toBlock());
-    String code = Expressions.toString(methodDecl);
-    if (CalcitePrepareImpl.DEBUG) {
-      Util.debugCode(System.out, code);
+
+    private String compile(RexBuilder rexBuilder, List<RexNode> constExps, RexToLixTranslator.InputGetter getter) {
+        final RelDataTypeFactory typeFactory = rexBuilder.getTypeFactory();
+        final RelDataType emptyRowType = typeFactory.builder().build();
+        return compile(rexBuilder, constExps, getter, emptyRowType);
     }
-    return code;
-  }
 
-  /**
-   * Creates an {@link RexExecutable} that allows to apply the
-   * generated code during query processing (filter, projection).
-   *
-   * @param rexBuilder Rex builder
-   * @param exps Expressions
-   * @param rowType describes the structure of the input row.
-   */
-  public RexExecutable getExecutable(RexBuilder rexBuilder, List<RexNode> exps,
-      RelDataType rowType) {
-    final JavaTypeFactoryImpl typeFactory =
-        new JavaTypeFactoryImpl(rexBuilder.getTypeFactory().getTypeSystem());
-    final InputGetter getter = new DataContextInputGetter(rowType, typeFactory);
-    final String code = compile(rexBuilder, exps, getter, rowType);
-    return new RexExecutable(code, "generated Rex code");
-  }
+    private String compile(RexBuilder rexBuilder, List<RexNode> constExps, RexToLixTranslator.InputGetter getter,
+                           RelDataType rowType) {
+        final RexProgramBuilder programBuilder = new RexProgramBuilder(rowType, rexBuilder);
+        for (RexNode node : constExps) {
+            programBuilder.addProject(node, "c" + programBuilder.getProjectList().size());
+        }
+        final JavaTypeFactoryImpl javaTypeFactory = new JavaTypeFactoryImpl(
+                rexBuilder.getTypeFactory().getTypeSystem());
+        final BlockBuilder blockBuilder = new BlockBuilder();
+        final ParameterExpression root0_ = Expressions.parameter(Object.class, "root0");
+        final ParameterExpression root_ = DataContext.ROOT;
+        blockBuilder.add(Expressions.declare(Modifier.FINAL, root_, Expressions.convert_(root0_, DataContext.class)));
+        final List<Expression> expressions = RexToLixTranslator.translateProjects(programBuilder.getProgram(),
+                                                                                  javaTypeFactory, blockBuilder, null,
+                                                                                  root_, getter, null);
+        blockBuilder.add(Expressions.return_(null, Expressions.newArrayInit(Object[].class, expressions)));
+        final MethodDeclaration methodDecl = Expressions.methodDecl(Modifier.PUBLIC, Object[].class,
+                                                                    BuiltInMethod.FUNCTION1_APPLY.method.getName(),
+                                                                    ImmutableList.of(root0_), blockBuilder.toBlock());
+        String code = Expressions.toString(methodDecl);
+        if (CalcitePrepareImpl.DEBUG) {
+            Util.debugCode(System.out, code);
+        }
+        return code;
+    }
 
-  /**
-   * Do constant reduction using generated code.
-   */
-  public void reduce(RexBuilder rexBuilder, List<RexNode> constExps,
-      List<RexNode> reducedValues) {
-    final String code = compile(rexBuilder, constExps,
-        new RexToLixTranslator.InputGetter() {
-          public Expression field(BlockBuilder list, int index,
-              Type storageType) {
-            throw new UnsupportedOperationException();
-          }
+    /**
+     * Creates an {@link RexExecutable} that allows to apply the
+     * generated code during query processing (filter, projection).
+     *
+     * @param rexBuilder Rex builder
+     * @param exps       Expressions
+     * @param rowType    describes the structure of the input row.
+     */
+    public RexExecutable getExecutable(RexBuilder rexBuilder, List<RexNode> exps, RelDataType rowType) {
+        final JavaTypeFactoryImpl typeFactory = new JavaTypeFactoryImpl(rexBuilder.getTypeFactory().getTypeSystem());
+        final InputGetter getter = new DataContextInputGetter(rowType, typeFactory);
+        final String code = compile(rexBuilder, exps, getter, rowType);
+        return new RexExecutable(code, "generated Rex code");
+    }
+
+    /**
+     * Do constant reduction using generated code.
+     */
+    public void reduce(RexBuilder rexBuilder, List<RexNode> constExps, List<RexNode> reducedValues) {
+        final String code = compile(rexBuilder, constExps, new RexToLixTranslator.InputGetter() {
+
+            public Expression field(BlockBuilder list, int index, Type storageType) {
+                throw new UnsupportedOperationException();
+            }
         });
 
-    final RexExecutable executable = new RexExecutable(code, constExps);
-    executable.setDataContext(dataContext);
-    executable.reduce(rexBuilder, constExps, reducedValues);
-  }
-
-  /**
-   * Implementation of
-   * {@link org.apache.calcite.adapter.enumerable.RexToLixTranslator.InputGetter}
-   * that reads the values of input fields by calling
-   * <code>{@link org.apache.calcite.DataContext#get}("inputRecord")</code>.
-   */
-  private static class DataContextInputGetter implements InputGetter {
-    private final RelDataTypeFactory typeFactory;
-    private final RelDataType rowType;
-
-    DataContextInputGetter(RelDataType rowType,
-        RelDataTypeFactory typeFactory) {
-      this.rowType = rowType;
-      this.typeFactory = typeFactory;
+        final RexExecutable executable = new RexExecutable(code, constExps);
+        executable.setDataContext(dataContext);
+        executable.reduce(rexBuilder, constExps, reducedValues);
     }
 
-    public Expression field(BlockBuilder list, int index, Type storageType) {
-      MethodCallExpression recFromCtx = Expressions.call(
-          DataContext.ROOT,
-          BuiltInMethod.DATA_CONTEXT_GET.method,
-          Expressions.constant("inputRecord"));
-      Expression recFromCtxCasted =
-          RexToLixTranslator.convert(recFromCtx, Object[].class);
-      IndexExpression recordAccess = Expressions.arrayIndex(recFromCtxCasted,
-          Expressions.constant(index));
-      if (storageType == null) {
-        final RelDataType fieldType =
-            rowType.getFieldList().get(index).getType();
-        storageType = ((JavaTypeFactory) typeFactory).getJavaClass(fieldType);
-      }
-      return RexToLixTranslator.convert(recordAccess, storageType);
+    /**
+     * Implementation of
+     * {@link org.apache.calcite.adapter.enumerable.RexToLixTranslator.InputGetter}
+     * that reads the values of input fields by calling
+     * <code>{@link org.apache.calcite.DataContext#get}("inputRecord")</code>.
+     */
+    private static class DataContextInputGetter implements InputGetter {
+
+        private final RelDataTypeFactory typeFactory;
+        private final RelDataType        rowType;
+
+        DataContextInputGetter(RelDataType rowType, RelDataTypeFactory typeFactory) {
+            this.rowType = rowType;
+            this.typeFactory = typeFactory;
+        }
+
+        public Expression field(BlockBuilder list, int index, Type storageType) {
+            MethodCallExpression recFromCtx = Expressions.call(DataContext.ROOT, BuiltInMethod.DATA_CONTEXT_GET.method,
+                                                               Expressions.constant("inputRecord"));
+            Expression recFromCtxCasted = RexToLixTranslator.convert(recFromCtx, Object[].class);
+            IndexExpression recordAccess = Expressions.arrayIndex(recFromCtxCasted, Expressions.constant(index));
+            if (storageType == null) {
+                final RelDataType fieldType = rowType.getFieldList().get(index).getType();
+                storageType = ((JavaTypeFactory) typeFactory).getJavaClass(fieldType);
+            }
+            return RexToLixTranslator.convert(recordAccess, storageType);
+        }
     }
-  }
 }
 
 // End RexExecutorImpl.java

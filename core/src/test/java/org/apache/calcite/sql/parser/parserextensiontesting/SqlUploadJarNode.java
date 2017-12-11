@@ -16,12 +16,7 @@
  */
 package org.apache.calcite.sql.parser.parserextensiontesting;
 
-import org.apache.calcite.sql.SqlAlter;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlOperator;
-import org.apache.calcite.sql.SqlSpecialOperator;
-import org.apache.calcite.sql.SqlWriter;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 import java.util.List;
@@ -30,34 +25,36 @@ import java.util.List;
  * Simple test example of a custom alter system call.
  */
 public class SqlUploadJarNode extends SqlAlter {
-  public static final SqlOperator OPERATOR =
-      new SqlSpecialOperator("UPLOAD JAR", SqlKind.OTHER_DDL);
 
-  private final List<SqlNode> jarPaths;
+    public static final SqlOperator OPERATOR = new SqlSpecialOperator("UPLOAD JAR", SqlKind.OTHER_DDL);
 
-  /** Creates a SqlUploadJarNode. */
-  public SqlUploadJarNode(SqlParserPos pos, String scope, List<SqlNode> jarPaths) {
-    super(pos, scope);
-    this.jarPaths = jarPaths;
-  }
+    private final List<SqlNode> jarPaths;
 
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
-  }
-
-  @Override public List<SqlNode> getOperandList() {
-    return jarPaths;
-  }
-
-  @Override protected void unparseAlterOperation(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("UPLOAD");
-    writer.keyword("JAR");
-    SqlWriter.Frame frame = writer.startList("", "");
-    for (SqlNode jarPath : jarPaths) {
-      jarPath.unparse(writer, leftPrec, rightPrec);
+    /**
+     * Creates a SqlUploadJarNode.
+     */
+    public SqlUploadJarNode(SqlParserPos pos, String scope, List<SqlNode> jarPaths) {
+        super(pos, scope);
+        this.jarPaths = jarPaths;
     }
-    writer.endList(frame);
-  }
+
+    @Override public SqlOperator getOperator() {
+        return OPERATOR;
+    }
+
+    @Override public List<SqlNode> getOperandList() {
+        return jarPaths;
+    }
+
+    @Override protected void unparseAlterOperation(SqlWriter writer, int leftPrec, int rightPrec) {
+        writer.keyword("UPLOAD");
+        writer.keyword("JAR");
+        SqlWriter.Frame frame = writer.startList("", "");
+        for (SqlNode jarPath : jarPaths) {
+            jarPath.unparse(writer, leftPrec, rightPrec);
+        }
+        writer.endList(frame);
+    }
 }
 
 // End SqlUploadJarNode.java

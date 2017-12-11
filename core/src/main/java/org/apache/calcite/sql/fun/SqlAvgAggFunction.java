@@ -16,14 +16,13 @@
  */
 package org.apache.calcite.sql.fun;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlAggFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
-
-import com.google.common.base.Preconditions;
 
 /**
  * <code>Avg</code> is an aggregator which returns the average of the values
@@ -33,56 +32,45 @@ import com.google.common.base.Preconditions;
  */
 public class SqlAvgAggFunction extends SqlAggFunction {
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a SqlAvgAggFunction.
-   */
-  public SqlAvgAggFunction(SqlKind kind) {
-    this(kind.name(), kind);
-  }
+    /**
+     * Creates a SqlAvgAggFunction.
+     */
+    public SqlAvgAggFunction(SqlKind kind) {
+        this(kind.name(), kind);
+    }
 
-  SqlAvgAggFunction(String name, SqlKind kind) {
-    super(name,
-        null,
-        kind,
-        ReturnTypes.AVG_AGG_FUNCTION,
-        null,
-        OperandTypes.NUMERIC,
-        SqlFunctionCategory.NUMERIC,
-        false,
-        false);
-    Preconditions.checkArgument(SqlKind.AVG_AGG_FUNCTIONS.contains(kind), "unsupported sql kind");
-  }
+    SqlAvgAggFunction(String name, SqlKind kind) {
+        super(name, null, kind, ReturnTypes.AVG_AGG_FUNCTION, null, OperandTypes.NUMERIC, SqlFunctionCategory.NUMERIC,
+              false, false);
+        Preconditions.checkArgument(SqlKind.AVG_AGG_FUNCTIONS.contains(kind), "unsupported sql kind");
+    }
 
-  @Deprecated // to be removed before 2.0
-  public SqlAvgAggFunction(
-      RelDataType type,
-      Subtype subtype) {
-    this(SqlKind.valueOf(subtype.name()));
-  }
+    @Deprecated // to be removed before 2.0
+    public SqlAvgAggFunction(RelDataType type, Subtype subtype) {
+        this(SqlKind.valueOf(subtype.name()));
+    }
 
     //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Returns the specific function, e.g. AVG or STDDEV_POP.
-   *
-   * @return Subtype
-   */
-  @Deprecated // to be removed before 2.0
-  public Subtype getSubtype() {
-    return Subtype.valueOf(kind.name());
-  }
+    /**
+     * Returns the specific function, e.g. AVG or STDDEV_POP.
+     *
+     * @return Subtype
+     */
+    @Deprecated // to be removed before 2.0
+    public Subtype getSubtype() {
+        return Subtype.valueOf(kind.name());
+    }
 
-  /** Sub-type of aggregate function. */
-  @Deprecated // to be removed before 2.0
-  public enum Subtype {
-    AVG,
-    STDDEV_POP,
-    STDDEV_SAMP,
-    VAR_POP,
-    VAR_SAMP
-  }
+    /**
+     * Sub-type of aggregate function.
+     */
+    @Deprecated // to be removed before 2.0
+    public enum Subtype {
+        AVG, STDDEV_POP, STDDEV_SAMP, VAR_POP, VAR_SAMP
+    }
 }
 
 // End SqlAvgAggFunction.java

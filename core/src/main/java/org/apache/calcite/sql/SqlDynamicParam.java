@@ -30,63 +30,58 @@ import org.apache.calcite.util.Litmus;
  * index is recorded as soon as the parameter is encountered.
  */
 public class SqlDynamicParam extends SqlNode {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final int index;
+    private final int index;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlDynamicParam(
-      int index,
-      SqlParserPos pos) {
-    super(pos);
-    this.index = index;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public SqlNode clone(SqlParserPos pos) {
-    return new SqlDynamicParam(index, pos);
-  }
-
-  public SqlKind getKind() {
-    return SqlKind.DYNAMIC_PARAM;
-  }
-
-  public int getIndex() {
-    return index;
-  }
-
-  public void unparse(
-      SqlWriter writer,
-      int leftPrec,
-      int rightPrec) {
-    writer.print("?");
-    writer.setNeedWhitespace(false);
-  }
-
-  public void validate(SqlValidator validator, SqlValidatorScope scope) {
-    validator.validateDynamicParam(this);
-  }
-
-  public SqlMonotonicity getMonotonicity(SqlValidatorScope scope) {
-    return SqlMonotonicity.CONSTANT;
-  }
-
-  public <R> R accept(SqlVisitor<R> visitor) {
-    return visitor.visit(this);
-  }
-
-  public boolean equalsDeep(SqlNode node, Litmus litmus) {
-    if (!(node instanceof SqlDynamicParam)) {
-      return litmus.fail("{} != {}", this, node);
+    public SqlDynamicParam(int index, SqlParserPos pos) {
+        super(pos);
+        this.index = index;
     }
-    SqlDynamicParam that = (SqlDynamicParam) node;
-    if (this.index != that.index) {
-      return litmus.fail("{} != {}", this, node);
+
+    //~ Methods ----------------------------------------------------------------
+
+    public SqlNode clone(SqlParserPos pos) {
+        return new SqlDynamicParam(index, pos);
     }
-    return litmus.succeed();
-  }
+
+    public SqlKind getKind() {
+        return SqlKind.DYNAMIC_PARAM;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+        writer.print("?");
+        writer.setNeedWhitespace(false);
+    }
+
+    public void validate(SqlValidator validator, SqlValidatorScope scope) {
+        validator.validateDynamicParam(this);
+    }
+
+    public SqlMonotonicity getMonotonicity(SqlValidatorScope scope) {
+        return SqlMonotonicity.CONSTANT;
+    }
+
+    public <R> R accept(SqlVisitor<R> visitor) {
+        return visitor.visit(this);
+    }
+
+    public boolean equalsDeep(SqlNode node, Litmus litmus) {
+        if (!(node instanceof SqlDynamicParam)) {
+            return litmus.fail("{} != {}", this, node);
+        }
+        SqlDynamicParam that = (SqlDynamicParam) node;
+        if (this.index != that.index) {
+            return litmus.fail("{} != {}", this, node);
+        }
+        return litmus.succeed();
+    }
 }
 
 // End SqlDynamicParam.java

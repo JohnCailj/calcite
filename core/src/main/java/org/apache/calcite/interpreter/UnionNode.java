@@ -16,10 +16,9 @@
  */
 package org.apache.calcite.interpreter;
 
-import org.apache.calcite.rel.core.Union;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import org.apache.calcite.rel.core.Union;
 
 import java.util.Set;
 
@@ -28,31 +27,32 @@ import java.util.Set;
  * {@link org.apache.calcite.rel.core.Union}.
  */
 public class UnionNode implements Node {
-  private final ImmutableList<Source> sources;
-  private final Sink sink;
-  private final Union rel;
 
-  public UnionNode(Interpreter interpreter, Union rel) {
-    ImmutableList.Builder<Source> builder = ImmutableList.builder();
-    for (int i = 0; i < rel.getInputs().size(); i++) {
-      builder.add(interpreter.source(rel, i));
-    }
-    this.sources = builder.build();
-    this.sink = interpreter.sink(rel);
-    this.rel = rel;
-  }
+    private final ImmutableList<Source> sources;
+    private final Sink                  sink;
+    private final Union                 rel;
 
-  public void run() throws InterruptedException {
-    final Set<Row> rows = rel.all ? null : Sets.<Row>newHashSet();
-    for (Source source : sources) {
-      Row row;
-      while ((row = source.receive()) != null) {
-        if (rows == null || rows.add(row)) {
-          sink.send(row);
+    public UnionNode(Interpreter interpreter, Union rel) {
+        ImmutableList.Builder<Source> builder = ImmutableList.builder();
+        for (int i = 0; i < rel.getInputs().size(); i++) {
+            builder.add(interpreter.source(rel, i));
         }
-      }
+        this.sources = builder.build();
+        this.sink = interpreter.sink(rel);
+        this.rel = rel;
     }
-  }
+
+    public void run() throws InterruptedException {
+        final Set<Row> rows = rel.all ? null : Sets.<Row>newHashSet();
+        for (Source source : sources) {
+            Row row;
+            while ((row = source.receive()) != null) {
+                if (rows == null || rows.add(row)) {
+                    sink.send(row);
+                }
+            }
+        }
+    }
 }
 
 // End UnionNode.java

@@ -22,13 +22,11 @@ import java.util.List;
 
 /**
  * Table whose row type can be extended to include extra fields.
- *
  * <p>In some storage systems, especially those with "late schema", there may
  * exist columns that have values in the table but which are not declared in
  * the table schema. However, a particular query may wish to reference these
  * columns as if they were defined in the schema. Calling the {@link #extend}
  * method creates a temporarily extended table schema.
- *
  * <p>If the table implements extended interfaces such as
  * {@link org.apache.calcite.schema.ScannableTable},
  * {@link org.apache.calcite.schema.FilterableTable} or
@@ -37,14 +35,19 @@ import java.util.List;
  * as well.
  */
 public interface ExtensibleTable extends Table {
-  /** Returns a table that has the row type of this table plus the given
-   * fields. */
-  Table extend(List<RelDataTypeField> fields);
 
-  /** Returns the starting offset of the first extended column, which may differ
-   * from the field count when the table stores metadata columns that are not
-   * counted in the row-type field count. */
-  int getExtendedColumnOffset();
+    /**
+     * Returns a table that has the row type of this table plus the given
+     * fields.
+     */
+    Table extend(List<RelDataTypeField> fields);
+
+    /**
+     * Returns the starting offset of the first extended column, which may differ
+     * from the field count when the table stores metadata columns that are not
+     * counted in the row-type field count.
+     */
+    int getExtendedColumnOffset();
 }
 
 // End ExtensibleTable.java

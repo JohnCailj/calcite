@@ -25,35 +25,20 @@ import org.apache.calcite.sql.type.SqlReturnTypeInference;
  * functional syntax.
  */
 public class SqlFunctionalOperator extends SqlSpecialOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlFunctionalOperator(
-      String name,
-      SqlKind kind,
-      int pred,
-      boolean isLeftAssoc,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker) {
-    super(
-        name,
-        kind,
-        pred,
-        isLeftAssoc,
-        returnTypeInference,
-        operandTypeInference,
-        operandTypeChecker);
-  }
+    public SqlFunctionalOperator(String name, SqlKind kind, int pred, boolean isLeftAssoc,
+                                 SqlReturnTypeInference returnTypeInference,
+                                 SqlOperandTypeInference operandTypeInference,
+                                 SqlOperandTypeChecker operandTypeChecker) {
+        super(name, kind, pred, isLeftAssoc, returnTypeInference, operandTypeInference, operandTypeChecker);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public void unparse(
-      SqlWriter writer,
-      SqlCall call,
-      int leftPrec,
-      int rightPrec) {
-    SqlUtil.unparseFunctionSyntax(this, writer, call);
-  }
+    public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        SqlUtil.unparseFunctionSyntax(this, writer, call);
+    }
 }
 
 // End SqlFunctionalOperator.java

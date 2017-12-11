@@ -16,11 +16,7 @@
  */
 package org.apache.calcite.rel.logical;
 
-import org.apache.calcite.plan.Convention;
-import org.apache.calcite.plan.RelOptCluster;
-import org.apache.calcite.plan.RelOptCost;
-import org.apache.calcite.plan.RelOptPlanner;
-import org.apache.calcite.plan.RelTraitSet;
+import org.apache.calcite.plan.*;
 import org.apache.calcite.rel.RelInput;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.core.TableFunctionScan;
@@ -38,85 +34,62 @@ import java.util.Set;
  * not targeted at any particular engine or calling convention.
  */
 public class LogicalTableFunctionScan extends TableFunctionScan {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a <code>LogicalTableFunctionScan</code>.
-   *
-   * @param cluster        Cluster that this relational expression belongs to
-   * @param inputs         0 or more relational inputs
-   * @param rexCall        function invocation expression
-   * @param elementType    element type of the collection that will implement
-   *                       this table
-   * @param rowType        row type produced by function
-   * @param columnMappings column mappings associated with this function
-   */
-  public LogicalTableFunctionScan(
-      RelOptCluster cluster,
-      RelTraitSet traitSet,
-      List<RelNode> inputs,
-      RexNode rexCall,
-      Type elementType, RelDataType rowType,
-      Set<RelColumnMapping> columnMappings) {
-    super(cluster, traitSet, inputs, rexCall, elementType, rowType,
-        columnMappings);
-  }
+    /**
+     * Creates a <code>LogicalTableFunctionScan</code>.
+     *
+     * @param cluster        Cluster that this relational expression belongs to
+     * @param inputs         0 or more relational inputs
+     * @param rexCall        function invocation expression
+     * @param elementType    element type of the collection that will implement
+     *                       this table
+     * @param rowType        row type produced by function
+     * @param columnMappings column mappings associated with this function
+     */
+    public LogicalTableFunctionScan(RelOptCluster cluster, RelTraitSet traitSet, List<RelNode> inputs, RexNode rexCall,
+                                    Type elementType, RelDataType rowType, Set<RelColumnMapping> columnMappings) {
+        super(cluster, traitSet, inputs, rexCall, elementType, rowType, columnMappings);
+    }
 
-  @Deprecated // to be removed before 2.0
-  public LogicalTableFunctionScan(
-      RelOptCluster cluster,
-      List<RelNode> inputs,
-      RexNode rexCall,
-      Type elementType, RelDataType rowType,
-      Set<RelColumnMapping> columnMappings) {
-    this(cluster, cluster.traitSetOf(Convention.NONE), inputs, rexCall,
-        elementType, rowType, columnMappings);
-  }
+    @Deprecated // to be removed before 2.0
+    public LogicalTableFunctionScan(RelOptCluster cluster, List<RelNode> inputs, RexNode rexCall, Type elementType,
+                                    RelDataType rowType, Set<RelColumnMapping> columnMappings) {
+        this(cluster, cluster.traitSetOf(Convention.NONE), inputs, rexCall, elementType, rowType, columnMappings);
+    }
 
-  /**
-   * Creates a LogicalTableFunctionScan by parsing serialized output.
-   */
-  public LogicalTableFunctionScan(RelInput input) {
-    super(input);
-  }
+    /**
+     * Creates a LogicalTableFunctionScan by parsing serialized output.
+     */
+    public LogicalTableFunctionScan(RelInput input) {
+        super(input);
+    }
 
-  /** Creates a LogicalTableFunctionScan. */
-  public static LogicalTableFunctionScan create(
-      RelOptCluster cluster,
-      List<RelNode> inputs,
-      RexNode rexCall,
-      Type elementType, RelDataType rowType,
-      Set<RelColumnMapping> columnMappings) {
-    final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
-    return new LogicalTableFunctionScan(cluster, traitSet, inputs, rexCall,
-        elementType, rowType, columnMappings);
-  }
+    /**
+     * Creates a LogicalTableFunctionScan.
+     */
+    public static LogicalTableFunctionScan create(RelOptCluster cluster, List<RelNode> inputs, RexNode rexCall,
+                                                  Type elementType, RelDataType rowType,
+                                                  Set<RelColumnMapping> columnMappings) {
+        final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
+        return new LogicalTableFunctionScan(cluster, traitSet, inputs, rexCall, elementType, rowType, columnMappings);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public LogicalTableFunctionScan copy(
-      RelTraitSet traitSet,
-      List<RelNode> inputs,
-      RexNode rexCall,
-      Type elementType,
-      RelDataType rowType,
-      Set<RelColumnMapping> columnMappings) {
-    assert traitSet.containsIfApplicable(Convention.NONE);
-    return new LogicalTableFunctionScan(
-        getCluster(),
-        traitSet,
-        inputs,
-        rexCall,
-        elementType,
-        rowType,
-        columnMappings);
-  }
+    @Override public LogicalTableFunctionScan copy(RelTraitSet traitSet, List<RelNode> inputs, RexNode rexCall,
+                                                   Type elementType, RelDataType rowType,
+                                                   Set<RelColumnMapping> columnMappings) {
+        assert traitSet.containsIfApplicable(Convention.NONE);
+        return new LogicalTableFunctionScan(getCluster(), traitSet, inputs, rexCall, elementType, rowType,
+                                            columnMappings);
+    }
 
-  public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
-    // REVIEW jvs 8-Jan-2006:  what is supposed to be here
-    // for an abstract rel?
-    return planner.getCostFactory().makeHugeCost();
-  }
+    public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
+        // REVIEW jvs 8-Jan-2006:  what is supposed to be here
+        // for an abstract rel?
+        return planner.getCostFactory().makeHugeCost();
+    }
 }
 
 // End LogicalTableFunctionScan.java

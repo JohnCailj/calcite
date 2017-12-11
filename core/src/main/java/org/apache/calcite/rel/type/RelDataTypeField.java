@@ -23,7 +23,6 @@ import java.util.Map;
 /**
  * RelDataTypeField represents the definition of a field in a structured
  * {@link RelDataType}.
- *
  * <p>Extends the {@link java.util.Map.Entry} interface to allow convenient
  * inter-operation with Java collections classes. In any implementation of this
  * interface, {@link #getKey()} must be equivalent to {@link #getName()}
@@ -31,53 +30,55 @@ import java.util.Map;
  */
 public interface RelDataTypeField extends Map.Entry<String, RelDataType> {
 
-  /**
-   * Function to transform a set of {@link RelDataTypeField} to
-   * a set of {@link Integer} of the field keys.
-   */
-  class ToFieldIndex implements Function<RelDataTypeField, Integer> {
-    @Override public Integer apply(RelDataTypeField o) {
-      return o.getIndex();
+    /**
+     * Function to transform a set of {@link RelDataTypeField} to
+     * a set of {@link Integer} of the field keys.
+     */
+    class ToFieldIndex implements Function<RelDataTypeField, Integer> {
+
+        @Override public Integer apply(RelDataTypeField o) {
+            return o.getIndex();
+        }
     }
-  }
 
-  /**
-   * Function to transform a set of {@link RelDataTypeField} to
-   * a set of {@link String} of the field names.
-   */
-  class ToFieldName implements Function<RelDataTypeField, String> {
-    @Override public String apply(RelDataTypeField o) {
-      return o.getName();
+    /**
+     * Function to transform a set of {@link RelDataTypeField} to
+     * a set of {@link String} of the field names.
+     */
+    class ToFieldName implements Function<RelDataTypeField, String> {
+
+        @Override public String apply(RelDataTypeField o) {
+            return o.getName();
+        }
     }
-  }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Gets the name of this field, which is unique within its containing type.
-   *
-   * @return field name
-   */
-  String getName();
+    /**
+     * Gets the name of this field, which is unique within its containing type.
+     *
+     * @return field name
+     */
+    String getName();
 
-  /**
-   * Gets the ordinal of this field within its containing type.
-   *
-   * @return 0-based ordinal
-   */
-  int getIndex();
+    /**
+     * Gets the ordinal of this field within its containing type.
+     *
+     * @return 0-based ordinal
+     */
+    int getIndex();
 
-  /**
-   * Gets the type of this field.
-   *
-   * @return field type
-   */
-  RelDataType getType();
+    /**
+     * Gets the type of this field.
+     *
+     * @return field type
+     */
+    RelDataType getType();
 
-  /**
-   * Returns true if this is a dynamic star field.
-   */
-  boolean isDynamicStar();
+    /**
+     * Returns true if this is a dynamic star field.
+     */
+    boolean isDynamicStar();
 }
 
 // End RelDataTypeField.java

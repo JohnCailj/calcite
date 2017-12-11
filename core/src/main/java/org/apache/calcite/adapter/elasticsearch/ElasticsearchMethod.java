@@ -16,9 +16,8 @@
  */
 package org.apache.calcite.adapter.elasticsearch;
 
-import org.apache.calcite.linq4j.tree.Types;
-
 import com.google.common.collect.ImmutableMap;
+import org.apache.calcite.linq4j.tree.Types;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -27,24 +26,24 @@ import java.util.List;
  * Builtin methods in the Elasticsearch adapter.
  */
 enum ElasticsearchMethod {
-  ELASTICSEARCH_QUERYABLE_FIND(AbstractElasticsearchTable.ElasticsearchQueryable.class,
-      "find", List.class, List.class);
+    ELASTICSEARCH_QUERYABLE_FIND(AbstractElasticsearchTable.ElasticsearchQueryable.class, "find", List.class,
+                                 List.class);
 
-  public final Method method;
+    public final Method method;
 
-  public static final ImmutableMap<Method, ElasticsearchMethod> MAP;
+    public static final ImmutableMap<Method, ElasticsearchMethod> MAP;
 
-  static {
-    final ImmutableMap.Builder<Method, ElasticsearchMethod> builder = ImmutableMap.builder();
-    for (ElasticsearchMethod value: ElasticsearchMethod.values()) {
-      builder.put(value.method, value);
+    static {
+        final ImmutableMap.Builder<Method, ElasticsearchMethod> builder = ImmutableMap.builder();
+        for (ElasticsearchMethod value : ElasticsearchMethod.values()) {
+            builder.put(value.method, value);
+        }
+        MAP = builder.build();
     }
-    MAP = builder.build();
-  }
 
-  ElasticsearchMethod(Class clazz, String methodName, Class... argumentTypes) {
-    this.method = Types.lookupMethod(clazz, methodName, argumentTypes);
-  }
+    ElasticsearchMethod(Class clazz, String methodName, Class... argumentTypes) {
+        this.method = Types.lookupMethod(clazz, methodName, argumentTypes);
+    }
 }
 
 // End ElasticsearchMethod.java

@@ -24,76 +24,76 @@ import java.util.Iterator;
  * number of sources and targets are specified as constructor parameters and you
  * just need to implement one method,
  */
-public abstract class AbstractSourceMapping
-    extends Mappings.AbstractMapping
-    implements Mapping {
-  private final int sourceCount;
-  private final int targetCount;
+public abstract class AbstractSourceMapping extends Mappings.AbstractMapping implements Mapping {
 
-  public AbstractSourceMapping(int sourceCount, int targetCount) {
-    this.sourceCount = sourceCount;
-    this.targetCount = targetCount;
-  }
+    private final int sourceCount;
+    private final int targetCount;
 
-  @Override public int getSourceCount() {
-    return sourceCount;
-  }
+    public AbstractSourceMapping(int sourceCount, int targetCount) {
+        this.sourceCount = sourceCount;
+        this.targetCount = targetCount;
+    }
 
-  @Override public int getTargetCount() {
-    return targetCount;
-  }
+    @Override public int getSourceCount() {
+        return sourceCount;
+    }
 
-  public Mapping inverse() {
-    return Mappings.invert(this);
-  }
+    @Override public int getTargetCount() {
+        return targetCount;
+    }
 
-  public int size() {
-    return targetCount;
-  }
+    public Mapping inverse() {
+        return Mappings.invert(this);
+    }
 
-  public void clear() {
-    throw new UnsupportedOperationException();
-  }
+    public int size() {
+        return targetCount;
+    }
 
-  public MappingType getMappingType() {
-    return MappingType.INVERSE_PARTIAL_FUNCTION;
-  }
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
 
-  public Iterator<IntPair> iterator() {
-    return new Iterator<IntPair>() {
-      int source;
-      int target = -1;
+    public MappingType getMappingType() {
+        return MappingType.INVERSE_PARTIAL_FUNCTION;
+    }
 
-      {
-        moveToNext();
-      }
+    public Iterator<IntPair> iterator() {
+        return new Iterator<IntPair>() {
 
-      private void moveToNext() {
-        while (++target < targetCount) {
-          source = getSourceOpt(target);
-          if (source >= 0) {
-            break;
-          }
-        }
-      }
+            int source;
+            int target = -1;
 
-      public boolean hasNext() {
-        return target < targetCount;
-      }
+            {
+                moveToNext();
+            }
 
-      public IntPair next() {
-        IntPair p = new IntPair(source, target);
-        moveToNext();
-        return p;
-      }
+            private void moveToNext() {
+                while (++target < targetCount) {
+                    source = getSourceOpt(target);
+                    if (source >= 0) {
+                        break;
+                    }
+                }
+            }
 
-      public void remove() {
-        throw new UnsupportedOperationException("remove");
-      }
-    };
-  }
+            public boolean hasNext() {
+                return target < targetCount;
+            }
 
-  public abstract int getSourceOpt(int source);
+            public IntPair next() {
+                IntPair p = new IntPair(source, target);
+                moveToNext();
+                return p;
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException("remove");
+            }
+        };
+    }
+
+    public abstract int getSourceOpt(int source);
 }
 
 // End AbstractSourceMapping.java

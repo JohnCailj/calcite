@@ -16,6 +16,10 @@
  */
 package org.apache.calcite.rel.core;
 
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.apache.calcite.linq4j.Ord;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelOptUtil;
@@ -28,11 +32,6 @@ import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.util.Util;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,102 +40,93 @@ import java.util.List;
  * as UNION, MINUS (aka EXCEPT), and INTERSECT.
  */
 public abstract class SetOp extends AbstractRelNode {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  protected ImmutableList<RelNode> inputs;
-  public final SqlKind kind;
-  public final boolean all;
+    protected    ImmutableList<RelNode> inputs;
+    public final SqlKind                kind;
+    public final boolean                all;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a SetOp.
-   */
-  protected SetOp(RelOptCluster cluster, RelTraitSet traits,
-      List<RelNode> inputs, SqlKind kind, boolean all) {
-    super(cluster, traits);
-    Preconditions.checkArgument(kind == SqlKind.UNION
-        || kind == SqlKind.INTERSECT
-        || kind == SqlKind.EXCEPT);
-    this.kind = kind;
-    this.inputs = ImmutableList.copyOf(inputs);
-    this.all = all;
-  }
-
-  /**
-   * Creates a SetOp by parsing serialized output.
-   */
-  protected SetOp(RelInput input) {
-    this(input.getCluster(), input.getTraitSet(), input.getInputs(),
-        SqlKind.UNION, input.getBoolean("all", false));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public abstract SetOp copy(
-      RelTraitSet traitSet,
-      List<RelNode> inputs,
-      boolean all);
-
-  @Override public SetOp copy(RelTraitSet traitSet, List<RelNode> inputs) {
-    return copy(traitSet, inputs, all);
-  }
-
-  @Override public void replaceInput(int ordinalInParent, RelNode p) {
-    final List<RelNode> newInputs = new ArrayList<RelNode>(inputs);
-    newInputs.set(ordinalInParent, p);
-    inputs = ImmutableList.copyOf(newInputs);
-    recomputeDigest();
-  }
-
-  @Override public List<RelNode> getInputs() {
-    return inputs;
-  }
-
-  @Override public RelWriter explainTerms(RelWriter pw) {
-    super.explainTerms(pw);
-    for (Ord<RelNode> ord : Ord.zip(inputs)) {
-      pw.input("input#" + ord.i, ord.e);
+    /**
+     * Creates a SetOp.
+     */
+    protected SetOp(RelOptCluster cluster, RelTraitSet traits, List<RelNode> inputs, SqlKind kind, boolean all) {
+        super(cluster, traits);
+        Preconditions.checkArgument(kind == SqlKind.UNION || kind == SqlKind.INTERSECT || kind == SqlKind.EXCEPT);
+        this.kind = kind;
+        this.inputs = ImmutableList.copyOf(inputs);
+        this.all = all;
     }
-    return pw.item("all", all);
-  }
 
-  @Override protected RelDataType deriveRowType() {
-    final List<RelDataType> inputRowTypes = Lists.transform(inputs,
-        new Function<RelNode, RelDataType>() {
-          public RelDataType apply(RelNode input) {
-            return input.getRowType();
-          }
+    /**
+     * Creates a SetOp by parsing serialized output.
+     */
+    protected SetOp(RelInput input) {
+        this(input.getCluster(), input.getTraitSet(), input.getInputs(), SqlKind.UNION, input.getBoolean("all", false));
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    public abstract SetOp copy(RelTraitSet traitSet, List<RelNode> inputs, boolean all);
+
+    @Override public SetOp copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        return copy(traitSet, inputs, all);
+    }
+
+    @Override public void replaceInput(int ordinalInParent, RelNode p) {
+        final List<RelNode> newInputs = new ArrayList<RelNode>(inputs);
+        newInputs.set(ordinalInParent, p);
+        inputs = ImmutableList.copyOf(newInputs);
+        recomputeDigest();
+    }
+
+    @Override public List<RelNode> getInputs() {
+        return inputs;
+    }
+
+    @Override public RelWriter explainTerms(RelWriter pw) {
+        super.explainTerms(pw);
+        for (Ord<RelNode> ord : Ord.zip(inputs)) {
+            pw.input("input#" + ord.i, ord.e);
+        }
+        return pw.item("all", all);
+    }
+
+    @Override protected RelDataType deriveRowType() {
+        final List<RelDataType> inputRowTypes = Lists.transform(inputs, new Function<RelNode, RelDataType>() {
+
+            public RelDataType apply(RelNode input) {
+                return input.getRowType();
+            }
         });
-    final RelDataType rowType =
-        getCluster().getTypeFactory().leastRestrictive(inputRowTypes);
-    if (rowType == null) {
-      throw new IllegalArgumentException("Cannot compute compatible row type "
-          + "for arguments to set op: "
-          + Util.sepList(inputRowTypes, ", "));
+        final RelDataType rowType = getCluster().getTypeFactory().leastRestrictive(inputRowTypes);
+        if (rowType == null) {
+            throw new IllegalArgumentException(
+                    "Cannot compute compatible row type " + "for arguments to set op: " + Util.sepList(inputRowTypes,
+                                                                                                       ", "));
+        }
+        return rowType;
     }
-    return rowType;
-  }
 
-  /**
-   * Returns whether all the inputs of this set operator have the same row
-   * type as its output row.
-   *
-   * @param compareNames Whether column names are important in the
-   *                     homogeneity comparison
-   * @return Whether all the inputs of this set operator have the same row
-   *   type as its output row
-   */
-  public boolean isHomogeneous(boolean compareNames) {
-    RelDataType unionType = getRowType();
-    for (RelNode input : getInputs()) {
-      if (!RelOptUtil.areRowTypesEqual(
-          input.getRowType(), unionType, compareNames)) {
-        return false;
-      }
+    /**
+     * Returns whether all the inputs of this set operator have the same row
+     * type as its output row.
+     *
+     * @param compareNames Whether column names are important in the
+     *                     homogeneity comparison
+     * @return Whether all the inputs of this set operator have the same row
+     * type as its output row
+     */
+    public boolean isHomogeneous(boolean compareNames) {
+        RelDataType unionType = getRowType();
+        for (RelNode input : getInputs()) {
+            if (!RelOptUtil.areRowTypesEqual(input.getRowType(), unionType, compareNames)) {
+                return false;
+            }
+        }
+        return true;
     }
-    return true;
-  }
 }
 
 // End SetOp.java

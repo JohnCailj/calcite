@@ -24,9 +24,12 @@ import org.apache.calcite.linq4j.Enumerable;
  * expression.
  */
 public interface ScannableTable extends Table {
-  /** Returns an enumerator over the rows in this Table. Each row is represented
-   * as an array of its column values. */
-  Enumerable<Object[]> scan(DataContext root);
+
+    /**
+     * Returns an enumerator over the rows in this Table. Each row is represented
+     * as an array of its column values.
+     */
+    Enumerable<Object[]> scan(DataContext root);
 }
 
 // End ScannableTable.java

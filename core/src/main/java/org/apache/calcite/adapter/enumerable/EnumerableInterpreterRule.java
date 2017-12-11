@@ -26,19 +26,18 @@ import org.apache.calcite.rel.convert.ConverterRule;
  * an {@link org.apache.calcite.adapter.enumerable.EnumerableInterpreter}.
  */
 public class EnumerableInterpreterRule extends ConverterRule {
-  public static final EnumerableInterpreterRule INSTANCE =
-      new EnumerableInterpreterRule();
 
-  private EnumerableInterpreterRule() {
-    super(RelNode.class, BindableConvention.INSTANCE,
-        EnumerableConvention.INSTANCE, "EnumerableInterpreterRule");
-  }
+    public static final EnumerableInterpreterRule INSTANCE = new EnumerableInterpreterRule();
 
-  //~ Methods ----------------------------------------------------------------
+    private EnumerableInterpreterRule() {
+        super(RelNode.class, BindableConvention.INSTANCE, EnumerableConvention.INSTANCE, "EnumerableInterpreterRule");
+    }
 
-  @Override public RelNode convert(RelNode rel) {
-    return EnumerableInterpreter.create(rel, 0.5d);
-  }
+    //~ Methods ----------------------------------------------------------------
+
+    @Override public RelNode convert(RelNode rel) {
+        return EnumerableInterpreter.create(rel, 0.5d);
+    }
 }
 
 // End EnumerableInterpreterRule.java

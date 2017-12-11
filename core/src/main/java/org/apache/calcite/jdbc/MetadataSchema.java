@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.jdbc;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.calcite.linq4j.Enumerable;
 import org.apache.calcite.linq4j.Enumerator;
 import org.apache.calcite.linq4j.function.Function1;
@@ -23,47 +24,58 @@ import org.apache.calcite.schema.Schema;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.AbstractSchema;
 
-import com.google.common.collect.ImmutableMap;
-
 import java.util.Map;
 
 import static org.apache.calcite.jdbc.CalciteMetaImpl.MetaColumn;
 import static org.apache.calcite.jdbc.CalciteMetaImpl.MetaTable;
 
-/** Schema that contains metadata tables such as "TABLES" and "COLUMNS". */
+/**
+ * Schema that contains metadata tables such as "TABLES" and "COLUMNS".
+ */
 class MetadataSchema extends AbstractSchema {
-  private static final Map<String, Table> TABLE_MAP =
-      ImmutableMap.<String, Table>of(
-          "COLUMNS",
-          new CalciteMetaImpl.MetadataTable<MetaColumn>(MetaColumn.class) {
-            public Enumerator<MetaColumn> enumerator(
-                final CalciteMetaImpl meta) {
-              final String catalog = meta.getConnection().getCatalog();
-              return meta.tables(catalog).selectMany(
-                  new Function1<MetaTable, Enumerable<MetaColumn>>() {
-                    public Enumerable<MetaColumn> apply(MetaTable table) {
-                      return meta.columns(table);
-                    }
-                  }).enumerator();
-            }
-          },
-          "TABLES",
-          new CalciteMetaImpl.MetadataTable<MetaTable>(MetaTable.class) {
-            public Enumerator<MetaTable> enumerator(CalciteMetaImpl meta) {
-              final String catalog = meta.getConnection().getCatalog();
-              return meta.tables(catalog).enumerator();
-            }
-          });
 
-  public static final Schema INSTANCE = new MetadataSchema();
+    private static final Map<String, Table> TABLE_MAP = ImmutableMap.<String, Table>of("COLUMNS",
+                                                                                       new CalciteMetaImpl.MetadataTable<MetaColumn>(
+                                                                                               MetaColumn.class) {
 
-  /** Creates the data dictionary, also called the information schema. It is a
-   * schema called "metadata" that contains tables "TABLES", "COLUMNS" etc. */
-  private MetadataSchema() {}
+                                                                                           public Enumerator<MetaColumn> enumerator(
+                                                                                                   final CalciteMetaImpl meta) {
+                                                                                               final String catalog = meta.getConnection().getCatalog();
+                                                                                               return meta.tables(
+                                                                                                       catalog).selectMany(
+                                                                                                       new Function1<MetaTable, Enumerable<MetaColumn>>() {
 
-  @Override protected Map<String, Table> getTableMap() {
-    return TABLE_MAP;
-  }
+                                                                                                           public Enumerable<MetaColumn> apply(
+                                                                                                                   MetaTable table) {
+                                                                                                               return meta.columns(
+                                                                                                                       table);
+                                                                                                           }
+                                                                                                       }).enumerator();
+                                                                                           }
+                                                                                       }, "TABLES",
+                                                                                       new CalciteMetaImpl.MetadataTable<MetaTable>(
+                                                                                               MetaTable.class) {
+
+                                                                                           public Enumerator<MetaTable> enumerator(
+                                                                                                   CalciteMetaImpl meta) {
+                                                                                               final String catalog = meta.getConnection().getCatalog();
+                                                                                               return meta.tables(
+                                                                                                       catalog).enumerator();
+                                                                                           }
+                                                                                       });
+
+    public static final Schema INSTANCE = new MetadataSchema();
+
+    /**
+     * Creates the data dictionary, also called the information schema. It is a
+     * schema called "metadata" that contains tables "TABLES", "COLUMNS" etc.
+     */
+    private MetadataSchema() {
+    }
+
+    @Override protected Map<String, Table> getTableMap() {
+        return TABLE_MAP;
+    }
 }
 
 // End MetadataSchema.java

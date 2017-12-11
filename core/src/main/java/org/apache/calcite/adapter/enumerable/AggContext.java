@@ -29,63 +29,70 @@ import java.util.List;
  * and the return value of the aggregate being implemented.
  */
 public interface AggContext {
-  /**
-   * Returns the aggregation being implemented.
-   * @return aggregation being implemented.
-   */
-  SqlAggFunction aggregation();
 
-  /**
-   * Returns the return type of the aggregate as
-   * {@link org.apache.calcite.rel.type.RelDataType}.
-   * This can be helpful to test
-   * {@link org.apache.calcite.rel.type.RelDataType#isNullable()}.
-   *
-   * @return return type of the aggregate
-   */
-  RelDataType returnRelType();
+    /**
+     * Returns the aggregation being implemented.
+     *
+     * @return aggregation being implemented.
+     */
+    SqlAggFunction aggregation();
 
-  /**
-   * Returns the return type of the aggregate as {@link java.lang.reflect.Type}.
-   * @return return type of the aggregate as {@link java.lang.reflect.Type}
-   */
-  Type returnType();
+    /**
+     * Returns the return type of the aggregate as
+     * {@link org.apache.calcite.rel.type.RelDataType}.
+     * This can be helpful to test
+     * {@link org.apache.calcite.rel.type.RelDataType#isNullable()}.
+     *
+     * @return return type of the aggregate
+     */
+    RelDataType returnRelType();
 
-  /**
-   * Returns the parameter types of the aggregate as
-   * {@link org.apache.calcite.rel.type.RelDataType}.
-   * This can be helpful to test
-   * {@link org.apache.calcite.rel.type.RelDataType#isNullable()}.
-   *
-   * @return Parameter types of the aggregate
-   */
-  List<? extends RelDataType> parameterRelTypes();
+    /**
+     * Returns the return type of the aggregate as {@link java.lang.reflect.Type}.
+     *
+     * @return return type of the aggregate as {@link java.lang.reflect.Type}
+     */
+    Type returnType();
 
-  /**
-   * Returns the parameter types of the aggregate as
-   * {@link java.lang.reflect.Type}.
-   *
-   * @return Parameter types of the aggregate
-   */
-  List<? extends Type> parameterTypes();
+    /**
+     * Returns the parameter types of the aggregate as
+     * {@link org.apache.calcite.rel.type.RelDataType}.
+     * This can be helpful to test
+     * {@link org.apache.calcite.rel.type.RelDataType#isNullable()}.
+     *
+     * @return Parameter types of the aggregate
+     */
+    List<? extends RelDataType> parameterRelTypes();
 
-  /** Returns the ordinals of the input fields that make up the key. */
-  List<Integer> keyOrdinals();
+    /**
+     * Returns the parameter types of the aggregate as
+     * {@link java.lang.reflect.Type}.
+     *
+     * @return Parameter types of the aggregate
+     */
+    List<? extends Type> parameterTypes();
 
-  /**
-   * Returns the types of the group key as
-   * {@link org.apache.calcite.rel.type.RelDataType}.
-   */
-  List<? extends RelDataType> keyRelTypes();
+    /**
+     * Returns the ordinals of the input fields that make up the key.
+     */
+    List<Integer> keyOrdinals();
 
-  /**
-   * Returns the types of the group key as
-   * {@link java.lang.reflect.Type}.
-   */
-  List<? extends Type> keyTypes();
+    /**
+     * Returns the types of the group key as
+     * {@link org.apache.calcite.rel.type.RelDataType}.
+     */
+    List<? extends RelDataType> keyRelTypes();
 
-  /** Returns the grouping sets we are aggregating on. */
-  List<ImmutableBitSet> groupSets();
+    /**
+     * Returns the types of the group key as
+     * {@link java.lang.reflect.Type}.
+     */
+    List<? extends Type> keyTypes();
+
+    /**
+     * Returns the grouping sets we are aggregating on.
+     */
+    List<ImmutableBitSet> groupSets();
 }
 
 // End AggContext.java

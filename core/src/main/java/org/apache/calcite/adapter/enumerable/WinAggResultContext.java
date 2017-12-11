@@ -24,31 +24,32 @@ import java.util.List;
 /**
  * Information for a call to
  * {@link AggImplementor#implementResult(AggContext, AggResultContext)}.
- *
  * <p>Typically, the aggregation implementation will convert
  * {@link #accumulator()} to the resulting value of the aggregation.  The
  * implementation MUST NOT destroy the contents of {@link #accumulator()}.
  */
-public interface WinAggResultContext extends AggResultContext,
-    WinAggFrameResultContext {
-  /**
-   * Returns {@link org.apache.calcite.rex.RexNode} representation of arguments.
-   * This can be useful for manual translation of required arguments with
-   * different {@link NullPolicy}.
-   * @return {@link org.apache.calcite.rex.RexNode} representation of arguments
-   */
-  List<RexNode> rexArguments();
+public interface WinAggResultContext extends AggResultContext, WinAggFrameResultContext {
 
-  /**
-   * Returns Linq4j form of arguments.
-   * The resulting value is equivalent to
-   * {@code rowTranslator().translateList(rexArguments())}.
-   * This is handy if you need just operate on argument.
-   * @param rowIndex index of the requested row. The index must be in range
-   *                 of partition's startIndex and endIndex.
-   * @return Linq4j form of arguments of the particular row
-   */
-  List<Expression> arguments(Expression rowIndex);
+    /**
+     * Returns {@link org.apache.calcite.rex.RexNode} representation of arguments.
+     * This can be useful for manual translation of required arguments with
+     * different {@link NullPolicy}.
+     *
+     * @return {@link org.apache.calcite.rex.RexNode} representation of arguments
+     */
+    List<RexNode> rexArguments();
+
+    /**
+     * Returns Linq4j form of arguments.
+     * The resulting value is equivalent to
+     * {@code rowTranslator().translateList(rexArguments())}.
+     * This is handy if you need just operate on argument.
+     *
+     * @param rowIndex index of the requested row. The index must be in range
+     *                 of partition's startIndex and endIndex.
+     * @return Linq4j form of arguments of the particular row
+     */
+    List<Expression> arguments(Expression rowIndex);
 }
 
 // End WinAggResultContext.java

@@ -27,23 +27,22 @@ import java.lang.reflect.Type;
 /**
  * Abstract base class for implementing {@link org.apache.calcite.schema.Table}.
  */
-public abstract class AbstractQueryableTable extends AbstractTable
-    implements QueryableTable {
-  protected final Type elementType;
+public abstract class AbstractQueryableTable extends AbstractTable implements QueryableTable {
 
-  protected AbstractQueryableTable(Type elementType) {
-    super();
-    this.elementType = elementType;
-  }
+    protected final Type elementType;
 
-  public Type getElementType() {
-    return elementType;
-  }
+    protected AbstractQueryableTable(Type elementType) {
+        super();
+        this.elementType = elementType;
+    }
 
-  public Expression getExpression(SchemaPlus schema, String tableName,
-      Class clazz) {
-    return Schemas.tableExpression(schema, elementType, tableName, clazz);
-  }
+    public Type getElementType() {
+        return elementType;
+    }
+
+    public Expression getExpression(SchemaPlus schema, String tableName, Class clazz) {
+        return Schemas.tableExpression(schema, elementType, tableName, clazz);
+    }
 }
 
 // End AbstractQueryableTable.java

@@ -26,34 +26,33 @@ import org.apache.calcite.sql.fun.SqlFloorFunction;
 /**
  * Defines how a SQL parse tree should be unparsed to SQL
  * for execution against a Postgresql database.
- *
  * <p>It reverts to the unparse method of the operator
  * if this database's implementation is standard.
  */
 public class PostgresqlHandler extends SqlDialect.BaseHandler {
-  public static final PostgresqlHandler INSTANCE = new PostgresqlHandler();
 
-  @Override public void unparseCall(SqlWriter writer, SqlCall call,
-      int leftPrec, int rightPrec) {
-    switch (call.getKind()) {
-    case FLOOR:
-      if (call.operandCount() != 2) {
-        super.unparseCall(writer, call, leftPrec, rightPrec);
-        return;
-      }
+    public static final PostgresqlHandler INSTANCE = new PostgresqlHandler();
 
-      final SqlLiteral timeUnitNode = call.operand(1);
-      final TimeUnitRange timeUnit = timeUnitNode.getValueAs(TimeUnitRange.class);
+    @Override public void unparseCall(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        switch (call.getKind()) {
+            case FLOOR:
+                if (call.operandCount() != 2) {
+                    super.unparseCall(writer, call, leftPrec, rightPrec);
+                    return;
+                }
 
-      SqlCall call2 = SqlFloorFunction.replaceTimeUnitOperand(call, timeUnit.name(),
-          timeUnitNode.getParserPosition());
-      SqlFloorFunction.unparseDatetimeFunction(writer, call2, "DATE_TRUNC", false);
-      break;
+                final SqlLiteral timeUnitNode = call.operand(1);
+                final TimeUnitRange timeUnit = timeUnitNode.getValueAs(TimeUnitRange.class);
 
-    default:
-      super.unparseCall(writer, call, leftPrec, rightPrec);
+                SqlCall call2 = SqlFloorFunction.replaceTimeUnitOperand(call, timeUnit.name(),
+                                                                        timeUnitNode.getParserPosition());
+                SqlFloorFunction.unparseDatetimeFunction(writer, call2, "DATE_TRUNC", false);
+                break;
+
+            default:
+                super.unparseCall(writer, call, leftPrec, rightPrec);
+        }
     }
-  }
 }
 
 // End PostgresqlHandler.java

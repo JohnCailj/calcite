@@ -26,21 +26,18 @@ import org.apache.calcite.sql.type.SqlTypeUtil;
  * [&lt;expr&gt;, ...]</code>.
  */
 public class SqlArrayValueConstructor extends SqlMultisetValueConstructor {
-  public SqlArrayValueConstructor() {
-    super("ARRAY", SqlKind.ARRAY_VALUE_CONSTRUCTOR);
-  }
 
-  @Override public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
-    RelDataType type =
-        getComponentType(
-            opBinding.getTypeFactory(),
-            opBinding.collectOperandTypes());
-    if (null == type) {
-      return null;
+    public SqlArrayValueConstructor() {
+        super("ARRAY", SqlKind.ARRAY_VALUE_CONSTRUCTOR);
     }
-    return SqlTypeUtil.createArrayType(
-        opBinding.getTypeFactory(), type, false);
-  }
+
+    @Override public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+        RelDataType type = getComponentType(opBinding.getTypeFactory(), opBinding.collectOperandTypes());
+        if (null == type) {
+            return null;
+        }
+        return SqlTypeUtil.createArrayType(opBinding.getTypeFactory(), type, false);
+    }
 }
 
 // End SqlArrayValueConstructor.java

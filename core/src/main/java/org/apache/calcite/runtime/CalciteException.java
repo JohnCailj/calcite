@@ -23,43 +23,39 @@ import org.slf4j.LoggerFactory;
 // resource generation can use reflection.  That means it must have no
 // dependencies on other Calcite code.
 
-
 /**
  * Base class for all exceptions originating from Farrago.
  *
  * @see CalciteContextException
  */
 public class CalciteException extends RuntimeException {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  /**
-   * SerialVersionUID created with JDK 1.5 serialver tool. Prevents
-   * incompatible class conflict when serialized from JDK 1.5-built server to
-   * JDK 1.4-built client.
-   */
-  private static final long serialVersionUID = -1314522633397794178L;
+    /**
+     * SerialVersionUID created with JDK 1.5 serialver tool. Prevents
+     * incompatible class conflict when serialized from JDK 1.5-built server to
+     * JDK 1.4-built client.
+     */
+    private static final long serialVersionUID = -1314522633397794178L;
 
-  private static final Logger LOGGER =
-      LoggerFactory.getLogger(CalciteException.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CalciteException.class);
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a new CalciteException object.
-   *
-   * @param message error message
-   * @param cause   underlying cause
-   */
-  public CalciteException(
-      String message,
-      Throwable cause) {
-    super(message, cause);
+    /**
+     * Creates a new CalciteException object.
+     *
+     * @param message error message
+     * @param cause   underlying cause
+     */
+    public CalciteException(String message, Throwable cause) {
+        super(message, cause);
 
-    // TODO: Force the caller to pass in a Logger as a trace argument for
-    // better context.  Need to extend ResGen for this.
-    LOGGER.trace("CalciteException", this);
-    LOGGER.error(toString());
-  }
+        // TODO: Force the caller to pass in a Logger as a trace argument for
+        // better context.  Need to extend ResGen for this.
+        LOGGER.trace("CalciteException", this);
+        LOGGER.error(toString());
+    }
 }
 
 // End CalciteException.java

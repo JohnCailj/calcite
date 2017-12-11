@@ -20,22 +20,22 @@ package org.apache.calcite.materialize;
  * Implementation of {@link LatticeStatisticProvider} that delegates
  * to an underlying provider.
  */
-public class DelegatingLatticeStatisticProvider
-    implements LatticeStatisticProvider {
-  protected final LatticeStatisticProvider provider;
+public class DelegatingLatticeStatisticProvider implements LatticeStatisticProvider {
 
-  /** Creates a DelegatingLatticeStatisticProvider.
-   *
-   * @param provider Provider to which to delegate otherwise unhandled requests
-   */
-  protected DelegatingLatticeStatisticProvider(
-      LatticeStatisticProvider provider) {
-    this.provider = provider;
-  }
+    protected final LatticeStatisticProvider provider;
 
-  public int cardinality(Lattice lattice, Lattice.Column column) {
-    return provider.cardinality(lattice, column);
-  }
+    /**
+     * Creates a DelegatingLatticeStatisticProvider.
+     *
+     * @param provider Provider to which to delegate otherwise unhandled requests
+     */
+    protected DelegatingLatticeStatisticProvider(LatticeStatisticProvider provider) {
+        this.provider = provider;
+    }
+
+    public int cardinality(Lattice lattice, Lattice.Column column) {
+        return provider.cardinality(lattice, column);
+    }
 }
 
 // End DelegatingLatticeStatisticProvider.java

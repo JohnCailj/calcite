@@ -22,22 +22,28 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  * Output format for {@code EXPLAIN PLAN} statement.
  */
 public enum SqlExplainFormat {
-  /** Indicates that the plan should be output as a piece of indented text. */
-  TEXT,
+    /**
+     * Indicates that the plan should be output as a piece of indented text.
+     */
+    TEXT,
 
-  /** Indicates that the plan should be output in XML format. */
-  XML,
+    /**
+     * Indicates that the plan should be output in XML format.
+     */
+    XML,
 
-  /** Indicates that the plan should be output in JSON format. */
-  JSON;
+    /**
+     * Indicates that the plan should be output in JSON format.
+     */
+    JSON;
 
-  /**
-   * Creates a parse-tree node representing an occurrence of this symbol at
-   * a particular position in the parsed text.
-   */
-  public SqlLiteral symbol(SqlParserPos pos) {
-    return SqlLiteral.createSymbol(this, pos);
-  }
+    /**
+     * Creates a parse-tree node representing an occurrence of this symbol at
+     * a particular position in the parsed text.
+     */
+    public SqlLiteral symbol(SqlParserPos pos) {
+        return SqlLiteral.createSymbol(this, pos);
+    }
 }
 
 // End SqlExplainFormat.java

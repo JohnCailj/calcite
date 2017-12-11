@@ -27,34 +27,34 @@ import org.apache.calcite.rel.logical.LogicalUnion;
  * consists of only one input.
  */
 public class UnionEliminatorRule extends RelOptRule {
-  public static final UnionEliminatorRule INSTANCE =
-      new UnionEliminatorRule(LogicalUnion.class);
 
-  //~ Constructors -----------------------------------------------------------
+    public static final UnionEliminatorRule INSTANCE = new UnionEliminatorRule(LogicalUnion.class);
 
-  /**
-   * Creates a UnionEliminatorRule.
-   */
-  private UnionEliminatorRule(Class<? extends Union> clazz) {
-    super(operand(clazz, any()));
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    Union union = call.rel(0);
-    if (union.getInputs().size() != 1) {
-      return;
-    }
-    if (!union.all) {
-      return;
+    /**
+     * Creates a UnionEliminatorRule.
+     */
+    private UnionEliminatorRule(Class<? extends Union> clazz) {
+        super(operand(clazz, any()));
     }
 
-    // REVIEW jvs 14-Mar-2006:  why don't we need to register
-    // the equivalence here like we do in AggregateRemoveRule?
+    //~ Methods ----------------------------------------------------------------
 
-    call.transformTo(union.getInputs().get(0));
-  }
+    public void onMatch(RelOptRuleCall call) {
+        Union union = call.rel(0);
+        if (union.getInputs().size() != 1) {
+            return;
+        }
+        if (!union.all) {
+            return;
+        }
+
+        // REVIEW jvs 14-Mar-2006:  why don't we need to register
+        // the equivalence here like we do in AggregateRemoveRule?
+
+        call.transformTo(union.getInputs().get(0));
+    }
 }
 
 // End UnionEliminatorRule.java

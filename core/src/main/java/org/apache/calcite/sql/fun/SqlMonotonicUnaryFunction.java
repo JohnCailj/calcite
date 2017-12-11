@@ -30,29 +30,19 @@ import org.apache.calcite.sql.validate.SqlMonotonicity;
  * monotonic inputs.
  */
 public class SqlMonotonicUnaryFunction extends SqlFunction {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  protected SqlMonotonicUnaryFunction(
-      String name,
-      SqlKind kind,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker,
-      SqlFunctionCategory funcType) {
-    super(
-        name,
-        kind,
-        returnTypeInference,
-        operandTypeInference,
-        operandTypeChecker,
-        funcType);
-  }
+    protected SqlMonotonicUnaryFunction(String name, SqlKind kind, SqlReturnTypeInference returnTypeInference,
+                                        SqlOperandTypeInference operandTypeInference,
+                                        SqlOperandTypeChecker operandTypeChecker, SqlFunctionCategory funcType) {
+        super(name, kind, returnTypeInference, operandTypeInference, operandTypeChecker, funcType);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
-    return call.getOperandMonotonicity(0).unstrict();
-  }
+    @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
+        return call.getOperandMonotonicity(0).unstrict();
+    }
 }
 
 // End SqlMonotonicUnaryFunction.java

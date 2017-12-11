@@ -17,71 +17,47 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.sql.type.OperandTypes;
-import org.apache.calcite.sql.type.ReturnTypes;
-import org.apache.calcite.sql.type.SqlOperandTypeChecker;
-import org.apache.calcite.sql.type.SqlOperandTypeInference;
-import org.apache.calcite.sql.type.SqlReturnTypeInference;
+import org.apache.calcite.sql.type.*;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 
 /**
  * Generic operator for nodes with internal syntax.
- *
  * <p>If you do not override {@link #getSyntax()} or
  * {@link #unparse(SqlWriter, SqlCall, int, int)}, they will be unparsed using
  * function syntax, {@code F(arg1, arg2, ...)}. This may be OK for operators
  * that never appear in SQL, only as structural elements in an abstract syntax
  * tree.
- *
  * <p>You can use this operator, without creating a sub-class, for
  * non-expression nodes. Validate will validate the arguments, but will not
  * attempt to deduce a type.
  */
 public class SqlInternalOperator extends SqlSpecialOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlInternalOperator(
-      String name,
-      SqlKind kind) {
-    this(name, kind, 2);
-  }
+    public SqlInternalOperator(String name, SqlKind kind) {
+        this(name, kind, 2);
+    }
 
-  public SqlInternalOperator(
-      String name,
-      SqlKind kind,
-      int prec) {
-    this(name, kind, prec, true, ReturnTypes.ARG0, null, OperandTypes.VARIADIC);
-  }
+    public SqlInternalOperator(String name, SqlKind kind, int prec) {
+        this(name, kind, prec, true, ReturnTypes.ARG0, null, OperandTypes.VARIADIC);
+    }
 
-  public SqlInternalOperator(
-      String name,
-      SqlKind kind,
-      int prec,
-      boolean isLeftAssoc,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker) {
-    super(
-        name,
-        kind,
-        prec,
-        isLeftAssoc,
-        returnTypeInference,
-        operandTypeInference,
-        operandTypeChecker);
-  }
+    public SqlInternalOperator(String name, SqlKind kind, int prec, boolean isLeftAssoc,
+                               SqlReturnTypeInference returnTypeInference, SqlOperandTypeInference operandTypeInference,
+                               SqlOperandTypeChecker operandTypeChecker) {
+        super(name, kind, prec, isLeftAssoc, returnTypeInference, operandTypeInference, operandTypeChecker);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public SqlSyntax getSyntax() {
-    return SqlSyntax.FUNCTION;
-  }
+    public SqlSyntax getSyntax() {
+        return SqlSyntax.FUNCTION;
+    }
 
-  @Override public RelDataType deriveType(SqlValidator validator,
-      SqlValidatorScope scope, SqlCall call) {
-    return validateOperands(validator, scope, call);
-  }
+    @Override public RelDataType deriveType(SqlValidator validator, SqlValidatorScope scope, SqlCall call) {
+        return validateOperands(validator, scope, call);
+    }
 }
 
 // End SqlInternalOperator.java

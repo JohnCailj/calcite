@@ -18,7 +18,6 @@ package org.apache.calcite.adapter.enumerable;
 
 import org.apache.calcite.plan.RelOptRule;
 import org.apache.calcite.util.trace.CalciteTrace;
-
 import org.slf4j.Logger;
 
 /**
@@ -26,78 +25,57 @@ import org.slf4j.Logger;
  * {@link EnumerableConvention enumerable calling convention}.
  */
 public class EnumerableRules {
-  protected static final Logger LOGGER = CalciteTrace.getPlannerTracer();
 
-  public static final boolean BRIDGE_METHODS = true;
+    protected static final Logger LOGGER = CalciteTrace.getPlannerTracer();
 
-  public static final RelOptRule ENUMERABLE_JOIN_RULE =
-      new EnumerableJoinRule();
+    public static final boolean BRIDGE_METHODS = true;
 
-  public static final RelOptRule ENUMERABLE_MERGE_JOIN_RULE =
-      new EnumerableMergeJoinRule();
+    public static final RelOptRule ENUMERABLE_JOIN_RULE = new EnumerableJoinRule();
 
-  public static final RelOptRule ENUMERABLE_SEMI_JOIN_RULE =
-      new EnumerableSemiJoinRule();
+    public static final RelOptRule ENUMERABLE_MERGE_JOIN_RULE = new EnumerableMergeJoinRule();
 
-  public static final RelOptRule ENUMERABLE_CORRELATE_RULE =
-      new EnumerableCorrelateRule();
+    public static final RelOptRule ENUMERABLE_SEMI_JOIN_RULE = new EnumerableSemiJoinRule();
 
-  private EnumerableRules() {
-  }
+    public static final RelOptRule ENUMERABLE_CORRELATE_RULE = new EnumerableCorrelateRule();
 
-  public static final EnumerableProjectRule ENUMERABLE_PROJECT_RULE =
-      new EnumerableProjectRule();
+    private EnumerableRules() {
+    }
 
-  public static final EnumerableFilterRule ENUMERABLE_FILTER_RULE =
-      new EnumerableFilterRule();
+    public static final EnumerableProjectRule ENUMERABLE_PROJECT_RULE = new EnumerableProjectRule();
 
-  public static final EnumerableCalcRule ENUMERABLE_CALC_RULE =
-      new EnumerableCalcRule();
+    public static final EnumerableFilterRule ENUMERABLE_FILTER_RULE = new EnumerableFilterRule();
 
-  public static final EnumerableAggregateRule ENUMERABLE_AGGREGATE_RULE =
-      new EnumerableAggregateRule();
+    public static final EnumerableCalcRule ENUMERABLE_CALC_RULE = new EnumerableCalcRule();
 
-  public static final EnumerableSortRule ENUMERABLE_SORT_RULE =
-      new EnumerableSortRule();
+    public static final EnumerableAggregateRule ENUMERABLE_AGGREGATE_RULE = new EnumerableAggregateRule();
 
-  public static final EnumerableLimitRule ENUMERABLE_LIMIT_RULE =
-      new EnumerableLimitRule();
+    public static final EnumerableSortRule ENUMERABLE_SORT_RULE = new EnumerableSortRule();
 
-  public static final EnumerableUnionRule ENUMERABLE_UNION_RULE =
-      new EnumerableUnionRule();
+    public static final EnumerableLimitRule ENUMERABLE_LIMIT_RULE = new EnumerableLimitRule();
 
-  public static final EnumerableIntersectRule ENUMERABLE_INTERSECT_RULE =
-      new EnumerableIntersectRule();
+    public static final EnumerableUnionRule ENUMERABLE_UNION_RULE = new EnumerableUnionRule();
 
-  public static final EnumerableMinusRule ENUMERABLE_MINUS_RULE =
-      new EnumerableMinusRule();
+    public static final EnumerableIntersectRule ENUMERABLE_INTERSECT_RULE = new EnumerableIntersectRule();
 
-  public static final EnumerableTableModifyRule ENUMERABLE_TABLE_MODIFICATION_RULE =
-      new EnumerableTableModifyRule();
+    public static final EnumerableMinusRule ENUMERABLE_MINUS_RULE = new EnumerableMinusRule();
 
-  public static final EnumerableValuesRule ENUMERABLE_VALUES_RULE =
-      new EnumerableValuesRule();
+    public static final EnumerableTableModifyRule ENUMERABLE_TABLE_MODIFICATION_RULE = new EnumerableTableModifyRule();
 
-  public static final EnumerableWindowRule ENUMERABLE_WINDOW_RULE =
-      new EnumerableWindowRule();
+    public static final EnumerableValuesRule ENUMERABLE_VALUES_RULE = new EnumerableValuesRule();
 
-  public static final EnumerableCollectRule ENUMERABLE_COLLECT_RULE =
-      new EnumerableCollectRule();
+    public static final EnumerableWindowRule ENUMERABLE_WINDOW_RULE = new EnumerableWindowRule();
 
-  public static final EnumerableUncollectRule ENUMERABLE_UNCOLLECT_RULE =
-      new EnumerableUncollectRule();
+    public static final EnumerableCollectRule ENUMERABLE_COLLECT_RULE = new EnumerableCollectRule();
 
-  public static final EnumerableFilterToCalcRule ENUMERABLE_FILTER_TO_CALC_RULE =
-      new EnumerableFilterToCalcRule();
+    public static final EnumerableUncollectRule ENUMERABLE_UNCOLLECT_RULE = new EnumerableUncollectRule();
 
-  public static final EnumerableProjectToCalcRule ENUMERABLE_PROJECT_TO_CALC_RULE =
-      new EnumerableProjectToCalcRule();
+    public static final EnumerableFilterToCalcRule ENUMERABLE_FILTER_TO_CALC_RULE = new EnumerableFilterToCalcRule();
 
-  public static final EnumerableTableScanRule ENUMERABLE_TABLE_SCAN_RULE =
-      new EnumerableTableScanRule();
+    public static final EnumerableProjectToCalcRule ENUMERABLE_PROJECT_TO_CALC_RULE = new EnumerableProjectToCalcRule();
 
-  public static final EnumerableTableFunctionScanRule ENUMERABLE_TABLE_FUNCTION_SCAN_RULE =
-      new EnumerableTableFunctionScanRule();
+    public static final EnumerableTableScanRule ENUMERABLE_TABLE_SCAN_RULE = new EnumerableTableScanRule();
+
+    public static final EnumerableTableFunctionScanRule ENUMERABLE_TABLE_FUNCTION_SCAN_RULE = new EnumerableTableFunctionScanRule();
 }
 
 // End EnumerableRules.java

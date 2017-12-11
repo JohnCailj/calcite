@@ -16,26 +16,25 @@
  */
 package org.apache.calcite.rel.type;
 
-
 /**
  * Specific type of RelRecordType that corresponds to a dynamic table,
  * where columns are created as they are requested.
  */
 public abstract class DynamicRecordType extends RelDataTypeImpl {
 
-  // The prefix string for dynamic star column name
-  public static final String DYNAMIC_STAR_PREFIX = "**";
+    // The prefix string for dynamic star column name
+    public static final String DYNAMIC_STAR_PREFIX = "**";
 
-  public boolean isDynamicStruct() {
-    return true;
-  }
+    public boolean isDynamicStruct() {
+        return true;
+    }
 
-  /**
-   * Returns true if the column name starts with DYNAMIC_STAR_PREFIX.
-   */
-  public static boolean isDynamicStarColName(String name) {
-    return name.startsWith(DYNAMIC_STAR_PREFIX);
-  }
+    /**
+     * Returns true if the column name starts with DYNAMIC_STAR_PREFIX.
+     */
+    public static boolean isDynamicStarColName(String name) {
+        return name.startsWith(DYNAMIC_STAR_PREFIX);
+    }
 
 }
 

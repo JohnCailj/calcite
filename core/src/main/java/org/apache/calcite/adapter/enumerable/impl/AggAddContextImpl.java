@@ -26,15 +26,15 @@ import java.util.List;
  * Implementation of
  * {@link org.apache.calcite.adapter.enumerable.AggAddContext}.
  */
-public abstract class AggAddContextImpl extends AggResultContextImpl
-    implements AggAddContext {
-  public AggAddContextImpl(BlockBuilder block, List<Expression> accumulator) {
-    super(block, null, accumulator, null, null);
-  }
+public abstract class AggAddContextImpl extends AggResultContextImpl implements AggAddContext {
 
-  public final List<Expression> arguments() {
-    return rowTranslator().translateList(rexArguments());
-  }
+    public AggAddContextImpl(BlockBuilder block, List<Expression> accumulator) {
+        super(block, null, accumulator, null, null);
+    }
+
+    public final List<Expression> arguments() {
+        return rowTranslator().translateList(rexArguments());
+    }
 }
 
 // End AggAddContextImpl.java

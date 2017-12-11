@@ -20,43 +20,44 @@ import org.apache.calcite.rel.RelDistribution;
 
 import java.util.Objects;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Exchange}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Exchange}.
+ */
 public class MutableExchange extends MutableSingleRel {
-  public final RelDistribution distribution;
 
-  private MutableExchange(MutableRel input, RelDistribution distribution) {
-    super(MutableRelType.EXCHANGE, input.rowType, input);
-    this.distribution = distribution;
-  }
+    public final RelDistribution distribution;
 
-  /**
-   * Creates a MutableExchange.
-   *
-   * @param input         Input relational expression
-   * @param distribution  Distribution specification
-   */
-  public static MutableExchange of(MutableRel input, RelDistribution distribution) {
-    return new MutableExchange(input, distribution);
-  }
+    private MutableExchange(MutableRel input, RelDistribution distribution) {
+        super(MutableRelType.EXCHANGE, input.rowType, input);
+        this.distribution = distribution;
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableExchange
-        && distribution.equals(((MutableExchange) obj).distribution)
-        && input.equals(((MutableExchange) obj).input);
-  }
+    /**
+     * Creates a MutableExchange.
+     *
+     * @param input        Input relational expression
+     * @param distribution Distribution specification
+     */
+    public static MutableExchange of(MutableRel input, RelDistribution distribution) {
+        return new MutableExchange(input, distribution);
+    }
 
-  @Override public int hashCode() {
-    return Objects.hash(input, distribution);
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof MutableExchange && distribution.equals(
+                ((MutableExchange) obj).distribution) && input.equals(((MutableExchange) obj).input);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Exchange(distribution: ").append(distribution).append(")");
-  }
+    @Override public int hashCode() {
+        return Objects.hash(input, distribution);
+    }
 
-  @Override public MutableRel clone() {
-    return MutableExchange.of(input.clone(), distribution);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Exchange(distribution: ").append(distribution).append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableExchange.of(input.clone(), distribution);
+    }
 }
 
 // End MutableExchange.java

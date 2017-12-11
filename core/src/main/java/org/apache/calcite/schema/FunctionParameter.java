@@ -21,55 +21,54 @@ import org.apache.calcite.rel.type.RelDataTypeFactory;
 
 /**
  * Parameter to a {@link Function}.
- *
  * <p>NOTE: We'd have called it {@code Parameter} but the overlap with
  * {@link java.lang.reflect.Parameter} was too confusing.</p>
  */
 public interface FunctionParameter {
-  /** Function to get the name of a parameter. */
-  com.google.common.base.Function<FunctionParameter, String> NAME_FN =
-      new com.google.common.base.Function<FunctionParameter, String>() {
+
+    /**
+     * Function to get the name of a parameter.
+     */
+    com.google.common.base.Function<FunctionParameter, String> NAME_FN = new com.google.common.base.Function<FunctionParameter, String>() {
+
         public String apply(FunctionParameter p) {
-          return p.getName();
+            return p.getName();
         }
-      };
+    };
 
-  /**
-   * Zero-based ordinal of this parameter within the member's parameter
-   * list.
-   *
-   * @return Parameter ordinal
-   */
-  int getOrdinal();
+    /**
+     * Zero-based ordinal of this parameter within the member's parameter
+     * list.
+     *
+     * @return Parameter ordinal
+     */
+    int getOrdinal();
 
-  /**
-   * Name of the parameter.
-   *
-   * @return Parameter name
-   */
-  String getName();
+    /**
+     * Name of the parameter.
+     *
+     * @return Parameter name
+     */
+    String getName();
 
-  /**
-   * Returns the type of this parameter.
-   *
-   * @param typeFactory Type factory to be used to create the type
-   *
-   * @return Parameter type.
-   */
-  RelDataType getType(RelDataTypeFactory typeFactory);
+    /**
+     * Returns the type of this parameter.
+     *
+     * @param typeFactory Type factory to be used to create the type
+     * @return Parameter type.
+     */
+    RelDataType getType(RelDataTypeFactory typeFactory);
 
-  /**
-   * Returns whether this parameter is optional.
-   *
-   * <p>If true, the value of the parameter can be supplied using the DEFAULT
-   * SQL keyword, or it can be omitted from a function called using argument
-   * assignment, or the function can be called with fewer parameters (if all
-   * parameters after it are optional too).
-   *
-   * <p>If a parameter is optional its default value is NULL. We may in future
-   * allow functions to specify other default values.
-   */
-  boolean isOptional();
+    /**
+     * Returns whether this parameter is optional.
+     * <p>If true, the value of the parameter can be supplied using the DEFAULT
+     * SQL keyword, or it can be omitted from a function called using argument
+     * assignment, or the function can be called with fewer parameters (if all
+     * parameters after it are optional too).
+     * <p>If a parameter is optional its default value is NULL. We may in future
+     * allow functions to specify other default values.
+     */
+    boolean isOptional();
 }
 
 // End FunctionParameter.java

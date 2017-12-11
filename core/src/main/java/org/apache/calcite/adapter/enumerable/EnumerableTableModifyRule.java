@@ -23,36 +23,31 @@ import org.apache.calcite.rel.convert.ConverterRule;
 import org.apache.calcite.rel.logical.LogicalTableModify;
 import org.apache.calcite.schema.ModifiableTable;
 
-/** Planner rule that converts a
+/**
+ * Planner rule that converts a
  * {@link org.apache.calcite.rel.logical.LogicalTableModify}
  * relational expression
- * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}. */
+ * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}.
+ */
 public class EnumerableTableModifyRule extends ConverterRule {
-  EnumerableTableModifyRule() {
-    super(LogicalTableModify.class, Convention.NONE,
-        EnumerableConvention.INSTANCE, "EnumerableTableModificationRule");
-  }
 
-  @Override public RelNode convert(RelNode rel) {
-    final LogicalTableModify modify =
-        (LogicalTableModify) rel;
-    final ModifiableTable modifiableTable =
-        modify.getTable().unwrap(ModifiableTable.class);
-    if (modifiableTable == null) {
-      return null;
+    EnumerableTableModifyRule() {
+        super(LogicalTableModify.class, Convention.NONE, EnumerableConvention.INSTANCE,
+              "EnumerableTableModificationRule");
     }
-    final RelTraitSet traitSet =
-        modify.getTraitSet().replace(EnumerableConvention.INSTANCE);
-    return new EnumerableTableModify(
-        modify.getCluster(), traitSet,
-        modify.getTable(),
-        modify.getCatalogReader(),
-        convert(modify.getInput(), traitSet),
-        modify.getOperation(),
-        modify.getUpdateColumnList(),
-        modify.getSourceExpressionList(),
-        modify.isFlattened());
-  }
+
+    @Override public RelNode convert(RelNode rel) {
+        final LogicalTableModify modify = (LogicalTableModify) rel;
+        final ModifiableTable modifiableTable = modify.getTable().unwrap(ModifiableTable.class);
+        if (modifiableTable == null) {
+            return null;
+        }
+        final RelTraitSet traitSet = modify.getTraitSet().replace(EnumerableConvention.INSTANCE);
+        return new EnumerableTableModify(modify.getCluster(), traitSet, modify.getTable(), modify.getCatalogReader(),
+                                         convert(modify.getInput(), traitSet), modify.getOperation(),
+                                         modify.getUpdateColumnList(), modify.getSourceExpressionList(),
+                                         modify.isFlattened());
+    }
 }
 
 // End EnumerableTableModifyRule.java

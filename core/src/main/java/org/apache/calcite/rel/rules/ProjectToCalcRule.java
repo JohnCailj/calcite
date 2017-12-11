@@ -27,7 +27,6 @@ import org.apache.calcite.rex.RexProgram;
  * Rule to convert a
  * {@link org.apache.calcite.rel.logical.LogicalProject} to a
  * {@link org.apache.calcite.rel.logical.LogicalCalc}
- *
  * <p>The rule does not fire if the child is a
  * {@link org.apache.calcite.rel.logical.LogicalProject},
  * {@link org.apache.calcite.rel.logical.LogicalFilter} or
@@ -38,31 +37,26 @@ import org.apache.calcite.rex.RexProgram;
  * @see FilterToCalcRule
  */
 public class ProjectToCalcRule extends RelOptRule {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  public static final ProjectToCalcRule INSTANCE = new ProjectToCalcRule();
+    public static final ProjectToCalcRule INSTANCE = new ProjectToCalcRule();
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  private ProjectToCalcRule() {
-    super(operand(LogicalProject.class, any()));
-  }
+    private ProjectToCalcRule() {
+        super(operand(LogicalProject.class, any()));
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public void onMatch(RelOptRuleCall call) {
-    final LogicalProject project = call.rel(0);
-    final RelNode input = project.getInput();
-    final RexProgram program =
-        RexProgram.create(
-            input.getRowType(),
-            project.getProjects(),
-            null,
-            project.getRowType(),
-            project.getCluster().getRexBuilder());
-    final LogicalCalc calc = LogicalCalc.create(input, program);
-    call.transformTo(calc);
-  }
+    public void onMatch(RelOptRuleCall call) {
+        final LogicalProject project = call.rel(0);
+        final RelNode input = project.getInput();
+        final RexProgram program = RexProgram.create(input.getRowType(), project.getProjects(), null,
+                                                     project.getRowType(), project.getCluster().getRexBuilder());
+        final LogicalCalc calc = LogicalCalc.create(input, program);
+        call.transformTo(calc);
+    }
 }
 
 // End ProjectToCalcRule.java

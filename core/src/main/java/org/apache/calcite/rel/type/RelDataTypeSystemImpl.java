@@ -19,230 +19,225 @@ package org.apache.calcite.rel.type;
 import org.apache.calcite.sql.type.SqlTypeFamily;
 import org.apache.calcite.sql.type.SqlTypeName;
 
-/** Default implementation of
+/**
+ * Default implementation of
  * {@link org.apache.calcite.rel.type.RelDataTypeSystem},
  * providing parameters from the SQL standard.
- *
  * <p>To implement other type systems, create a derived class and override
  * values as needed.
- *
  * <table border='1'>
- *   <caption>Parameter values</caption>
- *   <tr><th>Parameter</th>         <th>Value</th></tr>
- *   <tr><td>MAX_NUMERIC_SCALE</td> <td>19</td></tr>
+ * <caption>Parameter values</caption>
+ * <tr><th>Parameter</th>         <th>Value</th></tr>
+ * <tr><td>MAX_NUMERIC_SCALE</td> <td>19</td></tr>
  * </table>
  */
 public abstract class RelDataTypeSystemImpl implements RelDataTypeSystem {
-  public int getMaxScale(SqlTypeName typeName) {
-    switch (typeName) {
-    case DECIMAL:
-      return getMaxNumericScale();
-    case INTERVAL_YEAR:
-    case INTERVAL_YEAR_MONTH:
-    case INTERVAL_MONTH:
-    case INTERVAL_DAY:
-    case INTERVAL_DAY_HOUR:
-    case INTERVAL_DAY_MINUTE:
-    case INTERVAL_DAY_SECOND:
-    case INTERVAL_HOUR:
-    case INTERVAL_HOUR_MINUTE:
-    case INTERVAL_HOUR_SECOND:
-    case INTERVAL_MINUTE:
-    case INTERVAL_MINUTE_SECOND:
-    case INTERVAL_SECOND:
-      return SqlTypeName.MAX_INTERVAL_FRACTIONAL_SECOND_PRECISION;
-    default:
-      return -1;
+
+    public int getMaxScale(SqlTypeName typeName) {
+        switch (typeName) {
+            case DECIMAL:
+                return getMaxNumericScale();
+            case INTERVAL_YEAR:
+            case INTERVAL_YEAR_MONTH:
+            case INTERVAL_MONTH:
+            case INTERVAL_DAY:
+            case INTERVAL_DAY_HOUR:
+            case INTERVAL_DAY_MINUTE:
+            case INTERVAL_DAY_SECOND:
+            case INTERVAL_HOUR:
+            case INTERVAL_HOUR_MINUTE:
+            case INTERVAL_HOUR_SECOND:
+            case INTERVAL_MINUTE:
+            case INTERVAL_MINUTE_SECOND:
+            case INTERVAL_SECOND:
+                return SqlTypeName.MAX_INTERVAL_FRACTIONAL_SECOND_PRECISION;
+            default:
+                return -1;
+        }
     }
-  }
 
-  @Override public int getDefaultPrecision(SqlTypeName typeName) {
-    // Following BasicSqlType precision as the default
-    switch (typeName) {
-    case CHAR:
-    case BINARY:
-      return 1;
-    case VARCHAR:
-    case VARBINARY:
-      return RelDataType.PRECISION_NOT_SPECIFIED;
-    case DECIMAL:
-      return getMaxNumericPrecision();
-    case INTERVAL_YEAR:
-    case INTERVAL_YEAR_MONTH:
-    case INTERVAL_MONTH:
-    case INTERVAL_DAY:
-    case INTERVAL_DAY_HOUR:
-    case INTERVAL_DAY_MINUTE:
-    case INTERVAL_DAY_SECOND:
-    case INTERVAL_HOUR:
-    case INTERVAL_HOUR_MINUTE:
-    case INTERVAL_HOUR_SECOND:
-    case INTERVAL_MINUTE:
-    case INTERVAL_MINUTE_SECOND:
-    case INTERVAL_SECOND:
-      return SqlTypeName.DEFAULT_INTERVAL_START_PRECISION;
-    case BOOLEAN:
-      return 1;
-    case TINYINT:
-      return 3;
-    case SMALLINT:
-      return 5;
-    case INTEGER:
-      return 10;
-    case BIGINT:
-      return 19;
-    case REAL:
-      return 7;
-    case FLOAT:
-    case DOUBLE:
-      return 15;
-    case TIME:
-    case TIME_WITH_LOCAL_TIME_ZONE:
-    case DATE:
-      return 0; // SQL99 part 2 section 6.1 syntax rule 30
-    case TIMESTAMP:
-    case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
-      // farrago supports only 0 (see
-      // SqlTypeName.getDefaultPrecision), but it should be 6
-      // (microseconds) per SQL99 part 2 section 6.1 syntax rule 30.
-      return 0;
-    default:
-      return -1;
+    @Override public int getDefaultPrecision(SqlTypeName typeName) {
+        // Following BasicSqlType precision as the default
+        switch (typeName) {
+            case CHAR:
+            case BINARY:
+                return 1;
+            case VARCHAR:
+            case VARBINARY:
+                return RelDataType.PRECISION_NOT_SPECIFIED;
+            case DECIMAL:
+                return getMaxNumericPrecision();
+            case INTERVAL_YEAR:
+            case INTERVAL_YEAR_MONTH:
+            case INTERVAL_MONTH:
+            case INTERVAL_DAY:
+            case INTERVAL_DAY_HOUR:
+            case INTERVAL_DAY_MINUTE:
+            case INTERVAL_DAY_SECOND:
+            case INTERVAL_HOUR:
+            case INTERVAL_HOUR_MINUTE:
+            case INTERVAL_HOUR_SECOND:
+            case INTERVAL_MINUTE:
+            case INTERVAL_MINUTE_SECOND:
+            case INTERVAL_SECOND:
+                return SqlTypeName.DEFAULT_INTERVAL_START_PRECISION;
+            case BOOLEAN:
+                return 1;
+            case TINYINT:
+                return 3;
+            case SMALLINT:
+                return 5;
+            case INTEGER:
+                return 10;
+            case BIGINT:
+                return 19;
+            case REAL:
+                return 7;
+            case FLOAT:
+            case DOUBLE:
+                return 15;
+            case TIME:
+            case TIME_WITH_LOCAL_TIME_ZONE:
+            case DATE:
+                return 0; // SQL99 part 2 section 6.1 syntax rule 30
+            case TIMESTAMP:
+            case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
+                // farrago supports only 0 (see
+                // SqlTypeName.getDefaultPrecision), but it should be 6
+                // (microseconds) per SQL99 part 2 section 6.1 syntax rule 30.
+                return 0;
+            default:
+                return -1;
+        }
     }
-  }
 
-  @Override public int getMaxPrecision(SqlTypeName typeName) {
-    switch (typeName) {
-    case DECIMAL:
-      return getMaxNumericPrecision();
-    case VARCHAR:
-    case CHAR:
-      return 65536;
-    case VARBINARY:
-    case BINARY:
-      return 65536;
-    case TIME:
-    case TIME_WITH_LOCAL_TIME_ZONE:
-    case TIMESTAMP:
-    case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
-      return SqlTypeName.MAX_DATETIME_PRECISION;
-    case INTERVAL_YEAR:
-    case INTERVAL_YEAR_MONTH:
-    case INTERVAL_MONTH:
-    case INTERVAL_DAY:
-    case INTERVAL_DAY_HOUR:
-    case INTERVAL_DAY_MINUTE:
-    case INTERVAL_DAY_SECOND:
-    case INTERVAL_HOUR:
-    case INTERVAL_HOUR_MINUTE:
-    case INTERVAL_HOUR_SECOND:
-    case INTERVAL_MINUTE:
-    case INTERVAL_MINUTE_SECOND:
-    case INTERVAL_SECOND:
-      return SqlTypeName.MAX_INTERVAL_START_PRECISION;
-    default:
-      return getDefaultPrecision(typeName);
+    @Override public int getMaxPrecision(SqlTypeName typeName) {
+        switch (typeName) {
+            case DECIMAL:
+                return getMaxNumericPrecision();
+            case VARCHAR:
+            case CHAR:
+                return 65536;
+            case VARBINARY:
+            case BINARY:
+                return 65536;
+            case TIME:
+            case TIME_WITH_LOCAL_TIME_ZONE:
+            case TIMESTAMP:
+            case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
+                return SqlTypeName.MAX_DATETIME_PRECISION;
+            case INTERVAL_YEAR:
+            case INTERVAL_YEAR_MONTH:
+            case INTERVAL_MONTH:
+            case INTERVAL_DAY:
+            case INTERVAL_DAY_HOUR:
+            case INTERVAL_DAY_MINUTE:
+            case INTERVAL_DAY_SECOND:
+            case INTERVAL_HOUR:
+            case INTERVAL_HOUR_MINUTE:
+            case INTERVAL_HOUR_SECOND:
+            case INTERVAL_MINUTE:
+            case INTERVAL_MINUTE_SECOND:
+            case INTERVAL_SECOND:
+                return SqlTypeName.MAX_INTERVAL_START_PRECISION;
+            default:
+                return getDefaultPrecision(typeName);
+        }
     }
-  }
 
-  @Override public int getMaxNumericScale() {
-    return 19;
-  }
-
-  @Override public int getMaxNumericPrecision() {
-    return 19;
-  }
-
-  @Override public String getLiteral(SqlTypeName typeName, boolean isPrefix) {
-    switch (typeName) {
-    case VARBINARY:
-    case VARCHAR:
-    case CHAR:
-      return "'";
-    case BINARY:
-      return isPrefix ? "x'" : "'";
-    case TIMESTAMP:
-      return isPrefix ? "TIMESTAMP '" : "'";
-    case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
-      return isPrefix ? "TIMESTAMP WITH LOCAL TIME ZONE '" : "'";
-    case INTERVAL_DAY:
-    case INTERVAL_DAY_HOUR:
-    case INTERVAL_DAY_MINUTE:
-    case INTERVAL_DAY_SECOND:
-    case INTERVAL_HOUR:
-    case INTERVAL_HOUR_MINUTE:
-    case INTERVAL_HOUR_SECOND:
-    case INTERVAL_MINUTE:
-    case INTERVAL_MINUTE_SECOND:
-    case INTERVAL_SECOND:
-      return isPrefix ? "INTERVAL '" : "' DAY";
-    case INTERVAL_YEAR:
-    case INTERVAL_YEAR_MONTH:
-    case INTERVAL_MONTH:
-      return isPrefix ? "INTERVAL '" : "' YEAR TO MONTH";
-    case TIME:
-      return isPrefix ? "TIME '" : "'";
-    case TIME_WITH_LOCAL_TIME_ZONE:
-      return isPrefix ? "TIME WITH LOCAL TIME ZONE '" : "'";
-    case DATE:
-      return isPrefix ? "DATE '" : "'";
-    case ARRAY:
-      return isPrefix ? "(" : ")";
-    default:
-      return null;
+    @Override public int getMaxNumericScale() {
+        return 19;
     }
-  }
 
-  @Override public boolean isCaseSensitive(SqlTypeName typeName) {
-    switch (typeName) {
-    case CHAR:
-    case VARCHAR:
-      return true;
-    default:
-      return false;
+    @Override public int getMaxNumericPrecision() {
+        return 19;
     }
-  }
 
-  @Override public boolean isAutoincrement(SqlTypeName typeName) {
-    return false;
-  }
-
-  @Override public int getNumTypeRadix(SqlTypeName typeName) {
-    if (typeName.getFamily() == SqlTypeFamily.NUMERIC
-        && getDefaultPrecision(typeName) != -1) {
-      return 10;
+    @Override public String getLiteral(SqlTypeName typeName, boolean isPrefix) {
+        switch (typeName) {
+            case VARBINARY:
+            case VARCHAR:
+            case CHAR:
+                return "'";
+            case BINARY:
+                return isPrefix ? "x'" : "'";
+            case TIMESTAMP:
+                return isPrefix ? "TIMESTAMP '" : "'";
+            case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
+                return isPrefix ? "TIMESTAMP WITH LOCAL TIME ZONE '" : "'";
+            case INTERVAL_DAY:
+            case INTERVAL_DAY_HOUR:
+            case INTERVAL_DAY_MINUTE:
+            case INTERVAL_DAY_SECOND:
+            case INTERVAL_HOUR:
+            case INTERVAL_HOUR_MINUTE:
+            case INTERVAL_HOUR_SECOND:
+            case INTERVAL_MINUTE:
+            case INTERVAL_MINUTE_SECOND:
+            case INTERVAL_SECOND:
+                return isPrefix ? "INTERVAL '" : "' DAY";
+            case INTERVAL_YEAR:
+            case INTERVAL_YEAR_MONTH:
+            case INTERVAL_MONTH:
+                return isPrefix ? "INTERVAL '" : "' YEAR TO MONTH";
+            case TIME:
+                return isPrefix ? "TIME '" : "'";
+            case TIME_WITH_LOCAL_TIME_ZONE:
+                return isPrefix ? "TIME WITH LOCAL TIME ZONE '" : "'";
+            case DATE:
+                return isPrefix ? "DATE '" : "'";
+            case ARRAY:
+                return isPrefix ? "(" : ")";
+            default:
+                return null;
+        }
     }
-    return 0;
-  }
 
-  @Override public RelDataType deriveSumType(RelDataTypeFactory typeFactory,
-      RelDataType argumentType) {
-    return argumentType;
-  }
+    @Override public boolean isCaseSensitive(SqlTypeName typeName) {
+        switch (typeName) {
+            case CHAR:
+            case VARCHAR:
+                return true;
+            default:
+                return false;
+        }
+    }
 
-  @Override public RelDataType deriveAvgAggType(RelDataTypeFactory typeFactory,
-      RelDataType argumentType) {
-    return argumentType;
-  }
+    @Override public boolean isAutoincrement(SqlTypeName typeName) {
+        return false;
+    }
 
-  @Override public RelDataType deriveCovarType(RelDataTypeFactory typeFactory,
-      RelDataType arg0Type, RelDataType arg1Type) {
-    return arg0Type;
-  }
+    @Override public int getNumTypeRadix(SqlTypeName typeName) {
+        if (typeName.getFamily() == SqlTypeFamily.NUMERIC && getDefaultPrecision(typeName) != -1) {
+            return 10;
+        }
+        return 0;
+    }
 
-  @Override public RelDataType deriveFractionalRankType(RelDataTypeFactory typeFactory) {
-    return typeFactory.createTypeWithNullability(
-        typeFactory.createSqlType(SqlTypeName.DOUBLE), false);
-  }
+    @Override public RelDataType deriveSumType(RelDataTypeFactory typeFactory, RelDataType argumentType) {
+        return argumentType;
+    }
 
-  @Override public RelDataType deriveRankType(RelDataTypeFactory typeFactory) {
-    return typeFactory.createTypeWithNullability(
-        typeFactory.createSqlType(SqlTypeName.BIGINT), false);
-  }
+    @Override public RelDataType deriveAvgAggType(RelDataTypeFactory typeFactory, RelDataType argumentType) {
+        return argumentType;
+    }
 
-  public boolean isSchemaCaseSensitive() {
-    return true;
-  }
+    @Override public RelDataType deriveCovarType(RelDataTypeFactory typeFactory, RelDataType arg0Type,
+                                                 RelDataType arg1Type) {
+        return arg0Type;
+    }
+
+    @Override public RelDataType deriveFractionalRankType(RelDataTypeFactory typeFactory) {
+        return typeFactory.createTypeWithNullability(typeFactory.createSqlType(SqlTypeName.DOUBLE), false);
+    }
+
+    @Override public RelDataType deriveRankType(RelDataTypeFactory typeFactory) {
+        return typeFactory.createTypeWithNullability(typeFactory.createSqlType(SqlTypeName.BIGINT), false);
+    }
+
+    public boolean isSchemaCaseSensitive() {
+        return true;
+    }
 
 }
 

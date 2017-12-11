@@ -16,44 +16,41 @@
  */
 package org.apache.calcite.rex;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.rel.core.CorrelationId;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlKind;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Reference to the current row of a correlating relational expression.
- *
  * <p>Correlating variables are introduced when performing nested loop joins.
  * Each row is received from one side of the join, a correlating variable is
  * assigned a value, and the other side of the join is restarted.</p>
  */
 public class RexCorrelVariable extends RexVariable {
-  public final CorrelationId id;
 
-  //~ Constructors -----------------------------------------------------------
+    public final CorrelationId id;
 
-  RexCorrelVariable(
-      CorrelationId id,
-      RelDataType type) {
-    super(id.getName(), type);
-    this.id = Preconditions.checkNotNull(id);
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
+    RexCorrelVariable(CorrelationId id, RelDataType type) {
+        super(id.getName(), type);
+        this.id = Preconditions.checkNotNull(id);
+    }
 
-  public <R> R accept(RexVisitor<R> visitor) {
-    return visitor.visitCorrelVariable(this);
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  public <R, P> R accept(RexBiVisitor<R, P> visitor, P arg) {
-    return visitor.visitCorrelVariable(this, arg);
-  }
+    public <R> R accept(RexVisitor<R> visitor) {
+        return visitor.visitCorrelVariable(this);
+    }
 
-  @Override public SqlKind getKind() {
-    return SqlKind.CORREL_VARIABLE;
-  }
+    public <R, P> R accept(RexBiVisitor<R, P> visitor, P arg) {
+        return visitor.visitCorrelVariable(this, arg);
+    }
+
+    @Override public SqlKind getKind() {
+        return SqlKind.CORREL_VARIABLE;
+    }
 }
 
 // End RexCorrelVariable.java

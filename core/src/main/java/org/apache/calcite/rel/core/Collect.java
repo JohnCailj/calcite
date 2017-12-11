@@ -31,9 +31,7 @@ import java.util.List;
 
 /**
  * A relational expression that collapses multiple rows into one.
- *
  * <p>Rules:</p>
- *
  * <ul>
  * <li>{@code net.sf.farrago.fennel.rel.FarragoMultisetSplitterRule}
  * creates a Collect from a call to
@@ -42,87 +40,74 @@ import java.util.List;
  * </ul>
  */
 public class Collect extends SingleRel {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  protected final String fieldName;
+    protected final String fieldName;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a Collect.
-   *
-   * @param cluster   Cluster
-   * @param child     Child relational expression
-   * @param fieldName Name of the sole output field
-   */
-  public Collect(
-      RelOptCluster cluster,
-      RelTraitSet traitSet,
-      RelNode child,
-      String fieldName) {
-    super(cluster, traitSet, child);
-    this.fieldName = fieldName;
-  }
+    /**
+     * Creates a Collect.
+     *
+     * @param cluster   Cluster
+     * @param child     Child relational expression
+     * @param fieldName Name of the sole output field
+     */
+    public Collect(RelOptCluster cluster, RelTraitSet traitSet, RelNode child, String fieldName) {
+        super(cluster, traitSet, child);
+        this.fieldName = fieldName;
+    }
 
-  /**
-   * Creates a Collect by parsing serialized output.
-   */
-  public Collect(RelInput input) {
-    this(input.getCluster(), input.getTraitSet(), input.getInput(),
-        input.getString("field"));
-  }
+    /**
+     * Creates a Collect by parsing serialized output.
+     */
+    public Collect(RelInput input) {
+        this(input.getCluster(), input.getTraitSet(), input.getInput(), input.getString("field"));
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public final RelNode copy(RelTraitSet traitSet,
-      List<RelNode> inputs) {
-    return copy(traitSet, sole(inputs));
-  }
+    @Override public final RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        return copy(traitSet, sole(inputs));
+    }
 
-  public RelNode copy(RelTraitSet traitSet, RelNode input) {
-    assert traitSet.containsIfApplicable(Convention.NONE);
-    return new Collect(getCluster(), traitSet, input, fieldName);
-  }
+    public RelNode copy(RelTraitSet traitSet, RelNode input) {
+        assert traitSet.containsIfApplicable(Convention.NONE);
+        return new Collect(getCluster(), traitSet, input, fieldName);
+    }
 
-  @Override public RelWriter explainTerms(RelWriter pw) {
-    return super.explainTerms(pw)
-        .item("field", fieldName);
-  }
+    @Override public RelWriter explainTerms(RelWriter pw) {
+        return super.explainTerms(pw).item("field", fieldName);
+    }
 
-  /**
-   * Returns the name of the sole output field.
-   *
-   * @return name of the sole output field
-   */
-  public String getFieldName() {
-    return fieldName;
-  }
+    /**
+     * Returns the name of the sole output field.
+     *
+     * @return name of the sole output field
+     */
+    public String getFieldName() {
+        return fieldName;
+    }
 
-  @Override protected RelDataType deriveRowType() {
-    return deriveCollectRowType(this, fieldName);
-  }
+    @Override protected RelDataType deriveRowType() {
+        return deriveCollectRowType(this, fieldName);
+    }
 
-  /**
-   * Derives the output type of a collect relational expression.
-   *
-   * @param rel       relational expression
-   * @param fieldName name of sole output field
-   * @return output type of a collect relational expression
-   */
-  public static RelDataType deriveCollectRowType(
-      SingleRel rel,
-      String fieldName) {
-    RelDataType childType = rel.getInput().getRowType();
-    assert childType.isStruct();
-    final RelDataTypeFactory typeFactory = rel.getCluster().getTypeFactory();
-    RelDataType ret =
-        SqlTypeUtil.createMultisetType(
-            typeFactory,
-            childType,
-            false);
-    ret = typeFactory.builder().add(fieldName, ret).build();
-    return typeFactory.createTypeWithNullability(ret, false);
-  }
+    /**
+     * Derives the output type of a collect relational expression.
+     *
+     * @param rel       relational expression
+     * @param fieldName name of sole output field
+     * @return output type of a collect relational expression
+     */
+    public static RelDataType deriveCollectRowType(SingleRel rel, String fieldName) {
+        RelDataType childType = rel.getInput().getRowType();
+        assert childType.isStruct();
+        final RelDataTypeFactory typeFactory = rel.getCluster().getTypeFactory();
+        RelDataType ret = SqlTypeUtil.createMultisetType(typeFactory, childType, false);
+        ret = typeFactory.builder().add(fieldName, ret).build();
+        return typeFactory.createTypeWithNullability(ret, false);
+    }
 }
 
 // End Collect.java

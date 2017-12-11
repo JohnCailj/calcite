@@ -22,17 +22,15 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  * Defines the keywords which can occur immediately after the "SELECT" keyword.
  */
 public enum SqlSelectKeyword {
-  DISTINCT,
-  ALL,
-  STREAM;
+    DISTINCT, ALL, STREAM;
 
-  /**
-   * Creates a parse-tree node representing an occurrence of this keyword
-   * at a particular position in the parsed text.
-   */
-  public SqlLiteral symbol(SqlParserPos pos) {
-    return SqlLiteral.createSymbol(this, pos);
-  }
+    /**
+     * Creates a parse-tree node representing an occurrence of this keyword
+     * at a particular position in the parsed text.
+     */
+    public SqlLiteral symbol(SqlParserPos pos) {
+        return SqlLiteral.createSymbol(this, pos);
+    }
 }
 
 // End SqlSelectKeyword.java

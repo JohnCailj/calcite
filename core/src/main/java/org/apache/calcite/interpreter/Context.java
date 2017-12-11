@@ -22,14 +22,17 @@ import org.apache.calcite.DataContext;
  * Context for executing a scalar expression in an interpreter.
  */
 public class Context {
-  public final DataContext root;
 
-  /** Values of incoming columns from all inputs. */
-  public Object[] values;
+    public final DataContext root;
 
-  Context(DataContext root) {
-    this.root = root;
-  }
+    /**
+     * Values of incoming columns from all inputs.
+     */
+    public Object[] values;
+
+    Context(DataContext root) {
+        this.root = root;
+    }
 }
 
 // End Context.java

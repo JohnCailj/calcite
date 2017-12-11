@@ -18,11 +18,10 @@ package org.apache.calcite.sql.validate;
 
 /**
  * An enumeration of moniker types.
- *
  * <p>Used in {@link SqlMoniker}.
  */
 public enum SqlMonikerType {
-  COLUMN, TABLE, VIEW, SCHEMA, CATALOG, REPOSITORY, FUNCTION, KEYWORD
+    COLUMN, TABLE, VIEW, SCHEMA, CATALOG, REPOSITORY, FUNCTION, KEYWORD
 }
 
 // End SqlMonikerType.java

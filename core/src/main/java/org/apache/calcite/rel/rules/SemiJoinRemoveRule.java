@@ -23,30 +23,30 @@ import org.apache.calcite.rel.core.SemiJoin;
 /**
  * Planner rule that removes a {@link org.apache.calcite.rel.core.SemiJoin}s
  * from a join tree.
- *
  * <p>It is invoked after attempts have been made to convert a SemiJoin to an
  * indexed scan on a join factor have failed. Namely, if the join factor does
  * not reduce to a single table that can be scanned using an index.
- *
  * <p>It should only be enabled if all SemiJoins in the plan are advisory; that
  * is, they can be safely dropped without affecting the semantics of the query.
  */
 public class SemiJoinRemoveRule extends RelOptRule {
-  public static final SemiJoinRemoveRule INSTANCE =
-      new SemiJoinRemoveRule();
 
-  //~ Constructors -----------------------------------------------------------
+    public static final SemiJoinRemoveRule INSTANCE = new SemiJoinRemoveRule();
 
-  /** Creates a SemiJoinRemoveRule. */
-  private SemiJoinRemoveRule() {
-    super(operand(SemiJoin.class, any()));
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
+    /**
+     * Creates a SemiJoinRemoveRule.
+     */
+    private SemiJoinRemoveRule() {
+        super(operand(SemiJoin.class, any()));
+    }
 
-  public void onMatch(RelOptRuleCall call) {
-    call.transformTo(call.rel(0).getInput(0));
-  }
+    //~ Methods ----------------------------------------------------------------
+
+    public void onMatch(RelOptRuleCall call) {
+        call.transformTo(call.rel(0).getInput(0));
+    }
 }
 
 // End SemiJoinRemoveRule.java

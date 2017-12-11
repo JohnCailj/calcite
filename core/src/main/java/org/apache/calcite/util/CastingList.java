@@ -21,52 +21,50 @@ import java.util.List;
 
 /**
  * Converts a list whose members are automatically down-cast to a given type.
- *
  * <p>If a member of the backing list is not an instanceof <code>E</code>, the
  * accessing method (such as {@link List#get}) will throw a
  * {@link ClassCastException}.
- *
  * <p>All modifications are automatically written to the backing list. Not
  * synchronized.
  *
  * @param <E> Element type
  */
 public class CastingList<E> extends AbstractList<E> implements List<E> {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final List<? super E> list;
-  private final Class<E> clazz;
+    private final List<? super E> list;
+    private final Class<E>        clazz;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  protected CastingList(List<? super E> list, Class<E> clazz) {
-    super();
-    this.list = list;
-    this.clazz = clazz;
-  }
+    protected CastingList(List<? super E> list, Class<E> clazz) {
+        super();
+        this.list = list;
+        this.clazz = clazz;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public E get(int index) {
-    return clazz.cast(list.get(index));
-  }
+    public E get(int index) {
+        return clazz.cast(list.get(index));
+    }
 
-  public int size() {
-    return list.size();
-  }
+    public int size() {
+        return list.size();
+    }
 
-  public E set(int index, E element) {
-    final Object o = list.set(index, element);
-    return clazz.cast(o);
-  }
+    public E set(int index, E element) {
+        final Object o = list.set(index, element);
+        return clazz.cast(o);
+    }
 
-  public E remove(int index) {
-    return clazz.cast(list.remove(index));
-  }
+    public E remove(int index) {
+        return clazz.cast(list.remove(index));
+    }
 
-  public void add(int pos, E o) {
-    list.add(pos, o);
-  }
+    public void add(int pos, E o) {
+        list.add(pos, o);
+    }
 }
 
 // End CastingList.java

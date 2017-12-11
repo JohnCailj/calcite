@@ -23,7 +23,6 @@ import org.apache.calcite.linq4j.tree.ParameterExpression;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.Schemas;
 import org.apache.calcite.util.Util;
-
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -33,29 +32,19 @@ import java.sql.SQLException;
  * Tests for a linq4j front-end and JDBC back-end.
  */
 public class LinqFrontJdbcBackTest {
-  @Test public void testTableWhere() throws SQLException,
-      ClassNotFoundException {
-    final Connection connection =
-        CalciteAssert.that(CalciteAssert.Config.JDBC_FOODMART).connect();
-    final CalciteConnection calciteConnection =
-        connection.unwrap(CalciteConnection.class);
-    final SchemaPlus rootSchema = calciteConnection.getRootSchema();
-    ParameterExpression c =
-        Expressions.parameter(JdbcTest.Customer.class, "c");
-    String s =
-        Schemas.queryable(Schemas.createDataContext(connection, rootSchema),
-            rootSchema.getSubSchema("foodmart"),
-            JdbcTest.Customer.class, "customer")
-            .where(
+
+    @Test public void testTableWhere() throws SQLException, ClassNotFoundException {
+        final Connection connection = CalciteAssert.that(CalciteAssert.Config.JDBC_FOODMART).connect();
+        final CalciteConnection calciteConnection = connection.unwrap(CalciteConnection.class);
+        final SchemaPlus rootSchema = calciteConnection.getRootSchema();
+        ParameterExpression c = Expressions.parameter(JdbcTest.Customer.class, "c");
+        String s = Schemas.queryable(Schemas.createDataContext(connection, rootSchema),
+                                     rootSchema.getSubSchema("foodmart"), JdbcTest.Customer.class, "customer").where(
                 Expressions.<Predicate1<JdbcTest.Customer>>lambda(
-                    Expressions.lessThan(
-                        Expressions.field(c, "customer_id"),
-                        Expressions.constant(5)),
-                    c))
-            .toList()
-            .toString();
-    Util.discard(s);
-  }
+                        Expressions.lessThan(Expressions.field(c, "customer_id"), Expressions.constant(5)),
+                        c)).toList().toString();
+        Util.discard(s);
+    }
 }
 
 // End LinqFrontJdbcBackTest.java

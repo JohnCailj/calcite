@@ -37,108 +37,89 @@ import org.apache.calcite.tools.RelBuilderFactory;
  * past a {@link org.apache.calcite.rel.logical.LogicalProject}.
  */
 public class FilterProjectTransposeRule extends RelOptRule {
-  /** The default instance of
-   * {@link org.apache.calcite.rel.rules.FilterProjectTransposeRule}.
-   *
-   * <p>It matches any kind of join or filter, and generates the same kind of
-   * join and filter. */
-  public static final FilterProjectTransposeRule INSTANCE =
-      new FilterProjectTransposeRule(Filter.class, Project.class, true, true,
-          RelFactories.LOGICAL_BUILDER);
 
-  private final boolean copyFilter;
-  private final boolean copyProject;
+    /**
+     * The default instance of
+     * {@link org.apache.calcite.rel.rules.FilterProjectTransposeRule}.
+     * <p>It matches any kind of join or filter, and generates the same kind of
+     * join and filter.
+     */
+    public static final FilterProjectTransposeRule INSTANCE = new FilterProjectTransposeRule(Filter.class,
+                                                                                             Project.class, true, true,
+                                                                                             RelFactories.LOGICAL_BUILDER);
 
-  //~ Constructors -----------------------------------------------------------
+    private final boolean copyFilter;
+    private final boolean copyProject;
 
-  /**
-   * Creates a FilterProjectTransposeRule.
-   *
-   * <p>If {@code filterFactory} is null, creates the same kind of filter as
-   * matched in the rule. Similarly {@code projectFactory}.</p>
-   */
-  public FilterProjectTransposeRule(
-      Class<? extends Filter> filterClass,
-      Class<? extends Project> projectClass,
-      boolean copyFilter, boolean copyProject,
-      RelBuilderFactory relBuilderFactory) {
-    this(
-        operand(filterClass,
-            operand(projectClass, any())),
-        copyFilter, copyProject, relBuilderFactory);
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  @Deprecated // to be removed before 2.0
-  public FilterProjectTransposeRule(
-      Class<? extends Filter> filterClass,
-      RelFactories.FilterFactory filterFactory,
-      Class<? extends Project> projectClass,
-      RelFactories.ProjectFactory projectFactory) {
-    this(filterClass, projectClass, filterFactory == null,
-        projectFactory == null,
-        RelBuilder.proto(filterFactory, projectFactory));
-  }
-
-  protected FilterProjectTransposeRule(
-      RelOptRuleOperand operand,
-      boolean copyFilter,
-      boolean copyProject,
-      RelBuilderFactory relBuilderFactory) {
-    super(operand, relBuilderFactory, null);
-    this.copyFilter = copyFilter;
-    this.copyProject = copyProject;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    final Filter filter = call.rel(0);
-    final Project project = call.rel(1);
-
-    if (RexOver.containsOver(project.getProjects(), null)) {
-      // In general a filter cannot be pushed below a windowing calculation.
-      // Applying the filter before the aggregation function changes
-      // the results of the windowing invocation.
-      //
-      // When the filter is on the PARTITION BY expression of the OVER clause
-      // it can be pushed down. For now we don't support this.
-      return;
+    /**
+     * Creates a FilterProjectTransposeRule.
+     * <p>If {@code filterFactory} is null, creates the same kind of filter as
+     * matched in the rule. Similarly {@code projectFactory}.</p>
+     */
+    public FilterProjectTransposeRule(Class<? extends Filter> filterClass, Class<? extends Project> projectClass,
+                                      boolean copyFilter, boolean copyProject, RelBuilderFactory relBuilderFactory) {
+        this(operand(filterClass, operand(projectClass, any())), copyFilter, copyProject, relBuilderFactory);
     }
 
-    if (RexUtil.containsCorrelation(filter.getCondition())) {
-      // If there is a correlation condition anywhere in the filter, don't
-      // push this filter past project since in some cases it can prevent a
-      // Correlate from being de-correlated.
-      return;
+    @Deprecated // to be removed before 2.0
+    public FilterProjectTransposeRule(Class<? extends Filter> filterClass, RelFactories.FilterFactory filterFactory,
+                                      Class<? extends Project> projectClass,
+                                      RelFactories.ProjectFactory projectFactory) {
+        this(filterClass, projectClass, filterFactory == null, projectFactory == null,
+             RelBuilder.proto(filterFactory, projectFactory));
     }
 
-    // convert the filter to one that references the child of the project
-    RexNode newCondition =
-        RelOptUtil.pushPastProject(filter.getCondition(), project);
-
-    final RelBuilder relBuilder = call.builder();
-    RelNode newFilterRel;
-    if (copyFilter) {
-      final RexSimplify simplify =
-          new RexSimplify(relBuilder.getRexBuilder(), false, RexUtil.EXECUTOR);
-      newCondition = simplify.removeNullabilityCast(newCondition);
-      newFilterRel = filter.copy(filter.getTraitSet(), project.getInput(),
-          newCondition);
-    } else {
-      newFilterRel =
-          relBuilder.push(project.getInput()).filter(newCondition).build();
+    protected FilterProjectTransposeRule(RelOptRuleOperand operand, boolean copyFilter, boolean copyProject,
+                                         RelBuilderFactory relBuilderFactory) {
+        super(operand, relBuilderFactory, null);
+        this.copyFilter = copyFilter;
+        this.copyProject = copyProject;
     }
 
-    RelNode newProjRel =
-        copyProject
-            ? project.copy(project.getTraitSet(), newFilterRel,
-                project.getProjects(), project.getRowType())
-            : relBuilder.push(newFilterRel)
-                .project(project.getProjects(), project.getRowType().getFieldNames())
-                .build();
+    //~ Methods ----------------------------------------------------------------
 
-    call.transformTo(newProjRel);
-  }
+    public void onMatch(RelOptRuleCall call) {
+        final Filter filter = call.rel(0);
+        final Project project = call.rel(1);
+
+        if (RexOver.containsOver(project.getProjects(), null)) {
+            // In general a filter cannot be pushed below a windowing calculation.
+            // Applying the filter before the aggregation function changes
+            // the results of the windowing invocation.
+            //
+            // When the filter is on the PARTITION BY expression of the OVER clause
+            // it can be pushed down. For now we don't support this.
+            return;
+        }
+
+        if (RexUtil.containsCorrelation(filter.getCondition())) {
+            // If there is a correlation condition anywhere in the filter, don't
+            // push this filter past project since in some cases it can prevent a
+            // Correlate from being de-correlated.
+            return;
+        }
+
+        // convert the filter to one that references the child of the project
+        RexNode newCondition = RelOptUtil.pushPastProject(filter.getCondition(), project);
+
+        final RelBuilder relBuilder = call.builder();
+        RelNode newFilterRel;
+        if (copyFilter) {
+            final RexSimplify simplify = new RexSimplify(relBuilder.getRexBuilder(), false, RexUtil.EXECUTOR);
+            newCondition = simplify.removeNullabilityCast(newCondition);
+            newFilterRel = filter.copy(filter.getTraitSet(), project.getInput(), newCondition);
+        } else {
+            newFilterRel = relBuilder.push(project.getInput()).filter(newCondition).build();
+        }
+
+        RelNode newProjRel = copyProject ? project.copy(project.getTraitSet(), newFilterRel, project.getProjects(),
+                                                        project.getRowType()) : relBuilder.push(newFilterRel).project(
+                project.getProjects(), project.getRowType().getFieldNames()).build();
+
+        call.transformTo(newProjRel);
+    }
 }
 
 // End FilterProjectTransposeRule.java

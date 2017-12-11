@@ -31,17 +31,14 @@ import org.apache.calcite.sql.type.SqlTypeName;
 /**
  * The <code>TIMESTAMPADD</code> function, which adds an interval to a
  * timestamp.
- *
  * <p>The SQL syntax is
- *
  * <blockquote>
  * <code>TIMESTAMPADD(<i>timestamp interval</i>, <i>quantity</i>,
  * <i>timestamp</i>)</code>
  * </blockquote>
- *
  * <p>The interval time unit can one of the following literals:<ul>
  * <li>MICROSECOND (and synonyms SQL_TSI_MICROSECOND, FRAC_SECOND,
- *     SQL_TSI_FRAC_SECOND)
+ * SQL_TSI_FRAC_SECOND)
  * <li>SECOND (and synonym SQL_TSI_SECOND)
  * <li>MINUTE (and synonym  SQL_TSI_MINUTE)
  * <li>HOUR (and synonym  SQL_TSI_HOUR)
@@ -51,39 +48,38 @@ import org.apache.calcite.sql.type.SqlTypeName;
  * <li>QUARTER (and synonym SQL_TSI_QUARTER)
  * <li>YEAR (and synonym  SQL_TSI_YEAR)
  * </ul>
- *
  * <p>Returns modified timestamp.
  */
 class SqlTimestampAddFunction extends SqlFunction {
 
-  private static final SqlReturnTypeInference RETURN_TYPE_INFERENCE =
-      new SqlReturnTypeInference() {
-        public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
-          final RelDataTypeFactory typeFactory = opBinding.getTypeFactory();
-          final TimeUnit unit = (TimeUnit) opBinding.getOperandLiteralValue(0);
-          switch (unit) {
-          case HOUR:
-          case MINUTE:
-          case SECOND:
-          case MILLISECOND:
-          case MICROSECOND:
-            return typeFactory.createTypeWithNullability(
-                typeFactory.createSqlType(SqlTypeName.TIMESTAMP),
-                opBinding.getOperandType(1).isNullable()
-                    || opBinding.getOperandType(2).isNullable());
-          default:
-            return opBinding.getOperandType(2);
-          }
-        }
-      };
+    private static final SqlReturnTypeInference RETURN_TYPE_INFERENCE = new SqlReturnTypeInference() {
 
-  /** Creates a SqlTimestampAddFunction. */
-  SqlTimestampAddFunction() {
-    super("TIMESTAMPADD", SqlKind.TIMESTAMP_ADD, RETURN_TYPE_INFERENCE, null,
-        OperandTypes.family(SqlTypeFamily.ANY, SqlTypeFamily.INTEGER,
-            SqlTypeFamily.DATETIME),
-        SqlFunctionCategory.TIMEDATE);
-  }
+        public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+            final RelDataTypeFactory typeFactory = opBinding.getTypeFactory();
+            final TimeUnit unit = (TimeUnit) opBinding.getOperandLiteralValue(0);
+            switch (unit) {
+                case HOUR:
+                case MINUTE:
+                case SECOND:
+                case MILLISECOND:
+                case MICROSECOND:
+                    return typeFactory.createTypeWithNullability(typeFactory.createSqlType(SqlTypeName.TIMESTAMP),
+                                                                 opBinding.getOperandType(1).isNullable()
+                                                                 || opBinding.getOperandType(2).isNullable());
+                default:
+                    return opBinding.getOperandType(2);
+            }
+        }
+    };
+
+    /**
+     * Creates a SqlTimestampAddFunction.
+     */
+    SqlTimestampAddFunction() {
+        super("TIMESTAMPADD", SqlKind.TIMESTAMP_ADD, RETURN_TYPE_INFERENCE, null,
+              OperandTypes.family(SqlTypeFamily.ANY, SqlTypeFamily.INTEGER, SqlTypeFamily.DATETIME),
+              SqlFunctionCategory.TIMEDATE);
+    }
 }
 
 // End SqlTimestampAddFunction.java

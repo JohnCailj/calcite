@@ -17,7 +17,6 @@
 package org.apache.calcite.util.trace;
 
 import org.apache.calcite.util.NumberUtil;
-
 import org.slf4j.Logger;
 
 import java.text.DecimalFormat;
@@ -27,56 +26,53 @@ import java.text.DecimalFormat;
  * sequence at nanosecond resolution.
  */
 public class CalciteTimingTracer {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  private static final DecimalFormat DECIMAL_FORMAT =
-      NumberUtil.decimalFormat("###,###,###,###,###");
+    private static final DecimalFormat DECIMAL_FORMAT = NumberUtil.decimalFormat("###,###,###,###,###");
 
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final Logger logger;
+    private final Logger logger;
 
-  private long lastNanoTime;
+    private long lastNanoTime;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a new timing tracer, publishing an initial event (at elapsed time
-   * 0).
-   *
-   * @param logger     logger on which to log timing events; level FINE will be
-   *                   used
-   * @param startEvent event to trace as start of timing
-   */
-  public CalciteTimingTracer(
-      Logger logger,
-      String startEvent) {
-    if (!logger.isDebugEnabled()) {
-      this.logger = null;
-      return;
-    } else {
-      this.logger = logger;
+    /**
+     * Creates a new timing tracer, publishing an initial event (at elapsed time
+     * 0).
+     *
+     * @param logger     logger on which to log timing events; level FINE will be
+     *                   used
+     * @param startEvent event to trace as start of timing
+     */
+    public CalciteTimingTracer(Logger logger, String startEvent) {
+        if (!logger.isDebugEnabled()) {
+            this.logger = null;
+            return;
+        } else {
+            this.logger = logger;
+        }
+        lastNanoTime = System.nanoTime();
+        logger.debug("{}:  elapsed nanos=0", startEvent);
     }
-    lastNanoTime = System.nanoTime();
-    logger.debug("{}:  elapsed nanos=0", startEvent);
-  }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Publishes an event with the time elapsed since the previous event.
-   *
-   * @param event event to trace
-   */
-  public void traceTime(String event) {
-    if (logger == null) {
-      return;
+    /**
+     * Publishes an event with the time elapsed since the previous event.
+     *
+     * @param event event to trace
+     */
+    public void traceTime(String event) {
+        if (logger == null) {
+            return;
+        }
+        long newNanoTime = System.nanoTime();
+        long elapsed = newNanoTime - lastNanoTime;
+        lastNanoTime = newNanoTime;
+        logger.debug("{}:  elapsed nanos={}", event, DECIMAL_FORMAT.format(elapsed));
     }
-    long newNanoTime = System.nanoTime();
-    long elapsed = newNanoTime - lastNanoTime;
-    lastNanoTime = newNanoTime;
-    logger.debug("{}:  elapsed nanos={}", event, DECIMAL_FORMAT.format(elapsed));
-  }
 }
 
 // End CalciteTimingTracer.java

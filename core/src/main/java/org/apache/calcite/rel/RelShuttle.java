@@ -18,52 +18,42 @@ package org.apache.calcite.rel;
 
 import org.apache.calcite.rel.core.TableFunctionScan;
 import org.apache.calcite.rel.core.TableScan;
-import org.apache.calcite.rel.logical.LogicalAggregate;
-import org.apache.calcite.rel.logical.LogicalCorrelate;
-import org.apache.calcite.rel.logical.LogicalExchange;
-import org.apache.calcite.rel.logical.LogicalFilter;
-import org.apache.calcite.rel.logical.LogicalIntersect;
-import org.apache.calcite.rel.logical.LogicalJoin;
-import org.apache.calcite.rel.logical.LogicalMatch;
-import org.apache.calcite.rel.logical.LogicalMinus;
-import org.apache.calcite.rel.logical.LogicalProject;
-import org.apache.calcite.rel.logical.LogicalSort;
-import org.apache.calcite.rel.logical.LogicalUnion;
-import org.apache.calcite.rel.logical.LogicalValues;
+import org.apache.calcite.rel.logical.*;
 
 /**
  * Visitor that has methods for the common logical relational expressions.
  */
 public interface RelShuttle {
-  RelNode visit(TableScan scan);
 
-  RelNode visit(TableFunctionScan scan);
+    RelNode visit(TableScan scan);
 
-  RelNode visit(LogicalValues values);
+    RelNode visit(TableFunctionScan scan);
 
-  RelNode visit(LogicalFilter filter);
+    RelNode visit(LogicalValues values);
 
-  RelNode visit(LogicalProject project);
+    RelNode visit(LogicalFilter filter);
 
-  RelNode visit(LogicalJoin join);
+    RelNode visit(LogicalProject project);
 
-  RelNode visit(LogicalCorrelate correlate);
+    RelNode visit(LogicalJoin join);
 
-  RelNode visit(LogicalUnion union);
+    RelNode visit(LogicalCorrelate correlate);
 
-  RelNode visit(LogicalIntersect intersect);
+    RelNode visit(LogicalUnion union);
 
-  RelNode visit(LogicalMinus minus);
+    RelNode visit(LogicalIntersect intersect);
 
-  RelNode visit(LogicalAggregate aggregate);
+    RelNode visit(LogicalMinus minus);
 
-  RelNode visit(LogicalMatch match);
+    RelNode visit(LogicalAggregate aggregate);
 
-  RelNode visit(LogicalSort sort);
+    RelNode visit(LogicalMatch match);
 
-  RelNode visit(LogicalExchange exchange);
+    RelNode visit(LogicalSort sort);
 
-  RelNode visit(RelNode other);
+    RelNode visit(LogicalExchange exchange);
+
+    RelNode visit(RelNode other);
 }
 
 // End RelShuttle.java

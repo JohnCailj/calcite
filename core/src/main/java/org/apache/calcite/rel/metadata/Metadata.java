@@ -20,28 +20,27 @@ import org.apache.calcite.rel.RelNode;
 
 /**
  * Metadata about a relational expression.
- *
  * <p>For particular types of metadata, a sub-class defines one of more methods
  * to query that metadata. Then a {@link RelMetadataProvider} can offer those
  * kinds of metadata for particular sub-classes of {@link RelNode}.
- *
  * <p>User code (typically in a planner rule or an implementation of
  * {@link RelNode#computeSelfCost(org.apache.calcite.plan.RelOptPlanner, RelMetadataQuery)})
  * acquires a {@code Metadata} instance by calling {@link RelNode#metadata}.
- *
  * <p>A {@code Metadata} instance already knows which particular {@code RelNode}
  * it is describing, so the methods do not pass in the {@code RelNode}. In fact,
  * quite a few metadata methods have no extra parameters. For instance, you can
  * get the row-count as follows:</p>
- *
  * <blockquote><pre><code>
  * RelNode rel;
  * double rowCount = rel.metadata(RowCount.class).rowCount();
  * </code></pre></blockquote>
  */
 public interface Metadata {
-  /** Returns the relational expression that this metadata is about. */
-  RelNode rel();
+
+    /**
+     * Returns the relational expression that this metadata is about.
+     */
+    RelNode rel();
 }
 
 // End Metadata.java

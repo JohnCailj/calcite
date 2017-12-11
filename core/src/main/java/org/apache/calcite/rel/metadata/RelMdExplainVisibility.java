@@ -24,34 +24,33 @@ import org.apache.calcite.util.BuiltInMethod;
  * RelMdExplainVisibility supplies a default implementation of
  * {@link RelMetadataQuery#isVisibleInExplain} for the standard logical algebra.
  */
-public class RelMdExplainVisibility
-    implements MetadataHandler<BuiltInMetadata.ExplainVisibility> {
-  public static final RelMetadataProvider SOURCE =
-      ReflectiveRelMetadataProvider.reflectiveSource(
-          BuiltInMethod.EXPLAIN_VISIBILITY.method,
-          new RelMdExplainVisibility());
+public class RelMdExplainVisibility implements MetadataHandler<BuiltInMetadata.ExplainVisibility> {
 
-  //~ Constructors -----------------------------------------------------------
+    public static final RelMetadataProvider SOURCE = ReflectiveRelMetadataProvider.reflectiveSource(
+            BuiltInMethod.EXPLAIN_VISIBILITY.method, new RelMdExplainVisibility());
 
-  private RelMdExplainVisibility() {}
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
+    private RelMdExplainVisibility() {
+    }
 
-  public MetadataDef<BuiltInMetadata.ExplainVisibility> getDef() {
-    return BuiltInMetadata.ExplainVisibility.DEF;
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  /** Catch-all implementation for
-   * {@link BuiltInMetadata.ExplainVisibility#isVisibleInExplain(SqlExplainLevel)},
-   * invoked using reflection.
-   *
-   * @see org.apache.calcite.rel.metadata.RelMetadataQuery#isVisibleInExplain(RelNode, SqlExplainLevel)
-   */
-  public Boolean isVisibleInExplain(RelNode rel, RelMetadataQuery mq,
-      SqlExplainLevel explainLevel) {
-    // no information available
-    return null;
-  }
+    public MetadataDef<BuiltInMetadata.ExplainVisibility> getDef() {
+        return BuiltInMetadata.ExplainVisibility.DEF;
+    }
+
+    /**
+     * Catch-all implementation for
+     * {@link BuiltInMetadata.ExplainVisibility#isVisibleInExplain(SqlExplainLevel)},
+     * invoked using reflection.
+     *
+     * @see org.apache.calcite.rel.metadata.RelMetadataQuery#isVisibleInExplain(RelNode, SqlExplainLevel)
+     */
+    public Boolean isVisibleInExplain(RelNode rel, RelMetadataQuery mq, SqlExplainLevel explainLevel) {
+        // no information available
+        return null;
+    }
 }
 
 // End RelMdExplainVisibility.java

@@ -20,66 +20,62 @@ import org.apache.calcite.sql.SqlDialect;
 
 /**
  * String that represents a kocher SQL statement, expression, or fragment.
- *
  * <p>A SqlString just contains a regular Java string, but the SqlString wrapper
  * indicates that the string has been created carefully guarding against all SQL
  * dialect and injection issues.
- *
  * <p>The easiest way to do build a SqlString is to use a {@link SqlBuilder}.
  */
 public class SqlString {
-  private final String s;
-  private SqlDialect dialect;
 
-  /**
-   * Creates a SqlString.
-   *
-   * @param s Contents of string
-   */
-  public SqlString(SqlDialect dialect, String s) {
-    this.dialect = dialect;
-    this.s = s;
-    assert s != null;
-    assert dialect != null;
-  }
+    private final String     s;
+    private       SqlDialect dialect;
 
-  @Override public int hashCode() {
-    return s.hashCode();
-  }
+    /**
+     * Creates a SqlString.
+     *
+     * @param s Contents of string
+     */
+    public SqlString(SqlDialect dialect, String s) {
+        this.dialect = dialect;
+        this.s = s;
+        assert s != null;
+        assert dialect != null;
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof SqlString
-        && s.equals(((SqlString) obj).s);
-  }
+    @Override public int hashCode() {
+        return s.hashCode();
+    }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Returns the SQL string.
-   *
-   * @return SQL string
-   * @see #getSql()
-   */
-  @Override public String toString() {
-    return s;
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof SqlString && s.equals(((SqlString) obj).s);
+    }
 
-  /**
-   * Returns the SQL string.
-   *
-   * @return SQL string
-   */
-  public String getSql() {
-    return s;
-  }
+    /**
+     * {@inheritDoc}
+     * <p>Returns the SQL string.
+     *
+     * @return SQL string
+     * @see #getSql()
+     */
+    @Override public String toString() {
+        return s;
+    }
 
-  /**
-   * Returns the dialect.
-   */
-  public SqlDialect getDialect() {
-    return dialect;
-  }
+    /**
+     * Returns the SQL string.
+     *
+     * @return SQL string
+     */
+    public String getSql() {
+        return s;
+    }
+
+    /**
+     * Returns the dialect.
+     */
+    public SqlDialect getDialect() {
+        return dialect;
+    }
 }
 
 // End SqlString.java

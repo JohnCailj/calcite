@@ -16,10 +16,9 @@
  */
 package org.apache.calcite.sql;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.UnmodifiableArrayList;
-
-import com.google.common.base.Preconditions;
 
 import java.util.List;
 
@@ -27,75 +26,68 @@ import java.util.List;
  * Implementation of {@link SqlCall} that keeps its operands in an array.
  */
 public class SqlBasicCall extends SqlCall {
-  private SqlOperator operator;
-  public final SqlNode[] operands;
-  private final SqlLiteral functionQuantifier;
-  private final boolean expanded;
 
-  public SqlBasicCall(
-      SqlOperator operator,
-      SqlNode[] operands,
-      SqlParserPos pos) {
-    this(operator, operands, pos, false, null);
-  }
+    private       SqlOperator operator;
+    public final  SqlNode[]   operands;
+    private final SqlLiteral  functionQuantifier;
+    private final boolean     expanded;
 
-  protected SqlBasicCall(
-      SqlOperator operator,
-      SqlNode[] operands,
-      SqlParserPos pos,
-      boolean expanded,
-      SqlLiteral functionQualifier) {
-    super(pos);
-    this.operator = Preconditions.checkNotNull(operator);
-    this.operands = operands;
-    this.expanded = expanded;
-    this.functionQuantifier = functionQualifier;
-  }
+    public SqlBasicCall(SqlOperator operator, SqlNode[] operands, SqlParserPos pos) {
+        this(operator, operands, pos, false, null);
+    }
 
-  public SqlKind getKind() {
-    return operator.getKind();
-  }
+    protected SqlBasicCall(SqlOperator operator, SqlNode[] operands, SqlParserPos pos, boolean expanded,
+                           SqlLiteral functionQualifier) {
+        super(pos);
+        this.operator = Preconditions.checkNotNull(operator);
+        this.operands = operands;
+        this.expanded = expanded;
+        this.functionQuantifier = functionQualifier;
+    }
 
-  @Override public boolean isExpanded() {
-    return expanded;
-  }
+    public SqlKind getKind() {
+        return operator.getKind();
+    }
 
-  @Override public void setOperand(int i, SqlNode operand) {
-    operands[i] = operand;
-  }
+    @Override public boolean isExpanded() {
+        return expanded;
+    }
 
-  public void setOperator(SqlOperator operator) {
-    this.operator = Preconditions.checkNotNull(operator);
-  }
+    @Override public void setOperand(int i, SqlNode operand) {
+        operands[i] = operand;
+    }
 
-  public SqlOperator getOperator() {
-    return operator;
-  }
+    public void setOperator(SqlOperator operator) {
+        this.operator = Preconditions.checkNotNull(operator);
+    }
 
-  public SqlNode[] getOperands() {
-    return operands;
-  }
+    public SqlOperator getOperator() {
+        return operator;
+    }
 
-  public List<SqlNode> getOperandList() {
-    return UnmodifiableArrayList.of(operands); // not immutable, but quick
-  }
+    public SqlNode[] getOperands() {
+        return operands;
+    }
 
-  @SuppressWarnings("unchecked")
-  @Override public <S extends SqlNode> S operand(int i) {
-    return (S) operands[i];
-  }
+    public List<SqlNode> getOperandList() {
+        return UnmodifiableArrayList.of(operands); // not immutable, but quick
+    }
 
-  @Override public int operandCount() {
-    return operands.length;
-  }
+    @SuppressWarnings("unchecked") @Override public <S extends SqlNode> S operand(int i) {
+        return (S) operands[i];
+    }
 
-  @Override public SqlLiteral getFunctionQuantifier() {
-    return functionQuantifier;
-  }
+    @Override public int operandCount() {
+        return operands.length;
+    }
 
-  @Override public SqlNode clone(SqlParserPos pos) {
-    return getOperator().createCall(getFunctionQuantifier(), pos, operands);
-  }
+    @Override public SqlLiteral getFunctionQuantifier() {
+        return functionQuantifier;
+    }
+
+    @Override public SqlNode clone(SqlParserPos pos) {
+        return getOperator().createCall(getFunctionQuantifier(), pos, operands);
+    }
 
 }
 

@@ -24,71 +24,59 @@ import org.apache.calcite.rex.RexNode;
 import java.util.Objects;
 import java.util.Set;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Join}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Join}.
+ */
 public class MutableJoin extends MutableBiRel {
-  public final RexNode condition;
-  public final Set<CorrelationId> variablesSet;
-  public final JoinRelType joinType;
 
-  private MutableJoin(
-      RelDataType rowType,
-      MutableRel left,
-      MutableRel right,
-      RexNode condition,
-      JoinRelType joinType,
-      Set<CorrelationId> variablesSet) {
-    super(MutableRelType.JOIN, left.cluster, rowType, left, right);
-    this.condition = condition;
-    this.variablesSet = variablesSet;
-    this.joinType = joinType;
-  }
+    public final RexNode            condition;
+    public final Set<CorrelationId> variablesSet;
+    public final JoinRelType        joinType;
 
-  /**
-   * Creates a MutableJoin.
-   *
-   * @param rowType           Row type
-   * @param left              Left input relational expression
-   * @param right             Right input relational expression
-   * @param condition         Join condition
-   * @param joinType          Join type
-   * @param variablesStopped  Set of variables that are set by the LHS and
-   *                          used by the RHS and are not available to
-   *                          nodes above this join in the tree
-   */
-  public static MutableJoin of(RelDataType rowType, MutableRel left,
-      MutableRel right, RexNode condition, JoinRelType joinType,
-      Set<CorrelationId> variablesStopped) {
-    return new MutableJoin(rowType, left, right, condition, joinType,
-        variablesStopped);
-  }
+    private MutableJoin(RelDataType rowType, MutableRel left, MutableRel right, RexNode condition, JoinRelType joinType,
+                        Set<CorrelationId> variablesSet) {
+        super(MutableRelType.JOIN, left.cluster, rowType, left, right);
+        this.condition = condition;
+        this.variablesSet = variablesSet;
+        this.joinType = joinType;
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableJoin
-        && joinType == ((MutableJoin) obj).joinType
-        && condition.toString().equals(
-            ((MutableJoin) obj).condition.toString())
-        && Objects.equals(variablesSet,
-            ((MutableJoin) obj).variablesSet)
-        && left.equals(((MutableJoin) obj).left)
-        && right.equals(((MutableJoin) obj).right);
-  }
+    /**
+     * Creates a MutableJoin.
+     *
+     * @param rowType          Row type
+     * @param left             Left input relational expression
+     * @param right            Right input relational expression
+     * @param condition        Join condition
+     * @param joinType         Join type
+     * @param variablesStopped Set of variables that are set by the LHS and
+     *                         used by the RHS and are not available to
+     *                         nodes above this join in the tree
+     */
+    public static MutableJoin of(RelDataType rowType, MutableRel left, MutableRel right, RexNode condition,
+                                 JoinRelType joinType, Set<CorrelationId> variablesStopped) {
+        return new MutableJoin(rowType, left, right, condition, joinType, variablesStopped);
+    }
 
-  @Override public int hashCode() {
-    return Objects.hash(left, right,
-        condition.toString(), joinType, variablesSet);
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this
+               || obj instanceof MutableJoin && joinType == ((MutableJoin) obj).joinType && condition.toString().equals(
+                ((MutableJoin) obj).condition.toString()) && Objects.equals(variablesSet,
+                                                                            ((MutableJoin) obj).variablesSet)
+                  && left.equals(((MutableJoin) obj).left) && right.equals(((MutableJoin) obj).right);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Join(joinType: ").append(joinType)
-        .append(", condition: ").append(condition)
-        .append(")");
-  }
+    @Override public int hashCode() {
+        return Objects.hash(left, right, condition.toString(), joinType, variablesSet);
+    }
 
-  @Override public MutableRel clone() {
-    return MutableJoin.of(rowType, left.clone(),
-        right.clone(), condition, joinType, variablesSet);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Join(joinType: ").append(joinType).append(", condition: ").append(condition).append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableJoin.of(rowType, left.clone(), right.clone(), condition, joinType, variablesSet);
+    }
 }
 
 // End MutableJoin.java

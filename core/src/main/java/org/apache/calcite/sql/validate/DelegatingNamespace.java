@@ -27,92 +27,89 @@ import java.util.List;
  * to an underlying object.
  */
 public abstract class DelegatingNamespace implements SqlValidatorNamespace {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  protected final SqlValidatorNamespace namespace;
+    protected final SqlValidatorNamespace namespace;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a DelegatingNamespace.
-   *
-   * @param namespace Underlying namespace, to delegate to
-   */
-  protected DelegatingNamespace(SqlValidatorNamespace namespace) {
-    this.namespace = namespace;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public SqlValidator getValidator() {
-    return namespace.getValidator();
-  }
-
-  public SqlValidatorTable getTable() {
-    return namespace.getTable();
-  }
-
-  public RelDataType getRowType() {
-    return namespace.getRowType();
-  }
-
-  public void setType(RelDataType type) {
-    namespace.setType(type);
-  }
-
-  public RelDataType getRowTypeSansSystemColumns() {
-    return namespace.getRowTypeSansSystemColumns();
-  }
-
-  public RelDataType getType() {
-    return namespace.getType();
-  }
-
-  public void validate(RelDataType targetRowType) {
-    namespace.validate(targetRowType);
-  }
-
-  public SqlNode getNode() {
-    return namespace.getNode();
-  }
-
-  public SqlNode getEnclosingNode() {
-    return namespace.getEnclosingNode();
-  }
-
-  public SqlValidatorNamespace lookupChild(
-      String name) {
-    return namespace.lookupChild(name);
-  }
-
-  public boolean fieldExists(String name) {
-    return namespace.fieldExists(name);
-  }
-
-  public List<Pair<SqlNode, SqlMonotonicity>> getMonotonicExprs() {
-    return namespace.getMonotonicExprs();
-  }
-
-  public SqlMonotonicity getMonotonicity(String columnName) {
-    return namespace.getMonotonicity(columnName);
-  }
-
-  @SuppressWarnings("deprecation")
-  public void makeNullable() {
-  }
-
-  public <T> T unwrap(Class<T> clazz) {
-    if (clazz.isInstance(this)) {
-      return clazz.cast(this);
-    } else {
-      return namespace.unwrap(clazz);
+    /**
+     * Creates a DelegatingNamespace.
+     *
+     * @param namespace Underlying namespace, to delegate to
+     */
+    protected DelegatingNamespace(SqlValidatorNamespace namespace) {
+        this.namespace = namespace;
     }
-  }
 
-  public boolean isWrapperFor(Class<?> clazz) {
-    return clazz.isInstance(this)
-        || namespace.isWrapperFor(clazz);
-  }
+    //~ Methods ----------------------------------------------------------------
+
+    public SqlValidator getValidator() {
+        return namespace.getValidator();
+    }
+
+    public SqlValidatorTable getTable() {
+        return namespace.getTable();
+    }
+
+    public RelDataType getRowType() {
+        return namespace.getRowType();
+    }
+
+    public void setType(RelDataType type) {
+        namespace.setType(type);
+    }
+
+    public RelDataType getRowTypeSansSystemColumns() {
+        return namespace.getRowTypeSansSystemColumns();
+    }
+
+    public RelDataType getType() {
+        return namespace.getType();
+    }
+
+    public void validate(RelDataType targetRowType) {
+        namespace.validate(targetRowType);
+    }
+
+    public SqlNode getNode() {
+        return namespace.getNode();
+    }
+
+    public SqlNode getEnclosingNode() {
+        return namespace.getEnclosingNode();
+    }
+
+    public SqlValidatorNamespace lookupChild(String name) {
+        return namespace.lookupChild(name);
+    }
+
+    public boolean fieldExists(String name) {
+        return namespace.fieldExists(name);
+    }
+
+    public List<Pair<SqlNode, SqlMonotonicity>> getMonotonicExprs() {
+        return namespace.getMonotonicExprs();
+    }
+
+    public SqlMonotonicity getMonotonicity(String columnName) {
+        return namespace.getMonotonicity(columnName);
+    }
+
+    @SuppressWarnings("deprecation") public void makeNullable() {
+    }
+
+    public <T> T unwrap(Class<T> clazz) {
+        if (clazz.isInstance(this)) {
+            return clazz.cast(this);
+        } else {
+            return namespace.unwrap(clazz);
+        }
+    }
+
+    public boolean isWrapperFor(Class<?> clazz) {
+        return clazz.isInstance(this) || namespace.isWrapperFor(clazz);
+    }
 }
 
 // End DelegatingNamespace.java

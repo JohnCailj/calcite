@@ -21,35 +21,36 @@ import org.apache.calcite.rel.type.RelDataType;
 
 import java.util.List;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Intersect}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Intersect}.
+ */
 public class MutableIntersect extends MutableSetOp {
-  private MutableIntersect(RelOptCluster cluster, RelDataType rowType,
-      List<MutableRel> inputs, boolean all) {
-    super(cluster, rowType, MutableRelType.INTERSECT, inputs, all);
-  }
 
-  /**
-   * Creates a MutableIntersect.
-   *
-   * @param rowType Row type
-   * @param inputs  Input relational expressions
-   * @param all     Whether to perform a multiset intersection or a set
-   *                intersection
-   */
-  public static MutableIntersect of(
-      RelDataType rowType, List<MutableRel> inputs, boolean all) {
-    assert inputs.size() >= 2;
-    final MutableRel input0 = inputs.get(0);
-    return new MutableIntersect(input0.cluster, rowType, inputs, all);
-  }
+    private MutableIntersect(RelOptCluster cluster, RelDataType rowType, List<MutableRel> inputs, boolean all) {
+        super(cluster, rowType, MutableRelType.INTERSECT, inputs, all);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Intersect(all: ").append(all).append(")");
-  }
+    /**
+     * Creates a MutableIntersect.
+     *
+     * @param rowType Row type
+     * @param inputs  Input relational expressions
+     * @param all     Whether to perform a multiset intersection or a set
+     *                intersection
+     */
+    public static MutableIntersect of(RelDataType rowType, List<MutableRel> inputs, boolean all) {
+        assert inputs.size() >= 2;
+        final MutableRel input0 = inputs.get(0);
+        return new MutableIntersect(input0.cluster, rowType, inputs, all);
+    }
 
-  @Override public MutableRel clone() {
-    return MutableIntersect.of(rowType, cloneChildren(), all);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Intersect(all: ").append(all).append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableIntersect.of(rowType, cloneChildren(), all);
+    }
 }
 
 // End MutableIntersect.java

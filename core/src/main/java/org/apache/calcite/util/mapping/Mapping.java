@@ -21,63 +21,57 @@ import java.util.Iterator;
 /**
  * A <dfn>Mapping</dfn> is a relationship between a source domain to target
  * domain of integers.
- *
  * <p>This interface represents the most general possible mapping. Depending on
  * the {@link MappingType} of a particular mapping, some of the operations may
  * not be applicable. If you call the method, you will receive a runtime error.
  * For instance:
- *
  * <ul>
  * <li>If a target has more than one source, then the method
- *     {@link #getSource(int)} will throw
- *     {@link Mappings.TooManyElementsException}.
+ * {@link #getSource(int)} will throw
+ * {@link Mappings.TooManyElementsException}.
  * <li>If a source has no targets, then the method {@link #getTarget} will throw
- *     {@link Mappings.NoElementException}.
+ * {@link Mappings.NoElementException}.
  * </ul>
  */
 public interface Mapping
-    extends Mappings.FunctionMapping,
-    Mappings.SourceMapping,
-    Mappings.TargetMapping,
-    Iterable<IntPair> {
-  //~ Methods ----------------------------------------------------------------
+        extends Mappings.FunctionMapping, Mappings.SourceMapping, Mappings.TargetMapping, Iterable<IntPair> {
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Returns an iterator over the elements in this mapping.
-   *
-   * <p>This method is optional; implementations may throw
-   * {@link UnsupportedOperationException}.
-   */
-  Iterator<IntPair> iterator();
+    /**
+     * Returns an iterator over the elements in this mapping.
+     * <p>This method is optional; implementations may throw
+     * {@link UnsupportedOperationException}.
+     */
+    Iterator<IntPair> iterator();
 
-  /**
-   * Returns the number of sources. Valid sources will be in the range 0 ..
-   * sourceCount.
-   */
-  int getSourceCount();
+    /**
+     * Returns the number of sources. Valid sources will be in the range 0 ..
+     * sourceCount.
+     */
+    int getSourceCount();
 
-  /**
-   * Returns the number of targets. Valid targets will be in the range 0 ..
-   * targetCount.
-   */
-  int getTargetCount();
+    /**
+     * Returns the number of targets. Valid targets will be in the range 0 ..
+     * targetCount.
+     */
+    int getTargetCount();
 
-  MappingType getMappingType();
+    MappingType getMappingType();
 
-  /**
-   * Returns whether this mapping is the identity.
-   */
-  boolean isIdentity();
+    /**
+     * Returns whether this mapping is the identity.
+     */
+    boolean isIdentity();
 
-  /**
-   * Removes all elements in the mapping.
-   */
-  void clear();
+    /**
+     * Removes all elements in the mapping.
+     */
+    void clear();
 
-  /**
-   * Returns the number of elements in the mapping.
-   */
-  int size();
+    /**
+     * Returns the number of elements in the mapping.
+     */
+    int size();
 }
 
 // End Mapping.java

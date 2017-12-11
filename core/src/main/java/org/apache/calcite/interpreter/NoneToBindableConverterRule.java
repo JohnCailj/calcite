@@ -27,18 +27,17 @@ import org.apache.calcite.rel.convert.ConverterRule;
  * to {@link org.apache.calcite.interpreter.BindableConvention}.
  */
 public class NoneToBindableConverterRule extends ConverterRule {
-  public static final ConverterRule INSTANCE =
-      new NoneToBindableConverterRule();
 
-  private NoneToBindableConverterRule() {
-    super(RelNode.class, Convention.NONE, BindableConvention.INSTANCE,
-        "NoneToBindableConverterRule");
-  }
+    public static final ConverterRule INSTANCE = new NoneToBindableConverterRule();
 
-  @Override public RelNode convert(RelNode rel) {
-    RelTraitSet newTraitSet = rel.getTraitSet().replace(getOutConvention());
-    return new InterpretableConverter(rel.getCluster(), newTraitSet, rel);
-  }
+    private NoneToBindableConverterRule() {
+        super(RelNode.class, Convention.NONE, BindableConvention.INSTANCE, "NoneToBindableConverterRule");
+    }
+
+    @Override public RelNode convert(RelNode rel) {
+        RelTraitSet newTraitSet = rel.getTraitSet().replace(getOutConvention());
+        return new InterpretableConverter(rel.getCluster(), newTraitSet, rel);
+    }
 }
 
 // End NoneToBindableConverterRule.java

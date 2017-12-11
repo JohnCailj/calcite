@@ -31,51 +31,47 @@ import java.util.List;
  * not targeted at any particular engine or calling convention.
  */
 public final class LogicalUnion extends Union {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a LogicalUnion.
-   *
-   * <p>Use {@link #create} unless you know what you're doing.
-   */
-  public LogicalUnion(RelOptCluster cluster,
-      RelTraitSet traitSet,
-      List<RelNode> inputs,
-      boolean all) {
-    super(cluster, traitSet, inputs, all);
-  }
+    /**
+     * Creates a LogicalUnion.
+     * <p>Use {@link #create} unless you know what you're doing.
+     */
+    public LogicalUnion(RelOptCluster cluster, RelTraitSet traitSet, List<RelNode> inputs, boolean all) {
+        super(cluster, traitSet, inputs, all);
+    }
 
-  @Deprecated // to be removed before 2.0
-  public LogicalUnion(RelOptCluster cluster, List<RelNode> inputs,
-      boolean all) {
-    this(cluster, cluster.traitSetOf(Convention.NONE), inputs, all);
-  }
+    @Deprecated // to be removed before 2.0
+    public LogicalUnion(RelOptCluster cluster, List<RelNode> inputs, boolean all) {
+        this(cluster, cluster.traitSetOf(Convention.NONE), inputs, all);
+    }
 
-  /**
-   * Creates a LogicalUnion by parsing serialized output.
-   */
-  public LogicalUnion(RelInput input) {
-    super(input);
-  }
+    /**
+     * Creates a LogicalUnion by parsing serialized output.
+     */
+    public LogicalUnion(RelInput input) {
+        super(input);
+    }
 
-  /** Creates a LogicalUnion. */
-  public static LogicalUnion create(List<RelNode> inputs, boolean all) {
-    final RelOptCluster cluster = inputs.get(0).getCluster();
-    final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
-    return new LogicalUnion(cluster, traitSet, inputs, all);
-  }
+    /**
+     * Creates a LogicalUnion.
+     */
+    public static LogicalUnion create(List<RelNode> inputs, boolean all) {
+        final RelOptCluster cluster = inputs.get(0).getCluster();
+        final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
+        return new LogicalUnion(cluster, traitSet, inputs, all);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public LogicalUnion copy(
-      RelTraitSet traitSet, List<RelNode> inputs, boolean all) {
-    assert traitSet.containsIfApplicable(Convention.NONE);
-    return new LogicalUnion(getCluster(), traitSet, inputs, all);
-  }
+    public LogicalUnion copy(RelTraitSet traitSet, List<RelNode> inputs, boolean all) {
+        assert traitSet.containsIfApplicable(Convention.NONE);
+        return new LogicalUnion(getCluster(), traitSet, inputs, all);
+    }
 
-  @Override public RelNode accept(RelShuttle shuttle) {
-    return shuttle.visit(this);
-  }
+    @Override public RelNode accept(RelShuttle shuttle) {
+        return shuttle.visit(this);
+    }
 }
 
 // End LogicalUnion.java

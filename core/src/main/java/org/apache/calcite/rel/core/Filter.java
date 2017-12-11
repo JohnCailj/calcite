@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.rel.core;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelOptCost;
 import org.apache.calcite.plan.RelOptPlanner;
@@ -27,14 +28,8 @@ import org.apache.calcite.rel.RelWriter;
 import org.apache.calcite.rel.SingleRel;
 import org.apache.calcite.rel.metadata.RelMdUtil;
 import org.apache.calcite.rel.metadata.RelMetadataQuery;
-import org.apache.calcite.rex.RexChecker;
-import org.apache.calcite.rex.RexNode;
-import org.apache.calcite.rex.RexProgram;
-import org.apache.calcite.rex.RexShuttle;
-import org.apache.calcite.rex.RexUtil;
+import org.apache.calcite.rex.*;
 import org.apache.calcite.util.Litmus;
-
-import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
@@ -42,116 +37,105 @@ import java.util.List;
  * Relational expression that iterates over its input
  * and returns elements for which <code>condition</code> evaluates to
  * <code>true</code>.
- *
  * <p>If the condition allows nulls, then a null value is treated the same as
  * false.</p>
  *
  * @see org.apache.calcite.rel.logical.LogicalFilter
  */
 public abstract class Filter extends SingleRel {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  protected final RexNode condition;
+    protected final RexNode condition;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a filter.
-   *
-   * @param cluster   Cluster that this relational expression belongs to
-   * @param traits    the traits of this rel
-   * @param child     input relational expression
-   * @param condition boolean expression which determines whether a row is
-   *                  allowed to pass
-   */
-  protected Filter(
-      RelOptCluster cluster,
-      RelTraitSet traits,
-      RelNode child,
-      RexNode condition) {
-    super(cluster, traits, child);
-    assert condition != null;
-    assert RexUtil.isFlat(condition) : condition;
-    this.condition = condition;
-    // Too expensive for everyday use:
-    assert !CalcitePrepareImpl.DEBUG || isValid(Litmus.THROW, null);
-  }
-
-  /**
-   * Creates a Filter by parsing serialized output.
-   */
-  protected Filter(RelInput input) {
-    this(input.getCluster(), input.getTraitSet(), input.getInput(),
-        input.getExpression("condition"));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  @Override public final RelNode copy(RelTraitSet traitSet,
-      List<RelNode> inputs) {
-    return copy(traitSet, sole(inputs), getCondition());
-  }
-
-  public abstract Filter copy(RelTraitSet traitSet, RelNode input,
-      RexNode condition);
-
-  @Override public List<RexNode> getChildExps() {
-    return ImmutableList.of(condition);
-  }
-
-  public RelNode accept(RexShuttle shuttle) {
-    RexNode condition = shuttle.apply(this.condition);
-    if (this.condition == condition) {
-      return this;
+    /**
+     * Creates a filter.
+     *
+     * @param cluster   Cluster that this relational expression belongs to
+     * @param traits    the traits of this rel
+     * @param child     input relational expression
+     * @param condition boolean expression which determines whether a row is
+     *                  allowed to pass
+     */
+    protected Filter(RelOptCluster cluster, RelTraitSet traits, RelNode child, RexNode condition) {
+        super(cluster, traits, child);
+        assert condition != null;
+        assert RexUtil.isFlat(condition) : condition;
+        this.condition = condition;
+        // Too expensive for everyday use:
+        assert !CalcitePrepareImpl.DEBUG || isValid(Litmus.THROW, null);
     }
-    return copy(traitSet, getInput(), condition);
-  }
 
-  public RexNode getCondition() {
-    return condition;
-  }
-
-  @Override public boolean isValid(Litmus litmus, Context context) {
-    if (RexUtil.isNullabilityCast(getCluster().getTypeFactory(), condition)) {
-      return litmus.fail("Cast for just nullability not allowed");
+    /**
+     * Creates a Filter by parsing serialized output.
+     */
+    protected Filter(RelInput input) {
+        this(input.getCluster(), input.getTraitSet(), input.getInput(), input.getExpression("condition"));
     }
-    final RexChecker checker =
-        new RexChecker(getInput().getRowType(), context, litmus);
-    condition.accept(checker);
-    if (checker.getFailureCount() > 0) {
-      return litmus.fail(null);
+
+    //~ Methods ----------------------------------------------------------------
+
+    @Override public final RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        return copy(traitSet, sole(inputs), getCondition());
     }
-    return litmus.succeed();
-  }
 
-  @Override public RelOptCost computeSelfCost(RelOptPlanner planner,
-      RelMetadataQuery mq) {
-    double dRows = mq.getRowCount(this);
-    double dCpu = mq.getRowCount(getInput());
-    double dIo = 0;
-    return planner.getCostFactory().makeCost(dRows, dCpu, dIo);
-  }
+    public abstract Filter copy(RelTraitSet traitSet, RelNode input, RexNode condition);
 
-  @Override public double estimateRowCount(RelMetadataQuery mq) {
-    return RelMdUtil.estimateFilteredRows(getInput(), condition, mq);
-  }
+    @Override public List<RexNode> getChildExps() {
+        return ImmutableList.of(condition);
+    }
 
-  @Deprecated // to be removed before 2.0
-  public static double estimateFilteredRows(RelNode child, RexProgram program) {
-    final RelMetadataQuery mq = RelMetadataQuery.instance();
-    return RelMdUtil.estimateFilteredRows(child, program, mq);
-  }
+    public RelNode accept(RexShuttle shuttle) {
+        RexNode condition = shuttle.apply(this.condition);
+        if (this.condition == condition) {
+            return this;
+        }
+        return copy(traitSet, getInput(), condition);
+    }
 
-  @Deprecated // to be removed before 2.0
-  public static double estimateFilteredRows(RelNode child, RexNode condition) {
-    final RelMetadataQuery mq = RelMetadataQuery.instance();
-    return RelMdUtil.estimateFilteredRows(child, condition, mq);
-  }
+    public RexNode getCondition() {
+        return condition;
+    }
 
-  public RelWriter explainTerms(RelWriter pw) {
-    return super.explainTerms(pw)
-        .item("condition", condition);
-  }
+    @Override public boolean isValid(Litmus litmus, Context context) {
+        if (RexUtil.isNullabilityCast(getCluster().getTypeFactory(), condition)) {
+            return litmus.fail("Cast for just nullability not allowed");
+        }
+        final RexChecker checker = new RexChecker(getInput().getRowType(), context, litmus);
+        condition.accept(checker);
+        if (checker.getFailureCount() > 0) {
+            return litmus.fail(null);
+        }
+        return litmus.succeed();
+    }
+
+    @Override public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
+        double dRows = mq.getRowCount(this);
+        double dCpu = mq.getRowCount(getInput());
+        double dIo = 0;
+        return planner.getCostFactory().makeCost(dRows, dCpu, dIo);
+    }
+
+    @Override public double estimateRowCount(RelMetadataQuery mq) {
+        return RelMdUtil.estimateFilteredRows(getInput(), condition, mq);
+    }
+
+    @Deprecated // to be removed before 2.0
+    public static double estimateFilteredRows(RelNode child, RexProgram program) {
+        final RelMetadataQuery mq = RelMetadataQuery.instance();
+        return RelMdUtil.estimateFilteredRows(child, program, mq);
+    }
+
+    @Deprecated // to be removed before 2.0
+    public static double estimateFilteredRows(RelNode child, RexNode condition) {
+        final RelMetadataQuery mq = RelMetadataQuery.instance();
+        return RelMdUtil.estimateFilteredRows(child, condition, mq);
+    }
+
+    public RelWriter explainTerms(RelWriter pw) {
+        return super.explainTerms(pw).item("condition", condition);
+    }
 }
 
 // End Filter.java

@@ -20,45 +20,45 @@ import org.apache.calcite.rex.RexProgram;
 
 import java.util.Objects;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Calc}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Calc}.
+ */
 public class MutableCalc extends MutableSingleRel {
-  public final RexProgram program;
 
-  private MutableCalc(MutableRel input, RexProgram program) {
-    super(MutableRelType.CALC, program.getOutputRowType(), input);
-    this.program = program;
-  }
+    public final RexProgram program;
 
-  /**
-   * Creates a MutableCalc
-   *
-   * @param input   Input relational expression
-   * @param program Calc program
-   */
-  public static MutableCalc of(MutableRel input, RexProgram program) {
-    return new MutableCalc(input, program);
-  }
+    private MutableCalc(MutableRel input, RexProgram program) {
+        super(MutableRelType.CALC, program.getOutputRowType(), input);
+        this.program = program;
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableCalc
-        && MutableRel.STRING_EQUIVALENCE.equivalent(
-            program, ((MutableCalc) obj).program)
-        && input.equals(((MutableCalc) obj).input);
-  }
+    /**
+     * Creates a MutableCalc
+     *
+     * @param input   Input relational expression
+     * @param program Calc program
+     */
+    public static MutableCalc of(MutableRel input, RexProgram program) {
+        return new MutableCalc(input, program);
+    }
 
-  @Override public int hashCode() {
-    return Objects.hash(input,
-        MutableRel.STRING_EQUIVALENCE.hash(program));
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof MutableCalc && MutableRel.STRING_EQUIVALENCE.equivalent(program,
+                                                                                                     ((MutableCalc) obj).program)
+                              && input.equals(((MutableCalc) obj).input);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Calc(program: ").append(program).append(")");
-  }
+    @Override public int hashCode() {
+        return Objects.hash(input, MutableRel.STRING_EQUIVALENCE.hash(program));
+    }
 
-  @Override public MutableRel clone() {
-    return MutableCalc.of(input.clone(), program);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Calc(program: ").append(program).append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableCalc.of(input.clone(), program);
+    }
 }
 
 // End MutableCalc.java

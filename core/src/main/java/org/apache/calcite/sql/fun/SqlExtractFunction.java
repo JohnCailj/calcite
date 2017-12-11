@@ -17,12 +17,7 @@
 package org.apache.calcite.sql.fun;
 
 import org.apache.calcite.avatica.util.TimeUnitRange;
-import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlFunction;
-import org.apache.calcite.sql.SqlFunctionCategory;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlOperatorBinding;
-import org.apache.calcite.sql.SqlWriter;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
 import org.apache.calcite.sql.validate.SqlMonotonicity;
@@ -35,43 +30,38 @@ import org.apache.calcite.util.Util;
  * 23</code>
  */
 public class SqlExtractFunction extends SqlFunction {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  // SQL2003, Part 2, Section 4.4.3 - extract returns a exact numeric
-  // TODO: Return type should be decimal for seconds
-  public SqlExtractFunction() {
-    super("EXTRACT", SqlKind.EXTRACT, ReturnTypes.BIGINT_NULLABLE, null,
-        OperandTypes.INTERVALINTERVAL_INTERVALDATETIME,
-        SqlFunctionCategory.SYSTEM);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public String getSignatureTemplate(int operandsCount) {
-    Util.discard(operandsCount);
-    return "{0}({1} FROM {2})";
-  }
-
-  public void unparse(
-      SqlWriter writer,
-      SqlCall call,
-      int leftPrec,
-      int rightPrec) {
-    final SqlWriter.Frame frame = writer.startFunCall(getName());
-    call.operand(0).unparse(writer, 0, 0);
-    writer.sep("FROM");
-    call.operand(1).unparse(writer, 0, 0);
-    writer.endFunCall(frame);
-  }
-
-  @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
-    switch ((TimeUnitRange) call.getOperandLiteralValue(0)) {
-    case YEAR:
-      return call.getOperandMonotonicity(1).unstrict();
-    default:
-      return SqlMonotonicity.NOT_MONOTONIC;
+    // SQL2003, Part 2, Section 4.4.3 - extract returns a exact numeric
+    // TODO: Return type should be decimal for seconds
+    public SqlExtractFunction() {
+        super("EXTRACT", SqlKind.EXTRACT, ReturnTypes.BIGINT_NULLABLE, null,
+              OperandTypes.INTERVALINTERVAL_INTERVALDATETIME, SqlFunctionCategory.SYSTEM);
     }
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    public String getSignatureTemplate(int operandsCount) {
+        Util.discard(operandsCount);
+        return "{0}({1} FROM {2})";
+    }
+
+    public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        final SqlWriter.Frame frame = writer.startFunCall(getName());
+        call.operand(0).unparse(writer, 0, 0);
+        writer.sep("FROM");
+        call.operand(1).unparse(writer, 0, 0);
+        writer.endFunCall(frame);
+    }
+
+    @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
+        switch ((TimeUnitRange) call.getOperandLiteralValue(0)) {
+            case YEAR:
+                return call.getOperandMonotonicity(1).unstrict();
+            default:
+                return SqlMonotonicity.NOT_MONOTONIC;
+        }
+    }
 }
 
 // End SqlExtractFunction.java

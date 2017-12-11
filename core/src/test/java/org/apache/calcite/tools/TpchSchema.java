@@ -20,52 +20,53 @@ package org.apache.calcite.tools;
  * TPC-H table schema.
  */
 public class TpchSchema {
-  public final Part[] part = { p(1), p(2) };
-  public final PartSupp[] partsupp = { ps(1, 250), ps(2, 100) };
 
-  /**
-   * Part in TPC-H.
-   */
-  public static class Part {
-    public int pPartkey;
+    public final Part[]     part     = { p(1), p(2) };
+    public final PartSupp[] partsupp = { ps(1, 250), ps(2, 100) };
 
+    /**
+     * Part in TPC-H.
+     */
+    public static class Part {
 
-    public Part(int pPartkey) {
-      super();
-      this.pPartkey = pPartkey;
+        public int pPartkey;
+
+        public Part(int pPartkey) {
+            super();
+            this.pPartkey = pPartkey;
+        }
+
+        @Override public String toString() {
+            return "Part [pPartkey=" + pPartkey + "]";
+        }
     }
 
-    @Override public String toString() {
-      return "Part [pPartkey=" + pPartkey + "]";
+    /**
+     * Part supplier in TPC-H.
+     */
+    public static class PartSupp {
+
+        public int psPartkey;
+        public int psSupplyCost;
+
+        public PartSupp(int psPartkey, int psSupplyCost) {
+            super();
+            this.psPartkey = psPartkey;
+            this.psSupplyCost = psSupplyCost;
+        }
+
+        @Override public String toString() {
+            return "PartSupp [pSupplyCost=" + psPartkey + ", pSupplyCost=" + psSupplyCost + "]";
+        }
     }
-  }
 
-  /**
-   * Part supplier in TPC-H.
-   */
-  public static class PartSupp {
-    public int psPartkey;
-    public int psSupplyCost;
-
-    public PartSupp(int psPartkey, int psSupplyCost) {
-      super();
-      this.psPartkey = psPartkey;
-      this.psSupplyCost = psSupplyCost;
+    public static PartSupp ps(int pPartkey, int pSupplyCost) {
+        return new PartSupp(pPartkey, pSupplyCost);
     }
 
-    @Override public String toString() {
-      return "PartSupp [pSupplyCost=" + psPartkey + ", pSupplyCost="
-        + psSupplyCost + "]";
+    public static Part p(int pPartkey) {
+        return new Part(pPartkey);
     }
-  }
-
-  public static PartSupp ps(int pPartkey, int pSupplyCost) {
-    return new PartSupp(pPartkey, pSupplyCost);
-  }
-
-  public static Part p(int pPartkey) {
-    return new Part(pPartkey);
-  }
 }
 
 // End TpchSchema.java

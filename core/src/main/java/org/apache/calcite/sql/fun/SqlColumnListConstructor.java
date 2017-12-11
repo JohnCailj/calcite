@@ -16,11 +16,7 @@
  */
 package org.apache.calcite.sql.fun;
 
-import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlSpecialOperator;
-import org.apache.calcite.sql.SqlWriter;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
 
@@ -29,33 +25,24 @@ import org.apache.calcite.sql.type.ReturnTypes;
  * COLUMN_LIST parameter to a UDX.
  */
 public class SqlColumnListConstructor extends SqlSpecialOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlColumnListConstructor() {
-    super(
-        "COLUMN_LIST",
-        SqlKind.COLUMN_LIST, MDX_PRECEDENCE,
-        false,
-        ReturnTypes.COLUMN_LIST,
-        null,
-        OperandTypes.ANY);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void unparse(
-      SqlWriter writer,
-      SqlCall call,
-      int leftPrec,
-      int rightPrec) {
-    writer.keyword("ROW");
-    final SqlWriter.Frame frame = writer.startList("(", ")");
-    for (SqlNode operand : call.getOperandList()) {
-      writer.sep(",");
-      operand.unparse(writer, leftPrec, rightPrec);
+    public SqlColumnListConstructor() {
+        super("COLUMN_LIST", SqlKind.COLUMN_LIST, MDX_PRECEDENCE, false, ReturnTypes.COLUMN_LIST, null,
+              OperandTypes.ANY);
     }
-    writer.endList(frame);
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        writer.keyword("ROW");
+        final SqlWriter.Frame frame = writer.startList("(", ")");
+        for (SqlNode operand : call.getOperandList()) {
+            writer.sep(",");
+            operand.unparse(writer, leftPrec, rightPrec);
+        }
+        writer.endList(frame);
+    }
 }
 
 // End SqlColumnListConstructor.java

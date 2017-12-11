@@ -25,49 +25,57 @@ import java.util.Random;
  * Function object for {@code RAND} and {@code RAND_INTEGER}, with and without
  * seed.
  */
-@SuppressWarnings("unused")
-public class RandomFunction {
-  private Random random;
+@SuppressWarnings("unused") public class RandomFunction {
 
-  /** Creates a RandomFunction.
-   *
-   * <p>Marked deterministic so that the code generator instantiates one once
-   * per query, not once per row. */
-  @Deterministic public RandomFunction() {
-  }
+    private Random random;
 
-  /** Implements the {@code RAND()} SQL function. */
-  public double rand() {
-    if (random == null) {
-      random = new Random();
+    /**
+     * Creates a RandomFunction.
+     * <p>Marked deterministic so that the code generator instantiates one once
+     * per query, not once per row.
+     */
+    @Deterministic public RandomFunction() {
     }
-    return random.nextDouble();
-  }
 
-  /** Implements the {@code RAND(seed)} SQL function. */
-  public double randSeed(@Parameter(name = "seed") int seed) {
-    if (random == null) {
-      random = new Random(seed ^ (seed << 16));
+    /**
+     * Implements the {@code RAND()} SQL function.
+     */
+    public double rand() {
+        if (random == null) {
+            random = new Random();
+        }
+        return random.nextDouble();
     }
-    return random.nextDouble();
-  }
 
-  /** Implements the {@code RAND_INTEGER(bound)} SQL function. */
-  public int randInteger(@Parameter(name = "bound") int bound) {
-    if (random == null) {
-      random = new Random();
+    /**
+     * Implements the {@code RAND(seed)} SQL function.
+     */
+    public double randSeed(@Parameter(name = "seed") int seed) {
+        if (random == null) {
+            random = new Random(seed ^ (seed << 16));
+        }
+        return random.nextDouble();
     }
-    return random.nextInt(bound);
-  }
 
-  /** Implements the {@code RAND_INTEGER(seed, bound)} SQL function. */
-  public int randIntegerSeed(@Parameter(name = "seed") int seed,
-      @Parameter(name = "bound") int bound) {
-    if (random == null) {
-      random = new Random(seed);
+    /**
+     * Implements the {@code RAND_INTEGER(bound)} SQL function.
+     */
+    public int randInteger(@Parameter(name = "bound") int bound) {
+        if (random == null) {
+            random = new Random();
+        }
+        return random.nextInt(bound);
     }
-    return random.nextInt(bound);
-  }
+
+    /**
+     * Implements the {@code RAND_INTEGER(seed, bound)} SQL function.
+     */
+    public int randIntegerSeed(@Parameter(name = "seed") int seed, @Parameter(name = "bound") int bound) {
+        if (random == null) {
+            random = new Random(seed);
+        }
+        return random.nextInt(bound);
+    }
 
 }
 

@@ -23,6 +23,7 @@ import org.apache.calcite.plan.RelOptRule;
  * type of invocation of the {@link Planner}.
  */
 public interface RuleSet extends Iterable<RelOptRule> {
+
 }
 
 // End RuleSet.java

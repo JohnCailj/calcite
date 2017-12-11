@@ -25,55 +25,53 @@ import org.apache.calcite.util.DateString;
 /**
  * A SQL literal representing a DATE value, such as <code>DATE
  * '2004-10-22'</code>.
- *
  * <p>Create values using {@link SqlLiteral#createDate}.
  */
 public class SqlDateLiteral extends SqlAbstractDateTimeLiteral {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  SqlDateLiteral(DateString d, SqlParserPos pos) {
-    super(d, false, SqlTypeName.DATE, 0, pos);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  /** Converts this literal to a {@link DateString}. */
-  protected DateString getDate() {
-    return (DateString) value;
-  }
-
-  public SqlNode clone(SqlParserPos pos) {
-    return new SqlDateLiteral((DateString) value, pos);
-  }
-
-  @Override public String toString() {
-    return "DATE '" + toFormattedString() + "'";
-  }
-
-  /**
-   * Returns e.g. '1969-07-21'.
-   */
-  public String toFormattedString() {
-    return getDate().toString();
-  }
-
-  public RelDataType createSqlType(RelDataTypeFactory typeFactory) {
-    return typeFactory.createSqlType(getTypeName());
-  }
-
-  public void unparse(
-      SqlWriter writer,
-      int leftPrec,
-      int rightPrec) {
-    switch (writer.getDialect().getDatabaseProduct()) {
-    case MSSQL:
-      writer.literal("'" + this.toFormattedString() + "'");
-      break;
-    default:
-      writer.literal(this.toString());
-      break;
+    SqlDateLiteral(DateString d, SqlParserPos pos) {
+        super(d, false, SqlTypeName.DATE, 0, pos);
     }
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * Converts this literal to a {@link DateString}.
+     */
+    protected DateString getDate() {
+        return (DateString) value;
+    }
+
+    public SqlNode clone(SqlParserPos pos) {
+        return new SqlDateLiteral((DateString) value, pos);
+    }
+
+    @Override public String toString() {
+        return "DATE '" + toFormattedString() + "'";
+    }
+
+    /**
+     * Returns e.g. '1969-07-21'.
+     */
+    public String toFormattedString() {
+        return getDate().toString();
+    }
+
+    public RelDataType createSqlType(RelDataTypeFactory typeFactory) {
+        return typeFactory.createSqlType(getTypeName());
+    }
+
+    public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+        switch (writer.getDialect().getDatabaseProduct()) {
+            case MSSQL:
+                writer.literal("'" + this.toFormattedString() + "'");
+                break;
+            default:
+                writer.literal(this.toString());
+                break;
+        }
+    }
 }
 
 // End SqlDateLiteral.java

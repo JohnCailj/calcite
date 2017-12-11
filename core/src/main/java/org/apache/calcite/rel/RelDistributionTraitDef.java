@@ -24,52 +24,50 @@ import org.apache.calcite.rel.logical.LogicalExchange;
 
 /**
  * Definition of the distribution trait.
- *
  * <p>Distribution is a physical property (i.e. a trait) because it can be
  * changed without loss of information. The converter to do this is the
  * {@link Exchange} operator.
  */
 public class RelDistributionTraitDef extends RelTraitDef<RelDistribution> {
-  public static final RelDistributionTraitDef INSTANCE =
-      new RelDistributionTraitDef();
 
-  private RelDistributionTraitDef() {
-  }
+    public static final RelDistributionTraitDef INSTANCE = new RelDistributionTraitDef();
 
-  public Class<RelDistribution> getTraitClass() {
-    return RelDistribution.class;
-  }
-
-  public String getSimpleName() {
-    return "dist";
-  }
-
-  public RelDistribution getDefault() {
-    return RelDistributions.ANY;
-  }
-
-  public RelNode convert(RelOptPlanner planner, RelNode rel,
-      RelDistribution toDistribution, boolean allowInfiniteCostConverters) {
-    if (toDistribution == RelDistributions.ANY) {
-      return rel;
+    private RelDistributionTraitDef() {
     }
 
-    // Create a logical sort, then ask the planner to convert its remaining
-    // traits (e.g. convert it to an EnumerableSortRel if rel is enumerable
-    // convention)
-    final Exchange exchange = LogicalExchange.create(rel, toDistribution);
-    RelNode newRel = planner.register(exchange, rel);
-    final RelTraitSet newTraitSet = rel.getTraitSet().replace(toDistribution);
-    if (!newRel.getTraitSet().equals(newTraitSet)) {
-      newRel = planner.changeTraits(newRel, newTraitSet);
+    public Class<RelDistribution> getTraitClass() {
+        return RelDistribution.class;
     }
-    return newRel;
-  }
 
-  public boolean canConvert(RelOptPlanner planner, RelDistribution fromTrait,
-      RelDistribution toTrait) {
-    return true;
-  }
+    public String getSimpleName() {
+        return "dist";
+    }
+
+    public RelDistribution getDefault() {
+        return RelDistributions.ANY;
+    }
+
+    public RelNode convert(RelOptPlanner planner, RelNode rel, RelDistribution toDistribution,
+                           boolean allowInfiniteCostConverters) {
+        if (toDistribution == RelDistributions.ANY) {
+            return rel;
+        }
+
+        // Create a logical sort, then ask the planner to convert its remaining
+        // traits (e.g. convert it to an EnumerableSortRel if rel is enumerable
+        // convention)
+        final Exchange exchange = LogicalExchange.create(rel, toDistribution);
+        RelNode newRel = planner.register(exchange, rel);
+        final RelTraitSet newTraitSet = rel.getTraitSet().replace(toDistribution);
+        if (!newRel.getTraitSet().equals(newTraitSet)) {
+            newRel = planner.changeTraits(newRel, newTraitSet);
+        }
+        return newRel;
+    }
+
+    public boolean canConvert(RelOptPlanner planner, RelDistribution fromTrait, RelDistribution toTrait) {
+        return true;
+    }
 }
 
 // End RelDistributionTraitDef.java

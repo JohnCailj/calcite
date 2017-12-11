@@ -22,12 +22,13 @@ import org.apache.calcite.schema.Schema;
  * Gives access to some basic information of the Elasticsearch schema.
  */
 public interface ElasticsearchSchema extends Schema {
-  /**
-   * The name of the Elasticsearch index.
-   *
-   * @return The index name
-   */
-  String getIndex();
+
+    /**
+     * The name of the Elasticsearch index.
+     *
+     * @return The index name
+     */
+    String getIndex();
 }
 
 // End ElasticsearchSchema.java

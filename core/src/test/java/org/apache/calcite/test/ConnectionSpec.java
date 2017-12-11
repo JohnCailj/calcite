@@ -16,26 +16,27 @@
  */
 package org.apache.calcite.test;
 
-/** Information necessary to create a JDBC connection.
- *
- * <p>Specify one to run tests against a different database. */
+/**
+ * Information necessary to create a JDBC connection.
+ * <p>Specify one to run tests against a different database.
+ */
 public class ConnectionSpec {
-  public final String url;
-  public final String username;
-  public final String password;
-  public final String driver;
-  public final String schema;
-  public final String catalog;
 
-  public ConnectionSpec(String url, String username, String password,
-      String driver, String schema) {
-    this.url = url;
-    this.username = username;
-    this.password = password;
-    this.driver = driver;
-    this.schema = schema;
-    this.catalog = null;
-  }
+    public final String url;
+    public final String username;
+    public final String password;
+    public final String driver;
+    public final String schema;
+    public final String catalog;
+
+    public ConnectionSpec(String url, String username, String password, String driver, String schema) {
+        this.url = url;
+        this.username = username;
+        this.password = password;
+        this.driver = driver;
+        this.schema = schema;
+        this.catalog = null;
+    }
 }
 
 // End ConnectionSpec.java

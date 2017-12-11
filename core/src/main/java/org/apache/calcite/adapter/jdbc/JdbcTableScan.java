@@ -16,13 +16,12 @@
  */
 package org.apache.calcite.adapter.jdbc;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelOptTable;
 import org.apache.calcite.plan.RelTraitSet;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.core.TableScan;
-
-import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
@@ -30,28 +29,24 @@ import java.util.List;
  * Relational expression representing a scan of a table in a JDBC data source.
  */
 public class JdbcTableScan extends TableScan implements JdbcRel {
-  final JdbcTable jdbcTable;
 
-  protected JdbcTableScan(
-      RelOptCluster cluster,
-      RelOptTable table,
-      JdbcTable jdbcTable,
-      JdbcConvention jdbcConvention) {
-    super(cluster, cluster.traitSetOf(jdbcConvention), table);
-    this.jdbcTable = jdbcTable;
-    assert jdbcTable != null;
-  }
+    final JdbcTable jdbcTable;
 
-  @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-    assert inputs.isEmpty();
-    return new JdbcTableScan(
-        getCluster(), table, jdbcTable, (JdbcConvention) getConvention());
-  }
+    protected JdbcTableScan(RelOptCluster cluster, RelOptTable table, JdbcTable jdbcTable,
+                            JdbcConvention jdbcConvention) {
+        super(cluster, cluster.traitSetOf(jdbcConvention), table);
+        this.jdbcTable = jdbcTable;
+        assert jdbcTable != null;
+    }
 
-  public JdbcImplementor.Result implement(JdbcImplementor implementor) {
-    return implementor.result(jdbcTable.tableName(),
-        ImmutableList.of(JdbcImplementor.Clause.FROM), this, null);
-  }
+    @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        assert inputs.isEmpty();
+        return new JdbcTableScan(getCluster(), table, jdbcTable, (JdbcConvention) getConvention());
+    }
+
+    public JdbcImplementor.Result implement(JdbcImplementor implementor) {
+        return implementor.result(jdbcTable.tableName(), ImmutableList.of(JdbcImplementor.Clause.FROM), this, null);
+    }
 }
 
 // End JdbcTableScan.java

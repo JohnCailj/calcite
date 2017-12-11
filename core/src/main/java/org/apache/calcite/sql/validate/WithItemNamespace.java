@@ -24,53 +24,49 @@ import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlWithItem;
 import org.apache.calcite.util.Pair;
 
-/** Very similar to {@link AliasNamespace}. */
+/**
+ * Very similar to {@link AliasNamespace}.
+ */
 class WithItemNamespace extends AbstractNamespace {
-  private final SqlWithItem withItem;
 
-  WithItemNamespace(SqlValidatorImpl validator, SqlWithItem withItem,
-      SqlNode enclosingNode) {
-    super(validator, enclosingNode);
-    this.withItem = withItem;
-  }
+    private final SqlWithItem withItem;
 
-  @Override protected RelDataType validateImpl(RelDataType targetRowType) {
-    final SqlValidatorNamespace childNs =
-        validator.getNamespace(withItem.query);
-    final RelDataType rowType = childNs.getRowTypeSansSystemColumns();
-    if (withItem.columnList == null) {
-      return rowType;
+    WithItemNamespace(SqlValidatorImpl validator, SqlWithItem withItem, SqlNode enclosingNode) {
+        super(validator, enclosingNode);
+        this.withItem = withItem;
     }
-    final RelDataTypeFactory.Builder builder =
-        validator.getTypeFactory().builder();
-    for (Pair<SqlNode, RelDataTypeField> pair
-        : Pair.zip(withItem.columnList, rowType.getFieldList())) {
-      builder.add(((SqlIdentifier) pair.left).getSimple(),
-          pair.right.getType());
-    }
-    return builder.build();
-  }
 
-  public SqlNode getNode() {
-    return withItem;
-  }
+    @Override protected RelDataType validateImpl(RelDataType targetRowType) {
+        final SqlValidatorNamespace childNs = validator.getNamespace(withItem.query);
+        final RelDataType rowType = childNs.getRowTypeSansSystemColumns();
+        if (withItem.columnList == null) {
+            return rowType;
+        }
+        final RelDataTypeFactory.Builder builder = validator.getTypeFactory().builder();
+        for (Pair<SqlNode, RelDataTypeField> pair : Pair.zip(withItem.columnList, rowType.getFieldList())) {
+            builder.add(((SqlIdentifier) pair.left).getSimple(), pair.right.getType());
+        }
+        return builder.build();
+    }
 
-  @Override public String translate(String name) {
-    if (withItem.columnList == null) {
-      return name;
+    public SqlNode getNode() {
+        return withItem;
     }
-    final RelDataType underlyingRowType =
-          validator.getValidatedNodeType(withItem.query);
-    int i = 0;
-    for (RelDataTypeField field : rowType.getFieldList()) {
-      if (field.getName().equals(name)) {
-        return underlyingRowType.getFieldList().get(i).getName();
-      }
-      ++i;
+
+    @Override public String translate(String name) {
+        if (withItem.columnList == null) {
+            return name;
+        }
+        final RelDataType underlyingRowType = validator.getValidatedNodeType(withItem.query);
+        int i = 0;
+        for (RelDataTypeField field : rowType.getFieldList()) {
+            if (field.getName().equals(name)) {
+                return underlyingRowType.getFieldList().get(i).getName();
+            }
+            ++i;
+        }
+        throw new AssertionError("unknown field '" + name + "' in rowtype " + underlyingRowType);
     }
-    throw new AssertionError("unknown field '" + name
-        + "' in rowtype " + underlyingRowType);
-  }
 }
 
 // End WithItemNamespace.java

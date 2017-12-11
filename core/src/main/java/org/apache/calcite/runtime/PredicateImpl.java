@@ -22,9 +22,7 @@ import javax.annotation.Nullable;
 
 /**
  * Abstract implementation of {@link com.google.common.base.Predicate}.
- *
  * <p>Derived class needs to implement the {@link #test} method.
- *
  * <p>Helps with the transition to {@code java.util.function.Predicate},
  * which was introduced in JDK 1.8, and is required in Guava 21.0 and higher,
  * but still works on JDK 1.7.
@@ -32,12 +30,15 @@ import javax.annotation.Nullable;
  * @param <T> the type of the input to the predicate
  */
 public abstract class PredicateImpl<T> implements Predicate<T> {
-  public final boolean apply(@Nullable T input) {
-    return test(input);
-  }
 
-  /** Overrides {@code java.util.function.Predicate#test} in JDK8 and higher. */
-  public abstract boolean test(@Nullable T t);
+    public final boolean apply(@Nullable T input) {
+        return test(input);
+    }
+
+    /**
+     * Overrides {@code java.util.function.Predicate#test} in JDK8 and higher.
+     */
+    public abstract boolean test(@Nullable T t);
 }
 
 // End PredicateImpl.java

@@ -26,43 +26,40 @@ import org.apache.calcite.util.Util;
  * Namespace for <code>WITH</code> clause.
  */
 public class WithNamespace extends AbstractNamespace {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlWith with;
+    private final SqlWith with;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a TableConstructorNamespace.
-   *
-   * @param validator     Validator
-   * @param with          WITH clause
-   * @param enclosingNode Enclosing node
-   */
-  WithNamespace(SqlValidatorImpl validator,
-      SqlWith with,
-      SqlNode enclosingNode) {
-    super(validator, enclosingNode);
-    this.with = with;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  protected RelDataType validateImpl(RelDataType targetRowType) {
-    for (SqlNode withItem : with.withList) {
-      validator.validateWithItem((SqlWithItem) withItem);
+    /**
+     * Creates a TableConstructorNamespace.
+     *
+     * @param validator     Validator
+     * @param with          WITH clause
+     * @param enclosingNode Enclosing node
+     */
+    WithNamespace(SqlValidatorImpl validator, SqlWith with, SqlNode enclosingNode) {
+        super(validator, enclosingNode);
+        this.with = with;
     }
-    final SqlValidatorScope scope2 =
-        validator.getWithScope(Util.last(with.withList.getList()));
-    validator.validateQuery(with.body, scope2, targetRowType);
-    final RelDataType rowType = validator.getValidatedNodeType(with.body);
-    validator.setValidatedNodeType(with, rowType);
-    return rowType;
-  }
 
-  public SqlNode getNode() {
-    return with;
-  }
+    //~ Methods ----------------------------------------------------------------
+
+    protected RelDataType validateImpl(RelDataType targetRowType) {
+        for (SqlNode withItem : with.withList) {
+            validator.validateWithItem((SqlWithItem) withItem);
+        }
+        final SqlValidatorScope scope2 = validator.getWithScope(Util.last(with.withList.getList()));
+        validator.validateQuery(with.body, scope2, targetRowType);
+        final RelDataType rowType = validator.getValidatedNodeType(with.body);
+        validator.setValidatedNodeType(with, rowType);
+        return rowType;
+    }
+
+    public SqlNode getNode() {
+        return with;
+    }
 }
 
 // End WithNamespace.java

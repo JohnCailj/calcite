@@ -32,24 +32,23 @@ import java.util.List;
  * {@link org.apache.calcite.interpreter.InterpretableConvention}, by wrapping
  * it in an interpreter.
  */
-public class InterpretableConverter extends ConverterImpl
-    implements ArrayBindable {
-  protected InterpretableConverter(RelOptCluster cluster, RelTraitSet traits,
-      RelNode input) {
-    super(cluster, ConventionTraitDef.INSTANCE, traits, input);
-  }
+public class InterpretableConverter extends ConverterImpl implements ArrayBindable {
 
-  @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-    return new InterpretableConverter(getCluster(), traitSet, sole(inputs));
-  }
+    protected InterpretableConverter(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
+        super(cluster, ConventionTraitDef.INSTANCE, traits, input);
+    }
 
-  public Class<Object[]> getElementType() {
-    return Object[].class;
-  }
+    @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        return new InterpretableConverter(getCluster(), traitSet, sole(inputs));
+    }
 
-  public Enumerable<Object[]> bind(DataContext dataContext) {
-    return new Interpreter(dataContext, getInput());
-  }
+    public Class<Object[]> getElementType() {
+        return Object[].class;
+    }
+
+    public Enumerable<Object[]> bind(DataContext dataContext) {
+        return new Interpreter(dataContext, getInput());
+    }
 }
 
 // End InterpretableConverter.java

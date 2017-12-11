@@ -22,6 +22,7 @@ package org.apache.calcite.adapter.enumerable;
  * to tell if it is used in regular or windowed context.
  */
 public interface WinAggContext extends AggContext {
+
 }
 
 // End WinAggContext.java

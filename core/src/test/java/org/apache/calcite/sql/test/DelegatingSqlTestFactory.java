@@ -25,49 +25,47 @@ import org.apache.calcite.sql.validate.SqlValidatorWithHints;
 import org.apache.calcite.test.MockCatalogReader;
 
 /**
-* Implementation of {@link SqlTestFactory} that delegates
+ * Implementation of {@link SqlTestFactory} that delegates
  * everything to an underlying factory.
- *
  * <p>Generally a chain starts with a
  * {@link org.apache.calcite.sql.test.DefaultSqlTestFactory}, and continues with
  * a succession of objects that derive from {@code DelegatingSqlTestFactory} and
  * override one method.</p>
- *
  * <p>Methods such as
  * {@link org.apache.calcite.sql.test.SqlTester#withConformance} help create
  * such chains.</p>
-*/
+ */
 public class DelegatingSqlTestFactory implements SqlTestFactory {
-  private final SqlTestFactory factory;
 
-  public DelegatingSqlTestFactory(SqlTestFactory factory) {
-    this.factory = factory;
-  }
+    private final SqlTestFactory factory;
 
-  public Object get(String name) {
-    return factory.get(name);
-  }
+    public DelegatingSqlTestFactory(SqlTestFactory factory) {
+        this.factory = factory;
+    }
 
-  public MockCatalogReader createCatalogReader(SqlTestFactory factory,
-      JavaTypeFactory typeFactory) {
-    return this.factory.createCatalogReader(factory, typeFactory);
-  }
+    public Object get(String name) {
+        return factory.get(name);
+    }
 
-  public SqlOperatorTable createOperatorTable(SqlTestFactory factory) {
-    return this.factory.createOperatorTable(factory);
-  }
+    public MockCatalogReader createCatalogReader(SqlTestFactory factory, JavaTypeFactory typeFactory) {
+        return this.factory.createCatalogReader(factory, typeFactory);
+    }
 
-  public SqlAdvisor createAdvisor(SqlValidatorWithHints validator) {
-    return factory.createAdvisor(validator);
-  }
+    public SqlOperatorTable createOperatorTable(SqlTestFactory factory) {
+        return this.factory.createOperatorTable(factory);
+    }
 
-  public SqlValidator getValidator(SqlTestFactory factory) {
-    return this.factory.getValidator(factory);
-  }
+    public SqlAdvisor createAdvisor(SqlValidatorWithHints validator) {
+        return factory.createAdvisor(validator);
+    }
 
-  public SqlParser createParser(SqlTestFactory factory, String sql) {
-    return this.factory.createParser(factory, sql);
-  }
+    public SqlValidator getValidator(SqlTestFactory factory) {
+        return this.factory.getValidator(factory);
+    }
+
+    public SqlParser createParser(SqlTestFactory factory, String sql) {
+        return this.factory.createParser(factory, sql);
+    }
 }
 
 // End DelegatingSqlTestFactory.java

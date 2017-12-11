@@ -25,31 +25,23 @@ import org.apache.calcite.sql.type.ReturnTypes;
 /**
  * An operator which performs set operations on multisets, such as "MULTISET
  * UNION ALL".
- *
  * <p>Not to be confused with {@link SqlMultisetValueConstructor} or
  * {@link SqlMultisetQueryConstructor}.
- *
  * <p>todo: Represent the ALL keyword to MULTISET UNION ALL etc. as a hidden
  * operand. Then we can obsolete this class.
  */
 public class SqlMultisetSetOperator extends SqlBinaryOperator {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final boolean all;
+    private final boolean all;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlMultisetSetOperator(String name, int prec, boolean all) {
-    super(
-        name,
-        SqlKind.OTHER,
-        prec,
-        true,
-        ReturnTypes.MULTISET_NULLABLE,
-        InferTypes.FIRST_KNOWN,
-        OperandTypes.MULTISET_MULTISET);
-    this.all = all;
-  }
+    public SqlMultisetSetOperator(String name, int prec, boolean all) {
+        super(name, SqlKind.OTHER, prec, true, ReturnTypes.MULTISET_NULLABLE, InferTypes.FIRST_KNOWN,
+              OperandTypes.MULTISET_MULTISET);
+        this.all = all;
+    }
 }
 
 // End SqlMultisetSetOperator.java

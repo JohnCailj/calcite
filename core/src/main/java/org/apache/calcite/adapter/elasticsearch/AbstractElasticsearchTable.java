@@ -37,92 +37,89 @@ import java.util.Map;
 /**
  * Table based on an Elasticsearch type.
  */
-public abstract class AbstractElasticsearchTable extends AbstractQueryableTable
-    implements TranslatableTable {
-  protected final String indexName;
-  protected final String typeName;
+public abstract class AbstractElasticsearchTable extends AbstractQueryableTable implements TranslatableTable {
 
-  /**
-   * Creates an ElasticsearchTable.
-   */
-  public AbstractElasticsearchTable(String indexName, String typeName) {
-    super(Object[].class);
-    this.indexName = indexName;
-    this.typeName = typeName;
-  }
+    protected final String indexName;
+    protected final String typeName;
 
-  @Override public String toString() {
-    return "ElasticsearchTable{" + typeName + "}";
-  }
-
-  public RelDataType getRowType(RelDataTypeFactory relDataTypeFactory) {
-    final RelDataType mapType = relDataTypeFactory.createMapType(
-        relDataTypeFactory.createSqlType(SqlTypeName.VARCHAR),
-        relDataTypeFactory.createTypeWithNullability(
-            relDataTypeFactory.createSqlType(SqlTypeName.ANY),
-            true));
-    return relDataTypeFactory.builder().add("_MAP", mapType).build();
-  }
-
-  public <T> Queryable<T> asQueryable(QueryProvider queryProvider, SchemaPlus schema,
-      String tableName) {
-    return new ElasticsearchQueryable<>(queryProvider, schema, this, tableName);
-  }
-
-  public RelNode toRel(RelOptTable.ToRelContext context, RelOptTable relOptTable) {
-    final RelOptCluster cluster = context.getCluster();
-    return new ElasticsearchTableScan(cluster, cluster.traitSetOf(ElasticsearchRel.CONVENTION),
-        relOptTable, this, null);
-  }
-
-  /** Executes a "find" operation on the underlying type.
-   *
-   * <p>For example,
-   * <code>client.prepareSearch(index).setTypes(type)
-   * .setSource("{\"fields\" : [\"state\"]}")</code></p>
-   *
-   * @param index Elasticsearch index
-   * @param ops List of operations represented as Json strings.
-   * @param fields List of fields to project; or null to return map
-   * @return Enumerator of results
-   */
-  protected abstract Enumerable<Object> find(String index, List<String> ops,
-      List<Map.Entry<String, Class>> fields);
-
-  /**
-   * Implementation of {@link Queryable} based on
-   * a {@link AbstractElasticsearchTable}.
-   *
-   * @param <T> element type
-   */
-  public static class ElasticsearchQueryable<T> extends AbstractTableQueryable<T> {
-    public ElasticsearchQueryable(QueryProvider queryProvider, SchemaPlus schema,
-        AbstractElasticsearchTable table, String tableName) {
-      super(queryProvider, schema, table, tableName);
-    }
-
-    public Enumerator<T> enumerator() {
-      return null;
-    }
-
-    private String getIndex() {
-      return schema.unwrap(ElasticsearchSchema.class).getIndex();
-    }
-
-    private AbstractElasticsearchTable getTable() {
-      return (AbstractElasticsearchTable) table;
-    }
-
-    /** Called via code-generation.
-     *
-     * @see ElasticsearchMethod#ELASTICSEARCH_QUERYABLE_FIND
+    /**
+     * Creates an ElasticsearchTable.
      */
-    @SuppressWarnings("UnusedDeclaration")
-    public Enumerable<Object> find(List<String> ops,
-        List<Map.Entry<String, Class>> fields) {
-      return getTable().find(getIndex(), ops, fields);
+    public AbstractElasticsearchTable(String indexName, String typeName) {
+        super(Object[].class);
+        this.indexName = indexName;
+        this.typeName = typeName;
     }
-  }
+
+    @Override public String toString() {
+        return "ElasticsearchTable{" + typeName + "}";
+    }
+
+    public RelDataType getRowType(RelDataTypeFactory relDataTypeFactory) {
+        final RelDataType mapType = relDataTypeFactory.createMapType(
+                relDataTypeFactory.createSqlType(SqlTypeName.VARCHAR),
+                relDataTypeFactory.createTypeWithNullability(relDataTypeFactory.createSqlType(SqlTypeName.ANY), true));
+        return relDataTypeFactory.builder().add("_MAP", mapType).build();
+    }
+
+    public <T> Queryable<T> asQueryable(QueryProvider queryProvider, SchemaPlus schema, String tableName) {
+        return new ElasticsearchQueryable<>(queryProvider, schema, this, tableName);
+    }
+
+    public RelNode toRel(RelOptTable.ToRelContext context, RelOptTable relOptTable) {
+        final RelOptCluster cluster = context.getCluster();
+        return new ElasticsearchTableScan(cluster, cluster.traitSetOf(ElasticsearchRel.CONVENTION), relOptTable, this,
+                                          null);
+    }
+
+    /**
+     * Executes a "find" operation on the underlying type.
+     * <p>For example,
+     * <code>client.prepareSearch(index).setTypes(type)
+     * .setSource("{\"fields\" : [\"state\"]}")</code></p>
+     *
+     * @param index  Elasticsearch index
+     * @param ops    List of operations represented as Json strings.
+     * @param fields List of fields to project; or null to return map
+     * @return Enumerator of results
+     */
+    protected abstract Enumerable<Object> find(String index, List<String> ops, List<Map.Entry<String, Class>> fields);
+
+    /**
+     * Implementation of {@link Queryable} based on
+     * a {@link AbstractElasticsearchTable}.
+     *
+     * @param <T> element type
+     */
+    public static class ElasticsearchQueryable<T> extends AbstractTableQueryable<T> {
+
+        public ElasticsearchQueryable(QueryProvider queryProvider, SchemaPlus schema, AbstractElasticsearchTable table,
+                                      String tableName) {
+            super(queryProvider, schema, table, tableName);
+        }
+
+        public Enumerator<T> enumerator() {
+            return null;
+        }
+
+        private String getIndex() {
+            return schema.unwrap(ElasticsearchSchema.class).getIndex();
+        }
+
+        private AbstractElasticsearchTable getTable() {
+            return (AbstractElasticsearchTable) table;
+        }
+
+        /**
+         * Called via code-generation.
+         *
+         * @see ElasticsearchMethod#ELASTICSEARCH_QUERYABLE_FIND
+         */
+        @SuppressWarnings("UnusedDeclaration") public Enumerable<Object> find(List<String> ops,
+                                                                              List<Map.Entry<String, Class>> fields) {
+            return getTable().find(getIndex(), ops, fields);
+        }
+    }
 }
 
 // End AbstractElasticsearchTable.java

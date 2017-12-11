@@ -25,18 +25,19 @@ import org.apache.calcite.sql.fun.SqlStdOperatorTable;
  * Visitor that extracts the actual field name from an item expression.
  */
 public class MapProjectionFieldVisitor extends RexVisitorImpl<String> {
-  public static final MapProjectionFieldVisitor INSTANCE = new MapProjectionFieldVisitor();
 
-  private MapProjectionFieldVisitor() {
-    super(true);
-  }
+    public static final MapProjectionFieldVisitor INSTANCE = new MapProjectionFieldVisitor();
 
-  @Override public String visitCall(RexCall call) {
-    if (call.op == SqlStdOperatorTable.ITEM) {
-      return ((RexLiteral) call.getOperands().get(1)).getValueAs(String.class);
+    private MapProjectionFieldVisitor() {
+        super(true);
     }
-    return super.visitCall(call);
-  }
+
+    @Override public String visitCall(RexCall call) {
+        if (call.op == SqlStdOperatorTable.ITEM) {
+            return ((RexLiteral) call.getOperands().get(1)).getValueAs(String.class);
+        }
+        return super.visitCall(call);
+    }
 }
 
 // End MapProjectionFieldVisitor.java

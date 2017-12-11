@@ -33,71 +33,59 @@ import org.apache.calcite.tools.RelBuilderFactory;
  * {@link org.apache.calcite.rel.logical.LogicalFilter}s.
  */
 public class FilterMergeRule extends RelOptRule {
-  public static final FilterMergeRule INSTANCE =
-      new FilterMergeRule(RelFactories.LOGICAL_BUILDER);
 
-  //~ Constructors -----------------------------------------------------------
+    public static final FilterMergeRule INSTANCE = new FilterMergeRule(RelFactories.LOGICAL_BUILDER);
 
-  /**
-   * Creates a FilterMergeRule.
-   */
-  public FilterMergeRule(RelBuilderFactory relBuilderFactory) {
-    super(
-        operand(Filter.class,
-            operand(Filter.class, any())),
-        relBuilderFactory, null);
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  @Deprecated // to be removed before 2.0
-  public FilterMergeRule(RelFactories.FilterFactory filterFactory) {
-    this(RelBuilder.proto(Contexts.of(filterFactory)));
-  }
+    /**
+     * Creates a FilterMergeRule.
+     */
+    public FilterMergeRule(RelBuilderFactory relBuilderFactory) {
+        super(operand(Filter.class, operand(Filter.class, any())), relBuilderFactory, null);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    @Deprecated // to be removed before 2.0
+    public FilterMergeRule(RelFactories.FilterFactory filterFactory) {
+        this(RelBuilder.proto(Contexts.of(filterFactory)));
+    }
 
-  public void onMatch(RelOptRuleCall call) {
-    final Filter topFilter = call.rel(0);
-    final Filter bottomFilter = call.rel(1);
+    //~ Methods ----------------------------------------------------------------
 
-    // use RexPrograms to merge the two FilterRels into a single program
-    // so we can convert the two LogicalFilter conditions to directly
-    // reference the bottom LogicalFilter's child
-    RexBuilder rexBuilder = topFilter.getCluster().getRexBuilder();
-    RexProgram bottomProgram = createProgram(bottomFilter);
-    RexProgram topProgram = createProgram(topFilter);
+    public void onMatch(RelOptRuleCall call) {
+        final Filter topFilter = call.rel(0);
+        final Filter bottomFilter = call.rel(1);
 
-    RexProgram mergedProgram =
-        RexProgramBuilder.mergePrograms(
-            topProgram,
-            bottomProgram,
-            rexBuilder);
+        // use RexPrograms to merge the two FilterRels into a single program
+        // so we can convert the two LogicalFilter conditions to directly
+        // reference the bottom LogicalFilter's child
+        RexBuilder rexBuilder = topFilter.getCluster().getRexBuilder();
+        RexProgram bottomProgram = createProgram(bottomFilter);
+        RexProgram topProgram = createProgram(topFilter);
 
-    RexNode newCondition =
-        mergedProgram.expandLocalRef(
-            mergedProgram.getCondition());
+        RexProgram mergedProgram = RexProgramBuilder.mergePrograms(topProgram, bottomProgram, rexBuilder);
 
-    final RelBuilder relBuilder = call.builder();
-    relBuilder.push(bottomFilter.getInput())
-        .filter(newCondition);
+        RexNode newCondition = mergedProgram.expandLocalRef(mergedProgram.getCondition());
 
-    call.transformTo(relBuilder.build());
-  }
+        final RelBuilder relBuilder = call.builder();
+        relBuilder.push(bottomFilter.getInput()).filter(newCondition);
 
-  /**
-   * Creates a RexProgram corresponding to a LogicalFilter
-   *
-   * @param filterRel the LogicalFilter
-   * @return created RexProgram
-   */
-  private RexProgram createProgram(Filter filterRel) {
-    RexProgramBuilder programBuilder =
-        new RexProgramBuilder(
-            filterRel.getRowType(),
-            filterRel.getCluster().getRexBuilder());
-    programBuilder.addIdentity();
-    programBuilder.addCondition(filterRel.getCondition());
-    return programBuilder.getProgram();
-  }
+        call.transformTo(relBuilder.build());
+    }
+
+    /**
+     * Creates a RexProgram corresponding to a LogicalFilter
+     *
+     * @param filterRel the LogicalFilter
+     * @return created RexProgram
+     */
+    private RexProgram createProgram(Filter filterRel) {
+        RexProgramBuilder programBuilder = new RexProgramBuilder(filterRel.getRowType(),
+                                                                 filterRel.getCluster().getRexBuilder());
+        programBuilder.addIdentity();
+        programBuilder.addCondition(filterRel.getCondition());
+        return programBuilder.getProgram();
+    }
 }
 
 // End FilterMergeRule.java

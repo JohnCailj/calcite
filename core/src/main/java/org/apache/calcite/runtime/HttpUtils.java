@@ -16,134 +16,114 @@
  */
 package org.apache.calcite.runtime;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
 
 /**
  * Utilities for connecting to REST services such as Splunk via HTTP.
  */
 public class HttpUtils {
-  private HttpUtils() {}
 
-  public static HttpURLConnection getURLConnection(String url)
-      throws IOException {
-    URLConnection conn = new URL(url).openConnection();
-    final HttpURLConnection httpConn = (HttpURLConnection) conn;
+    private HttpUtils() {
+    }
 
-    // take care of https stuff - most of the time it's only needed to
-    // secure client/server comm
-    // not to establish the identity of the server
-    if (httpConn instanceof HttpsURLConnection) {
-      HttpsURLConnection httpsConn = (HttpsURLConnection) httpConn;
-      httpsConn.setSSLSocketFactory(
-          TrustAllSslSocketFactory.createSSLSocketFactory());
-      httpsConn.setHostnameVerifier(
-          new HostnameVerifier() {
-            public boolean verify(String arg0, SSLSession arg1) {
-              return true;
+    public static HttpURLConnection getURLConnection(String url) throws IOException {
+        URLConnection conn = new URL(url).openConnection();
+        final HttpURLConnection httpConn = (HttpURLConnection) conn;
+
+        // take care of https stuff - most of the time it's only needed to
+        // secure client/server comm
+        // not to establish the identity of the server
+        if (httpConn instanceof HttpsURLConnection) {
+            HttpsURLConnection httpsConn = (HttpsURLConnection) httpConn;
+            httpsConn.setSSLSocketFactory(TrustAllSslSocketFactory.createSSLSocketFactory());
+            httpsConn.setHostnameVerifier(new HostnameVerifier() {
+
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+            });
+        }
+
+        return httpConn;
+    }
+
+    public static void appendURLEncodedArgs(StringBuilder out, Map<String, String> args) {
+        int i = 0;
+        try {
+            for (Map.Entry<String, String> me : args.entrySet()) {
+                if (i++ != 0) {
+                    out.append("&");
+                }
+                out.append(URLEncoder.encode(me.getKey(), "UTF-8")).append("=").append(
+                        URLEncoder.encode(me.getValue(), "UTF-8"));
             }
-          });
-    }
-
-    return httpConn;
-  }
-
-  public static void appendURLEncodedArgs(
-      StringBuilder out, Map<String, String> args) {
-    int i = 0;
-    try {
-      for (Map.Entry<String, String> me : args.entrySet()) {
-        if (i++ != 0) {
-          out.append("&");
+        } catch (UnsupportedEncodingException ignore) {
+            // ignore
         }
-        out.append(URLEncoder.encode(me.getKey(), "UTF-8"))
-            .append("=")
-            .append(URLEncoder.encode(me.getValue(), "UTF-8"));
-      }
-    } catch (UnsupportedEncodingException ignore) {
-      // ignore
     }
-  }
 
-  public static void appendURLEncodedArgs(
-      StringBuilder out, CharSequence ... args) {
-    if (args.length % 2 != 0) {
-      throw new IllegalArgumentException(
-          "args should contain an even number of items");
-    }
-    try {
-      int appended = 0;
-      for (int i = 0; i < args.length; i += 2) {
-        if (args[i + 1] == null) {
-          continue;
+    public static void appendURLEncodedArgs(StringBuilder out, CharSequence... args) {
+        if (args.length % 2 != 0) {
+            throw new IllegalArgumentException("args should contain an even number of items");
         }
-        if (appended++ > 0) {
-          out.append("&");
+        try {
+            int appended = 0;
+            for (int i = 0; i < args.length; i += 2) {
+                if (args[i + 1] == null) {
+                    continue;
+                }
+                if (appended++ > 0) {
+                    out.append("&");
+                }
+                out.append(URLEncoder.encode(args[i].toString(), "UTF-8")).append("=").append(
+                        URLEncoder.encode(args[i + 1].toString(), "UTF-8"));
+            }
+        } catch (UnsupportedEncodingException ignore) {
+            // ignore
         }
-        out.append(URLEncoder.encode(args[i].toString(), "UTF-8"))
-            .append("=")
-            .append(URLEncoder.encode(args[i + 1].toString(), "UTF-8"));
-      }
-    } catch (UnsupportedEncodingException ignore) {
-      // ignore
     }
-  }
 
-  public static InputStream post(
-      String url,
-      CharSequence data,
-      Map<String, String> headers) throws IOException {
-    return post(url, data, headers, 10000, 60000);
-  }
-
-  public static InputStream post(
-      String url,
-      CharSequence data,
-      Map<String, String> headers,
-      int cTimeout,
-      int rTimeout) throws IOException {
-    return executeMethod(data == null ? "GET" : "POST", url, data, headers,
-        cTimeout, rTimeout);
-  }
-
-  public static InputStream executeMethod(
-      String method, String url,
-      CharSequence data, Map<String, String> headers,
-      int cTimeout, int rTimeout) throws IOException {
-    // NOTE: do not log "data" or "url"; may contain user name or password.
-    final HttpURLConnection conn = getURLConnection(url);
-    conn.setRequestMethod(method);
-    conn.setReadTimeout(rTimeout);
-    conn.setConnectTimeout(cTimeout);
-
-    if (headers != null) {
-      for (Map.Entry<String, String> me : headers.entrySet()) {
-        conn.setRequestProperty(me.getKey(), me.getValue());
-      }
+    public static InputStream post(String url, CharSequence data, Map<String, String> headers) throws IOException {
+        return post(url, data, headers, 10000, 60000);
     }
-    if (data == null) {
-      return conn.getInputStream();
+
+    public static InputStream post(String url, CharSequence data, Map<String, String> headers, int cTimeout,
+                                   int rTimeout) throws IOException {
+        return executeMethod(data == null ? "GET" : "POST", url, data, headers, cTimeout, rTimeout);
     }
-    conn.setDoOutput(true);
-    try (Writer w = new OutputStreamWriter(conn.getOutputStream(),
-        StandardCharsets.UTF_8)) {
-      w.write(data.toString());
-      w.flush(); // Get the response
-      return conn.getInputStream();
+
+    public static InputStream executeMethod(String method, String url, CharSequence data, Map<String, String> headers,
+                                            int cTimeout, int rTimeout) throws IOException {
+        // NOTE: do not log "data" or "url"; may contain user name or password.
+        final HttpURLConnection conn = getURLConnection(url);
+        conn.setRequestMethod(method);
+        conn.setReadTimeout(rTimeout);
+        conn.setConnectTimeout(cTimeout);
+
+        if (headers != null) {
+            for (Map.Entry<String, String> me : headers.entrySet()) {
+                conn.setRequestProperty(me.getKey(), me.getValue());
+            }
+        }
+        if (data == null) {
+            return conn.getInputStream();
+        }
+        conn.setDoOutput(true);
+        try (Writer w = new OutputStreamWriter(conn.getOutputStream(), StandardCharsets.UTF_8)) {
+            w.write(data.toString());
+            w.flush(); // Get the response
+            return conn.getInputStream();
+        }
     }
-  }
 }
 
 // End HttpUtils.java

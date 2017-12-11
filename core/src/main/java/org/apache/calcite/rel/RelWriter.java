@@ -23,62 +23,61 @@ import java.util.List;
 
 /**
  * Callback for an expression to dump itself to.
- *
  * <p>It is used for generating EXPLAIN PLAN output, and also for serializing
  * a tree of relational expressions to JSON.</p>
  */
 public interface RelWriter {
-  /**
-   * Prints an explanation of a node, with a list of (term, value) pairs.
-   *
-   * <p>The term-value pairs are generally gathered by calling
-   * {@link org.apache.calcite.rel.RelNode#explain(RelWriter)}.
-   * Each sub-class of {@link org.apache.calcite.rel.RelNode}
-   * calls {@link #input(String, org.apache.calcite.rel.RelNode)}
-   * and {@link #item(String, Object)} to declare term-value pairs.</p>
-   *
-   * @param rel       Relational expression
-   * @param valueList List of term-value pairs
-   */
-  void explain(RelNode rel, List<Pair<String, Object>> valueList);
 
-  /**
-   * @return detail level at which plan should be generated
-   */
-  SqlExplainLevel getDetailLevel();
+    /**
+     * Prints an explanation of a node, with a list of (term, value) pairs.
+     * <p>The term-value pairs are generally gathered by calling
+     * {@link org.apache.calcite.rel.RelNode#explain(RelWriter)}.
+     * Each sub-class of {@link org.apache.calcite.rel.RelNode}
+     * calls {@link #input(String, org.apache.calcite.rel.RelNode)}
+     * and {@link #item(String, Object)} to declare term-value pairs.</p>
+     *
+     * @param rel       Relational expression
+     * @param valueList List of term-value pairs
+     */
+    void explain(RelNode rel, List<Pair<String, Object>> valueList);
 
-  /**
-   * Adds an input to the explanation of the current node.
-   *
-   * @param term  Term for input, e.g. "left" or "input #1".
-   * @param input Input relational expression
-   */
-  RelWriter input(String term, RelNode input);
+    /**
+     * @return detail level at which plan should be generated
+     */
+    SqlExplainLevel getDetailLevel();
 
-  /**
-   * Adds an attribute to the explanation of the current node.
-   *
-   * @param term  Term for attribute, e.g. "joinType"
-   * @param value Attribute value
-   */
-  RelWriter item(String term, Object value);
+    /**
+     * Adds an input to the explanation of the current node.
+     *
+     * @param term  Term for input, e.g. "left" or "input #1".
+     * @param input Input relational expression
+     */
+    RelWriter input(String term, RelNode input);
 
-  /**
-   * Adds an input to the explanation of the current node, if a condition
-   * holds.
-   */
-  RelWriter itemIf(String term, Object value, boolean condition);
+    /**
+     * Adds an attribute to the explanation of the current node.
+     *
+     * @param term  Term for attribute, e.g. "joinType"
+     * @param value Attribute value
+     */
+    RelWriter item(String term, Object value);
 
-  /**
-   * Writes the completed explanation.
-   */
-  RelWriter done(RelNode node);
+    /**
+     * Adds an input to the explanation of the current node, if a condition
+     * holds.
+     */
+    RelWriter itemIf(String term, Object value, boolean condition);
 
-  /**
-   * Returns whether the writer prefers nested values. Traditional explain
-   * writers prefer flattened values.
-   */
-  boolean nest();
+    /**
+     * Writes the completed explanation.
+     */
+    RelWriter done(RelNode node);
+
+    /**
+     * Returns whether the writer prefers nested values. Traditional explain
+     * writers prefer flattened values.
+     */
+    boolean nest();
 }
 
 // End RelWriter.java

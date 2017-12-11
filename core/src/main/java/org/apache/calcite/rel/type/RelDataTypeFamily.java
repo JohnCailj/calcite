@@ -21,6 +21,7 @@ package org.apache.calcite.rel.type;
  * for membership in a type family are type-system dependent.
  */
 public interface RelDataTypeFamily {
+
 }
 
 // End RelDataTypeFamily.java

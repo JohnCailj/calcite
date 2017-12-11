@@ -22,69 +22,57 @@ import org.apache.calcite.util.ImmutableIntList;
 
 import java.util.Objects;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.SemiJoin}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.SemiJoin}.
+ */
 public class MutableSemiJoin extends MutableBiRel {
-  public final RexNode condition;
-  public final ImmutableIntList leftKeys;
-  public final ImmutableIntList rightKeys;
 
-  private MutableSemiJoin(
-      RelDataType rowType,
-      MutableRel left,
-      MutableRel right,
-      RexNode condition,
-      ImmutableIntList leftKeys,
-      ImmutableIntList rightKeys) {
-    super(MutableRelType.SEMIJOIN, left.cluster, rowType, left, right);
-    this.condition = condition;
-    this.leftKeys = leftKeys;
-    this.rightKeys = rightKeys;
-  }
+    public final RexNode          condition;
+    public final ImmutableIntList leftKeys;
+    public final ImmutableIntList rightKeys;
 
-  /**
-   * Creates a MutableSemiJoin.
-   *
-   * @param rowType   Row type
-   * @param left      Left input relational expression
-   * @param right     Right input relational expression
-   * @param condition Join condition
-   * @param leftKeys  Left join keys
-   * @param rightKeys Right join keys
-   */
-  public static MutableSemiJoin of(RelDataType rowType, MutableRel left,
-      MutableRel right, RexNode condition, ImmutableIntList leftKeys,
-      ImmutableIntList rightKeys) {
-    return new MutableSemiJoin(rowType, left, right, condition, leftKeys,
-        rightKeys);
-  }
+    private MutableSemiJoin(RelDataType rowType, MutableRel left, MutableRel right, RexNode condition,
+                            ImmutableIntList leftKeys, ImmutableIntList rightKeys) {
+        super(MutableRelType.SEMIJOIN, left.cluster, rowType, left, right);
+        this.condition = condition;
+        this.leftKeys = leftKeys;
+        this.rightKeys = rightKeys;
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableSemiJoin
-        && condition.toString().equals(
-            ((MutableSemiJoin) obj).condition.toString())
-        && leftKeys.equals(((MutableSemiJoin) obj).leftKeys)
-        && rightKeys.equals(((MutableSemiJoin) obj).rightKeys)
-        && left.equals(((MutableSemiJoin) obj).left)
-        && right.equals(((MutableSemiJoin) obj).right);
-  }
+    /**
+     * Creates a MutableSemiJoin.
+     *
+     * @param rowType   Row type
+     * @param left      Left input relational expression
+     * @param right     Right input relational expression
+     * @param condition Join condition
+     * @param leftKeys  Left join keys
+     * @param rightKeys Right join keys
+     */
+    public static MutableSemiJoin of(RelDataType rowType, MutableRel left, MutableRel right, RexNode condition,
+                                     ImmutableIntList leftKeys, ImmutableIntList rightKeys) {
+        return new MutableSemiJoin(rowType, left, right, condition, leftKeys, rightKeys);
+    }
 
-  @Override public int hashCode() {
-    return Objects.hash(left, right,
-        condition.toString(), leftKeys, rightKeys);
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof MutableSemiJoin && condition.toString().equals(
+                ((MutableSemiJoin) obj).condition.toString()) && leftKeys.equals(((MutableSemiJoin) obj).leftKeys)
+                              && rightKeys.equals(((MutableSemiJoin) obj).rightKeys) && left.equals(
+                ((MutableSemiJoin) obj).left) && right.equals(((MutableSemiJoin) obj).right);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("SemiJoin(condition: ").append(condition)
-        .append(", leftKeys: ").append(leftKeys)
-        .append(", rightKeys: ").append(rightKeys)
-        .append(")");
-  }
+    @Override public int hashCode() {
+        return Objects.hash(left, right, condition.toString(), leftKeys, rightKeys);
+    }
 
-  @Override public MutableRel clone() {
-    return MutableSemiJoin.of(rowType, left.clone(),
-        right.clone(), condition, leftKeys, rightKeys);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("SemiJoin(condition: ").append(condition).append(", leftKeys: ").append(leftKeys).append(
+                ", rightKeys: ").append(rightKeys).append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableSemiJoin.of(rowType, left.clone(), right.clone(), condition, leftKeys, rightKeys);
+    }
 }
 
 // End MutableSemiJoin.java

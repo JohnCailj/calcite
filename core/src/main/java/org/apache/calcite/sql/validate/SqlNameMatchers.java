@@ -16,12 +16,11 @@
  */
 package org.apache.calcite.sql.validate;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.util.Util;
-
-import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Map;
@@ -31,124 +30,128 @@ import java.util.Map;
  */
 public class SqlNameMatchers {
 
-  private static final BaseMatcher CASE_SENSITIVE = new BaseMatcher(true);
-  private static final BaseMatcher CASE_INSENSITIVE = new BaseMatcher(false);
+    private static final BaseMatcher CASE_SENSITIVE   = new BaseMatcher(true);
+    private static final BaseMatcher CASE_INSENSITIVE = new BaseMatcher(false);
 
-  private SqlNameMatchers() {}
-
-  /** Returns a name matcher with the given case sensitivity. */
-  public static SqlNameMatcher withCaseSensitive(final boolean caseSensitive) {
-    return caseSensitive ? CASE_SENSITIVE : CASE_INSENSITIVE;
-  }
-
-  /** Creates a name matcher that can suggest corrections to what the user
-   * typed. It matches liberally (case-insensitively) and also records the last
-   * match. */
-  public static SqlNameMatcher liberal() {
-    return new LiberalNameMatcher();
-  }
-
-  /** Partial implementation of {@link SqlNameMatcher}. */
-  private static class BaseMatcher implements SqlNameMatcher {
-    private final boolean caseSensitive;
-
-    BaseMatcher(boolean caseSensitive) {
-      this.caseSensitive = caseSensitive;
+    private SqlNameMatchers() {
     }
 
-    public boolean isCaseSensitive() {
-      return caseSensitive;
+    /**
+     * Returns a name matcher with the given case sensitivity.
+     */
+    public static SqlNameMatcher withCaseSensitive(final boolean caseSensitive) {
+        return caseSensitive ? CASE_SENSITIVE : CASE_INSENSITIVE;
     }
 
-    public boolean matches(String string, String name) {
-      return caseSensitive ? string.equals(name)
-          : string.equalsIgnoreCase(name);
+    /**
+     * Creates a name matcher that can suggest corrections to what the user
+     * typed. It matches liberally (case-insensitively) and also records the last
+     * match.
+     */
+    public static SqlNameMatcher liberal() {
+        return new LiberalNameMatcher();
     }
 
-    protected boolean listMatches(List<String> list0, List<String> list1) {
-      if (list0.size() != list1.size()) {
-        return false;
-      }
-      for (int i = 0; i < list0.size(); i++) {
-        String s0 = list0.get(i);
-        String s1 = list1.get(i);
-        if (!matches(s0, s1)) {
-          return false;
+    /**
+     * Partial implementation of {@link SqlNameMatcher}.
+     */
+    private static class BaseMatcher implements SqlNameMatcher {
+
+        private final boolean caseSensitive;
+
+        BaseMatcher(boolean caseSensitive) {
+            this.caseSensitive = caseSensitive;
         }
-      }
-      return true;
-    }
 
-    public <K extends List<String>, V> V get(Map<K, V> map,
-        List<String> prefixNames, List<String> names) {
-      final List<String> key = concat(prefixNames, names);
-      if (caseSensitive) {
-        //noinspection SuspiciousMethodCalls
-        return map.get(key);
-      }
-      for (Map.Entry<K, V> entry : map.entrySet()) {
-        if (listMatches(key, entry.getKey())) {
-          matched(prefixNames, entry.getKey());
-          return entry.getValue();
+        public boolean isCaseSensitive() {
+            return caseSensitive;
         }
-      }
-      return null;
+
+        public boolean matches(String string, String name) {
+            return caseSensitive ? string.equals(name) : string.equalsIgnoreCase(name);
+        }
+
+        protected boolean listMatches(List<String> list0, List<String> list1) {
+            if (list0.size() != list1.size()) {
+                return false;
+            }
+            for (int i = 0; i < list0.size(); i++) {
+                String s0 = list0.get(i);
+                String s1 = list1.get(i);
+                if (!matches(s0, s1)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public <K extends List<String>, V> V get(Map<K, V> map, List<String> prefixNames, List<String> names) {
+            final List<String> key = concat(prefixNames, names);
+            if (caseSensitive) {
+                //noinspection SuspiciousMethodCalls
+                return map.get(key);
+            }
+            for (Map.Entry<K, V> entry : map.entrySet()) {
+                if (listMatches(key, entry.getKey())) {
+                    matched(prefixNames, entry.getKey());
+                    return entry.getValue();
+                }
+            }
+            return null;
+        }
+
+        private List<String> concat(List<String> prefixNames, List<String> names) {
+            if (prefixNames.isEmpty()) {
+                return names;
+            } else {
+                return ImmutableList.<String>builder().addAll(prefixNames).addAll(names).build();
+            }
+        }
+
+        protected void matched(List<String> prefixNames, List<String> names) {
+        }
+
+        protected List<String> bestMatch() {
+            throw new UnsupportedOperationException();
+        }
+
+        public String bestString() {
+            return SqlIdentifier.getString(bestMatch());
+        }
+
+        public RelDataTypeField field(RelDataType rowType, String fieldName) {
+            return rowType.getField(fieldName, caseSensitive, false);
+        }
     }
 
-    private List<String> concat(List<String> prefixNames, List<String> names) {
-      if (prefixNames.isEmpty()) {
-        return names;
-      } else {
-        return ImmutableList.<String>builder().addAll(prefixNames).addAll(names)
-            .build();
-      }
-    }
+    /**
+     * Matcher that remembers the requests that were made of it.
+     */
+    private static class LiberalNameMatcher extends BaseMatcher {
 
-    protected void matched(List<String> prefixNames, List<String> names) {
-    }
+        List<String> matchedNames;
 
-    protected List<String> bestMatch() {
-      throw new UnsupportedOperationException();
-    }
+        LiberalNameMatcher() {
+            super(false);
+        }
 
-    public String bestString() {
-      return SqlIdentifier.getString(bestMatch());
-    }
+        @Override protected boolean listMatches(List<String> list0, List<String> list1) {
+            final boolean b = super.listMatches(list0, list1);
+            if (b) {
+                matchedNames = ImmutableList.copyOf(list1);
+            }
+            return b;
+        }
 
-    public RelDataTypeField field(RelDataType rowType, String fieldName) {
-      return rowType.getField(fieldName, caseSensitive, false);
-    }
-  }
+        @Override protected void matched(List<String> prefixNames, List<String> names) {
+            matchedNames = ImmutableList.copyOf(
+                    Util.startsWith(names, prefixNames) ? Util.skip(names, prefixNames.size()) : names);
+        }
 
-  /** Matcher that remembers the requests that were made of it. */
-  private static class LiberalNameMatcher extends BaseMatcher {
-    List<String> matchedNames;
-
-    LiberalNameMatcher() {
-      super(false);
+        @Override public List<String> bestMatch() {
+            return matchedNames;
+        }
     }
-
-    @Override protected boolean listMatches(List<String> list0,
-        List<String> list1) {
-      final boolean b = super.listMatches(list0, list1);
-      if (b) {
-        matchedNames = ImmutableList.copyOf(list1);
-      }
-      return b;
-    }
-
-    @Override protected void matched(List<String> prefixNames,
-        List<String> names) {
-      matchedNames = ImmutableList.copyOf(
-          Util.startsWith(names, prefixNames)
-              ? Util.skip(names, prefixNames.size())
-              : names);
-    }
-
-    @Override public List<String> bestMatch() {
-      return matchedNames;
-    }
-  }
 }
 
 // End SqlNameMatchers.java

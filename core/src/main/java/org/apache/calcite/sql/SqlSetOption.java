@@ -16,21 +16,18 @@
  */
 package org.apache.calcite.sql;
 
+import com.google.common.collect.Lists;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
-
-import com.google.common.collect.Lists;
 
 import java.util.List;
 
 /**
  * SQL parse tree node to represent {@code SET} and {@code RESET} statements,
  * optionally preceded by {@code ALTER SYSTEM} or {@code ALTER SESSION}.
- *
  * <p>Syntax:
- *
  * <blockquote><code>
  * ALTER scope SET `option.name` = value;<br>
  * ALTER scope RESET `option`.`name`;<br>
@@ -40,15 +37,11 @@ import java.util.List;
  * RESET `option`.`name`;<br>
  * RESET ALL;
  * </code></blockquote>
- *
  * <p>If {@link #scope} is null, assume a default scope. (The default scope
  * is defined by the project using Calcite, but is typically SESSION.)
- *
  * <p>If {@link #value} is null, assume RESET;
  * if {@link #value} is not null, assume SET.
- *
  * <p>Examples:
- *
  * <ul>
  * <li><code>ALTER SYSTEM SET `my`.`param1` = 1</code></li>
  * <li><code>SET `my.param2` = 1</code></li>
@@ -59,121 +52,121 @@ import java.util.List;
  * </ul>
  */
 public class SqlSetOption extends SqlAlter {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("SET_OPTION", SqlKind.SET_OPTION) {
-        @Override public SqlCall createCall(SqlLiteral functionQualifier,
-            SqlParserPos pos, SqlNode... operands) {
-          final SqlNode scopeNode = operands[0];
-          return new SqlSetOption(pos,
-              scopeNode == null ? null : scopeNode.toString(),
-              (SqlIdentifier) operands[1], operands[2]);
+
+    public static final SqlSpecialOperator OPERATOR = new SqlSpecialOperator("SET_OPTION", SqlKind.SET_OPTION) {
+
+        @Override public SqlCall createCall(SqlLiteral functionQualifier, SqlParserPos pos, SqlNode... operands) {
+            final SqlNode scopeNode = operands[0];
+            return new SqlSetOption(pos, scopeNode == null ? null : scopeNode.toString(), (SqlIdentifier) operands[1],
+                                    operands[2]);
         }
-      };
+    };
 
-  /** Name of the option as an {@link org.apache.calcite.sql.SqlIdentifier}
-   * with one or more parts.*/
-  SqlIdentifier name;
+    /**
+     * Name of the option as an {@link org.apache.calcite.sql.SqlIdentifier}
+     * with one or more parts.
+     */
+    SqlIdentifier name;
 
-  /** Value of the option. May be a {@link org.apache.calcite.sql.SqlLiteral} or
-   * a {@link org.apache.calcite.sql.SqlIdentifier} with one
-   * part. Reserved words (currently just 'ON') are converted to
-   * identifiers by the parser. */
-  SqlNode value;
+    /**
+     * Value of the option. May be a {@link org.apache.calcite.sql.SqlLiteral} or
+     * a {@link org.apache.calcite.sql.SqlIdentifier} with one
+     * part. Reserved words (currently just 'ON') are converted to
+     * identifiers by the parser.
+     */
+    SqlNode value;
 
-  /**
-   * Creates a node.
-   *
-   * @param pos Parser position, must not be null.
-   * @param scope Scope (generally "SYSTEM" or "SESSION"), may be null.
-   * @param name Name of option, as an identifier, must not be null.
-   * @param value Value of option, as an identifier or literal, may be null.
-   *              If null, assume RESET command, else assume SET command.
-   */
-  public SqlSetOption(SqlParserPos pos, String scope, SqlIdentifier name,
-      SqlNode value) {
-    super(pos, scope);
-    this.scope = scope;
-    this.name = name;
-    this.value = value;
-    assert name != null;
-  }
-
-  @Override public SqlKind getKind() {
-    return SqlKind.SET_OPTION;
-  }
-
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
-  }
-
-  @Override public List<SqlNode> getOperandList() {
-    final List<SqlNode> operandList = Lists.newArrayList();
-    if (scope == null) {
-      operandList.add(null);
-    } else {
-      operandList.add(new SqlIdentifier(scope, SqlParserPos.ZERO));
+    /**
+     * Creates a node.
+     *
+     * @param pos   Parser position, must not be null.
+     * @param scope Scope (generally "SYSTEM" or "SESSION"), may be null.
+     * @param name  Name of option, as an identifier, must not be null.
+     * @param value Value of option, as an identifier or literal, may be null.
+     *              If null, assume RESET command, else assume SET command.
+     */
+    public SqlSetOption(SqlParserPos pos, String scope, SqlIdentifier name, SqlNode value) {
+        super(pos, scope);
+        this.scope = scope;
+        this.name = name;
+        this.value = value;
+        assert name != null;
     }
-    operandList.add(name);
-    operandList.add(value);
-    return ImmutableNullableList.copyOf(operandList);
-  }
 
-  @Override public void setOperand(int i, SqlNode operand) {
-    switch (i) {
-    case 0:
-      if (operand != null) {
-        scope = ((SqlIdentifier) operand).getSimple();
-      } else {
-        scope = null;
-      }
-      break;
-    case 1:
-      name = (SqlIdentifier) operand;
-      break;
-    case 2:
-      value = operand;
-      break;
-    default:
-      throw new AssertionError(i);
+    @Override public SqlKind getKind() {
+        return SqlKind.SET_OPTION;
     }
-  }
 
-  @Override protected void unparseAlterOperation(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (value != null) {
-      writer.keyword("SET");
-    } else {
-      writer.keyword("RESET");
+    @Override public SqlOperator getOperator() {
+        return OPERATOR;
     }
-    final SqlWriter.Frame frame =
-        writer.startList(SqlWriter.FrameTypeEnum.SIMPLE);
-    name.unparse(writer, leftPrec, rightPrec);
-    if (value != null) {
-      writer.sep("=");
-      value.unparse(writer, leftPrec, rightPrec);
+
+    @Override public List<SqlNode> getOperandList() {
+        final List<SqlNode> operandList = Lists.newArrayList();
+        if (scope == null) {
+            operandList.add(null);
+        } else {
+            operandList.add(new SqlIdentifier(scope, SqlParserPos.ZERO));
+        }
+        operandList.add(name);
+        operandList.add(value);
+        return ImmutableNullableList.copyOf(operandList);
     }
-    writer.endList(frame);
-  }
 
-  @Override public void validate(SqlValidator validator,
-      SqlValidatorScope scope) {
-    validator.validate(value);
-  }
+    @Override public void setOperand(int i, SqlNode operand) {
+        switch (i) {
+            case 0:
+                if (operand != null) {
+                    scope = ((SqlIdentifier) operand).getSimple();
+                } else {
+                    scope = null;
+                }
+                break;
+            case 1:
+                name = (SqlIdentifier) operand;
+                break;
+            case 2:
+                value = operand;
+                break;
+            default:
+                throw new AssertionError(i);
+        }
+    }
 
-  public SqlIdentifier getName() {
-    return name;
-  }
+    @Override protected void unparseAlterOperation(SqlWriter writer, int leftPrec, int rightPrec) {
+        if (value != null) {
+            writer.keyword("SET");
+        } else {
+            writer.keyword("RESET");
+        }
+        final SqlWriter.Frame frame = writer.startList(SqlWriter.FrameTypeEnum.SIMPLE);
+        name.unparse(writer, leftPrec, rightPrec);
+        if (value != null) {
+            writer.sep("=");
+            value.unparse(writer, leftPrec, rightPrec);
+        }
+        writer.endList(frame);
+    }
 
-  public void setName(SqlIdentifier name) {
-    this.name = name;
-  }
+    @Override public void validate(SqlValidator validator, SqlValidatorScope scope) {
+        validator.validate(value);
+    }
 
-  public SqlNode getValue() {
-    return value;
-  }
+    public SqlIdentifier getName() {
+        return name;
+    }
 
-  public void setValue(SqlNode value) {
-    this.value = value;
-  }
+    public void setName(SqlIdentifier name) {
+        this.name = name;
+    }
+
+    public SqlNode getValue() {
+        return value;
+    }
+
+    public void setValue(SqlNode value) {
+        this.value = value;
+    }
 }
 
 // End SqlSetOption.java

@@ -16,6 +16,8 @@
  */
 package org.apache.calcite.sql;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.fun.SqlTrimFunction;
@@ -25,9 +27,6 @@ import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorImpl;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-
 import java.util.Map;
 
 import static org.apache.calcite.util.Static.RESOURCE;
@@ -36,10 +35,8 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * A <code>SqlJdbcFunctionCall</code> is a node of a parse tree which represents
  * a JDBC function call. A JDBC call is of the form <code>{fn NAME(arg0, arg1,
  * ...)}</code>.
- *
  * <p>See <a href="http://java.sun.com/products/jdbc/driverdevs.html">Sun's
  * documentation for writers of JDBC drivers</a>.*
- *
  * <table>
  * <caption>Supported JDBC functions</caption>
  * <tr>
@@ -48,7 +45,6 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * </tr>
  * <tr>
  * <td colspan="2"><br>
- *
  * <h3>NUMERIC FUNCTIONS</h3>
  * </td>
  * </tr>
@@ -151,7 +147,6 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * </tr>
  * <tr>
  * <td colspan="2"><br>
- *
  * <h3>STRING FUNCTIONS</h3>
  * </td>
  * </tr>
@@ -240,7 +235,6 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * </tr>
  * <tr>
  * <td colspan="2"><br>
- *
  * <h3>TIME and DATE FUNCTIONS</h3>
  * </td>
  * </tr>
@@ -325,7 +319,6 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * </tr>
  * <tr>
  * <td colspan="2"><br>
- *
  * <h3>SYSTEM FUNCTIONS</h3>
  * </td>
  * </tr>
@@ -340,10 +333,8 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * <tr>
  * <td>USER()</td>
  * <td>User name in the DBMS
- *
  * <tr>
  * <td colspan="2"><br>
- *
  * <h3>CONVERSION FUNCTIONS</h3>
  * </td>
  * </tr>
@@ -357,426 +348,406 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * </table>
  */
 public class SqlJdbcFunctionCall extends SqlFunction {
-  //~ Static fields/initializers ---------------------------------------------
-
-  /** List of all numeric function names defined by JDBC. */
-  private static final String NUMERIC_FUNCTIONS = constructFuncList(
-      "ABS", "ACOS", "ASIN", "ATAN", "ATAN2", "CEILING", "COS", "COT",
-      "DEGREES", "EXP", "FLOOR", "LOG", "LOG10", "MOD", "PI",
-      "POWER", "RADIANS", "RAND", "ROUND", "SIGN", "SIN", "SQRT",
-      "TAN", "TRUNCATE");
-
-  /** List of all string function names defined by JDBC. */
-  private static final String STRING_FUNCTIONS = constructFuncList(
-      "ASCII", "CHAR", "CONCAT", "DIFFERENCE", "INSERT", "LCASE",
-      "LEFT", "LENGTH", "LOCATE", "LTRIM", "REPEAT", "REPLACE",
-      "RIGHT", "RTRIM", "SOUNDEX", "SPACE", "SUBSTRING", "UCASE");
-      // "ASCII", "CHAR", "DIFFERENCE", "LOWER",
-      // "LEFT", "TRIM", "REPEAT", "REPLACE",
-      // "RIGHT", "SPACE", "SUBSTRING", "UPPER", "INITCAP", "OVERLAY"
-
-  /** List of all time/date function names defined by JDBC. */
-  private static final String TIME_DATE_FUNCTIONS = constructFuncList(
-      "CURDATE", "CURTIME", "DAYNAME", "DAYOFMONTH", "DAYOFWEEK",
-      "DAYOFYEAR", "HOUR", "MINUTE", "MONTH", "MONTHNAME", "NOW",
-      "QUARTER", "SECOND", "TIMESTAMPADD", "TIMESTAMPDIFF",
-      "WEEK", "YEAR");
-
-  /** List of all system function names defined by JDBC. */
-  private static final String SYSTEM_FUNCTIONS = constructFuncList(
-      "CONVERT", "DATABASE", "IFNULL", "USER");
-
-  //~ Instance fields --------------------------------------------------------
-
-  private final String jdbcName;
-  private final MakeCall lookupMakeCallObj;
-  private SqlCall lookupCall;
-
-  private SqlNode[] thisOperands;
-
-  //~ Constructors -----------------------------------------------------------
-
-  public SqlJdbcFunctionCall(String name) {
-    super(
-        "{fn " + name + "}",
-        SqlKind.JDBC_FN,
-        null,
-        null,
-        OperandTypes.VARIADIC,
-        SqlFunctionCategory.SYSTEM);
-    jdbcName = name;
-    lookupMakeCallObj = JdbcToInternalLookupTable.INSTANCE.lookup(name);
-    lookupCall = null;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  private static String constructFuncList(String... functionNames) {
-    StringBuilder sb = new StringBuilder();
-    int n = 0;
-    for (String funcName : functionNames) {
-      if (JdbcToInternalLookupTable.INSTANCE.lookup(funcName) == null) {
-        continue;
-      }
-      if (n++ > 0) {
-        sb.append(",");
-      }
-      sb.append(funcName);
-    }
-    return sb.toString();
-  }
-
-  public SqlCall createCall(
-      SqlLiteral functionQualifier,
-      SqlParserPos pos,
-      SqlNode... operands) {
-    thisOperands = operands;
-    return super.createCall(functionQualifier, pos, operands);
-  }
-
-  @Override public SqlNode rewriteCall(SqlValidator validator,
-      SqlCall call) {
-    if (null == lookupMakeCallObj) {
-      throw validator.newValidationError(call,
-          RESOURCE.functionUndefined(getName()));
-    }
-    return lookupMakeCallObj.getOperator().rewriteCall(validator, call);
-  }
-
-  public SqlCall getLookupCall() {
-    if (null == lookupCall) {
-      lookupCall =
-          lookupMakeCallObj.createCall(SqlParserPos.ZERO, thisOperands);
-    }
-    return lookupCall;
-  }
-
-  public String getAllowedSignatures(String name) {
-    return lookupMakeCallObj.getOperator().getAllowedSignatures(name);
-  }
-
-  public RelDataType deriveType(
-      SqlValidator validator,
-      SqlValidatorScope scope,
-      SqlCall call) {
-    // Override SqlFunction.deriveType, because function-resolution is
-    // not relevant to a JDBC function call.
-    // REVIEW: jhyde, 2006/4/18: Should SqlJdbcFunctionCall even be a
-    // subclass of SqlFunction?
-
-    for (SqlNode operand : call.getOperandList()) {
-      RelDataType nodeType = validator.deriveType(scope, operand);
-      ((SqlValidatorImpl) validator).setValidatedNodeType(operand, nodeType);
-    }
-    return validateOperands(validator, scope, call);
-  }
-
-  public RelDataType inferReturnType(
-      SqlOperatorBinding opBinding) {
-    // only expected to come here if validator called this method
-    SqlCallBinding callBinding = (SqlCallBinding) opBinding;
-
-    if (null == lookupMakeCallObj) {
-      throw callBinding.newValidationError(
-          RESOURCE.functionUndefined(getName()));
-    }
-
-    final String message = lookupMakeCallObj.isValidArgCount(callBinding);
-    if (message != null) {
-      throw callBinding.newValidationError(
-          RESOURCE.wrongNumberOfParam(getName(), thisOperands.length,
-              message));
-    }
-
-    final SqlCall newCall = getLookupCall();
-    final SqlCallBinding newBinding =
-        new SqlCallBinding(callBinding.getValidator(), callBinding.getScope(),
-            newCall);
-
-    final SqlOperator operator = lookupMakeCallObj.getOperator();
-    if (!operator.checkOperandTypes(newBinding, false)) {
-      throw callBinding.newValidationSignatureError();
-    }
-
-    return operator.validateOperands(callBinding.getValidator(),
-        callBinding.getScope(), newCall);
-  }
-
-  public void unparse(
-      SqlWriter writer,
-      SqlCall call,
-      int leftPrec,
-      int rightPrec) {
-    writer.print("{fn ");
-    writer.print(jdbcName);
-    final SqlWriter.Frame frame = writer.startList("(", ")");
-    for (SqlNode operand : call.getOperandList()) {
-      writer.sep(",");
-      operand.unparse(writer, leftPrec, rightPrec);
-    }
-    writer.endList(frame);
-    writer.print("}");
-  }
-
-  /**
-   * @see java.sql.DatabaseMetaData#getNumericFunctions
-   */
-  public static String getNumericFunctions() {
-    return NUMERIC_FUNCTIONS;
-  }
-
-  /**
-   * @see java.sql.DatabaseMetaData#getStringFunctions
-   */
-  public static String getStringFunctions() {
-    return STRING_FUNCTIONS;
-  }
-
-  /**
-   * @see java.sql.DatabaseMetaData#getTimeDateFunctions
-   */
-  public static String getTimeDateFunctions() {
-    return TIME_DATE_FUNCTIONS;
-  }
-
-  /**
-   * @see java.sql.DatabaseMetaData#getSystemFunctions
-   */
-  public static String getSystemFunctions() {
-    return SYSTEM_FUNCTIONS;
-  }
-
-  //~ Inner Classes ----------------------------------------------------------
-
-  /** Converts a call to a JDBC function to a call to a regular function. */
-  private interface MakeCall {
-    /**
-     * Creates and return a {@link SqlCall}. If the MakeCall strategy object
-     * was created with a reordering specified the call will be created with
-     * the operands reordered, otherwise no change of ordering is applied
-     *
-     * @param operands Operands
-     */
-    SqlCall createCall(SqlParserPos pos, SqlNode... operands);
-
-    SqlOperator getOperator();
-
-    String isValidArgCount(SqlCallBinding binding);
-  }
-
-  /** Converter that calls a built-in function with the same arguments. */
-  public static class SimpleMakeCall implements SqlJdbcFunctionCall.MakeCall {
-    final SqlOperator operator;
-
-    public SimpleMakeCall(SqlOperator operator) {
-      this.operator = operator;
-    }
-
-    public SqlOperator getOperator() {
-      return operator;
-    }
-
-    public SqlCall createCall(SqlParserPos pos, SqlNode... operands) {
-      return operator.createCall(pos, operands);
-    }
-
-    public String isValidArgCount(SqlCallBinding binding) {
-      return null; // any number of arguments is valid
-    }
-  }
-
-  /** Implementation of {@link MakeCall} that can re-order or ignore operands. */
-  private static class PermutingMakeCall extends SimpleMakeCall {
-    final int[] order;
+    //~ Static fields/initializers ---------------------------------------------
 
     /**
-     * Creates a MakeCall strategy object with reordering of operands.
-     *
-     * <p>The reordering is specified by an int array where the value of
-     * element at position <code>i</code> indicates to which element in a
-     * new SqlNode[] array the operand goes.
-     *  @param operator Operator
-     * @param order    Order
+     * List of all numeric function names defined by JDBC.
      */
-    PermutingMakeCall(SqlOperator operator, int[] order) {
-      super(operator);
-      this.order = Preconditions.checkNotNull(order);
+    private static final String NUMERIC_FUNCTIONS = constructFuncList("ABS", "ACOS", "ASIN", "ATAN", "ATAN2", "CEILING",
+                                                                      "COS", "COT", "DEGREES", "EXP", "FLOOR", "LOG",
+                                                                      "LOG10", "MOD", "PI", "POWER", "RADIANS", "RAND",
+                                                                      "ROUND", "SIGN", "SIN", "SQRT", "TAN",
+                                                                      "TRUNCATE");
+
+    /**
+     * List of all string function names defined by JDBC.
+     */
+    private static final String STRING_FUNCTIONS = constructFuncList("ASCII", "CHAR", "CONCAT", "DIFFERENCE", "INSERT",
+                                                                     "LCASE", "LEFT", "LENGTH", "LOCATE", "LTRIM",
+                                                                     "REPEAT", "REPLACE", "RIGHT", "RTRIM", "SOUNDEX",
+                                                                     "SPACE", "SUBSTRING", "UCASE");
+    // "ASCII", "CHAR", "DIFFERENCE", "LOWER",
+    // "LEFT", "TRIM", "REPEAT", "REPLACE",
+    // "RIGHT", "SPACE", "SUBSTRING", "UPPER", "INITCAP", "OVERLAY"
+
+    /**
+     * List of all time/date function names defined by JDBC.
+     */
+    private static final String TIME_DATE_FUNCTIONS = constructFuncList("CURDATE", "CURTIME", "DAYNAME", "DAYOFMONTH",
+                                                                        "DAYOFWEEK", "DAYOFYEAR", "HOUR", "MINUTE",
+                                                                        "MONTH", "MONTHNAME", "NOW", "QUARTER",
+                                                                        "SECOND", "TIMESTAMPADD", "TIMESTAMPDIFF",
+                                                                        "WEEK", "YEAR");
+
+    /**
+     * List of all system function names defined by JDBC.
+     */
+    private static final String SYSTEM_FUNCTIONS = constructFuncList("CONVERT", "DATABASE", "IFNULL", "USER");
+
+    //~ Instance fields --------------------------------------------------------
+
+    private final String   jdbcName;
+    private final MakeCall lookupMakeCallObj;
+    private       SqlCall  lookupCall;
+
+    private SqlNode[] thisOperands;
+
+    //~ Constructors -----------------------------------------------------------
+
+    public SqlJdbcFunctionCall(String name) {
+        super("{fn " + name + "}", SqlKind.JDBC_FN, null, null, OperandTypes.VARIADIC, SqlFunctionCategory.SYSTEM);
+        jdbcName = name;
+        lookupMakeCallObj = JdbcToInternalLookupTable.INSTANCE.lookup(name);
+        lookupCall = null;
     }
 
-    @Override public SqlCall createCall(SqlParserPos pos,
-        SqlNode... operands) {
-      return super.createCall(pos, reorder(operands));
-    }
+    //~ Methods ----------------------------------------------------------------
 
-    @Override public String isValidArgCount(SqlCallBinding binding) {
-      if (order.length == binding.getOperandCount()) {
-        return null; // operand count is valid
-      } else {
-        return getArgCountMismatchMsg(order.length);
-      }
-    }
-
-    private String getArgCountMismatchMsg(int... possible) {
-      StringBuilder ret = new StringBuilder();
-      for (int i = 0; i < possible.length; i++) {
-        if (i > 0) {
-          ret.append(" or ");
+    private static String constructFuncList(String... functionNames) {
+        StringBuilder sb = new StringBuilder();
+        int n = 0;
+        for (String funcName : functionNames) {
+            if (JdbcToInternalLookupTable.INSTANCE.lookup(funcName) == null) {
+                continue;
+            }
+            if (n++ > 0) {
+                sb.append(",");
+            }
+            sb.append(funcName);
         }
-        ret.append(possible[i]);
-      }
-      ret.append(" parameter(s)");
-      return ret.toString();
+        return sb.toString();
+    }
+
+    public SqlCall createCall(SqlLiteral functionQualifier, SqlParserPos pos, SqlNode... operands) {
+        thisOperands = operands;
+        return super.createCall(functionQualifier, pos, operands);
+    }
+
+    @Override public SqlNode rewriteCall(SqlValidator validator, SqlCall call) {
+        if (null == lookupMakeCallObj) {
+            throw validator.newValidationError(call, RESOURCE.functionUndefined(getName()));
+        }
+        return lookupMakeCallObj.getOperator().rewriteCall(validator, call);
+    }
+
+    public SqlCall getLookupCall() {
+        if (null == lookupCall) {
+            lookupCall = lookupMakeCallObj.createCall(SqlParserPos.ZERO, thisOperands);
+        }
+        return lookupCall;
+    }
+
+    public String getAllowedSignatures(String name) {
+        return lookupMakeCallObj.getOperator().getAllowedSignatures(name);
+    }
+
+    public RelDataType deriveType(SqlValidator validator, SqlValidatorScope scope, SqlCall call) {
+        // Override SqlFunction.deriveType, because function-resolution is
+        // not relevant to a JDBC function call.
+        // REVIEW: jhyde, 2006/4/18: Should SqlJdbcFunctionCall even be a
+        // subclass of SqlFunction?
+
+        for (SqlNode operand : call.getOperandList()) {
+            RelDataType nodeType = validator.deriveType(scope, operand);
+            ((SqlValidatorImpl) validator).setValidatedNodeType(operand, nodeType);
+        }
+        return validateOperands(validator, scope, call);
+    }
+
+    public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+        // only expected to come here if validator called this method
+        SqlCallBinding callBinding = (SqlCallBinding) opBinding;
+
+        if (null == lookupMakeCallObj) {
+            throw callBinding.newValidationError(RESOURCE.functionUndefined(getName()));
+        }
+
+        final String message = lookupMakeCallObj.isValidArgCount(callBinding);
+        if (message != null) {
+            throw callBinding.newValidationError(RESOURCE.wrongNumberOfParam(getName(), thisOperands.length, message));
+        }
+
+        final SqlCall newCall = getLookupCall();
+        final SqlCallBinding newBinding = new SqlCallBinding(callBinding.getValidator(), callBinding.getScope(),
+                                                             newCall);
+
+        final SqlOperator operator = lookupMakeCallObj.getOperator();
+        if (!operator.checkOperandTypes(newBinding, false)) {
+            throw callBinding.newValidationSignatureError();
+        }
+
+        return operator.validateOperands(callBinding.getValidator(), callBinding.getScope(), newCall);
+    }
+
+    public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        writer.print("{fn ");
+        writer.print(jdbcName);
+        final SqlWriter.Frame frame = writer.startList("(", ")");
+        for (SqlNode operand : call.getOperandList()) {
+            writer.sep(",");
+            operand.unparse(writer, leftPrec, rightPrec);
+        }
+        writer.endList(frame);
+        writer.print("}");
     }
 
     /**
-     * Uses the data in {@link #order} to reorder a SqlNode[] array.
-     *
-     * @param operands Operands
+     * @see java.sql.DatabaseMetaData#getNumericFunctions
      */
-    protected SqlNode[] reorder(SqlNode[] operands) {
-      assert operands.length == order.length;
-      SqlNode[] newOrder = new SqlNode[operands.length];
-      for (int i = 0; i < operands.length; i++) {
-        assert operands[i] != null;
-        int joyDivision = order[i];
-        assert newOrder[joyDivision] == null : "mapping is not 1:1";
-        newOrder[joyDivision] = operands[i];
-      }
-      return newOrder;
-    }
-  }
-
-  /**
-   * Lookup table between JDBC functions and internal representation
-   */
-  private static class JdbcToInternalLookupTable {
-    /**
-     * The {@link org.apache.calcite.util.Glossary#SINGLETON_PATTERN singleton}
-     * instance.
-     */
-    static final JdbcToInternalLookupTable INSTANCE =
-        new JdbcToInternalLookupTable();
-
-    private final Map<String, MakeCall> map;
-
-    private JdbcToInternalLookupTable() {
-      // A table of all functions can be found at
-      // http://java.sun.com/products/jdbc/driverdevs.html
-      // which is also provided in the javadoc for this class.
-      // See also SqlOperatorTests.testJdbcFn, which contains the list.
-      ImmutableMap.Builder<String, MakeCall> map = ImmutableMap.builder();
-      map.put("ABS", simple(SqlStdOperatorTable.ABS));
-      map.put("ACOS", simple(SqlStdOperatorTable.ACOS));
-      map.put("ASIN", simple(SqlStdOperatorTable.ASIN));
-      map.put("ATAN", simple(SqlStdOperatorTable.ATAN));
-      map.put("ATAN2", simple(SqlStdOperatorTable.ATAN2));
-      map.put("CEILING", simple(SqlStdOperatorTable.CEIL));
-      map.put("COS", simple(SqlStdOperatorTable.COS));
-      map.put("COT", simple(SqlStdOperatorTable.COT));
-      map.put("DEGREES", simple(SqlStdOperatorTable.DEGREES));
-      map.put("EXP", simple(SqlStdOperatorTable.EXP));
-      map.put("FLOOR", simple(SqlStdOperatorTable.FLOOR));
-      map.put("LOG", simple(SqlStdOperatorTable.LN));
-      map.put("LOG10", simple(SqlStdOperatorTable.LOG10));
-      map.put("MOD", simple(SqlStdOperatorTable.MOD));
-      map.put("PI", simple(SqlStdOperatorTable.PI));
-      map.put("POWER", simple(SqlStdOperatorTable.POWER));
-      map.put("RADIANS", simple(SqlStdOperatorTable.RADIANS));
-      map.put("RAND", simple(SqlStdOperatorTable.RAND));
-      map.put("ROUND", simple(SqlStdOperatorTable.ROUND));
-      map.put("SIGN", simple(SqlStdOperatorTable.SIGN));
-      map.put("SIN", simple(SqlStdOperatorTable.SIN));
-      map.put("SQRT", simple(SqlStdOperatorTable.SQRT));
-      map.put("TAN", simple(SqlStdOperatorTable.TAN));
-      map.put("TRUNCATE", simple(SqlStdOperatorTable.TRUNCATE));
-
-      map.put("CONCAT", simple(SqlStdOperatorTable.CONCAT));
-      map.put("INSERT",
-          new PermutingMakeCall(SqlStdOperatorTable.OVERLAY, new int[]{0, 2, 3, 1}));
-      map.put("LCASE", simple(SqlStdOperatorTable.LOWER));
-      map.put("LENGTH", simple(SqlStdOperatorTable.CHARACTER_LENGTH));
-      map.put("LOCATE", simple(SqlStdOperatorTable.POSITION));
-      map.put("LTRIM",
-          new SimpleMakeCall(SqlStdOperatorTable.TRIM) {
-            @Override public SqlCall createCall(SqlParserPos pos,
-                SqlNode... operands) {
-              assert 1 == operands.length;
-              return super.createCall(pos,
-                  SqlTrimFunction.Flag.LEADING.symbol(SqlParserPos.ZERO),
-                  SqlLiteral.createCharString(" ", SqlParserPos.ZERO),
-                  operands[0]);
-            }
-          });
-      map.put("YEAR", simple(SqlStdOperatorTable.YEAR));
-      map.put("QUARTER", simple(SqlStdOperatorTable.QUARTER));
-      map.put("MONTH", simple(SqlStdOperatorTable.MONTH));
-      map.put("WEEK", simple(SqlStdOperatorTable.WEEK));
-      map.put("DAYOFYEAR", simple(SqlStdOperatorTable.DAYOFYEAR));
-      map.put("DAYOFMONTH", simple(SqlStdOperatorTable.DAYOFMONTH));
-      map.put("DAYOFWEEK", simple(SqlStdOperatorTable.DAYOFWEEK));
-      map.put("HOUR", simple(SqlStdOperatorTable.HOUR));
-      map.put("MINUTE", simple(SqlStdOperatorTable.MINUTE));
-      map.put("SECOND", simple(SqlStdOperatorTable.SECOND));
-
-      map.put("RTRIM",
-          new SimpleMakeCall(SqlStdOperatorTable.TRIM) {
-            @Override public SqlCall createCall(SqlParserPos pos,
-                SqlNode... operands) {
-              assert 1 == operands.length;
-              return super.createCall(pos,
-                  SqlTrimFunction.Flag.TRAILING.symbol(SqlParserPos.ZERO),
-                  SqlLiteral.createCharString(" ", SqlParserPos.ZERO),
-                  operands[0]);
-            }
-          });
-      map.put("SUBSTRING", simple(SqlStdOperatorTable.SUBSTRING));
-      map.put("REPLACE", simple(SqlStdOperatorTable.REPLACE));
-      map.put("UCASE", simple(SqlStdOperatorTable.UPPER));
-      map.put("CURDATE", simple(SqlStdOperatorTable.CURRENT_DATE));
-      map.put("CURTIME", simple(SqlStdOperatorTable.LOCALTIME));
-      map.put("NOW", simple(SqlStdOperatorTable.CURRENT_TIMESTAMP));
-      map.put("TIMESTAMPADD", simple(SqlStdOperatorTable.TIMESTAMP_ADD));
-      map.put("TIMESTAMPDIFF", simple(SqlStdOperatorTable.TIMESTAMP_DIFF));
-
-      map.put("DATABASE", simple(SqlStdOperatorTable.CURRENT_CATALOG));
-      map.put("IFNULL",
-          new SimpleMakeCall(SqlStdOperatorTable.COALESCE) {
-            @Override public SqlCall createCall(SqlParserPos pos,
-                SqlNode... operands) {
-              assert 2 == operands.length;
-              return super.createCall(pos, operands);
-            }
-          });
-      map.put("USER", simple(SqlStdOperatorTable.CURRENT_USER));
-      map.put("CONVERT",
-          new SimpleMakeCall(SqlStdOperatorTable.CAST) {
-            @Override public SqlCall createCall(SqlParserPos pos,
-                SqlNode... operands) {
-              assert 2 == operands.length;
-              SqlNode typeOperand = operands[1];
-              assert typeOperand.getKind() == SqlKind.LITERAL;
-
-              SqlJdbcDataTypeName jdbcType = ((SqlLiteral) typeOperand)
-                  .symbolValue(SqlJdbcDataTypeName.class);
-
-              return super.createCall(pos, operands[0], jdbcType.createDataType(typeOperand.pos));
-            }
-          });
-      this.map = map.build();
-    }
-
-    private MakeCall simple(SqlOperator operator) {
-      return new SimpleMakeCall(operator);
+    public static String getNumericFunctions() {
+        return NUMERIC_FUNCTIONS;
     }
 
     /**
-     * Tries to lookup a given function name JDBC to an internal
-     * representation. Returns null if no function defined.
+     * @see java.sql.DatabaseMetaData#getStringFunctions
      */
-    public MakeCall lookup(String name) {
-      return map.get(name);
+    public static String getStringFunctions() {
+        return STRING_FUNCTIONS;
     }
-  }
+
+    /**
+     * @see java.sql.DatabaseMetaData#getTimeDateFunctions
+     */
+    public static String getTimeDateFunctions() {
+        return TIME_DATE_FUNCTIONS;
+    }
+
+    /**
+     * @see java.sql.DatabaseMetaData#getSystemFunctions
+     */
+    public static String getSystemFunctions() {
+        return SYSTEM_FUNCTIONS;
+    }
+
+    //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * Converts a call to a JDBC function to a call to a regular function.
+     */
+    private interface MakeCall {
+
+        /**
+         * Creates and return a {@link SqlCall}. If the MakeCall strategy object
+         * was created with a reordering specified the call will be created with
+         * the operands reordered, otherwise no change of ordering is applied
+         *
+         * @param operands Operands
+         */
+        SqlCall createCall(SqlParserPos pos, SqlNode... operands);
+
+        SqlOperator getOperator();
+
+        String isValidArgCount(SqlCallBinding binding);
+    }
+
+    /**
+     * Converter that calls a built-in function with the same arguments.
+     */
+    public static class SimpleMakeCall implements SqlJdbcFunctionCall.MakeCall {
+
+        final SqlOperator operator;
+
+        public SimpleMakeCall(SqlOperator operator) {
+            this.operator = operator;
+        }
+
+        public SqlOperator getOperator() {
+            return operator;
+        }
+
+        public SqlCall createCall(SqlParserPos pos, SqlNode... operands) {
+            return operator.createCall(pos, operands);
+        }
+
+        public String isValidArgCount(SqlCallBinding binding) {
+            return null; // any number of arguments is valid
+        }
+    }
+
+    /**
+     * Implementation of {@link MakeCall} that can re-order or ignore operands.
+     */
+    private static class PermutingMakeCall extends SimpleMakeCall {
+
+        final int[] order;
+
+        /**
+         * Creates a MakeCall strategy object with reordering of operands.
+         * <p>The reordering is specified by an int array where the value of
+         * element at position <code>i</code> indicates to which element in a
+         * new SqlNode[] array the operand goes.
+         *
+         * @param operator Operator
+         * @param order    Order
+         */
+        PermutingMakeCall(SqlOperator operator, int[] order) {
+            super(operator);
+            this.order = Preconditions.checkNotNull(order);
+        }
+
+        @Override public SqlCall createCall(SqlParserPos pos, SqlNode... operands) {
+            return super.createCall(pos, reorder(operands));
+        }
+
+        @Override public String isValidArgCount(SqlCallBinding binding) {
+            if (order.length == binding.getOperandCount()) {
+                return null; // operand count is valid
+            } else {
+                return getArgCountMismatchMsg(order.length);
+            }
+        }
+
+        private String getArgCountMismatchMsg(int... possible) {
+            StringBuilder ret = new StringBuilder();
+            for (int i = 0; i < possible.length; i++) {
+                if (i > 0) {
+                    ret.append(" or ");
+                }
+                ret.append(possible[i]);
+            }
+            ret.append(" parameter(s)");
+            return ret.toString();
+        }
+
+        /**
+         * Uses the data in {@link #order} to reorder a SqlNode[] array.
+         *
+         * @param operands Operands
+         */
+        protected SqlNode[] reorder(SqlNode[] operands) {
+            assert operands.length == order.length;
+            SqlNode[] newOrder = new SqlNode[operands.length];
+            for (int i = 0; i < operands.length; i++) {
+                assert operands[i] != null;
+                int joyDivision = order[i];
+                assert newOrder[joyDivision] == null : "mapping is not 1:1";
+                newOrder[joyDivision] = operands[i];
+            }
+            return newOrder;
+        }
+    }
+
+    /**
+     * Lookup table between JDBC functions and internal representation
+     */
+    private static class JdbcToInternalLookupTable {
+
+        /**
+         * The {@link org.apache.calcite.util.Glossary#SINGLETON_PATTERN singleton}
+         * instance.
+         */
+        static final JdbcToInternalLookupTable INSTANCE = new JdbcToInternalLookupTable();
+
+        private final Map<String, MakeCall> map;
+
+        private JdbcToInternalLookupTable() {
+            // A table of all functions can be found at
+            // http://java.sun.com/products/jdbc/driverdevs.html
+            // which is also provided in the javadoc for this class.
+            // See also SqlOperatorTests.testJdbcFn, which contains the list.
+            ImmutableMap.Builder<String, MakeCall> map = ImmutableMap.builder();
+            map.put("ABS", simple(SqlStdOperatorTable.ABS));
+            map.put("ACOS", simple(SqlStdOperatorTable.ACOS));
+            map.put("ASIN", simple(SqlStdOperatorTable.ASIN));
+            map.put("ATAN", simple(SqlStdOperatorTable.ATAN));
+            map.put("ATAN2", simple(SqlStdOperatorTable.ATAN2));
+            map.put("CEILING", simple(SqlStdOperatorTable.CEIL));
+            map.put("COS", simple(SqlStdOperatorTable.COS));
+            map.put("COT", simple(SqlStdOperatorTable.COT));
+            map.put("DEGREES", simple(SqlStdOperatorTable.DEGREES));
+            map.put("EXP", simple(SqlStdOperatorTable.EXP));
+            map.put("FLOOR", simple(SqlStdOperatorTable.FLOOR));
+            map.put("LOG", simple(SqlStdOperatorTable.LN));
+            map.put("LOG10", simple(SqlStdOperatorTable.LOG10));
+            map.put("MOD", simple(SqlStdOperatorTable.MOD));
+            map.put("PI", simple(SqlStdOperatorTable.PI));
+            map.put("POWER", simple(SqlStdOperatorTable.POWER));
+            map.put("RADIANS", simple(SqlStdOperatorTable.RADIANS));
+            map.put("RAND", simple(SqlStdOperatorTable.RAND));
+            map.put("ROUND", simple(SqlStdOperatorTable.ROUND));
+            map.put("SIGN", simple(SqlStdOperatorTable.SIGN));
+            map.put("SIN", simple(SqlStdOperatorTable.SIN));
+            map.put("SQRT", simple(SqlStdOperatorTable.SQRT));
+            map.put("TAN", simple(SqlStdOperatorTable.TAN));
+            map.put("TRUNCATE", simple(SqlStdOperatorTable.TRUNCATE));
+
+            map.put("CONCAT", simple(SqlStdOperatorTable.CONCAT));
+            map.put("INSERT", new PermutingMakeCall(SqlStdOperatorTable.OVERLAY, new int[] { 0, 2, 3, 1 }));
+            map.put("LCASE", simple(SqlStdOperatorTable.LOWER));
+            map.put("LENGTH", simple(SqlStdOperatorTable.CHARACTER_LENGTH));
+            map.put("LOCATE", simple(SqlStdOperatorTable.POSITION));
+            map.put("LTRIM", new SimpleMakeCall(SqlStdOperatorTable.TRIM) {
+
+                @Override public SqlCall createCall(SqlParserPos pos, SqlNode... operands) {
+                    assert 1 == operands.length;
+                    return super.createCall(pos, SqlTrimFunction.Flag.LEADING.symbol(SqlParserPos.ZERO),
+                                            SqlLiteral.createCharString(" ", SqlParserPos.ZERO), operands[0]);
+                }
+            });
+            map.put("YEAR", simple(SqlStdOperatorTable.YEAR));
+            map.put("QUARTER", simple(SqlStdOperatorTable.QUARTER));
+            map.put("MONTH", simple(SqlStdOperatorTable.MONTH));
+            map.put("WEEK", simple(SqlStdOperatorTable.WEEK));
+            map.put("DAYOFYEAR", simple(SqlStdOperatorTable.DAYOFYEAR));
+            map.put("DAYOFMONTH", simple(SqlStdOperatorTable.DAYOFMONTH));
+            map.put("DAYOFWEEK", simple(SqlStdOperatorTable.DAYOFWEEK));
+            map.put("HOUR", simple(SqlStdOperatorTable.HOUR));
+            map.put("MINUTE", simple(SqlStdOperatorTable.MINUTE));
+            map.put("SECOND", simple(SqlStdOperatorTable.SECOND));
+
+            map.put("RTRIM", new SimpleMakeCall(SqlStdOperatorTable.TRIM) {
+
+                @Override public SqlCall createCall(SqlParserPos pos, SqlNode... operands) {
+                    assert 1 == operands.length;
+                    return super.createCall(pos, SqlTrimFunction.Flag.TRAILING.symbol(SqlParserPos.ZERO),
+                                            SqlLiteral.createCharString(" ", SqlParserPos.ZERO), operands[0]);
+                }
+            });
+            map.put("SUBSTRING", simple(SqlStdOperatorTable.SUBSTRING));
+            map.put("REPLACE", simple(SqlStdOperatorTable.REPLACE));
+            map.put("UCASE", simple(SqlStdOperatorTable.UPPER));
+            map.put("CURDATE", simple(SqlStdOperatorTable.CURRENT_DATE));
+            map.put("CURTIME", simple(SqlStdOperatorTable.LOCALTIME));
+            map.put("NOW", simple(SqlStdOperatorTable.CURRENT_TIMESTAMP));
+            map.put("TIMESTAMPADD", simple(SqlStdOperatorTable.TIMESTAMP_ADD));
+            map.put("TIMESTAMPDIFF", simple(SqlStdOperatorTable.TIMESTAMP_DIFF));
+
+            map.put("DATABASE", simple(SqlStdOperatorTable.CURRENT_CATALOG));
+            map.put("IFNULL", new SimpleMakeCall(SqlStdOperatorTable.COALESCE) {
+
+                @Override public SqlCall createCall(SqlParserPos pos, SqlNode... operands) {
+                    assert 2 == operands.length;
+                    return super.createCall(pos, operands);
+                }
+            });
+            map.put("USER", simple(SqlStdOperatorTable.CURRENT_USER));
+            map.put("CONVERT", new SimpleMakeCall(SqlStdOperatorTable.CAST) {
+
+                @Override public SqlCall createCall(SqlParserPos pos, SqlNode... operands) {
+                    assert 2 == operands.length;
+                    SqlNode typeOperand = operands[1];
+                    assert typeOperand.getKind() == SqlKind.LITERAL;
+
+                    SqlJdbcDataTypeName jdbcType = ((SqlLiteral) typeOperand).symbolValue(SqlJdbcDataTypeName.class);
+
+                    return super.createCall(pos, operands[0], jdbcType.createDataType(typeOperand.pos));
+                }
+            });
+            this.map = map.build();
+        }
+
+        private MakeCall simple(SqlOperator operator) {
+            return new SimpleMakeCall(operator);
+        }
+
+        /**
+         * Tries to lookup a given function name JDBC to an internal
+         * representation. Returns null if no function defined.
+         */
+        public MakeCall lookup(String name) {
+            return map.get(name);
+        }
+    }
 }
 
 // End SqlJdbcFunctionCall.java

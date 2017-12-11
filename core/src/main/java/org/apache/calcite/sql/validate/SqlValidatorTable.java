@@ -29,34 +29,33 @@ import java.util.List;
  */
 public interface SqlValidatorTable {
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  RelDataType getRowType();
+    RelDataType getRowType();
 
-  List<String> getQualifiedName();
+    List<String> getQualifiedName();
 
-  /**
-   * Returns whether a given column is monotonic.
-   */
-  SqlMonotonicity getMonotonicity(String columnName);
+    /**
+     * Returns whether a given column is monotonic.
+     */
+    SqlMonotonicity getMonotonicity(String columnName);
 
-  /**
-   * Returns the access type of the table
-   */
-  SqlAccessType getAllowedAccess();
+    /**
+     * Returns the access type of the table
+     */
+    SqlAccessType getAllowedAccess();
 
-  boolean supportsModality(SqlModality modality);
+    boolean supportsModality(SqlModality modality);
 
-  /**
-   * Returns whether the ordinal column has a default value.
-   */
-  boolean columnHasDefaultValue(RelDataType rowType, int ordinal,
-      InitializerContext initializerContext);
+    /**
+     * Returns whether the ordinal column has a default value.
+     */
+    boolean columnHasDefaultValue(RelDataType rowType, int ordinal, InitializerContext initializerContext);
 
-  /**
-   * Finds an interface implemented by this table.
-   */
-  <T> T unwrap(Class<T> clazz);
+    /**
+     * Finds an interface implemented by this table.
+     */
+    <T> T unwrap(Class<T> clazz);
 }
 
 // End SqlValidatorTable.java

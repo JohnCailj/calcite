@@ -16,46 +16,45 @@
  */
 package org.apache.calcite.materialize;
 
-import org.apache.calcite.util.ImmutableBitSet;
-
 import com.google.common.collect.ImmutableList;
+import org.apache.calcite.util.ImmutableBitSet;
 
 import java.util.Objects;
 
-/** Definition of a particular combination of dimensions and measures of a
+/**
+ * Definition of a particular combination of dimensions and measures of a
  * lattice that is the basis of a materialization.
- *
  * <p>Holds similar information to a
  * {@link org.apache.calcite.materialize.Lattice.Tile} but a lattice is
- * immutable and tiles are not added after their creation. */
+ * immutable and tiles are not added after their creation.
+ */
 public class TileKey {
-  public final Lattice lattice;
-  public final ImmutableBitSet dimensions;
-  public final ImmutableList<Lattice.Measure> measures;
 
-  /** Creates a TileKey. */
-  public TileKey(Lattice lattice, ImmutableBitSet dimensions,
-      ImmutableList<Lattice.Measure> measures) {
-    this.lattice = lattice;
-    this.dimensions = dimensions;
-    this.measures = measures;
-  }
+    public final Lattice                        lattice;
+    public final ImmutableBitSet                dimensions;
+    public final ImmutableList<Lattice.Measure> measures;
 
-  @Override public int hashCode() {
-    return Objects.hash(lattice, dimensions);
-  }
+    /**
+     * Creates a TileKey.
+     */
+    public TileKey(Lattice lattice, ImmutableBitSet dimensions, ImmutableList<Lattice.Measure> measures) {
+        this.lattice = lattice;
+        this.dimensions = dimensions;
+        this.measures = measures;
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof TileKey
-        && lattice == ((TileKey) obj).lattice
-        && dimensions.equals(((TileKey) obj).dimensions)
-        && measures.equals(((TileKey) obj).measures);
-  }
+    @Override public int hashCode() {
+        return Objects.hash(lattice, dimensions);
+    }
 
-  @Override public String toString() {
-    return "dimensions: " + dimensions + ", measures: " + measures;
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof TileKey && lattice == ((TileKey) obj).lattice && dimensions.equals(
+                ((TileKey) obj).dimensions) && measures.equals(((TileKey) obj).measures);
+    }
+
+    @Override public String toString() {
+        return "dimensions: " + dimensions + ", measures: " + measures;
+    }
 }
 
 // End TileKey.java

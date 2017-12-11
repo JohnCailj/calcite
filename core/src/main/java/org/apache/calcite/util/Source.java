@@ -26,47 +26,57 @@ import java.net.URL;
  * Source of data.
  */
 public interface Source {
-  URL url();
-  File file();
-  String path();
-  Reader reader() throws IOException;
-  InputStream openStream() throws IOException;
-  String protocol();
 
-  /** Looks for a suffix on a path and returns
-   * either the path with the suffix removed
-   * or the original path. */
-  Source trim(String suffix);
+    URL url();
 
-  /** Looks for a suffix on a path and returns
-   * either the path with the suffix removed
-   * or null. */
-  Source trimOrNull(String suffix);
+    File file();
 
-  /** Returns a source whose path concatenates this with a child.
-   *
-   * <p>For example,
-   * <ul>
-   *   <li>source("/foo").append(source("bar"))
-   *   returns source("/foo/bar")
-   *   <li>source("/foo").append(source("/bar"))
-   *   returns source("/bar")
-   *   because "/bar" was already absolute
-   * </ul>
-   */
-  Source append(Source child);
+    String path();
 
-  /** Returns a relative source, if this source is a child of a given base.
-   *
-   * <p>For example,
-   * <ul>
-   *   <li>source("/foo/bar").relative(source("/foo"))
-   *   returns source("bar")
-   *   <li>source("/baz/bar").relative(source("/foo"))
-   *   returns source("/baz/bar")
-   * </ul>
-   */
-  Source relative(Source source);
+    Reader reader() throws IOException;
+
+    InputStream openStream() throws IOException;
+
+    String protocol();
+
+    /**
+     * Looks for a suffix on a path and returns
+     * either the path with the suffix removed
+     * or the original path.
+     */
+    Source trim(String suffix);
+
+    /**
+     * Looks for a suffix on a path and returns
+     * either the path with the suffix removed
+     * or null.
+     */
+    Source trimOrNull(String suffix);
+
+    /**
+     * Returns a source whose path concatenates this with a child.
+     * <p>For example,
+     * <ul>
+     * <li>source("/foo").append(source("bar"))
+     * returns source("/foo/bar")
+     * <li>source("/foo").append(source("/bar"))
+     * returns source("/bar")
+     * because "/bar" was already absolute
+     * </ul>
+     */
+    Source append(Source child);
+
+    /**
+     * Returns a relative source, if this source is a child of a given base.
+     * <p>For example,
+     * <ul>
+     * <li>source("/foo/bar").relative(source("/foo"))
+     * returns source("bar")
+     * <li>source("/baz/bar").relative(source("/foo"))
+     * returns source("/baz/bar")
+     * </ul>
+     */
+    Source relative(Source source);
 }
 
 // End Source.java

@@ -24,61 +24,55 @@ import java.util.List;
 
 /**
  * Abstract base class for relational expressions with a two inputs.
- *
  * <p>It is not required that two-input relational expressions use this
  * class as a base class. However, default implementations of methods make life
  * easier.
  */
 public abstract class BiRel extends AbstractRelNode {
-  protected RelNode left;
-  protected RelNode right;
 
-  public BiRel(
-      RelOptCluster cluster, RelTraitSet traitSet, RelNode left,
-      RelNode right) {
-    super(cluster, traitSet);
-    this.left = left;
-    this.right = right;
-  }
+    protected RelNode left;
+    protected RelNode right;
 
-  public void childrenAccept(RelVisitor visitor) {
-    visitor.visit(left, 0, this);
-    visitor.visit(right, 1, this);
-  }
-
-  public List<RelNode> getInputs() {
-    return FlatLists.of(left, right);
-  }
-
-  public RelNode getLeft() {
-    return left;
-  }
-
-  public RelNode getRight() {
-    return right;
-  }
-
-  public void replaceInput(
-      int ordinalInParent,
-      RelNode p) {
-    switch (ordinalInParent) {
-    case 0:
-      this.left = p;
-      break;
-    case 1:
-      this.right = p;
-      break;
-    default:
-      throw new IndexOutOfBoundsException("Input " + ordinalInParent);
+    public BiRel(RelOptCluster cluster, RelTraitSet traitSet, RelNode left, RelNode right) {
+        super(cluster, traitSet);
+        this.left = left;
+        this.right = right;
     }
-    recomputeDigest();
-  }
 
-  @Override public RelWriter explainTerms(RelWriter pw) {
-    return super.explainTerms(pw)
-        .input("left", left)
-        .input("right", right);
-  }
+    public void childrenAccept(RelVisitor visitor) {
+        visitor.visit(left, 0, this);
+        visitor.visit(right, 1, this);
+    }
+
+    public List<RelNode> getInputs() {
+        return FlatLists.of(left, right);
+    }
+
+    public RelNode getLeft() {
+        return left;
+    }
+
+    public RelNode getRight() {
+        return right;
+    }
+
+    public void replaceInput(int ordinalInParent, RelNode p) {
+        switch (ordinalInParent) {
+            case 0:
+                this.left = p;
+                break;
+            case 1:
+                this.right = p;
+                break;
+            default:
+                throw new IndexOutOfBoundsException("Input " + ordinalInParent);
+        }
+        recomputeDigest();
+    }
+
+    @Override public RelWriter explainTerms(RelWriter pw) {
+        return super.explainTerms(pw).input("left", left).input("right", right);
+    }
 }
 
 // End BiRel.java

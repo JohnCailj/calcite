@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.schema.impl;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.adapter.java.JavaTypeFactory;
 import org.apache.calcite.jdbc.CalciteConnection;
 import org.apache.calcite.jdbc.CalcitePrepare;
@@ -30,8 +31,6 @@ import org.apache.calcite.schema.Schemas;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.TranslatableTable;
 
-import com.google.common.base.Preconditions;
-
 import java.lang.reflect.Type;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -39,7 +38,6 @@ import java.util.List;
 
 /**
  * Table that is a materialized view.
- *
  * <p>It can exist in two states: materialized and not materialized. Over time,
  * a given materialized view may switch states. How it is expanded depends upon
  * its current state. State is managed by
@@ -47,85 +45,74 @@ import java.util.List;
  */
 public class MaterializedViewTable extends ViewTable {
 
-  private final MaterializationKey key;
-
-  /**
-   * Internal connection, used to execute queries to materialize views.
-   * To be used only by Calcite internals. And sparingly.
-   */
-  public static final CalciteConnection MATERIALIZATION_CONNECTION;
-
-  static {
-    try {
-      MATERIALIZATION_CONNECTION = DriverManager.getConnection("jdbc:calcite:")
-          .unwrap(CalciteConnection.class);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public MaterializedViewTable(Type elementType,
-      RelProtoDataType relDataType,
-      String viewSql,
-      List<String> viewSchemaPath,
-      List<String> viewPath,
-      MaterializationKey key) {
-    super(elementType, relDataType, viewSql, viewSchemaPath, viewPath);
-    this.key = key;
-  }
-
-  /** Table macro that returns a materialized view. */
-  public static MaterializedViewTableMacro create(final CalciteSchema schema,
-      final String viewSql, final List<String> viewSchemaPath, List<String> viewPath,
-      final String suggestedTableName, boolean existing) {
-    return new MaterializedViewTableMacro(schema, viewSql, viewSchemaPath, viewPath,
-        suggestedTableName, existing);
-  }
-
-  @Override public RelNode toRel(RelOptTable.ToRelContext context,
-      RelOptTable relOptTable) {
-    final CalciteSchema.TableEntry tableEntry =
-        MaterializationService.instance().checkValid(key);
-    if (tableEntry != null) {
-      Table materializeTable = tableEntry.getTable();
-      if (materializeTable instanceof TranslatableTable) {
-        TranslatableTable table = (TranslatableTable) materializeTable;
-        return table.toRel(context, relOptTable);
-      }
-    }
-    return super.toRel(context, relOptTable);
-  }
-
-  /** Table function that returns the table that materializes a view. */
-  public static class MaterializedViewTableMacro
-      extends ViewTableMacro {
     private final MaterializationKey key;
 
-    private MaterializedViewTableMacro(CalciteSchema schema, String viewSql,
-        List<String> viewSchemaPath, List<String> viewPath, String suggestedTableName,
-        boolean existing) {
-      super(schema, viewSql,
-          viewSchemaPath != null ? viewSchemaPath : schema.path(null), viewPath,
-          Boolean.TRUE);
-      this.key = Preconditions.checkNotNull(
-          MaterializationService.instance().defineMaterialization(
-              schema, null, viewSql, schemaPath, suggestedTableName, true,
-              existing));
+    /**
+     * Internal connection, used to execute queries to materialize views.
+     * To be used only by Calcite internals. And sparingly.
+     */
+    public static final CalciteConnection MATERIALIZATION_CONNECTION;
+
+    static {
+        try {
+            MATERIALIZATION_CONNECTION = DriverManager.getConnection("jdbc:calcite:").unwrap(CalciteConnection.class);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    @Override public TranslatableTable apply(List<Object> arguments) {
-      assert arguments.isEmpty();
-      CalcitePrepare.ParseResult parsed =
-          Schemas.parse(MATERIALIZATION_CONNECTION, schema, schemaPath,
-              viewSql);
-      final List<String> schemaPath1 =
-          schemaPath != null ? schemaPath : schema.path(null);
-      final JavaTypeFactory typeFactory =
-          MATERIALIZATION_CONNECTION.getTypeFactory();
-      return new MaterializedViewTable(typeFactory.getJavaClass(parsed.rowType),
-          RelDataTypeImpl.proto(parsed.rowType), viewSql, schemaPath1, viewPath, key);
+    public MaterializedViewTable(Type elementType, RelProtoDataType relDataType, String viewSql,
+                                 List<String> viewSchemaPath, List<String> viewPath, MaterializationKey key) {
+        super(elementType, relDataType, viewSql, viewSchemaPath, viewPath);
+        this.key = key;
     }
-  }
+
+    /**
+     * Table macro that returns a materialized view.
+     */
+    public static MaterializedViewTableMacro create(final CalciteSchema schema, final String viewSql,
+                                                    final List<String> viewSchemaPath, List<String> viewPath,
+                                                    final String suggestedTableName, boolean existing) {
+        return new MaterializedViewTableMacro(schema, viewSql, viewSchemaPath, viewPath, suggestedTableName, existing);
+    }
+
+    @Override public RelNode toRel(RelOptTable.ToRelContext context, RelOptTable relOptTable) {
+        final CalciteSchema.TableEntry tableEntry = MaterializationService.instance().checkValid(key);
+        if (tableEntry != null) {
+            Table materializeTable = tableEntry.getTable();
+            if (materializeTable instanceof TranslatableTable) {
+                TranslatableTable table = (TranslatableTable) materializeTable;
+                return table.toRel(context, relOptTable);
+            }
+        }
+        return super.toRel(context, relOptTable);
+    }
+
+    /**
+     * Table function that returns the table that materializes a view.
+     */
+    public static class MaterializedViewTableMacro extends ViewTableMacro {
+
+        private final MaterializationKey key;
+
+        private MaterializedViewTableMacro(CalciteSchema schema, String viewSql, List<String> viewSchemaPath,
+                                           List<String> viewPath, String suggestedTableName, boolean existing) {
+            super(schema, viewSql, viewSchemaPath != null ? viewSchemaPath : schema.path(null), viewPath, Boolean.TRUE);
+            this.key = Preconditions.checkNotNull(
+                    MaterializationService.instance().defineMaterialization(schema, null, viewSql, schemaPath,
+                                                                            suggestedTableName, true, existing));
+        }
+
+        @Override public TranslatableTable apply(List<Object> arguments) {
+            assert arguments.isEmpty();
+            CalcitePrepare.ParseResult parsed = Schemas.parse(MATERIALIZATION_CONNECTION, schema, schemaPath, viewSql);
+            final List<String> schemaPath1 = schemaPath != null ? schemaPath : schema.path(null);
+            final JavaTypeFactory typeFactory = MATERIALIZATION_CONNECTION.getTypeFactory();
+            return new MaterializedViewTable(typeFactory.getJavaClass(parsed.rowType),
+                                             RelDataTypeImpl.proto(parsed.rowType), viewSql, schemaPath1, viewPath,
+                                             key);
+        }
+    }
 }
 
 // End MaterializedViewTable.java

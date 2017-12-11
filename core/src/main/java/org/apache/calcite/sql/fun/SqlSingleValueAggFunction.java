@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql.fun;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.sql.SqlAggFunction;
@@ -24,8 +25,6 @@ import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 
 /**
@@ -33,44 +32,33 @@ import java.util.List;
  * is only one value in the input; Otherwise it triggers a run-time error.
  */
 public class SqlSingleValueAggFunction extends SqlAggFunction {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  @Deprecated // to be removed before 2.0
-  private final RelDataType type;
+    @Deprecated // to be removed before 2.0
+    private final RelDataType type;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlSingleValueAggFunction(
-      RelDataType type) {
-    super(
-        "SINGLE_VALUE",
-        null,
-        SqlKind.SINGLE_VALUE,
-        ReturnTypes.ARG0,
-        null,
-        OperandTypes.ANY,
-        SqlFunctionCategory.SYSTEM,
-        false,
-        false);
-    this.type = type;
-  }
+    public SqlSingleValueAggFunction(RelDataType type) {
+        super("SINGLE_VALUE", null, SqlKind.SINGLE_VALUE, ReturnTypes.ARG0, null, OperandTypes.ANY,
+              SqlFunctionCategory.SYSTEM, false, false);
+        this.type = type;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @SuppressWarnings("deprecation")
-  public List<RelDataType> getParameterTypes(RelDataTypeFactory typeFactory) {
-    return ImmutableList.of(type);
-  }
+    @SuppressWarnings("deprecation") public List<RelDataType> getParameterTypes(RelDataTypeFactory typeFactory) {
+        return ImmutableList.of(type);
+    }
 
-  @SuppressWarnings("deprecation")
-  public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
-    return type;
-  }
+    @SuppressWarnings("deprecation") public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
+        return type;
+    }
 
-  @Deprecated // to be removed before 2.0
-  public RelDataType getType() {
-    return type;
-  }
+    @Deprecated // to be removed before 2.0
+    public RelDataType getType() {
+        return type;
+    }
 }
 
 // End SqlSingleValueAggFunction.java

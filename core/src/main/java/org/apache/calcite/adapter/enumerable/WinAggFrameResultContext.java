@@ -23,46 +23,51 @@ import org.apache.calcite.linq4j.tree.Expression;
  * the aggregation.
  */
 public interface WinAggFrameResultContext extends WinAggFrameContext {
-  /**
-   * Converts absolute index position of the given relative position.
-   * @param offset offset of the requested row
-   * @param seekType the type of offset (start of window, end of window, etc)
-   * @return absolute position of the requested row
-   */
-  Expression computeIndex(Expression offset,
-      WinAggImplementor.SeekType seekType);
 
-  /**
-   * Returns boolean the expression that checks if the given index is in
-   * the frame bounds.
-   * @param rowIndex index if the row to check
-   * @return expression that validates frame bounds for the given index
-   */
-  Expression rowInFrame(Expression rowIndex);
+    /**
+     * Converts absolute index position of the given relative position.
+     *
+     * @param offset   offset of the requested row
+     * @param seekType the type of offset (start of window, end of window, etc)
+     * @return absolute position of the requested row
+     */
+    Expression computeIndex(Expression offset, WinAggImplementor.SeekType seekType);
 
-  /**
-   * Returns boolean the expression that checks if the given index is in
-   * the partition bounds.
-   * @param rowIndex index if the row to check
-   * @return expression that validates partition bounds for the given index
-   */
-  Expression rowInPartition(Expression rowIndex);
+    /**
+     * Returns boolean the expression that checks if the given index is in
+     * the frame bounds.
+     *
+     * @param rowIndex index if the row to check
+     * @return expression that validates frame bounds for the given index
+     */
+    Expression rowInFrame(Expression rowIndex);
 
-  /**
-   * Returns row translator for given absolute row position.
-   * @param rowIndex absolute index of the row.
-   * @return translator for the requested row
-   */
-  RexToLixTranslator rowTranslator(Expression rowIndex);
+    /**
+     * Returns boolean the expression that checks if the given index is in
+     * the partition bounds.
+     *
+     * @param rowIndex index if the row to check
+     * @return expression that validates partition bounds for the given index
+     */
+    Expression rowInPartition(Expression rowIndex);
 
-  /**
-   * Compares two rows given by absolute positions according to the order
-   * collation of the current window.
-   * @param a absolute index of the first row
-   * @param b absolute index of the second row
-   * @return result of comparison as as in {@link Comparable#compareTo}
-   */
-  Expression compareRows(Expression a, Expression b);
+    /**
+     * Returns row translator for given absolute row position.
+     *
+     * @param rowIndex absolute index of the row.
+     * @return translator for the requested row
+     */
+    RexToLixTranslator rowTranslator(Expression rowIndex);
+
+    /**
+     * Compares two rows given by absolute positions according to the order
+     * collation of the current window.
+     *
+     * @param a absolute index of the first row
+     * @param b absolute index of the second row
+     * @return result of comparison as as in {@link Comparable#compareTo}
+     */
+    Expression compareRows(Expression a, Expression b);
 }
 
 // End WinAggFrameResultContext.java

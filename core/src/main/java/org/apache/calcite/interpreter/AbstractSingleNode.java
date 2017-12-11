@@ -24,15 +24,16 @@ import org.apache.calcite.rel.SingleRel;
  * @param <T> Type of relational expression
  */
 abstract class AbstractSingleNode<T extends SingleRel> implements Node {
-  protected final Source source;
-  protected final Sink sink;
-  protected final T rel;
 
-  AbstractSingleNode(Interpreter interpreter, T rel) {
-    this.rel = rel;
-    this.source = interpreter.source(rel, 0);
-    this.sink = interpreter.sink(rel);
-  }
+    protected final Source source;
+    protected final Sink   sink;
+    protected final T      rel;
+
+    AbstractSingleNode(Interpreter interpreter, T rel) {
+        this.rel = rel;
+        this.source = interpreter.source(rel, 0);
+        this.sink = interpreter.sink(rel);
+    }
 }
 
 // End AbstractSingleNode.java

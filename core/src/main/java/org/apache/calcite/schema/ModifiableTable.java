@@ -28,27 +28,25 @@ import java.util.List;
 
 /**
  * A table that can be modified.
- *
  * <p>NOTE: The current API is inefficient and experimental. It will change
  * without notice.</p>
  *
  * @see ModifiableView
  */
 public interface ModifiableTable extends QueryableTable {
-  /** Returns the modifiable collection.
-   * Modifying the collection will change the table's contents. */
-  Collection getModifiableCollection();
 
-  /** Creates a relational expression that modifies this table. */
-  TableModify toModificationRel(
-      RelOptCluster cluster,
-      RelOptTable table,
-      Prepare.CatalogReader catalogReader,
-      RelNode child,
-      TableModify.Operation operation,
-      List<String> updateColumnList,
-      List<RexNode> sourceExpressionList,
-      boolean flattened);
+    /**
+     * Returns the modifiable collection.
+     * Modifying the collection will change the table's contents.
+     */
+    Collection getModifiableCollection();
+
+    /**
+     * Creates a relational expression that modifies this table.
+     */
+    TableModify toModificationRel(RelOptCluster cluster, RelOptTable table, Prepare.CatalogReader catalogReader,
+                                  RelNode child, TableModify.Operation operation, List<String> updateColumnList,
+                                  List<RexNode> sourceExpressionList, boolean flattened);
 }
 
 // End ModifiableTable.java

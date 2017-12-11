@@ -17,20 +17,16 @@
 package org.apache.calcite.util;
 
 import org.apache.calcite.runtime.CalciteResource;
-
 import org.apache.calcite.runtime.Resources;
 
 /**
  * Definitions of objects to be statically imported.
- *
  * <h3>Note to developers</h3>
- *
  * <p>Please give careful consideration before including an object in this
  * class. Pros:
  * <ul>
  * <li>Code that uses these objects will be terser.
  * </ul>
- *
  * <p>Cons:</p>
  * <ul>
  * <li>Namespace pollution,
@@ -40,11 +36,14 @@ import org.apache.calcite.runtime.Resources;
  * </ul>
  */
 public abstract class Static {
-  private Static() {}
 
-  /** Resources. */
-  public static final CalciteResource RESOURCE =
-      Resources.create(CalciteResource.class);
+    private Static() {
+    }
+
+    /**
+     * Resources.
+     */
+    public static final CalciteResource RESOURCE = Resources.create(CalciteResource.class);
 }
 
 // End Static.java

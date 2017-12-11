@@ -24,24 +24,26 @@ import org.apache.calcite.sql.SqlNode;
  * Namespace for a {@code MATCH_RECOGNIZE} clause.
  */
 public class MatchRecognizeNamespace extends AbstractNamespace {
-  private final SqlMatchRecognize matchRecognize;
 
-  /** Creates a MatchRecognizeNamespace. */
-  protected MatchRecognizeNamespace(SqlValidatorImpl validator,
-      SqlMatchRecognize matchRecognize,
-      SqlNode enclosingNode) {
-    super(validator, enclosingNode);
-    this.matchRecognize = matchRecognize;
-  }
+    private final SqlMatchRecognize matchRecognize;
 
-  @Override public RelDataType validateImpl(RelDataType targetRowType) {
-    validator.validateMatchRecognize(matchRecognize);
-    return rowType;
-  }
+    /**
+     * Creates a MatchRecognizeNamespace.
+     */
+    protected MatchRecognizeNamespace(SqlValidatorImpl validator, SqlMatchRecognize matchRecognize,
+                                      SqlNode enclosingNode) {
+        super(validator, enclosingNode);
+        this.matchRecognize = matchRecognize;
+    }
 
-  @Override public SqlMatchRecognize getNode() {
-    return matchRecognize;
-  }
+    @Override public RelDataType validateImpl(RelDataType targetRowType) {
+        validator.validateMatchRecognize(matchRecognize);
+        return rowType;
+    }
+
+    @Override public SqlMatchRecognize getNode() {
+        return matchRecognize;
+    }
 }
 
 // End MatchRecognizeNamespace.java

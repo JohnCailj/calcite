@@ -24,30 +24,26 @@ import org.apache.calcite.sql.SqlCall;
  * into equivalent expressions.
  */
 public interface SubQueryConverter {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * @return Whether the sub-query can be converted
-   */
-  boolean canConvertSubQuery();
+    /**
+     * @return Whether the sub-query can be converted
+     */
+    boolean canConvertSubQuery();
 
-  /**
-   * Converts the sub-query to an equivalent expression.
-   *
-   * @param subQuery        the SqlNode tree corresponding to a sub-query
-   * @param parentConverter sqlToRelConverter of the parent query
-   * @param isExists        whether the sub-query is part of an EXISTS
-   *                        expression
-   * @param isExplain       whether the sub-query is part of an EXPLAIN PLAN
-   *                        statement
-   * @return the equivalent expression or null if the sub-query couldn't be
-   * converted
-   */
-  RexNode convertSubQuery(
-      SqlCall subQuery,
-      SqlToRelConverter parentConverter,
-      boolean isExists,
-      boolean isExplain);
+    /**
+     * Converts the sub-query to an equivalent expression.
+     *
+     * @param subQuery        the SqlNode tree corresponding to a sub-query
+     * @param parentConverter sqlToRelConverter of the parent query
+     * @param isExists        whether the sub-query is part of an EXISTS
+     *                        expression
+     * @param isExplain       whether the sub-query is part of an EXPLAIN PLAN
+     *                        statement
+     * @return the equivalent expression or null if the sub-query couldn't be
+     * converted
+     */
+    RexNode convertSubQuery(SqlCall subQuery, SqlToRelConverter parentConverter, boolean isExists, boolean isExplain);
 }
 
 // End SubQueryConverter.java

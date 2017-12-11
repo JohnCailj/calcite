@@ -23,10 +23,8 @@ import org.apache.calcite.sql.type.ReturnTypes;
 
 /**
  * The {@code GROUPING_ID} function.
- *
  * <p>This function is not defined in the SQL standard; our implementation is
  * consistent with Oracle.
- *
  * <p>Some examples are in {@code agg.iq}.
  *
  * @deprecated Now that {@code GROUPING} has the same functionality,
@@ -34,11 +32,12 @@ import org.apache.calcite.sql.type.ReturnTypes;
  */
 @Deprecated // to be removed before 2.0
 class SqlGroupingIdFunction extends SqlAbstractGroupFunction {
-  SqlGroupingIdFunction() {
-    //noinspection deprecation
-    super("GROUPING_ID", SqlKind.GROUPING_ID, ReturnTypes.BIGINT, null,
-        OperandTypes.ONE_OR_MORE, SqlFunctionCategory.SYSTEM);
-  }
+
+    SqlGroupingIdFunction() {
+        //noinspection deprecation
+        super("GROUPING_ID", SqlKind.GROUPING_ID, ReturnTypes.BIGINT, null, OperandTypes.ONE_OR_MORE,
+              SqlFunctionCategory.SYSTEM);
+    }
 }
 
 // End SqlGroupingIdFunction.java

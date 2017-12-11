@@ -24,11 +24,9 @@ import org.apache.calcite.rel.logical.LogicalSort;
 
 /**
  * Definition of the ordering trait.
- *
  * <p>Ordering is a physical property (i.e. a trait) because it can be changed
  * without loss of information. The converter to do this is the
  * {@link org.apache.calcite.rel.core.Sort} operator.
- *
  * <p>Unlike other current traits, a {@link RelNode} can have more than one
  * value of this trait simultaneously. For example,
  * <code>LogicalTableScan(table=TIME_BY_DAY)</code> might be sorted by
@@ -37,67 +35,63 @@ import org.apache.calcite.rel.logical.LogicalSort;
  * one RelSubset (these RelSubsets are always in the same set).</p>
  */
 public class RelCollationTraitDef extends RelTraitDef<RelCollation> {
-  public static final RelCollationTraitDef INSTANCE =
-      new RelCollationTraitDef();
 
-  private RelCollationTraitDef() {
-  }
+    public static final RelCollationTraitDef INSTANCE = new RelCollationTraitDef();
 
-  public Class<RelCollation> getTraitClass() {
-    return RelCollation.class;
-  }
-
-  public String getSimpleName() {
-    return "sort";
-  }
-
-  @Override public boolean multiple() {
-    return true;
-  }
-
-  public RelCollation getDefault() {
-    return RelCollations.EMPTY;
-  }
-
-  public RelNode convert(
-      RelOptPlanner planner,
-      RelNode rel,
-      RelCollation toCollation,
-      boolean allowInfiniteCostConverters) {
-    if (toCollation.getFieldCollations().isEmpty()) {
-      // An empty sort doesn't make sense.
-      return null;
+    private RelCollationTraitDef() {
     }
 
-    // Create a logical sort, then ask the planner to convert its remaining
-    // traits (e.g. convert it to an EnumerableSortRel if rel is enumerable
-    // convention)
-    final Sort sort = LogicalSort.create(rel, toCollation, null, null);
-    RelNode newRel = planner.register(sort, rel);
-    final RelTraitSet newTraitSet = rel.getTraitSet().replace(toCollation);
-    if (!newRel.getTraitSet().equals(newTraitSet)) {
-      newRel = planner.changeTraits(newRel, newTraitSet);
+    public Class<RelCollation> getTraitClass() {
+        return RelCollation.class;
     }
-    return newRel;
-  }
 
-  public boolean canConvert(
-       RelOptPlanner planner, RelCollation fromTrait, RelCollation toTrait) {
-    return false;
-  }
+    public String getSimpleName() {
+        return "sort";
+    }
 
-  @Override public boolean canConvert(RelOptPlanner planner,
-      RelCollation fromTrait, RelCollation toTrait, RelNode fromRel) {
-    // Returns true only if we can convert.  In this case, we can only convert
-    // if the fromTrait (the input) has fields that the toTrait wants to sort.
-    for (RelFieldCollation field : toTrait.getFieldCollations()) {
-      int index = field.getFieldIndex();
-      if (index >= fromRel.getRowType().getFieldCount()) {
+    @Override public boolean multiple() {
+        return true;
+    }
+
+    public RelCollation getDefault() {
+        return RelCollations.EMPTY;
+    }
+
+    public RelNode convert(RelOptPlanner planner, RelNode rel, RelCollation toCollation,
+                           boolean allowInfiniteCostConverters) {
+        if (toCollation.getFieldCollations().isEmpty()) {
+            // An empty sort doesn't make sense.
+            return null;
+        }
+
+        // Create a logical sort, then ask the planner to convert its remaining
+        // traits (e.g. convert it to an EnumerableSortRel if rel is enumerable
+        // convention)
+        final Sort sort = LogicalSort.create(rel, toCollation, null, null);
+        RelNode newRel = planner.register(sort, rel);
+        final RelTraitSet newTraitSet = rel.getTraitSet().replace(toCollation);
+        if (!newRel.getTraitSet().equals(newTraitSet)) {
+            newRel = planner.changeTraits(newRel, newTraitSet);
+        }
+        return newRel;
+    }
+
+    public boolean canConvert(RelOptPlanner planner, RelCollation fromTrait, RelCollation toTrait) {
         return false;
-      }
     }
-    return true;
-  }
+
+    @Override public boolean canConvert(RelOptPlanner planner, RelCollation fromTrait, RelCollation toTrait,
+                                        RelNode fromRel) {
+        // Returns true only if we can convert.  In this case, we can only convert
+        // if the fromTrait (the input) has fields that the toTrait wants to sort.
+        for (RelFieldCollation field : toTrait.getFieldCollations()) {
+            int index = field.getFieldIndex();
+            if (index >= fromRel.getRowType().getFieldCount()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
 // End RelCollationTraitDef.java

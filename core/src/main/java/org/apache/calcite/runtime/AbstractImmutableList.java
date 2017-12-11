@@ -16,11 +16,11 @@
  */
 package org.apache.calcite.runtime;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import javax.annotation.Nonnull;
 
 /**
  * Base class for lists whose contents are constant after creation.
@@ -28,80 +28,81 @@ import javax.annotation.Nonnull;
  * @param <E> Element type
  */
 abstract class AbstractImmutableList<E> implements List<E> {
-  protected abstract List<E> toList();
 
-  @Nonnull public Iterator<E> iterator() {
-    return toList().iterator();
-  }
+    protected abstract List<E> toList();
 
-  @Nonnull public ListIterator<E> listIterator() {
-    return toList().listIterator();
-  }
-
-  public boolean isEmpty() {
-    return false;
-  }
-
-  public boolean add(E t) {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean addAll(@Nonnull Collection<? extends E> c) {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean addAll(int index, @Nonnull Collection<? extends E> c) {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean removeAll(@Nonnull Collection<?> c) {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean retainAll(@Nonnull Collection<?> c) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void clear() {
-    throw new UnsupportedOperationException();
-  }
-
-  public E set(int index, E element) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void add(int index, E element) {
-    throw new UnsupportedOperationException();
-  }
-
-  public E remove(int index) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Nonnull public ListIterator<E> listIterator(int index) {
-    return toList().listIterator(index);
-  }
-
-  @Nonnull public List<E> subList(int fromIndex, int toIndex) {
-    return toList().subList(fromIndex, toIndex);
-  }
-
-  public boolean contains(Object o) {
-    return indexOf(o) >= 0;
-  }
-
-  public boolean containsAll(@Nonnull Collection<?> c) {
-    for (Object o : c) {
-      if (!contains(o)) {
-        return false;
-      }
+    @Nonnull public Iterator<E> iterator() {
+        return toList().iterator();
     }
-    return true;
-  }
 
-  public boolean remove(Object o) {
-    throw new UnsupportedOperationException();
-  }
+    @Nonnull public ListIterator<E> listIterator() {
+        return toList().listIterator();
+    }
+
+    public boolean isEmpty() {
+        return false;
+    }
+
+    public boolean add(E t) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean addAll(@Nonnull Collection<? extends E> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean addAll(int index, @Nonnull Collection<? extends E> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean removeAll(@Nonnull Collection<?> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean retainAll(@Nonnull Collection<?> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
+    public E set(int index, E element) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void add(int index, E element) {
+        throw new UnsupportedOperationException();
+    }
+
+    public E remove(int index) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Nonnull public ListIterator<E> listIterator(int index) {
+        return toList().listIterator(index);
+    }
+
+    @Nonnull public List<E> subList(int fromIndex, int toIndex) {
+        return toList().subList(fromIndex, toIndex);
+    }
+
+    public boolean contains(Object o) {
+        return indexOf(o) >= 0;
+    }
+
+    public boolean containsAll(@Nonnull Collection<?> c) {
+        for (Object o : c) {
+            if (!contains(o)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean remove(Object o) {
+        throw new UnsupportedOperationException();
+    }
 }
 
 // End AbstractImmutableList.java

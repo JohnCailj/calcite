@@ -29,106 +29,83 @@ import org.apache.calcite.util.TimestampString;
  * Standard implementation of {@link RexToSqlNodeConverter}.
  */
 public class RexToSqlNodeConverterImpl implements RexToSqlNodeConverter {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final RexSqlConvertletTable convertletTable;
+    private final RexSqlConvertletTable convertletTable;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public RexToSqlNodeConverterImpl(RexSqlConvertletTable convertletTable) {
-    this.convertletTable = convertletTable;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  // implement RexToSqlNodeConverter
-  public SqlNode convertNode(RexNode node) {
-    if (node instanceof RexLiteral) {
-      return convertLiteral((RexLiteral) node);
-    } else if (node instanceof RexInputRef) {
-      return convertInputRef((RexInputRef) node);
-    } else if (node instanceof RexCall) {
-      return convertCall((RexCall) node);
-    }
-    return null;
-  }
-
-  // implement RexToSqlNodeConverter
-  public SqlNode convertCall(RexCall call) {
-    final RexSqlConvertlet convertlet = convertletTable.get(call);
-    if (convertlet != null) {
-      return convertlet.convertCall(this, call);
+    public RexToSqlNodeConverterImpl(RexSqlConvertletTable convertletTable) {
+        this.convertletTable = convertletTable;
     }
 
-    return null;
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  // implement RexToSqlNodeConverter
-  public SqlNode convertLiteral(RexLiteral literal) {
-    // Numeric
-    if (SqlTypeFamily.EXACT_NUMERIC.getTypeNames().contains(
-        literal.getTypeName())) {
-      return SqlLiteral.createExactNumeric(
-          literal.getValue().toString(),
-          SqlParserPos.ZERO);
+    // implement RexToSqlNodeConverter
+    public SqlNode convertNode(RexNode node) {
+        if (node instanceof RexLiteral) {
+            return convertLiteral((RexLiteral) node);
+        } else if (node instanceof RexInputRef) {
+            return convertInputRef((RexInputRef) node);
+        } else if (node instanceof RexCall) {
+            return convertCall((RexCall) node);
+        }
+        return null;
     }
 
-    if (SqlTypeFamily.APPROXIMATE_NUMERIC.getTypeNames().contains(
-        literal.getTypeName())) {
-      return SqlLiteral.createApproxNumeric(
-          literal.getValue().toString(),
-          SqlParserPos.ZERO);
+    // implement RexToSqlNodeConverter
+    public SqlNode convertCall(RexCall call) {
+        final RexSqlConvertlet convertlet = convertletTable.get(call);
+        if (convertlet != null) {
+            return convertlet.convertCall(this, call);
+        }
+
+        return null;
     }
 
-    // Timestamp
-    if (SqlTypeFamily.TIMESTAMP.getTypeNames().contains(
-        literal.getTypeName())) {
-      return SqlLiteral.createTimestamp(
-          literal.getValueAs(TimestampString.class),
-          0,
-          SqlParserPos.ZERO);
+    // implement RexToSqlNodeConverter
+    public SqlNode convertLiteral(RexLiteral literal) {
+        // Numeric
+        if (SqlTypeFamily.EXACT_NUMERIC.getTypeNames().contains(literal.getTypeName())) {
+            return SqlLiteral.createExactNumeric(literal.getValue().toString(), SqlParserPos.ZERO);
+        }
+
+        if (SqlTypeFamily.APPROXIMATE_NUMERIC.getTypeNames().contains(literal.getTypeName())) {
+            return SqlLiteral.createApproxNumeric(literal.getValue().toString(), SqlParserPos.ZERO);
+        }
+
+        // Timestamp
+        if (SqlTypeFamily.TIMESTAMP.getTypeNames().contains(literal.getTypeName())) {
+            return SqlLiteral.createTimestamp(literal.getValueAs(TimestampString.class), 0, SqlParserPos.ZERO);
+        }
+
+        // Date
+        if (SqlTypeFamily.DATE.getTypeNames().contains(literal.getTypeName())) {
+            return SqlLiteral.createDate(literal.getValueAs(DateString.class), SqlParserPos.ZERO);
+        }
+
+        // Time
+        if (SqlTypeFamily.TIME.getTypeNames().contains(literal.getTypeName())) {
+            return SqlLiteral.createTime(literal.getValueAs(TimeString.class), 0, SqlParserPos.ZERO);
+        }
+
+        // String
+        if (SqlTypeFamily.CHARACTER.getTypeNames().contains(literal.getTypeName())) {
+            return SqlLiteral.createCharString(((NlsString) (literal.getValue())).getValue(), SqlParserPos.ZERO);
+        }
+
+        // Boolean
+        if (SqlTypeFamily.BOOLEAN.getTypeNames().contains(literal.getTypeName())) {
+            return SqlLiteral.createBoolean((Boolean) literal.getValue(), SqlParserPos.ZERO);
+        }
+
+        return null;
     }
 
-    // Date
-    if (SqlTypeFamily.DATE.getTypeNames().contains(
-        literal.getTypeName())) {
-      return SqlLiteral.createDate(
-          literal.getValueAs(DateString.class),
-          SqlParserPos.ZERO);
+    // implement RexToSqlNodeConverter
+    public SqlNode convertInputRef(RexInputRef ref) {
+        return null;
     }
-
-    // Time
-    if (SqlTypeFamily.TIME.getTypeNames().contains(
-        literal.getTypeName())) {
-      return SqlLiteral.createTime(
-          literal.getValueAs(TimeString.class),
-          0,
-          SqlParserPos.ZERO);
-    }
-
-    // String
-    if (SqlTypeFamily.CHARACTER.getTypeNames().contains(
-        literal.getTypeName())) {
-      return SqlLiteral.createCharString(
-          ((NlsString) (literal.getValue())).getValue(),
-          SqlParserPos.ZERO);
-    }
-
-    // Boolean
-    if (SqlTypeFamily.BOOLEAN.getTypeNames().contains(
-        literal.getTypeName())) {
-      return SqlLiteral.createBoolean(
-          (Boolean) literal.getValue(),
-          SqlParserPos.ZERO);
-    }
-
-    return null;
-  }
-
-  // implement RexToSqlNodeConverter
-  public SqlNode convertInputRef(RexInputRef ref) {
-    return null;
-  }
 }
 
 // End RexToSqlNodeConverterImpl.java

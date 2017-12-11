@@ -32,56 +32,44 @@ import java.util.List;
  * not targeted at any particular engine or calling convention.
  */
 public final class LogicalTableModify extends TableModify {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a LogicalTableModify.
-   *
-   * <p>Use {@link #create} unless you know what you're doing.
-   */
-  public LogicalTableModify(RelOptCluster cluster, RelTraitSet traitSet,
-      RelOptTable table, Prepare.CatalogReader schema, RelNode input,
-      Operation operation, List<String> updateColumnList,
-      List<RexNode> sourceExpressionList, boolean flattened) {
-    super(cluster, traitSet, table, schema, input, operation, updateColumnList,
-        sourceExpressionList, flattened);
-  }
+    /**
+     * Creates a LogicalTableModify.
+     * <p>Use {@link #create} unless you know what you're doing.
+     */
+    public LogicalTableModify(RelOptCluster cluster, RelTraitSet traitSet, RelOptTable table,
+                              Prepare.CatalogReader schema, RelNode input, Operation operation,
+                              List<String> updateColumnList, List<RexNode> sourceExpressionList, boolean flattened) {
+        super(cluster, traitSet, table, schema, input, operation, updateColumnList, sourceExpressionList, flattened);
+    }
 
-  @Deprecated // to be removed before 2.0
-  public LogicalTableModify(RelOptCluster cluster, RelOptTable table,
-      Prepare.CatalogReader schema, RelNode input, Operation operation,
-      List<String> updateColumnList, boolean flattened) {
-    this(cluster,
-        cluster.traitSetOf(Convention.NONE),
-        table,
-        schema,
-        input,
-        operation,
-        updateColumnList,
-        null,
-        flattened);
-  }
+    @Deprecated // to be removed before 2.0
+    public LogicalTableModify(RelOptCluster cluster, RelOptTable table, Prepare.CatalogReader schema, RelNode input,
+                              Operation operation, List<String> updateColumnList, boolean flattened) {
+        this(cluster, cluster.traitSetOf(Convention.NONE), table, schema, input, operation, updateColumnList, null,
+             flattened);
+    }
 
-  /** Creates a LogicalTableModify. */
-  public static LogicalTableModify create(RelOptTable table,
-      Prepare.CatalogReader schema, RelNode input,
-      Operation operation, List<String> updateColumnList,
-      List<RexNode> sourceExpressionList, boolean flattened) {
-    final RelOptCluster cluster = input.getCluster();
-    final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
-    return new LogicalTableModify(cluster, traitSet, table, schema, input,
-        operation, updateColumnList, sourceExpressionList, flattened);
-  }
+    /**
+     * Creates a LogicalTableModify.
+     */
+    public static LogicalTableModify create(RelOptTable table, Prepare.CatalogReader schema, RelNode input,
+                                            Operation operation, List<String> updateColumnList,
+                                            List<RexNode> sourceExpressionList, boolean flattened) {
+        final RelOptCluster cluster = input.getCluster();
+        final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
+        return new LogicalTableModify(cluster, traitSet, table, schema, input, operation, updateColumnList,
+                                      sourceExpressionList, flattened);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public LogicalTableModify copy(RelTraitSet traitSet,
-      List<RelNode> inputs) {
-    assert traitSet.containsIfApplicable(Convention.NONE);
-    return new LogicalTableModify(getCluster(), traitSet, table, catalogReader,
-        sole(inputs), getOperation(), getUpdateColumnList(),
-        getSourceExpressionList(), isFlattened());
-  }
+    @Override public LogicalTableModify copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        assert traitSet.containsIfApplicable(Convention.NONE);
+        return new LogicalTableModify(getCluster(), traitSet, table, catalogReader, sole(inputs), getOperation(),
+                                      getUpdateColumnList(), getSourceExpressionList(), isFlattened());
+    }
 }
 
 // End LogicalTableModify.java

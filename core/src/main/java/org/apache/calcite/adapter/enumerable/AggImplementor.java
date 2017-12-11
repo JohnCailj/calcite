@@ -31,59 +31,58 @@ import java.util.List;
  * @see org.apache.calcite.adapter.enumerable.RexImpTable.SumImplementor
  */
 public interface AggImplementor {
-  /**
-   * Returns the types of the intermediate variables used by the aggregate
-   * implementation.
-   *
-   * <p>For instance, for "concatenate to string" this can be
-   * {@link java.lang.StringBuilder}.
-   * Calcite calls this method before all other {@code implement*} methods.
-   *
-   * @param info Aggregate context
-   * @return Types of the intermediate variables used by the aggregate
-   *   implementation
-   */
-  List<Type> getStateType(AggContext info);
 
-  /**
-   * Implements reset of the intermediate variables to the initial state.
-   * {@link AggResetContext#accumulator()} should be used to reference
-   * the state variables.
-   * For instance, to zero the count, use the following code:
-   *
-   * <blockquote><code>reset.currentBlock().add(<br>
-   *   Expressions.statement(<br>
-   *     Expressions.assign(reset.accumulator().get(0),<br>
-   *       Expressions.constant(0)));</code></blockquote>
-   *
-   * @param info Aggregate context
-   * @param reset Reset context
-   */
-  void implementReset(AggContext info, AggResetContext reset);
+    /**
+     * Returns the types of the intermediate variables used by the aggregate
+     * implementation.
+     * <p>For instance, for "concatenate to string" this can be
+     * {@link java.lang.StringBuilder}.
+     * Calcite calls this method before all other {@code implement*} methods.
+     *
+     * @param info Aggregate context
+     * @return Types of the intermediate variables used by the aggregate
+     * implementation
+     */
+    List<Type> getStateType(AggContext info);
 
-  /**
-   * Updates intermediate values to account for the newly added value.
-   * {@link AggResetContext#accumulator()} should be used to reference
-   * the state variables.
-   *
-   * @param info Aggregate context
-   * @param add Add context
-   */
-  void implementAdd(AggContext info, AggAddContext add);
+    /**
+     * Implements reset of the intermediate variables to the initial state.
+     * {@link AggResetContext#accumulator()} should be used to reference
+     * the state variables.
+     * For instance, to zero the count, use the following code:
+     * <blockquote><code>reset.currentBlock().add(<br>
+     * Expressions.statement(<br>
+     * Expressions.assign(reset.accumulator().get(0),<br>
+     * Expressions.constant(0)));</code></blockquote>
+     *
+     * @param info  Aggregate context
+     * @param reset Reset context
+     */
+    void implementReset(AggContext info, AggResetContext reset);
 
-  /**
-   * Calculates the resulting value based on the intermediate variables.
-   * Note: this method must NOT destroy the intermediate variables as
-   * calcite might reuse the state when calculating sliding aggregates.
-   * {@link AggResetContext#accumulator()} should be used to reference
-   * the state variables.
-   *
-   * @param info Aggregate context
-   * @param result Result context
-   * @return Expression that is a result of calculating final value of
-   *   the aggregate being implemented
-   */
-  Expression implementResult(AggContext info, AggResultContext result);
+    /**
+     * Updates intermediate values to account for the newly added value.
+     * {@link AggResetContext#accumulator()} should be used to reference
+     * the state variables.
+     *
+     * @param info Aggregate context
+     * @param add  Add context
+     */
+    void implementAdd(AggContext info, AggAddContext add);
+
+    /**
+     * Calculates the resulting value based on the intermediate variables.
+     * Note: this method must NOT destroy the intermediate variables as
+     * calcite might reuse the state when calculating sliding aggregates.
+     * {@link AggResetContext#accumulator()} should be used to reference
+     * the state variables.
+     *
+     * @param info   Aggregate context
+     * @param result Result context
+     * @return Expression that is a result of calculating final value of
+     * the aggregate being implemented
+     */
+    Expression implementResult(AggContext info, AggResultContext result);
 }
 
 // End AggImplementor.java

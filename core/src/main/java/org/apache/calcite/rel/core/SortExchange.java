@@ -16,97 +16,82 @@
  */
 package org.apache.calcite.rel.core;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelTraitSet;
-import org.apache.calcite.rel.RelCollation;
-import org.apache.calcite.rel.RelCollationTraitDef;
-import org.apache.calcite.rel.RelDistribution;
-import org.apache.calcite.rel.RelDistributionTraitDef;
-import org.apache.calcite.rel.RelInput;
-import org.apache.calcite.rel.RelNode;
-import org.apache.calcite.rel.RelWriter;
-
-import com.google.common.base.Preconditions;
+import org.apache.calcite.rel.*;
 
 /**
  * Relational expression that performs {@link Exchange} and {@link Sort}
  * simultaneously.
- *
  * <p>Whereas a Sort produces output with a particular
  * {@link org.apache.calcite.rel.RelCollation} and an Exchange produces output
  * with a particular {@link org.apache.calcite.rel.RelDistribution}, the output
  * of a SortExchange has both the required collation and distribution.
- *
  * <p>Several implementations of SortExchange are possible; the purpose of this
  * base class allows rules to be written that apply to all of those
  * implementations.
  */
 public abstract class SortExchange extends Exchange {
-  protected final RelCollation collation;
 
-  //~ Constructors -----------------------------------------------------------
+    protected final RelCollation collation;
 
-  /**
-   * Creates a SortExchange.
-   *
-   * @param cluster   Cluster this relational expression belongs to
-   * @param traitSet  Trait set
-   * @param input     Input relational expression
-   * @param distribution Distribution specification
-   */
-  protected SortExchange(RelOptCluster cluster, RelTraitSet traitSet,
-      RelNode input, RelDistribution distribution, RelCollation collation) {
-    super(cluster, traitSet, input, distribution);
-    this.collation = Preconditions.checkNotNull(collation);
+    //~ Constructors -----------------------------------------------------------
 
-    assert traitSet.containsIfApplicable(collation)
-        : "traits=" + traitSet + ", collation=" + collation;
-  }
+    /**
+     * Creates a SortExchange.
+     *
+     * @param cluster      Cluster this relational expression belongs to
+     * @param traitSet     Trait set
+     * @param input        Input relational expression
+     * @param distribution Distribution specification
+     */
+    protected SortExchange(RelOptCluster cluster, RelTraitSet traitSet, RelNode input, RelDistribution distribution,
+                           RelCollation collation) {
+        super(cluster, traitSet, input, distribution);
+        this.collation = Preconditions.checkNotNull(collation);
 
-  /**
-   * Creates a SortExchange by parsing serialized output.
-   */
-  public SortExchange(RelInput input) {
-    this(input.getCluster(),
-        input.getTraitSet().plus(input.getCollation())
-            .plus(input.getDistribution()),
-        input.getInput(),
-        RelDistributionTraitDef.INSTANCE.canonize(input.getDistribution()),
-        RelCollationTraitDef.INSTANCE.canonize(input.getCollation()));
-  }
+        assert traitSet.containsIfApplicable(collation) : "traits=" + traitSet + ", collation=" + collation;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    /**
+     * Creates a SortExchange by parsing serialized output.
+     */
+    public SortExchange(RelInput input) {
+        this(input.getCluster(), input.getTraitSet().plus(input.getCollation()).plus(input.getDistribution()),
+             input.getInput(), RelDistributionTraitDef.INSTANCE.canonize(input.getDistribution()),
+             RelCollationTraitDef.INSTANCE.canonize(input.getCollation()));
+    }
 
-  @Override public final SortExchange copy(RelTraitSet traitSet,
-      RelNode newInput, RelDistribution newDistribution) {
-    return copy(traitSet, newInput, newDistribution, collation);
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  public abstract SortExchange copy(RelTraitSet traitSet, RelNode newInput,
-      RelDistribution newDistribution, RelCollation newCollation);
+    @Override public final SortExchange copy(RelTraitSet traitSet, RelNode newInput, RelDistribution newDistribution) {
+        return copy(traitSet, newInput, newDistribution, collation);
+    }
 
-  /**
-   * Returns the array of {@link org.apache.calcite.rel.RelFieldCollation}s
-   * asked for by the sort specification, from most significant to least
-   * significant.
-   *
-   * <p>See also
-   * {@link org.apache.calcite.rel.metadata.RelMetadataQuery#collations(RelNode)},
-   * which lists all known collations. For example,
-   * <code>ORDER BY time_id</code> might also be sorted by
-   * <code>the_year, the_month</code> because of a known monotonicity
-   * constraint among the columns. {@code getCollation} would return
-   * <code>[time_id]</code> and {@code collations} would return
-   * <code>[ [time_id], [the_year, the_month] ]</code>.</p>
-   */
-  public RelCollation getCollation() {
-    return collation;
-  }
+    public abstract SortExchange copy(RelTraitSet traitSet, RelNode newInput, RelDistribution newDistribution,
+                                      RelCollation newCollation);
 
-  public RelWriter explainTerms(RelWriter pw) {
-    return super.explainTerms(pw)
-        .item("collation", collation);
-  }
+    /**
+     * Returns the array of {@link org.apache.calcite.rel.RelFieldCollation}s
+     * asked for by the sort specification, from most significant to least
+     * significant.
+     * <p>See also
+     * {@link org.apache.calcite.rel.metadata.RelMetadataQuery#collations(RelNode)},
+     * which lists all known collations. For example,
+     * <code>ORDER BY time_id</code> might also be sorted by
+     * <code>the_year, the_month</code> because of a known monotonicity
+     * constraint among the columns. {@code getCollation} would return
+     * <code>[time_id]</code> and {@code collations} would return
+     * <code>[ [time_id], [the_year, the_month] ]</code>.</p>
+     */
+    public RelCollation getCollation() {
+        return collation;
+    }
+
+    public RelWriter explainTerms(RelWriter pw) {
+        return super.explainTerms(pw).item("collation", collation);
+    }
 }
 
 // End SortExchange.java

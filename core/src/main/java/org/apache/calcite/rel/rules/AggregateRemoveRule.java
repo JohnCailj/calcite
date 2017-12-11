@@ -33,53 +33,50 @@ import org.apache.calcite.tools.RelBuilder;
  * and the underlying relational expression is already distinct.
  */
 public class AggregateRemoveRule extends RelOptRule {
-  public static final AggregateRemoveRule INSTANCE =
-      new AggregateRemoveRule(LogicalAggregate.class);
 
-  //~ Constructors -----------------------------------------------------------
+    public static final AggregateRemoveRule INSTANCE = new AggregateRemoveRule(LogicalAggregate.class);
 
-  /**
-   * Creates a AggregateRemoveRule.
-   */
-  public AggregateRemoveRule(Class<? extends Aggregate> aggregateClass) {
-    // REVIEW jvs 14-Mar-2006: We have to explicitly mention the child here
-    // to make sure the rule re-fires after the child changes (e.g. via
-    // ProjectRemoveRule), since that may change our information
-    // about whether the child is distinct.  If we clean up the inference of
-    // distinct to make it correct up-front, we can get rid of the reference
-    // to the child here.
-    super(
-        operand(aggregateClass,
-            operand(RelNode.class, any())));
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    final Aggregate aggregate = call.rel(0);
-    final RelNode input = call.rel(1);
-    if (!aggregate.getAggCallList().isEmpty() || aggregate.indicator) {
-      return;
+    /**
+     * Creates a AggregateRemoveRule.
+     */
+    public AggregateRemoveRule(Class<? extends Aggregate> aggregateClass) {
+        // REVIEW jvs 14-Mar-2006: We have to explicitly mention the child here
+        // to make sure the rule re-fires after the child changes (e.g. via
+        // ProjectRemoveRule), since that may change our information
+        // about whether the child is distinct.  If we clean up the inference of
+        // distinct to make it correct up-front, we can get rid of the reference
+        // to the child here.
+        super(operand(aggregateClass, operand(RelNode.class, any())));
     }
-    final RelMetadataQuery mq = call.getMetadataQuery();
-    if (!SqlFunctions.isTrue(mq.areColumnsUnique(input, aggregate.getGroupSet()))) {
-      return;
-    }
-    // Distinct is "GROUP BY c1, c2" (where c1, c2 are a set of columns on
-    // which the input is unique, i.e. contain a key) and has no aggregate
-    // functions. It can be removed.
-    final RelNode newInput = convert(input, aggregate.getTraitSet().simplify());
 
-    // If aggregate was projecting a subset of columns, add a project for the
-    // same effect.
-    final RelBuilder relBuilder = call.builder();
-    relBuilder.push(newInput);
-    if (newInput.getRowType().getFieldCount()
-        > aggregate.getRowType().getFieldCount()) {
-      relBuilder.project(relBuilder.fields(aggregate.getGroupSet().asList()));
+    //~ Methods ----------------------------------------------------------------
+
+    public void onMatch(RelOptRuleCall call) {
+        final Aggregate aggregate = call.rel(0);
+        final RelNode input = call.rel(1);
+        if (!aggregate.getAggCallList().isEmpty() || aggregate.indicator) {
+            return;
+        }
+        final RelMetadataQuery mq = call.getMetadataQuery();
+        if (!SqlFunctions.isTrue(mq.areColumnsUnique(input, aggregate.getGroupSet()))) {
+            return;
+        }
+        // Distinct is "GROUP BY c1, c2" (where c1, c2 are a set of columns on
+        // which the input is unique, i.e. contain a key) and has no aggregate
+        // functions. It can be removed.
+        final RelNode newInput = convert(input, aggregate.getTraitSet().simplify());
+
+        // If aggregate was projecting a subset of columns, add a project for the
+        // same effect.
+        final RelBuilder relBuilder = call.builder();
+        relBuilder.push(newInput);
+        if (newInput.getRowType().getFieldCount() > aggregate.getRowType().getFieldCount()) {
+            relBuilder.project(relBuilder.fields(aggregate.getGroupSet().asList()));
+        }
+        call.transformTo(relBuilder.build());
     }
-    call.transformTo(relBuilder.build());
-  }
 }
 
 // End AggregateRemoveRule.java

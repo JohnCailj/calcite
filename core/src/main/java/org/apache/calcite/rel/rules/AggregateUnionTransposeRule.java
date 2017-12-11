@@ -16,6 +16,8 @@
  */
 package org.apache.calcite.rel.rules;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.apache.calcite.linq4j.Ord;
 import org.apache.calcite.plan.RelOptRule;
 import org.apache.calcite.plan.RelOptRuleCall;
@@ -30,16 +32,9 @@ import org.apache.calcite.rel.metadata.RelMdUtil;
 import org.apache.calcite.rel.metadata.RelMetadataQuery;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlAggFunction;
-import org.apache.calcite.sql.fun.SqlCountAggFunction;
-import org.apache.calcite.sql.fun.SqlMinMaxAggFunction;
-import org.apache.calcite.sql.fun.SqlStdOperatorTable;
-import org.apache.calcite.sql.fun.SqlSumAggFunction;
-import org.apache.calcite.sql.fun.SqlSumEmptyIsZeroAggFunction;
+import org.apache.calcite.sql.fun.*;
 import org.apache.calcite.tools.RelBuilder;
 import org.apache.calcite.tools.RelBuilderFactory;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -51,131 +46,117 @@ import java.util.Map;
  * past a non-distinct {@link org.apache.calcite.rel.core.Union}.
  */
 public class AggregateUnionTransposeRule extends RelOptRule {
-  public static final AggregateUnionTransposeRule INSTANCE =
-      new AggregateUnionTransposeRule(LogicalAggregate.class,
-          LogicalUnion.class, RelFactories.LOGICAL_BUILDER);
 
-  private static final Map<Class<? extends SqlAggFunction>, Boolean>
-      SUPPORTED_AGGREGATES = new IdentityHashMap<>();
+    public static final AggregateUnionTransposeRule INSTANCE = new AggregateUnionTransposeRule(LogicalAggregate.class,
+                                                                                               LogicalUnion.class,
+                                                                                               RelFactories.LOGICAL_BUILDER);
 
-  static {
-    SUPPORTED_AGGREGATES.put(SqlMinMaxAggFunction.class, true);
-    SUPPORTED_AGGREGATES.put(SqlCountAggFunction.class, true);
-    SUPPORTED_AGGREGATES.put(SqlSumAggFunction.class, true);
-    SUPPORTED_AGGREGATES.put(SqlSumEmptyIsZeroAggFunction.class, true);
-  }
+    private static final Map<Class<? extends SqlAggFunction>, Boolean> SUPPORTED_AGGREGATES = new IdentityHashMap<>();
 
-  /** Creates an AggregateUnionTransposeRule. */
-  public AggregateUnionTransposeRule(Class<? extends Aggregate> aggregateClass,
-      Class<? extends Union> unionClass, RelBuilderFactory relBuilderFactory) {
-    super(
-        operand(aggregateClass,
-            operand(unionClass, any())),
-        relBuilderFactory, null);
-  }
-
-  @Deprecated // to be removed before 2.0
-  public AggregateUnionTransposeRule(Class<? extends Aggregate> aggregateClass,
-      RelFactories.AggregateFactory aggregateFactory,
-      Class<? extends Union> unionClass,
-      RelFactories.SetOpFactory setOpFactory) {
-    this(aggregateClass, unionClass,
-        RelBuilder.proto(aggregateFactory, setOpFactory));
-  }
-
-  public void onMatch(RelOptRuleCall call) {
-    Aggregate aggRel = call.rel(0);
-    Union union = call.rel(1);
-
-    if (!union.all) {
-      // This transformation is only valid for UNION ALL.
-      // Consider t1(i) with rows (5), (5) and t2(i) with
-      // rows (5), (10), and the query
-      // select sum(i) from (select i from t1) union (select i from t2).
-      // The correct answer is 15.  If we apply the transformation,
-      // we get
-      // select sum(i) from
-      // (select sum(i) as i from t1) union (select sum(i) as i from t2)
-      // which yields 25 (incorrect).
-      return;
+    static {
+        SUPPORTED_AGGREGATES.put(SqlMinMaxAggFunction.class, true);
+        SUPPORTED_AGGREGATES.put(SqlCountAggFunction.class, true);
+        SUPPORTED_AGGREGATES.put(SqlSumAggFunction.class, true);
+        SUPPORTED_AGGREGATES.put(SqlSumEmptyIsZeroAggFunction.class, true);
     }
 
-    int groupCount = aggRel.getGroupSet().cardinality();
-
-    List<AggregateCall> transformedAggCalls =
-        transformAggCalls(
-            aggRel.copy(aggRel.getTraitSet(), aggRel.getInput(), false,
-                aggRel.getGroupSet(), null, aggRel.getAggCallList()),
-            groupCount, aggRel.getAggCallList());
-    if (transformedAggCalls == null) {
-      // we've detected the presence of something like AVG,
-      // which we can't handle
-      return;
+    /**
+     * Creates an AggregateUnionTransposeRule.
+     */
+    public AggregateUnionTransposeRule(Class<? extends Aggregate> aggregateClass, Class<? extends Union> unionClass,
+                                       RelBuilderFactory relBuilderFactory) {
+        super(operand(aggregateClass, operand(unionClass, any())), relBuilderFactory, null);
     }
 
-    // create corresponding aggregates on top of each union child
-    final RelBuilder relBuilder = call.builder();
-    int transformCount = 0;
-    final RelMetadataQuery mq = call.getMetadataQuery();
-    for (RelNode input : union.getInputs()) {
-      boolean alreadyUnique =
-          RelMdUtil.areColumnsDefinitelyUnique(mq, input,
-              aggRel.getGroupSet());
-
-      relBuilder.push(input);
-      if (!alreadyUnique) {
-        ++transformCount;
-        relBuilder.aggregate(relBuilder.groupKey(aggRel.getGroupSet(), null),
-            aggRel.getAggCallList());
-      }
+    @Deprecated // to be removed before 2.0
+    public AggregateUnionTransposeRule(Class<? extends Aggregate> aggregateClass,
+                                       RelFactories.AggregateFactory aggregateFactory,
+                                       Class<? extends Union> unionClass, RelFactories.SetOpFactory setOpFactory) {
+        this(aggregateClass, unionClass, RelBuilder.proto(aggregateFactory, setOpFactory));
     }
 
-    if (transformCount == 0) {
-      // none of the children could benefit from the push-down,
-      // so bail out (preventing the infinite loop to which most
-      // planners would succumb)
-      return;
+    public void onMatch(RelOptRuleCall call) {
+        Aggregate aggRel = call.rel(0);
+        Union union = call.rel(1);
+
+        if (!union.all) {
+            // This transformation is only valid for UNION ALL.
+            // Consider t1(i) with rows (5), (5) and t2(i) with
+            // rows (5), (10), and the query
+            // select sum(i) from (select i from t1) union (select i from t2).
+            // The correct answer is 15.  If we apply the transformation,
+            // we get
+            // select sum(i) from
+            // (select sum(i) as i from t1) union (select sum(i) as i from t2)
+            // which yields 25 (incorrect).
+            return;
+        }
+
+        int groupCount = aggRel.getGroupSet().cardinality();
+
+        List<AggregateCall> transformedAggCalls = transformAggCalls(
+                aggRel.copy(aggRel.getTraitSet(), aggRel.getInput(), false, aggRel.getGroupSet(), null,
+                            aggRel.getAggCallList()), groupCount, aggRel.getAggCallList());
+        if (transformedAggCalls == null) {
+            // we've detected the presence of something like AVG,
+            // which we can't handle
+            return;
+        }
+
+        // create corresponding aggregates on top of each union child
+        final RelBuilder relBuilder = call.builder();
+        int transformCount = 0;
+        final RelMetadataQuery mq = call.getMetadataQuery();
+        for (RelNode input : union.getInputs()) {
+            boolean alreadyUnique = RelMdUtil.areColumnsDefinitelyUnique(mq, input, aggRel.getGroupSet());
+
+            relBuilder.push(input);
+            if (!alreadyUnique) {
+                ++transformCount;
+                relBuilder.aggregate(relBuilder.groupKey(aggRel.getGroupSet(), null), aggRel.getAggCallList());
+            }
+        }
+
+        if (transformCount == 0) {
+            // none of the children could benefit from the push-down,
+            // so bail out (preventing the infinite loop to which most
+            // planners would succumb)
+            return;
+        }
+
+        // create a new union whose children are the aggregates created above
+        relBuilder.union(true, union.getInputs().size());
+        relBuilder.aggregate(relBuilder.groupKey(aggRel.getGroupSet(), aggRel.getGroupSets()), transformedAggCalls);
+        call.transformTo(relBuilder.build());
     }
 
-    // create a new union whose children are the aggregates created above
-    relBuilder.union(true, union.getInputs().size());
-    relBuilder.aggregate(
-        relBuilder.groupKey(aggRel.getGroupSet(), aggRel.getGroupSets()),
-        transformedAggCalls);
-    call.transformTo(relBuilder.build());
-  }
-
-  private List<AggregateCall> transformAggCalls(RelNode input, int groupCount,
-      List<AggregateCall> origCalls) {
-    final List<AggregateCall> newCalls = Lists.newArrayList();
-    for (Ord<AggregateCall> ord : Ord.zip(origCalls)) {
-      final AggregateCall origCall = ord.e;
-      if (origCall.isDistinct()
-          || !SUPPORTED_AGGREGATES.containsKey(origCall.getAggregation()
-              .getClass())) {
-        return null;
-      }
-      final SqlAggFunction aggFun;
-      final RelDataType aggType;
-      if (origCall.getAggregation() == SqlStdOperatorTable.COUNT) {
-        aggFun = SqlStdOperatorTable.SUM0;
-        // count(any) is always not null, however nullability of sum might
-        // depend on the number of columns in GROUP BY.
-        // Here we use SUM0 since we are sure we will not face nullable
-        // inputs nor we'll face empty set.
-        aggType = null;
-      } else {
-        aggFun = origCall.getAggregation();
-        aggType = origCall.getType();
-      }
-      AggregateCall newCall =
-          AggregateCall.create(aggFun, origCall.isDistinct(),
-              ImmutableList.of(groupCount + ord.i), -1, groupCount, input,
-              aggType, origCall.getName());
-      newCalls.add(newCall);
+    private List<AggregateCall> transformAggCalls(RelNode input, int groupCount, List<AggregateCall> origCalls) {
+        final List<AggregateCall> newCalls = Lists.newArrayList();
+        for (Ord<AggregateCall> ord : Ord.zip(origCalls)) {
+            final AggregateCall origCall = ord.e;
+            if (origCall.isDistinct() || !SUPPORTED_AGGREGATES.containsKey(origCall.getAggregation().getClass())) {
+                return null;
+            }
+            final SqlAggFunction aggFun;
+            final RelDataType aggType;
+            if (origCall.getAggregation() == SqlStdOperatorTable.COUNT) {
+                aggFun = SqlStdOperatorTable.SUM0;
+                // count(any) is always not null, however nullability of sum might
+                // depend on the number of columns in GROUP BY.
+                // Here we use SUM0 since we are sure we will not face nullable
+                // inputs nor we'll face empty set.
+                aggType = null;
+            } else {
+                aggFun = origCall.getAggregation();
+                aggType = origCall.getType();
+            }
+            AggregateCall newCall = AggregateCall.create(aggFun, origCall.isDistinct(),
+                                                         ImmutableList.of(groupCount + ord.i), -1, groupCount, input,
+                                                         aggType, origCall.getName());
+            newCalls.add(newCall);
+        }
+        return newCalls;
     }
-    return newCalls;
-  }
 }
 
 // End AggregateUnionTransposeRule.java

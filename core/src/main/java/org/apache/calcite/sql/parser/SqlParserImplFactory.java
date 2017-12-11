@@ -21,19 +21,18 @@ import java.io.Reader;
 /**
  * Factory for
  * {@link org.apache.calcite.sql.parser.SqlAbstractParserImpl} objects.
- *
  * <p>A parser factory allows you to include a custom parser in
  * {@link org.apache.calcite.tools.Planner} created through
  * {@link org.apache.calcite.tools.Frameworks}.</p>
  */
 public interface SqlParserImplFactory {
 
-  /**
-   * Get the underlying parser implementation.
-   *
-   * @return {@link SqlAbstractParserImpl} object.
-   */
-  SqlAbstractParserImpl getParser(Reader stream);
+    /**
+     * Get the underlying parser implementation.
+     *
+     * @return {@link SqlAbstractParserImpl} object.
+     */
+    SqlAbstractParserImpl getParser(Reader stream);
 }
 
 // End SqlParserImplFactory.java

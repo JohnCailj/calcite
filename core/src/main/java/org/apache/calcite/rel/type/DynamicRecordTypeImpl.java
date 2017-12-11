@@ -25,64 +25,64 @@ import java.util.List;
 
 /**
  * Implementation of {@link RelDataType} for a dynamic table.
- *
  * <p>It's used during SQL validation, where the field list is mutable for
  * the getField() call. After SQL validation, a normal {@link RelDataTypeImpl}
  * with an immutable field list takes the place of the DynamicRecordTypeImpl
  * instance.
  */
 public class DynamicRecordTypeImpl extends DynamicRecordType {
-  private final RelDataTypeHolder holder;
 
-  /** Creates a DynamicRecordTypeImpl. */
-  public DynamicRecordTypeImpl(RelDataTypeFactory typeFactory) {
-    this.holder = new RelDataTypeHolder(typeFactory);
-    computeDigest();
-  }
+    private final RelDataTypeHolder holder;
 
-  @Override public List<RelDataTypeField> getFieldList() {
-    return holder.getFieldList();
-  }
-
-  @Override public int getFieldCount() {
-    return holder.getFieldCount();
-  }
-
-  @Override public RelDataTypeField getField(String fieldName,
-      boolean caseSensitive, boolean elideRecord) {
-    final Pair<RelDataTypeField, Boolean> pair =
-        holder.getFieldOrInsert(fieldName, caseSensitive);
-    // If a new field is added, we should re-compute the digest.
-    if (pair.right) {
-      computeDigest();
+    /**
+     * Creates a DynamicRecordTypeImpl.
+     */
+    public DynamicRecordTypeImpl(RelDataTypeFactory typeFactory) {
+        this.holder = new RelDataTypeHolder(typeFactory);
+        computeDigest();
     }
 
-    return pair.left;
-  }
+    @Override public List<RelDataTypeField> getFieldList() {
+        return holder.getFieldList();
+    }
 
-  @Override public List<String> getFieldNames() {
-    return holder.getFieldNames();
-  }
+    @Override public int getFieldCount() {
+        return holder.getFieldCount();
+    }
 
-  @Override public SqlTypeName getSqlTypeName() {
-    return SqlTypeName.ROW;
-  }
+    @Override public RelDataTypeField getField(String fieldName, boolean caseSensitive, boolean elideRecord) {
+        final Pair<RelDataTypeField, Boolean> pair = holder.getFieldOrInsert(fieldName, caseSensitive);
+        // If a new field is added, we should re-compute the digest.
+        if (pair.right) {
+            computeDigest();
+        }
 
-  @Override public RelDataTypePrecedenceList getPrecedenceList() {
-    return new SqlTypeExplicitPrecedenceList(Collections.<SqlTypeName>emptyList());
-  }
+        return pair.left;
+    }
 
-  protected void generateTypeString(StringBuilder sb, boolean withDetail) {
-    sb.append("(DynamicRecordRow").append(getFieldNames()).append(")");
-  }
+    @Override public List<String> getFieldNames() {
+        return holder.getFieldNames();
+    }
 
-  @Override public boolean isStruct() {
-    return true;
-  }
+    @Override public SqlTypeName getSqlTypeName() {
+        return SqlTypeName.ROW;
+    }
 
-  @Override public RelDataTypeFamily getFamily() {
-    return getSqlTypeName().getFamily();
-  }
+    @Override public RelDataTypePrecedenceList getPrecedenceList() {
+        return new SqlTypeExplicitPrecedenceList(Collections.<SqlTypeName>emptyList());
+    }
+
+    protected void generateTypeString(StringBuilder sb, boolean withDetail) {
+        sb.append("(DynamicRecordRow").append(getFieldNames()).append(")");
+    }
+
+    @Override public boolean isStruct() {
+        return true;
+    }
+
+    @Override public RelDataTypeFamily getFamily() {
+        return getSqlTypeName().getFamily();
+    }
 
 }
 

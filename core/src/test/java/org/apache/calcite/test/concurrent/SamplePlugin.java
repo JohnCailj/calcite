@@ -25,48 +25,47 @@ import java.util.Arrays;
 
 /**
  * Sample mtsql plugin.
- *
  * <p>To use add at start of script "@plugin
  * org.apache.calcite.test.concurrent.SamplePlugin".  After doing a prepare you
  * can then do "@describeResultSet" to show columns returned by query.
  */
 public class SamplePlugin extends ConcurrentTestPlugin {
-  private static final String DESCRIBE_RESULT_SET_CMD = "@describeResultSet";
 
-  public ConcurrentTestPluginCommand getCommandFor(String name, String params) {
-    if (name.equals(DESCRIBE_RESULT_SET_CMD)) {
-      return new DescribeResultSet();
-    }
-    assert false;
-    return null;
-  }
+    private static final String DESCRIBE_RESULT_SET_CMD = "@describeResultSet";
 
-  public Iterable<String> getSupportedThreadCommands() {
-    return Arrays.asList(new String[]{DESCRIBE_RESULT_SET_CMD});
-  }
-
-  /** Command that describes a result set. */
-  static class DescribeResultSet implements ConcurrentTestPluginCommand {
-    public void execute(TestContext testContext) throws IOException {
-      Statement stmt =
-          (PreparedStatement) testContext.getCurrentStatement();
-      if (stmt == null) {
-        testContext.storeMessage("No current statement");
-      } else if (stmt instanceof PreparedStatement) {
-        try {
-          ResultSetMetaData metadata =
-              ((PreparedStatement) stmt).getMetaData();
-          for (int i = 1; i <= metadata.getColumnCount(); i++) {
-            testContext.storeMessage(
-                metadata.getColumnName(i) + ": "
-                    + metadata.getColumnTypeName(i));
-          }
-        } catch (SQLException e) {
-          throw new IllegalStateException(e.toString());
+    public ConcurrentTestPluginCommand getCommandFor(String name, String params) {
+        if (name.equals(DESCRIBE_RESULT_SET_CMD)) {
+            return new DescribeResultSet();
         }
-      }
+        assert false;
+        return null;
     }
-  }
+
+    public Iterable<String> getSupportedThreadCommands() {
+        return Arrays.asList(new String[] { DESCRIBE_RESULT_SET_CMD });
+    }
+
+    /**
+     * Command that describes a result set.
+     */
+    static class DescribeResultSet implements ConcurrentTestPluginCommand {
+
+        public void execute(TestContext testContext) throws IOException {
+            Statement stmt = (PreparedStatement) testContext.getCurrentStatement();
+            if (stmt == null) {
+                testContext.storeMessage("No current statement");
+            } else if (stmt instanceof PreparedStatement) {
+                try {
+                    ResultSetMetaData metadata = ((PreparedStatement) stmt).getMetaData();
+                    for (int i = 1; i <= metadata.getColumnCount(); i++) {
+                        testContext.storeMessage(metadata.getColumnName(i) + ": " + metadata.getColumnTypeName(i));
+                    }
+                } catch (SQLException e) {
+                    throw new IllegalStateException(e.toString());
+                }
+            }
+        }
+    }
 }
 
 // End SamplePlugin.java

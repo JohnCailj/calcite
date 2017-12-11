@@ -23,69 +23,59 @@ import org.apache.calcite.util.ImmutableBitSet;
 
 import java.util.Objects;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Correlate}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Correlate}.
+ */
 public class MutableCorrelate extends MutableBiRel {
-  public final CorrelationId correlationId;
-  public final ImmutableBitSet requiredColumns;
-  public final SemiJoinType joinType;
 
-  private MutableCorrelate(
-      RelDataType rowType,
-      MutableRel left,
-      MutableRel right,
-      CorrelationId correlationId,
-      ImmutableBitSet requiredColumns,
-      SemiJoinType joinType) {
-    super(MutableRelType.CORRELATE, left.cluster, rowType, left, right);
-    this.correlationId = correlationId;
-    this.requiredColumns = requiredColumns;
-    this.joinType = joinType;
-  }
+    public final CorrelationId   correlationId;
+    public final ImmutableBitSet requiredColumns;
+    public final SemiJoinType    joinType;
 
-  /**
-   * Creates a MutableCorrelate.
-   *
-   * @param rowType         Row type
-   * @param left            Left input relational expression
-   * @param right           Right input relational expression
-   * @param correlationId   Variable name for the row of left input
-   * @param requiredColumns Required columns
-   * @param joinType        Join type
-   */
-  public static MutableCorrelate of(RelDataType rowType, MutableRel left,
-      MutableRel right, CorrelationId correlationId,
-      ImmutableBitSet requiredColumns, SemiJoinType joinType) {
-    return new MutableCorrelate(rowType, left, right, correlationId,
-        requiredColumns, joinType);
-  }
+    private MutableCorrelate(RelDataType rowType, MutableRel left, MutableRel right, CorrelationId correlationId,
+                             ImmutableBitSet requiredColumns, SemiJoinType joinType) {
+        super(MutableRelType.CORRELATE, left.cluster, rowType, left, right);
+        this.correlationId = correlationId;
+        this.requiredColumns = requiredColumns;
+        this.joinType = joinType;
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableCorrelate
-        && correlationId.equals(
-            ((MutableCorrelate) obj).correlationId)
-        && requiredColumns.equals(
-            ((MutableCorrelate) obj).requiredColumns)
-        && joinType == ((MutableCorrelate) obj).joinType
-        && left.equals(((MutableCorrelate) obj).left)
-        && right.equals(((MutableCorrelate) obj).right);
-  }
+    /**
+     * Creates a MutableCorrelate.
+     *
+     * @param rowType         Row type
+     * @param left            Left input relational expression
+     * @param right           Right input relational expression
+     * @param correlationId   Variable name for the row of left input
+     * @param requiredColumns Required columns
+     * @param joinType        Join type
+     */
+    public static MutableCorrelate of(RelDataType rowType, MutableRel left, MutableRel right,
+                                      CorrelationId correlationId, ImmutableBitSet requiredColumns,
+                                      SemiJoinType joinType) {
+        return new MutableCorrelate(rowType, left, right, correlationId, requiredColumns, joinType);
+    }
 
-  @Override public int hashCode() {
-    return Objects.hash(left, right, correlationId, requiredColumns, joinType);
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof MutableCorrelate && correlationId.equals(
+                ((MutableCorrelate) obj).correlationId) && requiredColumns.equals(
+                ((MutableCorrelate) obj).requiredColumns) && joinType == ((MutableCorrelate) obj).joinType
+                              && left.equals(((MutableCorrelate) obj).left) && right.equals(
+                ((MutableCorrelate) obj).right);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Correlate(correlationId: ").append(correlationId)
-        .append(", requiredColumns: ").append(requiredColumns)
-        .append(", joinType: ").append(joinType)
-        .append(")");
-  }
+    @Override public int hashCode() {
+        return Objects.hash(left, right, correlationId, requiredColumns, joinType);
+    }
 
-  @Override public MutableRel clone() {
-    return MutableCorrelate.of(rowType, left.clone(),
-        right.clone(), correlationId, requiredColumns, joinType);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Correlate(correlationId: ").append(correlationId).append(", requiredColumns: ").append(
+                requiredColumns).append(", joinType: ").append(joinType).append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableCorrelate.of(rowType, left.clone(), right.clone(), correlationId, requiredColumns, joinType);
+    }
 }
 
 // End MutableCorrelate.java

@@ -37,72 +37,64 @@ import java.util.TreeSet;
  */
 public class LogicalMatch extends Match {
 
-  /**
-   * Creates a LogicalMatch.
-   *
-   * @param cluster cluster
-   * @param traitSet Trait set
-   * @param input Input relational expression
-   * @param rowType Row type
-   * @param pattern Regular Expression defining pattern variables
-   * @param strictStart Whether it is a strict start pattern
-   * @param strictEnd Whether it is a strict end pattern
-   * @param patternDefinitions Pattern definitions
-   * @param measures Measure definitions
-   * @param after After match definitions
-   * @param subsets Subset definitions
-   * @param allRows Whether all rows per match (false means one row per match)
-   * @param partitionKeys Partition by columns
-   * @param orderKeys Order by columns
-   * @param interval Interval definition, null if WITHIN clause is not defined
-   */
-  private LogicalMatch(RelOptCluster cluster, RelTraitSet traitSet,
-      RelNode input, RelDataType rowType, RexNode pattern,
-      boolean strictStart, boolean strictEnd,
-      Map<String, RexNode> patternDefinitions, Map<String, RexNode> measures,
-      RexNode after, Map<String, ? extends SortedSet<String>> subsets,
-      boolean allRows, List<RexNode> partitionKeys, RelCollation orderKeys,
-      RexNode interval) {
-    super(cluster, traitSet, input, rowType, pattern, strictStart, strictEnd,
-        patternDefinitions, measures, after, subsets, allRows, partitionKeys,
-        orderKeys, interval);
-  }
+    /**
+     * Creates a LogicalMatch.
+     *
+     * @param cluster            cluster
+     * @param traitSet           Trait set
+     * @param input              Input relational expression
+     * @param rowType            Row type
+     * @param pattern            Regular Expression defining pattern variables
+     * @param strictStart        Whether it is a strict start pattern
+     * @param strictEnd          Whether it is a strict end pattern
+     * @param patternDefinitions Pattern definitions
+     * @param measures           Measure definitions
+     * @param after              After match definitions
+     * @param subsets            Subset definitions
+     * @param allRows            Whether all rows per match (false means one row per match)
+     * @param partitionKeys      Partition by columns
+     * @param orderKeys          Order by columns
+     * @param interval           Interval definition, null if WITHIN clause is not defined
+     */
+    private LogicalMatch(RelOptCluster cluster, RelTraitSet traitSet, RelNode input, RelDataType rowType,
+                         RexNode pattern, boolean strictStart, boolean strictEnd,
+                         Map<String, RexNode> patternDefinitions, Map<String, RexNode> measures, RexNode after,
+                         Map<String, ? extends SortedSet<String>> subsets, boolean allRows, List<RexNode> partitionKeys,
+                         RelCollation orderKeys, RexNode interval) {
+        super(cluster, traitSet, input, rowType, pattern, strictStart, strictEnd, patternDefinitions, measures, after,
+              subsets, allRows, partitionKeys, orderKeys, interval);
+    }
 
-  /**
-   * Creates a LogicalMatch.
-   */
-  public static LogicalMatch create(RelNode input, RelDataType rowType,
-      RexNode pattern, boolean strictStart, boolean strictEnd,
-      Map<String, RexNode> patternDefinitions, Map<String, RexNode> measures,
-      RexNode after, Map<String, TreeSet<String>> subsets, boolean allRows,
-      List<RexNode> partitionKeys, RelCollation orderKeys, RexNode interval) {
-    final RelOptCluster cluster = input.getCluster();
-    final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
-    return new LogicalMatch(cluster, traitSet, input, rowType, pattern,
-        strictStart, strictEnd, patternDefinitions, measures, after, subsets,
-        allRows, partitionKeys, orderKeys, interval);
-  }
+    /**
+     * Creates a LogicalMatch.
+     */
+    public static LogicalMatch create(RelNode input, RelDataType rowType, RexNode pattern, boolean strictStart,
+                                      boolean strictEnd, Map<String, RexNode> patternDefinitions,
+                                      Map<String, RexNode> measures, RexNode after,
+                                      Map<String, TreeSet<String>> subsets, boolean allRows,
+                                      List<RexNode> partitionKeys, RelCollation orderKeys, RexNode interval) {
+        final RelOptCluster cluster = input.getCluster();
+        final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
+        return new LogicalMatch(cluster, traitSet, input, rowType, pattern, strictStart, strictEnd, patternDefinitions,
+                                measures, after, subsets, allRows, partitionKeys, orderKeys, interval);
+    }
 
-  //~ Methods ------------------------------------------------------
+    //~ Methods ------------------------------------------------------
 
-  @Override public Match copy(RelNode input, RelDataType rowType,
-      RexNode pattern, boolean strictStart, boolean strictEnd,
-      Map<String, RexNode> patternDefinitions, Map<String, RexNode> measures,
-      RexNode after, Map<String, ? extends SortedSet<String>> subsets,
-      boolean allRows, List<RexNode> partitionKeys, RelCollation orderKeys,
-      RexNode interval) {
-    final RelTraitSet traitSet = getCluster().traitSetOf(Convention.NONE);
-    return new LogicalMatch(getCluster(), traitSet,
-        input,
-        rowType,
-        pattern, strictStart, strictEnd, patternDefinitions, measures,
-        after, subsets, allRows, partitionKeys, orderKeys,
-        interval);
-  }
+    @Override public Match copy(RelNode input, RelDataType rowType, RexNode pattern, boolean strictStart,
+                                boolean strictEnd, Map<String, RexNode> patternDefinitions,
+                                Map<String, RexNode> measures, RexNode after,
+                                Map<String, ? extends SortedSet<String>> subsets, boolean allRows,
+                                List<RexNode> partitionKeys, RelCollation orderKeys, RexNode interval) {
+        final RelTraitSet traitSet = getCluster().traitSetOf(Convention.NONE);
+        return new LogicalMatch(getCluster(), traitSet, input, rowType, pattern, strictStart, strictEnd,
+                                patternDefinitions, measures, after, subsets, allRows, partitionKeys, orderKeys,
+                                interval);
+    }
 
-  @Override public RelNode accept(RelShuttle shuttle) {
-    return shuttle.visit(this);
-  }
+    @Override public RelNode accept(RelShuttle shuttle) {
+        return shuttle.visit(this);
+    }
 }
 
 // End LogicalMatch.java

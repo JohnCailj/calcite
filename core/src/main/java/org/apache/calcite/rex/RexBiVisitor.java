@@ -20,37 +20,36 @@ package org.apache.calcite.rex;
  * Visitor pattern for traversing a tree of {@link RexNode} objects
  * and passing a payload to each.
  *
- * @see RexVisitor
- *
  * @param <R> Return type
  * @param <P> Payload type
+ * @see RexVisitor
  */
 public interface RexBiVisitor<R, P> {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  R visitInputRef(RexInputRef inputRef, P arg);
+    R visitInputRef(RexInputRef inputRef, P arg);
 
-  R visitLocalRef(RexLocalRef localRef, P arg);
+    R visitLocalRef(RexLocalRef localRef, P arg);
 
-  R visitLiteral(RexLiteral literal, P arg);
+    R visitLiteral(RexLiteral literal, P arg);
 
-  R visitCall(RexCall call, P arg);
+    R visitCall(RexCall call, P arg);
 
-  R visitOver(RexOver over, P arg);
+    R visitOver(RexOver over, P arg);
 
-  R visitCorrelVariable(RexCorrelVariable correlVariable, P arg);
+    R visitCorrelVariable(RexCorrelVariable correlVariable, P arg);
 
-  R visitDynamicParam(RexDynamicParam dynamicParam, P arg);
+    R visitDynamicParam(RexDynamicParam dynamicParam, P arg);
 
-  R visitRangeRef(RexRangeRef rangeRef, P arg);
+    R visitRangeRef(RexRangeRef rangeRef, P arg);
 
-  R visitFieldAccess(RexFieldAccess fieldAccess, P arg);
+    R visitFieldAccess(RexFieldAccess fieldAccess, P arg);
 
-  R visitSubQuery(RexSubQuery subQuery, P arg);
+    R visitSubQuery(RexSubQuery subQuery, P arg);
 
-  R visitTableInputRef(RexTableInputRef ref, P arg);
+    R visitTableInputRef(RexTableInputRef ref, P arg);
 
-  R visitPatternFieldRef(RexPatternFieldRef ref, P arg);
+    R visitPatternFieldRef(RexPatternFieldRef ref, P arg);
 }
 
 // End RexBiVisitor.java

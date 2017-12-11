@@ -27,21 +27,18 @@ import org.apache.calcite.rel.core.Uncollect;
  * {@link EnumerableUncollect}.
  */
 class EnumerableUncollectRule extends ConverterRule {
-  EnumerableUncollectRule() {
-    super(Uncollect.class, Convention.NONE, EnumerableConvention.INSTANCE,
-        "EnumerableUncollectRule");
-  }
 
-  public RelNode convert(RelNode rel) {
-    final Uncollect uncollect = (Uncollect) rel;
-    final RelTraitSet traitSet =
-        uncollect.getTraitSet().replace(EnumerableConvention.INSTANCE);
-    final RelNode input = uncollect.getInput();
-    final RelNode newInput = convert(input,
-        input.getTraitSet().replace(EnumerableConvention.INSTANCE));
-    return EnumerableUncollect.create(traitSet, newInput,
-        uncollect.withOrdinality);
-  }
+    EnumerableUncollectRule() {
+        super(Uncollect.class, Convention.NONE, EnumerableConvention.INSTANCE, "EnumerableUncollectRule");
+    }
+
+    public RelNode convert(RelNode rel) {
+        final Uncollect uncollect = (Uncollect) rel;
+        final RelTraitSet traitSet = uncollect.getTraitSet().replace(EnumerableConvention.INSTANCE);
+        final RelNode input = uncollect.getInput();
+        final RelNode newInput = convert(input, input.getTraitSet().replace(EnumerableConvention.INSTANCE));
+        return EnumerableUncollect.create(traitSet, newInput, uncollect.withOrdinality);
+    }
 }
 
 // End EnumerableUncollectRule.java

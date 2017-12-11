@@ -37,62 +37,57 @@ import java.util.List;
  * relational expression in Elasticsearch.
  */
 public class ElasticsearchProject extends Project implements ElasticsearchRel {
-  public ElasticsearchProject(RelOptCluster cluster, RelTraitSet traitSet, RelNode input,
-      List<? extends RexNode> projects, RelDataType rowType) {
-    super(cluster, traitSet, input, projects, rowType);
-    assert getConvention() == ElasticsearchRel.CONVENTION;
-    assert getConvention() == input.getConvention();
-  }
 
-  @Override public Project copy(RelTraitSet relTraitSet, RelNode input, List<RexNode> projects,
-      RelDataType relDataType) {
-    return new ElasticsearchProject(getCluster(), traitSet, input, projects, relDataType);
-  }
-
-  @Override public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
-    return super.computeSelfCost(planner, mq).multiplyBy(0.1);
-  }
-
-  @Override public void implement(Implementor implementor) {
-    implementor.visitChild(0, getInput());
-
-    final List<String> inFields =
-        ElasticsearchRules.elasticsearchFieldNames(getInput().getRowType());
-    final ElasticsearchRules.RexToElasticsearchTranslator translator =
-        new ElasticsearchRules.RexToElasticsearchTranslator(
-            (JavaTypeFactory) getCluster().getTypeFactory(), inFields);
-
-    final List<String> findItems = new ArrayList<>();
-    final List<String> scriptFieldItems = new ArrayList<>();
-    for (Pair<RexNode, String> pair: getNamedProjects()) {
-      final String name = pair.right;
-      final String expr = pair.left.accept(translator);
-
-      if (expr.equals("\"" + name + "\"")) {
-        findItems.add(ElasticsearchRules.quote(name));
-      } else if (expr.matches("\"literal\":.+")) {
-        scriptFieldItems.add(ElasticsearchRules.quote(name)
-            + ":{\"script\": "
-            + expr.split(":")[1] + "}");
-      } else {
-        scriptFieldItems.add(ElasticsearchRules.quote(name)
-            + ":{\"script\":\"params._source."
-            + expr.replaceAll("\"", "") + "\"}");
-      }
+    public ElasticsearchProject(RelOptCluster cluster, RelTraitSet traitSet, RelNode input,
+                                List<? extends RexNode> projects, RelDataType rowType) {
+        super(cluster, traitSet, input, projects, rowType);
+        assert getConvention() == ElasticsearchRel.CONVENTION;
+        assert getConvention() == input.getConvention();
     }
-    final String findString = Util.toString(findItems, "", ", ", "");
-    final String scriptFieldString = "\"script_fields\": {"
-        + Util.toString(scriptFieldItems, "", ", ", "") + "}";
-    final String fieldString = "\"_source\" : [" + findString + "]"
-        + ", " + scriptFieldString;
 
-    for (String opfield : implementor.list) {
-      if (opfield.startsWith("\"_source\"")) {
-        implementor.list.remove(opfield);
-      }
+    @Override public Project copy(RelTraitSet relTraitSet, RelNode input, List<RexNode> projects,
+                                  RelDataType relDataType) {
+        return new ElasticsearchProject(getCluster(), traitSet, input, projects, relDataType);
     }
-    implementor.add(fieldString);
-  }
+
+    @Override public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
+        return super.computeSelfCost(planner, mq).multiplyBy(0.1);
+    }
+
+    @Override public void implement(Implementor implementor) {
+        implementor.visitChild(0, getInput());
+
+        final List<String> inFields = ElasticsearchRules.elasticsearchFieldNames(getInput().getRowType());
+        final ElasticsearchRules.RexToElasticsearchTranslator translator = new ElasticsearchRules.RexToElasticsearchTranslator(
+                (JavaTypeFactory) getCluster().getTypeFactory(), inFields);
+
+        final List<String> findItems = new ArrayList<>();
+        final List<String> scriptFieldItems = new ArrayList<>();
+        for (Pair<RexNode, String> pair : getNamedProjects()) {
+            final String name = pair.right;
+            final String expr = pair.left.accept(translator);
+
+            if (expr.equals("\"" + name + "\"")) {
+                findItems.add(ElasticsearchRules.quote(name));
+            } else if (expr.matches("\"literal\":.+")) {
+                scriptFieldItems.add(ElasticsearchRules.quote(name) + ":{\"script\": " + expr.split(":")[1] + "}");
+            } else {
+                scriptFieldItems.add(
+                        ElasticsearchRules.quote(name) + ":{\"script\":\"params._source." + expr.replaceAll("\"", "")
+                        + "\"}");
+            }
+        }
+        final String findString = Util.toString(findItems, "", ", ", "");
+        final String scriptFieldString = "\"script_fields\": {" + Util.toString(scriptFieldItems, "", ", ", "") + "}";
+        final String fieldString = "\"_source\" : [" + findString + "]" + ", " + scriptFieldString;
+
+        for (String opfield : implementor.list) {
+            if (opfield.startsWith("\"_source\"")) {
+                implementor.list.remove(opfield);
+            }
+        }
+        implementor.add(fieldString);
+    }
 }
 
 // End ElasticsearchProject.java

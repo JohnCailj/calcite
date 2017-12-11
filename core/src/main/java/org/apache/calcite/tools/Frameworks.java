@@ -16,13 +16,11 @@
  */
 package org.apache.calcite.tools;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.config.CalciteConnectionProperty;
 import org.apache.calcite.jdbc.CalciteSchema;
-import org.apache.calcite.plan.Context;
-import org.apache.calcite.plan.RelOptCluster;
-import org.apache.calcite.plan.RelOptCostFactory;
-import org.apache.calcite.plan.RelOptSchema;
-import org.apache.calcite.plan.RelTraitDef;
+import org.apache.calcite.plan.*;
 import org.apache.calcite.prepare.CalcitePrepareImpl;
 import org.apache.calcite.prepare.PlannerImpl;
 import org.apache.calcite.rel.type.RelDataTypeSystem;
@@ -37,9 +35,6 @@ import org.apache.calcite.sql2rel.SqlToRelConverter;
 import org.apache.calcite.sql2rel.StandardConvertletTable;
 import org.apache.calcite.util.Util;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.List;
@@ -50,322 +45,314 @@ import java.util.Properties;
  * server first.
  */
 public class Frameworks {
-  private Frameworks() {
-  }
 
-  /**
-   * Creates a planner.
-   *
-   * @param config Planner configuration
-   * @return Planner
-   */
-  public static Planner getPlanner(FrameworkConfig config) {
-    return new PlannerImpl(config);
-  }
-
-  /** Piece of code to be run in a context where a planner is available. The
-   * planner is accessible from the {@code cluster} parameter, as are several
-   * other useful objects.
-   *
-   * @param <R> result type */
-  public interface PlannerAction<R> {
-    R apply(RelOptCluster cluster, RelOptSchema relOptSchema,
-        SchemaPlus rootSchema);
-  }
-
-  /** Piece of code to be run in a context where a planner and statement are
-   * available. The planner is accessible from the {@code cluster} parameter, as
-   * are several other useful objects. The connection and
-   * {@link org.apache.calcite.DataContext} are accessible from the
-   * statement.
-   *
-   * @param <R> result type */
-  public abstract static class PrepareAction<R> {
-    private final FrameworkConfig config;
-    public PrepareAction() {
-      this.config = newConfigBuilder() //
-          .defaultSchema(Frameworks.createRootSchema(true)).build();
+    private Frameworks() {
     }
 
-    public PrepareAction(FrameworkConfig config) {
-      this.config = config;
+    /**
+     * Creates a planner.
+     *
+     * @param config Planner configuration
+     * @return Planner
+     */
+    public static Planner getPlanner(FrameworkConfig config) {
+        return new PlannerImpl(config);
     }
 
-    public FrameworkConfig getConfig() {
-      return config;
+    /**
+     * Piece of code to be run in a context where a planner is available. The
+     * planner is accessible from the {@code cluster} parameter, as are several
+     * other useful objects.
+     *
+     * @param <R> result type
+     */
+    public interface PlannerAction<R> {
+
+        R apply(RelOptCluster cluster, RelOptSchema relOptSchema, SchemaPlus rootSchema);
     }
 
-    public abstract R apply(RelOptCluster cluster, RelOptSchema relOptSchema,
-        SchemaPlus rootSchema, CalciteServerStatement statement);
-  }
+    /**
+     * Piece of code to be run in a context where a planner and statement are
+     * available. The planner is accessible from the {@code cluster} parameter, as
+     * are several other useful objects. The connection and
+     * {@link org.apache.calcite.DataContext} are accessible from the
+     * statement.
+     *
+     * @param <R> result type
+     */
+    public abstract static class PrepareAction<R> {
 
-  /**
-   * Initializes a container then calls user-specified code with a planner.
-   *
-   * @param action Callback containing user-specified code
-   * @param config FrameworkConfig to use for planner action.
-   * @return Return value from action
-   */
-  public static <R> R withPlanner(final PlannerAction<R> action, //
-      final FrameworkConfig config) {
-    return withPrepare(
-        new Frameworks.PrepareAction<R>(config) {
-          public R apply(RelOptCluster cluster, RelOptSchema relOptSchema,
-              SchemaPlus rootSchema, CalciteServerStatement statement) {
-            final CalciteSchema schema =
-                CalciteSchema.from(
-                    Util.first(config.getDefaultSchema(), rootSchema));
-            return action.apply(cluster, relOptSchema, schema.root().plus());
-          }
+        private final FrameworkConfig config;
+
+        public PrepareAction() {
+            this.config = newConfigBuilder() //
+                                             .defaultSchema(Frameworks.createRootSchema(true)).build();
+        }
+
+        public PrepareAction(FrameworkConfig config) {
+            this.config = config;
+        }
+
+        public FrameworkConfig getConfig() {
+            return config;
+        }
+
+        public abstract R apply(RelOptCluster cluster, RelOptSchema relOptSchema, SchemaPlus rootSchema,
+                                CalciteServerStatement statement);
+    }
+
+    /**
+     * Initializes a container then calls user-specified code with a planner.
+     *
+     * @param action Callback containing user-specified code
+     * @param config FrameworkConfig to use for planner action.
+     * @return Return value from action
+     */
+    public static <R> R withPlanner(final PlannerAction<R> action, //
+                                    final FrameworkConfig config) {
+        return withPrepare(new Frameworks.PrepareAction<R>(config) {
+
+            public R apply(RelOptCluster cluster, RelOptSchema relOptSchema, SchemaPlus rootSchema,
+                           CalciteServerStatement statement) {
+                final CalciteSchema schema = CalciteSchema.from(Util.first(config.getDefaultSchema(), rootSchema));
+                return action.apply(cluster, relOptSchema, schema.root().plus());
+            }
         });
-  }
-
-  /**
-   * Initializes a container then calls user-specified code with a planner.
-   *
-   * @param action Callback containing user-specified code
-   * @return Return value from action
-   */
-  public static <R> R withPlanner(final PlannerAction<R> action) {
-    FrameworkConfig config = newConfigBuilder() //
-        .defaultSchema(Frameworks.createRootSchema(true)).build();
-    return withPlanner(action, config);
-  }
-
-  /**
-   * Initializes a container then calls user-specified code with a planner
-   * and statement.
-   *
-   * @param action Callback containing user-specified code
-   * @return Return value from action
-   */
-  public static <R> R withPrepare(PrepareAction<R> action) {
-    try {
-      final Properties info = new Properties();
-      if (action.config.getTypeSystem() != RelDataTypeSystem.DEFAULT) {
-        info.setProperty(CalciteConnectionProperty.TYPE_SYSTEM.camelName(),
-            action.config.getTypeSystem().getClass().getName());
-      }
-      Connection connection =
-          DriverManager.getConnection("jdbc:calcite:", info);
-      final CalciteServerStatement statement =
-          connection.createStatement()
-              .unwrap(CalciteServerStatement.class);
-      return new CalcitePrepareImpl().perform(statement, action);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * Creates a root schema.
-   *
-   * @param addMetadataSchema Whether to add "metadata" schema containing
-   *    definitions of tables, columns etc.
-   */
-  public static SchemaPlus createRootSchema(boolean addMetadataSchema) {
-    return CalciteSchema.createRootSchema(addMetadataSchema).plus();
-  }
-
-  public static ConfigBuilder newConfigBuilder() {
-    return new ConfigBuilder();
-  }
-
-  /**
-   * A builder to help you build a {@link FrameworkConfig} using defaults
-   * where values aren't required.
-   */
-  public static class ConfigBuilder {
-    private SqlRexConvertletTable convertletTable =
-        StandardConvertletTable.INSTANCE;
-    private SqlOperatorTable operatorTable = SqlStdOperatorTable.instance();
-    private ImmutableList<Program> programs = ImmutableList.of();
-    private Context context;
-    private ImmutableList<RelTraitDef> traitDefs;
-    private SqlParser.Config parserConfig =
-        SqlParser.Config.DEFAULT;
-    private SqlToRelConverter.Config sqlToRelConverterConfig =
-        SqlToRelConverter.Config.DEFAULT;
-    private SchemaPlus defaultSchema;
-    private RexExecutor executor;
-    private RelOptCostFactory costFactory;
-    private RelDataTypeSystem typeSystem = RelDataTypeSystem.DEFAULT;
-
-    private ConfigBuilder() {}
-
-    public FrameworkConfig build() {
-      return new StdFrameworkConfig(context, convertletTable, operatorTable,
-          programs, traitDefs, parserConfig, sqlToRelConverterConfig,
-          defaultSchema, costFactory, typeSystem, executor);
     }
 
-    public ConfigBuilder context(Context c) {
-      this.context = Preconditions.checkNotNull(c);
-      return this;
+    /**
+     * Initializes a container then calls user-specified code with a planner.
+     *
+     * @param action Callback containing user-specified code
+     * @return Return value from action
+     */
+    public static <R> R withPlanner(final PlannerAction<R> action) {
+        FrameworkConfig config = newConfigBuilder() //
+                                                    .defaultSchema(Frameworks.createRootSchema(true)).build();
+        return withPlanner(action, config);
     }
 
-    public ConfigBuilder executor(RexExecutor executor) {
-      Preconditions.checkNotNull(executor);
-      this.executor = executor;
-      return this;
+    /**
+     * Initializes a container then calls user-specified code with a planner
+     * and statement.
+     *
+     * @param action Callback containing user-specified code
+     * @return Return value from action
+     */
+    public static <R> R withPrepare(PrepareAction<R> action) {
+        try {
+            final Properties info = new Properties();
+            if (action.config.getTypeSystem() != RelDataTypeSystem.DEFAULT) {
+                info.setProperty(CalciteConnectionProperty.TYPE_SYSTEM.camelName(),
+                                 action.config.getTypeSystem().getClass().getName());
+            }
+            Connection connection = DriverManager.getConnection("jdbc:calcite:", info);
+            final CalciteServerStatement statement = connection.createStatement().unwrap(CalciteServerStatement.class);
+            return new CalcitePrepareImpl().perform(statement, action);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public ConfigBuilder convertletTable(
-        SqlRexConvertletTable convertletTable) {
-      this.convertletTable = Preconditions.checkNotNull(convertletTable);
-      return this;
+    /**
+     * Creates a root schema.
+     *
+     * @param addMetadataSchema Whether to add "metadata" schema containing
+     *                          definitions of tables, columns etc.
+     */
+    public static SchemaPlus createRootSchema(boolean addMetadataSchema) {
+        return CalciteSchema.createRootSchema(addMetadataSchema).plus();
     }
 
-    public ConfigBuilder operatorTable(SqlOperatorTable operatorTable) {
-      this.operatorTable = Preconditions.checkNotNull(operatorTable);
-      return this;
+    public static ConfigBuilder newConfigBuilder() {
+        return new ConfigBuilder();
     }
 
-    public ConfigBuilder traitDefs(List<RelTraitDef> traitDefs) {
-      if (traitDefs == null) {
-        this.traitDefs = null;
-      } else {
-        this.traitDefs = ImmutableList.copyOf(traitDefs);
-      }
-      return this;
+    /**
+     * A builder to help you build a {@link FrameworkConfig} using defaults
+     * where values aren't required.
+     */
+    public static class ConfigBuilder {
+
+        private SqlRexConvertletTable  convertletTable = StandardConvertletTable.INSTANCE;
+        private SqlOperatorTable       operatorTable   = SqlStdOperatorTable.instance();
+        private ImmutableList<Program> programs        = ImmutableList.of();
+        private Context                    context;
+        private ImmutableList<RelTraitDef> traitDefs;
+        private SqlParser.Config         parserConfig            = SqlParser.Config.DEFAULT;
+        private SqlToRelConverter.Config sqlToRelConverterConfig = SqlToRelConverter.Config.DEFAULT;
+        private SchemaPlus        defaultSchema;
+        private RexExecutor       executor;
+        private RelOptCostFactory costFactory;
+        private RelDataTypeSystem typeSystem = RelDataTypeSystem.DEFAULT;
+
+        private ConfigBuilder() {
+        }
+
+        public FrameworkConfig build() {
+            return new StdFrameworkConfig(context, convertletTable, operatorTable, programs, traitDefs, parserConfig,
+                                          sqlToRelConverterConfig, defaultSchema, costFactory, typeSystem, executor);
+        }
+
+        public ConfigBuilder context(Context c) {
+            this.context = Preconditions.checkNotNull(c);
+            return this;
+        }
+
+        public ConfigBuilder executor(RexExecutor executor) {
+            Preconditions.checkNotNull(executor);
+            this.executor = executor;
+            return this;
+        }
+
+        public ConfigBuilder convertletTable(SqlRexConvertletTable convertletTable) {
+            this.convertletTable = Preconditions.checkNotNull(convertletTable);
+            return this;
+        }
+
+        public ConfigBuilder operatorTable(SqlOperatorTable operatorTable) {
+            this.operatorTable = Preconditions.checkNotNull(operatorTable);
+            return this;
+        }
+
+        public ConfigBuilder traitDefs(List<RelTraitDef> traitDefs) {
+            if (traitDefs == null) {
+                this.traitDefs = null;
+            } else {
+                this.traitDefs = ImmutableList.copyOf(traitDefs);
+            }
+            return this;
+        }
+
+        public ConfigBuilder traitDefs(RelTraitDef... traitDefs) {
+            this.traitDefs = ImmutableList.copyOf(traitDefs);
+            return this;
+        }
+
+        public ConfigBuilder parserConfig(SqlParser.Config parserConfig) {
+            this.parserConfig = Preconditions.checkNotNull(parserConfig);
+            return this;
+        }
+
+        public ConfigBuilder sqlToRelConverterConfig(SqlToRelConverter.Config sqlToRelConverterConfig) {
+            this.sqlToRelConverterConfig = Preconditions.checkNotNull(sqlToRelConverterConfig);
+            return this;
+        }
+
+        public ConfigBuilder defaultSchema(SchemaPlus defaultSchema) {
+            this.defaultSchema = defaultSchema;
+            return this;
+        }
+
+        public ConfigBuilder costFactory(RelOptCostFactory costFactory) {
+            this.costFactory = costFactory;
+            return this;
+        }
+
+        public ConfigBuilder ruleSets(RuleSet... ruleSets) {
+            return programs(Programs.listOf(ruleSets));
+        }
+
+        public ConfigBuilder ruleSets(List<RuleSet> ruleSets) {
+            return programs(Programs.listOf(Preconditions.checkNotNull(ruleSets)));
+        }
+
+        public ConfigBuilder programs(List<Program> programs) {
+            this.programs = ImmutableList.copyOf(programs);
+            return this;
+        }
+
+        public ConfigBuilder programs(Program... programs) {
+            this.programs = ImmutableList.copyOf(programs);
+            return this;
+        }
+
+        public ConfigBuilder typeSystem(RelDataTypeSystem typeSystem) {
+            this.typeSystem = Preconditions.checkNotNull(typeSystem);
+            return this;
+        }
     }
 
-    public ConfigBuilder traitDefs(RelTraitDef... traitDefs) {
-      this.traitDefs = ImmutableList.copyOf(traitDefs);
-      return this;
-    }
+    /**
+     * An implementation of {@link FrameworkConfig} that uses standard Calcite
+     * classes to provide basic planner functionality.
+     */
+    static class StdFrameworkConfig implements FrameworkConfig {
 
-    public ConfigBuilder parserConfig(SqlParser.Config parserConfig) {
-      this.parserConfig = Preconditions.checkNotNull(parserConfig);
-      return this;
-    }
+        private final Context                    context;
+        private final SqlRexConvertletTable      convertletTable;
+        private final SqlOperatorTable           operatorTable;
+        private final ImmutableList<Program>     programs;
+        private final ImmutableList<RelTraitDef> traitDefs;
+        private final SqlParser.Config           parserConfig;
+        private final SqlToRelConverter.Config   sqlToRelConverterConfig;
+        private final SchemaPlus                 defaultSchema;
+        private final RelOptCostFactory          costFactory;
+        private final RelDataTypeSystem          typeSystem;
+        private final RexExecutor                executor;
 
-    public ConfigBuilder sqlToRelConverterConfig(
-        SqlToRelConverter.Config sqlToRelConverterConfig) {
-      this.sqlToRelConverterConfig =
-          Preconditions.checkNotNull(sqlToRelConverterConfig);
-      return this;
-    }
+        StdFrameworkConfig(Context context, SqlRexConvertletTable convertletTable, SqlOperatorTable operatorTable,
+                           ImmutableList<Program> programs, ImmutableList<RelTraitDef> traitDefs,
+                           SqlParser.Config parserConfig, SqlToRelConverter.Config sqlToRelConverterConfig,
+                           SchemaPlus defaultSchema, RelOptCostFactory costFactory, RelDataTypeSystem typeSystem,
+                           RexExecutor executor) {
+            this.context = context;
+            this.convertletTable = convertletTable;
+            this.operatorTable = operatorTable;
+            this.programs = programs;
+            this.traitDefs = traitDefs;
+            this.parserConfig = parserConfig;
+            this.sqlToRelConverterConfig = sqlToRelConverterConfig;
+            this.defaultSchema = defaultSchema;
+            this.costFactory = costFactory;
+            this.typeSystem = typeSystem;
+            this.executor = executor;
+        }
 
-    public ConfigBuilder defaultSchema(SchemaPlus defaultSchema) {
-      this.defaultSchema = defaultSchema;
-      return this;
-    }
+        public SqlParser.Config getParserConfig() {
+            return parserConfig;
+        }
 
-    public ConfigBuilder costFactory(RelOptCostFactory costFactory) {
-      this.costFactory = costFactory;
-      return this;
-    }
+        public SqlToRelConverter.Config getSqlToRelConverterConfig() {
+            return sqlToRelConverterConfig;
+        }
 
-    public ConfigBuilder ruleSets(RuleSet... ruleSets) {
-      return programs(Programs.listOf(ruleSets));
-    }
+        public SchemaPlus getDefaultSchema() {
+            return defaultSchema;
+        }
 
-    public ConfigBuilder ruleSets(List<RuleSet> ruleSets) {
-      return programs(Programs.listOf(Preconditions.checkNotNull(ruleSets)));
-    }
+        public RexExecutor getExecutor() {
+            return executor;
+        }
 
-    public ConfigBuilder programs(List<Program> programs) {
-      this.programs = ImmutableList.copyOf(programs);
-      return this;
-    }
+        public ImmutableList<Program> getPrograms() {
+            return programs;
+        }
 
-    public ConfigBuilder programs(Program... programs) {
-      this.programs = ImmutableList.copyOf(programs);
-      return this;
-    }
+        public RelOptCostFactory getCostFactory() {
+            return costFactory;
+        }
 
-    public ConfigBuilder typeSystem(RelDataTypeSystem typeSystem) {
-      this.typeSystem = Preconditions.checkNotNull(typeSystem);
-      return this;
-    }
-  }
+        public ImmutableList<RelTraitDef> getTraitDefs() {
+            return traitDefs;
+        }
 
-  /**
-   * An implementation of {@link FrameworkConfig} that uses standard Calcite
-   * classes to provide basic planner functionality.
-   */
-  static class StdFrameworkConfig implements FrameworkConfig {
-    private final Context context;
-    private final SqlRexConvertletTable convertletTable;
-    private final SqlOperatorTable operatorTable;
-    private final ImmutableList<Program> programs;
-    private final ImmutableList<RelTraitDef> traitDefs;
-    private final SqlParser.Config parserConfig;
-    private final SqlToRelConverter.Config sqlToRelConverterConfig;
-    private final SchemaPlus defaultSchema;
-    private final RelOptCostFactory costFactory;
-    private final RelDataTypeSystem typeSystem;
-    private final RexExecutor executor;
+        public SqlRexConvertletTable getConvertletTable() {
+            return convertletTable;
+        }
 
-    StdFrameworkConfig(Context context,
-        SqlRexConvertletTable convertletTable,
-        SqlOperatorTable operatorTable,
-        ImmutableList<Program> programs,
-        ImmutableList<RelTraitDef> traitDefs,
-        SqlParser.Config parserConfig,
-        SqlToRelConverter.Config sqlToRelConverterConfig,
-        SchemaPlus defaultSchema,
-        RelOptCostFactory costFactory,
-        RelDataTypeSystem typeSystem,
-        RexExecutor executor) {
-      this.context = context;
-      this.convertletTable = convertletTable;
-      this.operatorTable = operatorTable;
-      this.programs = programs;
-      this.traitDefs = traitDefs;
-      this.parserConfig = parserConfig;
-      this.sqlToRelConverterConfig = sqlToRelConverterConfig;
-      this.defaultSchema = defaultSchema;
-      this.costFactory = costFactory;
-      this.typeSystem = typeSystem;
-      this.executor = executor;
-    }
+        public Context getContext() {
+            return context;
+        }
 
-    public SqlParser.Config getParserConfig() {
-      return parserConfig;
-    }
+        public SqlOperatorTable getOperatorTable() {
+            return operatorTable;
+        }
 
-    public SqlToRelConverter.Config getSqlToRelConverterConfig() {
-      return sqlToRelConverterConfig;
+        public RelDataTypeSystem getTypeSystem() {
+            return typeSystem;
+        }
     }
-
-    public SchemaPlus getDefaultSchema() {
-      return defaultSchema;
-    }
-
-    public RexExecutor getExecutor() {
-      return executor;
-    }
-
-    public ImmutableList<Program> getPrograms() {
-      return programs;
-    }
-
-    public RelOptCostFactory getCostFactory() {
-      return costFactory;
-    }
-
-    public ImmutableList<RelTraitDef> getTraitDefs() {
-      return traitDefs;
-    }
-
-    public SqlRexConvertletTable getConvertletTable() {
-      return convertletTable;
-    }
-
-    public Context getContext() {
-      return context;
-    }
-
-    public SqlOperatorTable getOperatorTable() {
-      return operatorTable;
-    }
-
-    public RelDataTypeSystem getTypeSystem() {
-      return typeSystem;
-    }
-  }
 }
 
 // End Frameworks.java

@@ -26,32 +26,33 @@ import java.util.List;
  * delegating to a parent table.
  */
 public abstract class DelegatingSqlValidatorTable implements SqlValidatorTable {
-  protected final SqlValidatorTable table;
 
-  /**
-   * Creates a DelegatingSqlValidatorTable.
-   *
-   * @param table Parent table
-   */
-  public DelegatingSqlValidatorTable(SqlValidatorTable table) {
-    this.table = table;
-  }
+    protected final SqlValidatorTable table;
 
-  public RelDataType getRowType() {
-    return table.getRowType();
-  }
+    /**
+     * Creates a DelegatingSqlValidatorTable.
+     *
+     * @param table Parent table
+     */
+    public DelegatingSqlValidatorTable(SqlValidatorTable table) {
+        this.table = table;
+    }
 
-  public List<String> getQualifiedName() {
-    return table.getQualifiedName();
-  }
+    public RelDataType getRowType() {
+        return table.getRowType();
+    }
 
-  public SqlMonotonicity getMonotonicity(String columnName) {
-    return table.getMonotonicity(columnName);
-  }
+    public List<String> getQualifiedName() {
+        return table.getQualifiedName();
+    }
 
-  public SqlAccessType getAllowedAccess() {
-    return table.getAllowedAccess();
-  }
+    public SqlMonotonicity getMonotonicity(String columnName) {
+        return table.getMonotonicity(columnName);
+    }
+
+    public SqlAccessType getAllowedAccess() {
+        return table.getAllowedAccess();
+    }
 }
 
 // End DelegatingSqlValidatorTable.java

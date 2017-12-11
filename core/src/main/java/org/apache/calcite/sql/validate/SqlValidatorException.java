@@ -17,7 +17,6 @@
 package org.apache.calcite.sql.validate;
 
 import org.apache.calcite.util.CalciteValidatorException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,37 +26,32 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Exception thrown while validating a SQL statement.
- *
  * <p>Unlike {@link org.apache.calcite.runtime.CalciteException}, this is a
  * checked exception, which reminds code authors to wrap it in another exception
  * containing the line/column context.
  */
-public class SqlValidatorException extends Exception
-    implements CalciteValidatorException {
-  //~ Static fields/initializers ---------------------------------------------
+public class SqlValidatorException extends Exception implements CalciteValidatorException {
+    //~ Static fields/initializers ---------------------------------------------
 
-  private static final Logger LOGGER =
-      LoggerFactory.getLogger("org.apache.calcite.runtime.CalciteException");
+    private static final Logger LOGGER = LoggerFactory.getLogger("org.apache.calcite.runtime.CalciteException");
 
-  static final long serialVersionUID = -831683113957131387L;
+    static final long serialVersionUID = -831683113957131387L;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a new SqlValidatorException object.
-   *
-   * @param message error message
-   * @param cause   underlying cause
-   */
-  public SqlValidatorException(
-      String message,
-      Throwable cause) {
-    super(message, cause);
+    /**
+     * Creates a new SqlValidatorException object.
+     *
+     * @param message error message
+     * @param cause   underlying cause
+     */
+    public SqlValidatorException(String message, Throwable cause) {
+        super(message, cause);
 
-    // TODO: see note in CalciteException constructor
-    LOGGER.trace("SqlValidatorException", this);
-    LOGGER.error(toString());
-  }
+        // TODO: see note in CalciteException constructor
+        LOGGER.trace("SqlValidatorException", this);
+        LOGGER.error(toString());
+    }
 }
 
 // End SqlValidatorException.java

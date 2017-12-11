@@ -16,62 +16,55 @@
  */
 package org.apache.calcite.sql;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.util.TimestampString;
 
-import com.google.common.base.Preconditions;
-
 /**
  * A SQL literal representing a TIMESTAMP value, for example <code>TIMESTAMP
  * '1969-07-21 03:15 GMT'</code>.
- *
  * <p>Create values using {@link SqlLiteral#createTimestamp}.
  */
 public class SqlTimestampLiteral extends SqlAbstractDateTimeLiteral {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  SqlTimestampLiteral(TimestampString ts, int precision,
-      boolean hasTimeZone, SqlParserPos pos) {
-    super(ts, hasTimeZone, SqlTypeName.TIMESTAMP, precision, pos);
-    Preconditions.checkArgument(this.precision >= 0);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public SqlNode clone(SqlParserPos pos) {
-    return new SqlTimestampLiteral((TimestampString) value, precision,
-        hasTimeZone, pos);
-  }
-
-  public String toString() {
-    return "TIMESTAMP '" + toFormattedString() + "'";
-  }
-
-  /**
-   * Returns e.g. '03:05:67.456'.
-   */
-  public String toFormattedString() {
-    TimestampString ts = getTimestamp();
-    if (precision > 0) {
-      ts = ts.round(precision);
+    SqlTimestampLiteral(TimestampString ts, int precision, boolean hasTimeZone, SqlParserPos pos) {
+        super(ts, hasTimeZone, SqlTypeName.TIMESTAMP, precision, pos);
+        Preconditions.checkArgument(this.precision >= 0);
     }
-    return ts.toString(precision);
-  }
 
-  public void unparse(
-      SqlWriter writer,
-      int leftPrec,
-      int rightPrec) {
-    switch (writer.getDialect().getDatabaseProduct()) {
-    case MSSQL:
-      writer.literal("'" + this.toFormattedString() + "'");
-      break;
-    default:
-      writer.literal(this.toString());
-      break;
+    //~ Methods ----------------------------------------------------------------
+
+    public SqlNode clone(SqlParserPos pos) {
+        return new SqlTimestampLiteral((TimestampString) value, precision, hasTimeZone, pos);
     }
-  }
+
+    public String toString() {
+        return "TIMESTAMP '" + toFormattedString() + "'";
+    }
+
+    /**
+     * Returns e.g. '03:05:67.456'.
+     */
+    public String toFormattedString() {
+        TimestampString ts = getTimestamp();
+        if (precision > 0) {
+            ts = ts.round(precision);
+        }
+        return ts.toString(precision);
+    }
+
+    public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+        switch (writer.getDialect().getDatabaseProduct()) {
+            case MSSQL:
+                writer.literal("'" + this.toFormattedString() + "'");
+                break;
+            default:
+                writer.literal(this.toString());
+                break;
+        }
+    }
 }
 
 // End SqlTimestampLiteral.java

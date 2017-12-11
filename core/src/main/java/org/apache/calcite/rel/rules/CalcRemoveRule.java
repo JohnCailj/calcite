@@ -25,7 +25,6 @@ import org.apache.calcite.rex.RexProgram;
 /**
  * Planner rule that removes a trivial
  * {@link org.apache.calcite.rel.logical.LogicalCalc}.
- *
  * <p>A {@link org.apache.calcite.rel.logical.LogicalCalc}
  * is trivial if it projects its input fields in their
  * original order, and it does not filter.
@@ -33,32 +32,28 @@ import org.apache.calcite.rex.RexProgram;
  * @see ProjectRemoveRule
  */
 public class CalcRemoveRule extends RelOptRule {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  public static final CalcRemoveRule INSTANCE =
-      new CalcRemoveRule();
+    public static final CalcRemoveRule INSTANCE = new CalcRemoveRule();
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  private CalcRemoveRule() {
-    super(operand(LogicalCalc.class, any()));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    LogicalCalc calc = call.rel(0);
-    RexProgram program = calc.getProgram();
-    if (!program.isTrivial()) {
-      return;
+    private CalcRemoveRule() {
+        super(operand(LogicalCalc.class, any()));
     }
-    RelNode input = calc.getInput();
-    input = call.getPlanner().register(input, calc);
-    call.transformTo(
-        convert(
-            input,
-            calc.getTraitSet()));
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    public void onMatch(RelOptRuleCall call) {
+        LogicalCalc calc = call.rel(0);
+        RexProgram program = calc.getProgram();
+        if (!program.isTrivial()) {
+            return;
+        }
+        RelNode input = calc.getInput();
+        input = call.getPlanner().register(input, calc);
+        call.transformTo(convert(input, calc.getTraitSet()));
+    }
 }
 
 // End CalcRemoveRule.java

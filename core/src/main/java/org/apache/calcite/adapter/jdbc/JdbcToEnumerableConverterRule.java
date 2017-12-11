@@ -27,15 +27,15 @@ import org.apache.calcite.rel.convert.ConverterRule;
  * {@link EnumerableConvention}.
  */
 public class JdbcToEnumerableConverterRule extends ConverterRule {
-  JdbcToEnumerableConverterRule(JdbcConvention out) {
-    super(RelNode.class, out, EnumerableConvention.INSTANCE,
-        "JdbcToEnumerableConverterRule:" + out);
-  }
 
-  @Override public RelNode convert(RelNode rel) {
-    RelTraitSet newTraitSet = rel.getTraitSet().replace(getOutTrait());
-    return new JdbcToEnumerableConverter(rel.getCluster(), newTraitSet, rel);
-  }
+    JdbcToEnumerableConverterRule(JdbcConvention out) {
+        super(RelNode.class, out, EnumerableConvention.INSTANCE, "JdbcToEnumerableConverterRule:" + out);
+    }
+
+    @Override public RelNode convert(RelNode rel) {
+        RelTraitSet newTraitSet = rel.getTraitSet().replace(getOutTrait());
+        return new JdbcToEnumerableConverter(rel.getCluster(), newTraitSet, rel);
+    }
 }
 
 // End JdbcToEnumerableConverterRule.java

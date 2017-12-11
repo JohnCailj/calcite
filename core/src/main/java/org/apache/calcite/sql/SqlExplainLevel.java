@@ -22,38 +22,38 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  * SqlExplainLevel defines detail levels for EXPLAIN PLAN.
  */
 public enum SqlExplainLevel {
-  /**
-   * Suppress all attributes.
-   */
-  NO_ATTRIBUTES,
+    /**
+     * Suppress all attributes.
+     */
+    NO_ATTRIBUTES,
 
-  /**
-   * Display only attributes which contribute to the plan output.
-   */
-  EXPPLAN_ATTRIBUTES,
+    /**
+     * Display only attributes which contribute to the plan output.
+     */
+    EXPPLAN_ATTRIBUTES,
 
-  /**
-   * Display only attributes which contribute to an expression's digest.
-   */
-  DIGEST_ATTRIBUTES,
+    /**
+     * Display only attributes which contribute to an expression's digest.
+     */
+    DIGEST_ATTRIBUTES,
 
-  /**
-   * Display all attributes, including id, except cost.
-   */
-  NON_COST_ATTRIBUTES,
+    /**
+     * Display all attributes, including id, except cost.
+     */
+    NON_COST_ATTRIBUTES,
 
-  /**
-   * Display all attributes, including cost.
-   */
-  ALL_ATTRIBUTES;
+    /**
+     * Display all attributes, including cost.
+     */
+    ALL_ATTRIBUTES;
 
-  /**
-   * Creates a parse-tree node representing an occurrence of this symbol at
-   * a particular position in the parsed text.
-   */
-  public SqlLiteral symbol(SqlParserPos pos) {
-    return SqlLiteral.createSymbol(this, pos);
-  }
+    /**
+     * Creates a parse-tree node representing an occurrence of this symbol at
+     * a particular position in the parsed text.
+     */
+    public SqlLiteral symbol(SqlParserPos pos) {
+        return SqlLiteral.createSymbol(this, pos);
+    }
 }
 
 // End SqlExplainLevel.java

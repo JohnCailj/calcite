@@ -29,33 +29,36 @@ import java.util.List;
  * not targeted at any particular engine or calling convention.
  */
 public final class LogicalDelta extends Delta {
-  /**
-   * Creates a LogicalDelta.
-   *
-   * <p>Use {@link #create} unless you know what you're doing.
-   *
-   * @param cluster   Cluster that this relational expression belongs to
-   * @param input     Input relational expression
-   */
-  public LogicalDelta(RelOptCluster cluster, RelTraitSet traits,
-      RelNode input) {
-    super(cluster, traits, input);
-  }
 
-  /** Creates a LogicalDelta by parsing serialized output. */
-  public LogicalDelta(RelInput input) {
-    super(input);
-  }
+    /**
+     * Creates a LogicalDelta.
+     * <p>Use {@link #create} unless you know what you're doing.
+     *
+     * @param cluster Cluster that this relational expression belongs to
+     * @param input   Input relational expression
+     */
+    public LogicalDelta(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
+        super(cluster, traits, input);
+    }
 
-  /** Creates a LogicalDelta. */
-  public static LogicalDelta create(RelNode input) {
-    final RelTraitSet traitSet = input.getTraitSet().replace(Convention.NONE);
-    return new LogicalDelta(input.getCluster(), traitSet, input);
-  }
+    /**
+     * Creates a LogicalDelta by parsing serialized output.
+     */
+    public LogicalDelta(RelInput input) {
+        super(input);
+    }
 
-  @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-    return new LogicalDelta(getCluster(), traitSet, sole(inputs));
-  }
+    /**
+     * Creates a LogicalDelta.
+     */
+    public static LogicalDelta create(RelNode input) {
+        final RelTraitSet traitSet = input.getTraitSet().replace(Convention.NONE);
+        return new LogicalDelta(input.getCluster(), traitSet, input);
+    }
+
+    @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        return new LogicalDelta(getCluster(), traitSet, sole(inputs));
+    }
 }
 
 // End LogicalDelta.java

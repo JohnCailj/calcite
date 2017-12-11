@@ -16,63 +16,56 @@
  */
 package org.apache.calcite.sql;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.util.BitString;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 
 import java.util.List;
 
 /**
  * A binary (or hexadecimal) string literal.
- *
  * <p>The {@link #value} field is a {@link BitString} and {@link #typeName} is
  * {@link SqlTypeName#BINARY}.
  */
 public class SqlBinaryStringLiteral extends SqlAbstractStringLiteral {
-  private static final Function<SqlLiteral, BitString> F =
-      new Function<SqlLiteral, BitString>() {
+
+    private static final Function<SqlLiteral, BitString> F = new Function<SqlLiteral, BitString>() {
+
         public BitString apply(SqlLiteral literal) {
-          return ((SqlBinaryStringLiteral) literal).getBitString();
+            return ((SqlBinaryStringLiteral) literal).getBitString();
         }
-      };
+    };
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  protected SqlBinaryStringLiteral(
-      BitString val,
-      SqlParserPos pos) {
-    super(val, SqlTypeName.BINARY, pos);
-  }
+    protected SqlBinaryStringLiteral(BitString val, SqlParserPos pos) {
+        super(val, SqlTypeName.BINARY, pos);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * @return the underlying BitString
-   */
-  public BitString getBitString() {
-    return (BitString) value;
-  }
+    /**
+     * @return the underlying BitString
+     */
+    public BitString getBitString() {
+        return (BitString) value;
+    }
 
-  public SqlNode clone(SqlParserPos pos) {
-    return new SqlBinaryStringLiteral((BitString) value, pos);
-  }
+    public SqlNode clone(SqlParserPos pos) {
+        return new SqlBinaryStringLiteral((BitString) value, pos);
+    }
 
-  public void unparse(
-      SqlWriter writer,
-      int leftPrec,
-      int rightPrec) {
-    assert value instanceof BitString;
-    writer.literal("X'" + ((BitString) value).toHexString() + "'");
-  }
+    public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+        assert value instanceof BitString;
+        writer.literal("X'" + ((BitString) value).toHexString() + "'");
+    }
 
-  protected SqlAbstractStringLiteral concat1(List<SqlLiteral> literals) {
-    return new SqlBinaryStringLiteral(
-        BitString.concat(Lists.transform(literals, F)),
-        literals.get(0).getParserPosition());
-  }
+    protected SqlAbstractStringLiteral concat1(List<SqlLiteral> literals) {
+        return new SqlBinaryStringLiteral(BitString.concat(Lists.transform(literals, F)),
+                                          literals.get(0).getParserPosition());
+    }
 }
 
 // End SqlBinaryStringLiteral.java

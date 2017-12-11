@@ -16,56 +16,58 @@
  */
 package org.apache.calcite.rel.mutable;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.apache.calcite.linq4j.Ord;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.rel.type.RelDataType;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 import java.util.List;
 
-/** Base Class for relations with three or more inputs */
+/**
+ * Base Class for relations with three or more inputs
+ */
 abstract class MutableMultiRel extends MutableRel {
-  protected final List<MutableRel> inputs;
 
-  protected MutableMultiRel(RelOptCluster cluster,
-      RelDataType rowType, MutableRelType type, List<MutableRel> inputs) {
-    super(cluster, rowType, type);
-    this.inputs = ImmutableList.copyOf(inputs);
-    for (Ord<MutableRel> input : Ord.zip(inputs)) {
-      input.e.parent = this;
-      input.e.ordinalInParent = input.i;
+    protected final List<MutableRel> inputs;
+
+    protected MutableMultiRel(RelOptCluster cluster, RelDataType rowType, MutableRelType type,
+                              List<MutableRel> inputs) {
+        super(cluster, rowType, type);
+        this.inputs = ImmutableList.copyOf(inputs);
+        for (Ord<MutableRel> input : Ord.zip(inputs)) {
+            input.e.parent = this;
+            input.e.ordinalInParent = input.i;
+        }
     }
-  }
 
-  @Override public void setInput(int ordinalInParent, MutableRel input) {
-    inputs.set(ordinalInParent, input);
-    if (input != null) {
-      input.parent = this;
-      input.ordinalInParent = ordinalInParent;
+    @Override public void setInput(int ordinalInParent, MutableRel input) {
+        inputs.set(ordinalInParent, input);
+        if (input != null) {
+            input.parent = this;
+            input.ordinalInParent = ordinalInParent;
+        }
     }
-  }
 
-  @Override public List<MutableRel> getInputs() {
-    return inputs;
-  }
-
-  @Override public void childrenAccept(MutableRelVisitor visitor) {
-    for (MutableRel input : inputs) {
-      visitor.visit(input);
+    @Override public List<MutableRel> getInputs() {
+        return inputs;
     }
-  }
 
-  protected List<MutableRel> cloneChildren() {
-    return Lists.transform(inputs,
-        new Function<MutableRel, MutableRel>() {
-          public MutableRel apply(MutableRel mutableRel) {
-            return mutableRel.clone();
-          }
+    @Override public void childrenAccept(MutableRelVisitor visitor) {
+        for (MutableRel input : inputs) {
+            visitor.visit(input);
+        }
+    }
+
+    protected List<MutableRel> cloneChildren() {
+        return Lists.transform(inputs, new Function<MutableRel, MutableRel>() {
+
+            public MutableRel apply(MutableRel mutableRel) {
+                return mutableRel.clone();
+            }
         });
-  }
+    }
 }
 
 // End MutableMultiRel.java

@@ -24,18 +24,19 @@ import org.apache.calcite.linq4j.Enumerator;
  * returns an array of {@link Object} for each row.
  */
 public class ArrayEnumeratorCursor extends EnumeratorCursor<Object[]> {
-  /**
-   * Creates an ArrayEnumeratorCursor.
-   *
-   * @param enumerator Enumerator
-   */
-  public ArrayEnumeratorCursor(Enumerator<Object[]> enumerator) {
-    super(enumerator);
-  }
 
-  protected Getter createGetter(int ordinal) {
-    return new ArrayGetter(ordinal);
-  }
+    /**
+     * Creates an ArrayEnumeratorCursor.
+     *
+     * @param enumerator Enumerator
+     */
+    public ArrayEnumeratorCursor(Enumerator<Object[]> enumerator) {
+        super(enumerator);
+    }
+
+    protected Getter createGetter(int ordinal) {
+        return new ArrayGetter(ordinal);
+    }
 }
 
 // End ArrayEnumeratorCursor.java

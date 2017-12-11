@@ -29,40 +29,25 @@ import org.apache.calcite.rel.core.Sort;
  * on top of a "pure" {@code Sort} that has no offset or fetch.
  */
 class EnumerableLimitRule extends RelOptRule {
-  EnumerableLimitRule() {
-    super(
-        operand(Sort.class, any()),
-        "EnumerableLimitRule");
-  }
 
-  @Override public void onMatch(RelOptRuleCall call) {
-    final Sort sort = call.rel(0);
-    if (sort.offset == null && sort.fetch == null) {
-      return;
+    EnumerableLimitRule() {
+        super(operand(Sort.class, any()), "EnumerableLimitRule");
     }
-    final RelTraitSet traitSet =
-        sort.getTraitSet().replace(EnumerableConvention.INSTANCE);
-    RelNode input = sort.getInput();
-    if (!sort.getCollation().getFieldCollations().isEmpty()) {
-      // Create a sort with the same sort key, but no offset or fetch.
-      input = sort.copy(
-          sort.getTraitSet(),
-          input,
-          sort.getCollation(),
-          null,
-          null);
+
+    @Override public void onMatch(RelOptRuleCall call) {
+        final Sort sort = call.rel(0);
+        if (sort.offset == null && sort.fetch == null) {
+            return;
+        }
+        final RelTraitSet traitSet = sort.getTraitSet().replace(EnumerableConvention.INSTANCE);
+        RelNode input = sort.getInput();
+        if (!sort.getCollation().getFieldCollations().isEmpty()) {
+            // Create a sort with the same sort key, but no offset or fetch.
+            input = sort.copy(sort.getTraitSet(), input, sort.getCollation(), null, null);
+        }
+        RelNode x = convert(input, input.getTraitSet().replace(EnumerableConvention.INSTANCE));
+        call.transformTo(new EnumerableLimit(sort.getCluster(), traitSet, x, sort.offset, sort.fetch));
     }
-    RelNode x = convert(
-        input,
-        input.getTraitSet().replace(EnumerableConvention.INSTANCE));
-    call.transformTo(
-        new EnumerableLimit(
-            sort.getCluster(),
-            traitSet,
-            x,
-            sort.offset,
-            sort.fetch));
-  }
 }
 
 // End EnumerableLimitRule.java

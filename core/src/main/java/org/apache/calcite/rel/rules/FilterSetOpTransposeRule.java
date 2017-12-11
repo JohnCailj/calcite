@@ -38,60 +38,51 @@ import java.util.List;
  * past a {@link org.apache.calcite.rel.core.SetOp}.
  */
 public class FilterSetOpTransposeRule extends RelOptRule {
-  public static final FilterSetOpTransposeRule INSTANCE =
-      new FilterSetOpTransposeRule(RelFactories.LOGICAL_BUILDER);
 
-  //~ Constructors -----------------------------------------------------------
+    public static final FilterSetOpTransposeRule INSTANCE = new FilterSetOpTransposeRule(RelFactories.LOGICAL_BUILDER);
 
-  /**
-   * Creates a FilterSetOpTransposeRule.
-   */
-  public FilterSetOpTransposeRule(RelBuilderFactory relBuilderFactory) {
-    super(
-        operand(Filter.class,
-            operand(SetOp.class, any())),
-        relBuilderFactory, null);
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  @Deprecated // to  be removed before 2.0
-  public FilterSetOpTransposeRule(RelFactories.FilterFactory filterFactory) {
-    this(RelBuilder.proto(Contexts.of(filterFactory)));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  // implement RelOptRule
-  public void onMatch(RelOptRuleCall call) {
-    Filter filterRel = call.rel(0);
-    SetOp setOp = call.rel(1);
-
-    RexNode condition = filterRel.getCondition();
-
-    // create filters on top of each setop child, modifying the filter
-    // condition to reference each setop child
-    RexBuilder rexBuilder = filterRel.getCluster().getRexBuilder();
-    final RelBuilder relBuilder = call.builder();
-    List<RelDataTypeField> origFields =
-        setOp.getRowType().getFieldList();
-    int[] adjustments = new int[origFields.size()];
-    final List<RelNode> newSetOpInputs = new ArrayList<>();
-    for (RelNode input : setOp.getInputs()) {
-      RexNode newCondition =
-          condition.accept(
-              new RelOptUtil.RexInputConverter(
-                  rexBuilder,
-                  origFields,
-                  input.getRowType().getFieldList(),
-                  adjustments));
-      newSetOpInputs.add(relBuilder.push(input).filter(newCondition).build());
+    /**
+     * Creates a FilterSetOpTransposeRule.
+     */
+    public FilterSetOpTransposeRule(RelBuilderFactory relBuilderFactory) {
+        super(operand(Filter.class, operand(SetOp.class, any())), relBuilderFactory, null);
     }
 
-    // create a new setop whose children are the filters created above
-    SetOp newSetOp =
-        setOp.copy(setOp.getTraitSet(), newSetOpInputs);
+    @Deprecated // to  be removed before 2.0
+    public FilterSetOpTransposeRule(RelFactories.FilterFactory filterFactory) {
+        this(RelBuilder.proto(Contexts.of(filterFactory)));
+    }
 
-    call.transformTo(newSetOp);
-  }
+    //~ Methods ----------------------------------------------------------------
+
+    // implement RelOptRule
+    public void onMatch(RelOptRuleCall call) {
+        Filter filterRel = call.rel(0);
+        SetOp setOp = call.rel(1);
+
+        RexNode condition = filterRel.getCondition();
+
+        // create filters on top of each setop child, modifying the filter
+        // condition to reference each setop child
+        RexBuilder rexBuilder = filterRel.getCluster().getRexBuilder();
+        final RelBuilder relBuilder = call.builder();
+        List<RelDataTypeField> origFields = setOp.getRowType().getFieldList();
+        int[] adjustments = new int[origFields.size()];
+        final List<RelNode> newSetOpInputs = new ArrayList<>();
+        for (RelNode input : setOp.getInputs()) {
+            RexNode newCondition = condition.accept(
+                    new RelOptUtil.RexInputConverter(rexBuilder, origFields, input.getRowType().getFieldList(),
+                                                     adjustments));
+            newSetOpInputs.add(relBuilder.push(input).filter(newCondition).build());
+        }
+
+        // create a new setop whose children are the filters created above
+        SetOp newSetOp = setOp.copy(setOp.getTraitSet(), newSetOpInputs);
+
+        call.transformTo(newSetOp);
+    }
 }
 
 // End FilterSetOpTransposeRule.java

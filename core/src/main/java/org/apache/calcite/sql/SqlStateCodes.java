@@ -18,45 +18,40 @@ package org.apache.calcite.sql;
 
 /**
  * Contains {@link org.apache.calcite.util.Glossary#SQL2003} SQL state codes.
- *
  * <p>SQL State codes are defined in
- *
  * <blockquote><pre>&#64;sql.2003 Part 2 Section 23.1</pre></blockquote>
  *
  * @deprecated Use {@code org.apache.calcite.avatica.SqlState}
  */
 @Deprecated // will be removed before 2.0
 public enum SqlStateCodes {
-  CARDINALITY_VIOLATION("cardinality violation", "21", "000"),
+    CARDINALITY_VIOLATION("cardinality violation", "21", "000"),
 
-  NULL_VALUE_NOT_ALLOWED("null value not allowed", "22", "004"),
+    NULL_VALUE_NOT_ALLOWED("null value not allowed", "22", "004"),
 
-  NUMERIC_VALUE_OUT_OF_RANGE("numeric value out of range", "22", "003");
+    NUMERIC_VALUE_OUT_OF_RANGE("numeric value out of range", "22", "003");
 
-  private final String msg;
-  private final String stateClass;
-  private final String stateSubClass;
+    private final String msg;
+    private final String stateClass;
+    private final String stateSubClass;
 
-  SqlStateCodes(
-      String msg,
-      String stateClass,
-      String stateSubClass) {
-    this.msg = msg;
-    this.stateClass = stateClass;
-    this.stateSubClass = stateSubClass;
-  }
+    SqlStateCodes(String msg, String stateClass, String stateSubClass) {
+        this.msg = msg;
+        this.stateClass = stateClass;
+        this.stateSubClass = stateSubClass;
+    }
 
-  public String getStateClass() {
-    return stateClass;
-  }
+    public String getStateClass() {
+        return stateClass;
+    }
 
-  public String getStateSubClass() {
-    return stateSubClass;
-  }
+    public String getStateSubClass() {
+        return stateSubClass;
+    }
 
-  public String getState() {
-    return stateClass + stateSubClass;
-  }
+    public String getState() {
+        return stateClass + stateSubClass;
+    }
 }
 
 // End SqlStateCodes.java

@@ -25,32 +25,33 @@ import org.apache.calcite.linq4j.Enumerator;
  * returns an {@link Object} for each row.
  */
 public class ObjectEnumeratorCursor extends PositionedCursor<Object> {
-  private final Enumerator<Object> enumerator;
 
-  /**
-   * Creates an ObjectEnumeratorCursor.
-   *
-   * @param enumerator Enumerator
-   */
-  public ObjectEnumeratorCursor(Enumerator<Object> enumerator) {
-    this.enumerator = enumerator;
-  }
+    private final Enumerator<Object> enumerator;
 
-  protected Getter createGetter(int ordinal) {
-    return new ObjectGetter(ordinal);
-  }
+    /**
+     * Creates an ObjectEnumeratorCursor.
+     *
+     * @param enumerator Enumerator
+     */
+    public ObjectEnumeratorCursor(Enumerator<Object> enumerator) {
+        this.enumerator = enumerator;
+    }
 
-  protected Object current() {
-    return enumerator.current();
-  }
+    protected Getter createGetter(int ordinal) {
+        return new ObjectGetter(ordinal);
+    }
 
-  public boolean next() {
-    return enumerator.moveNext();
-  }
+    protected Object current() {
+        return enumerator.current();
+    }
 
-  public void close() {
-    enumerator.close();
-  }
+    public boolean next() {
+        return enumerator.moveNext();
+    }
+
+    public void close() {
+        enumerator.close();
+    }
 }
 
 // End ObjectEnumeratorCursor.java

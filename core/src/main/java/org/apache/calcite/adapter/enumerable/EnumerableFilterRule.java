@@ -27,20 +27,19 @@ import org.apache.calcite.rel.logical.LogicalFilter;
  * {@link EnumerableFilter}.
  */
 class EnumerableFilterRule extends ConverterRule {
-  EnumerableFilterRule() {
-    super(LogicalFilter.class, RelOptUtil.FILTER_PREDICATE, Convention.NONE,
-        EnumerableConvention.INSTANCE, "EnumerableFilterRule");
-  }
 
-  public RelNode convert(RelNode rel) {
-    final LogicalFilter filter = (LogicalFilter) rel;
-    return new EnumerableFilter(rel.getCluster(),
-        rel.getTraitSet().replace(EnumerableConvention.INSTANCE),
-        convert(filter.getInput(),
-            filter.getInput().getTraitSet()
-                .replace(EnumerableConvention.INSTANCE)),
-        filter.getCondition());
-  }
+    EnumerableFilterRule() {
+        super(LogicalFilter.class, RelOptUtil.FILTER_PREDICATE, Convention.NONE, EnumerableConvention.INSTANCE,
+              "EnumerableFilterRule");
+    }
+
+    public RelNode convert(RelNode rel) {
+        final LogicalFilter filter = (LogicalFilter) rel;
+        return new EnumerableFilter(rel.getCluster(), rel.getTraitSet().replace(EnumerableConvention.INSTANCE),
+                                    convert(filter.getInput(),
+                                            filter.getInput().getTraitSet().replace(EnumerableConvention.INSTANCE)),
+                                    filter.getCondition());
+    }
 }
 
 // End EnumerableFilterRule.java

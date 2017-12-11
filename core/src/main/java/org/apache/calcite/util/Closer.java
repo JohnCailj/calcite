@@ -20,31 +20,35 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Helper that holds onto {@link AutoCloseable} resources and releases them
+/**
+ * Helper that holds onto {@link AutoCloseable} resources and releases them
  * when its {@code #close} method is called.
- *
  * <p>Similar to {@code com.google.common.io.Closer} but can deal with
- * {@link AutoCloseable}, and doesn't throw {@link IOException}. */
+ * {@link AutoCloseable}, and doesn't throw {@link IOException}.
+ */
 public final class Closer implements AutoCloseable {
-  private final List<AutoCloseable> list = new ArrayList<>();
 
-  /** Registers a resource. */
-  public <E extends AutoCloseable> E add(E e) {
-    list.add(e);
-    return e;
-  }
+    private final List<AutoCloseable> list = new ArrayList<>();
 
-  public void close() {
-    for (AutoCloseable closeable : list) {
-      try {
-        closeable.close();
-      } catch (RuntimeException e) {
-        throw e;
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+    /**
+     * Registers a resource.
+     */
+    public <E extends AutoCloseable> E add(E e) {
+        list.add(e);
+        return e;
     }
-  }
+
+    public void close() {
+        for (AutoCloseable closeable : list) {
+            try {
+                closeable.close();
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
 
 // End Closer.java

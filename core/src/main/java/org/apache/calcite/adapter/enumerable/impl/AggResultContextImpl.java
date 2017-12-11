@@ -29,41 +29,40 @@ import java.util.List;
  * Implementation of
  * {@link org.apache.calcite.adapter.enumerable.AggResultContext}
  */
-public class AggResultContextImpl extends AggResetContextImpl
-    implements AggResultContext {
-  private final AggregateCall call;
-  private final ParameterExpression key;
-  private final PhysType keyPhysType;
+public class AggResultContextImpl extends AggResetContextImpl implements AggResultContext {
 
-  /**
-   * Creates aggregate result context.
-   *
-   * @param block Code block that will contain the result calculation statements
-   * @param call Aggregate call
-   * @param accumulator Accumulator variables that store the intermediate
-   *                    aggregate state
-   * @param key Key
-   */
-  public AggResultContextImpl(BlockBuilder block, AggregateCall call,
-      List<Expression> accumulator, ParameterExpression key,
-      PhysType keyPhysType) {
-    super(block, accumulator);
-    this.call = call;
-    this.key = key;
-    this.keyPhysType = keyPhysType;
-  }
+    private final AggregateCall       call;
+    private final ParameterExpression key;
+    private final PhysType            keyPhysType;
 
-  public Expression key() {
-    return key;
-  }
+    /**
+     * Creates aggregate result context.
+     *
+     * @param block       Code block that will contain the result calculation statements
+     * @param call        Aggregate call
+     * @param accumulator Accumulator variables that store the intermediate
+     *                    aggregate state
+     * @param key         Key
+     */
+    public AggResultContextImpl(BlockBuilder block, AggregateCall call, List<Expression> accumulator,
+                                ParameterExpression key, PhysType keyPhysType) {
+        super(block, accumulator);
+        this.call = call;
+        this.key = key;
+        this.keyPhysType = keyPhysType;
+    }
 
-  public Expression keyField(int i) {
-    return keyPhysType.fieldReference(key, i);
-  }
+    public Expression key() {
+        return key;
+    }
 
-  @Override public AggregateCall call() {
-    return call;
-  }
+    public Expression keyField(int i) {
+        return keyPhysType.fieldReference(key, i);
+    }
+
+    @Override public AggregateCall call() {
+        return call;
+    }
 }
 
 // End AggResultContextImpl.java

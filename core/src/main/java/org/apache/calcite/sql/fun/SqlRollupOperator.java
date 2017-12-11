@@ -16,50 +16,42 @@
  */
 package org.apache.calcite.sql.fun;
 
-import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlInternalOperator;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
-import org.apache.calcite.sql.SqlWriter;
+import org.apache.calcite.sql.*;
 
 /**
  * Operator that appears in a {@code GROUP BY} clause: {@code CUBE},
  * {@code ROLLUP}, {@code GROUPING SETS}.
  */
 class SqlRollupOperator extends SqlInternalOperator {
-  SqlRollupOperator(String name, SqlKind kind) {
-    super(name, kind, 4);
-  }
 
-  @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec,
-      int rightPrec) {
-    unparseCube(writer, call);
-  }
-
-  private static void unparseCube(SqlWriter writer, SqlCall call) {
-    writer.keyword(call.getOperator().getName());
-    final SqlWriter.Frame frame =
-        writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
-    for (SqlNode operand : call.getOperandList()) {
-      writer.sep(",");
-      if (operand.getKind() == SqlKind.ROW) {
-        final SqlWriter.Frame frame2 =
-            writer.startList(SqlWriter.FrameTypeEnum.SIMPLE, "(", ")");
-        for (SqlNode operand2 : ((SqlCall) operand).getOperandList()) {
-          writer.sep(",");
-          operand2.unparse(writer, 0, 0);
-        }
-        writer.endList(frame2);
-      } else if (operand instanceof SqlNodeList
-          && ((SqlNodeList) operand).size() == 0) {
-        writer.keyword("()");
-      } else {
-        operand.unparse(writer, 0, 0);
-      }
+    SqlRollupOperator(String name, SqlKind kind) {
+        super(name, kind, 4);
     }
-    writer.endList(frame);
-  }
+
+    @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        unparseCube(writer, call);
+    }
+
+    private static void unparseCube(SqlWriter writer, SqlCall call) {
+        writer.keyword(call.getOperator().getName());
+        final SqlWriter.Frame frame = writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
+        for (SqlNode operand : call.getOperandList()) {
+            writer.sep(",");
+            if (operand.getKind() == SqlKind.ROW) {
+                final SqlWriter.Frame frame2 = writer.startList(SqlWriter.FrameTypeEnum.SIMPLE, "(", ")");
+                for (SqlNode operand2 : ((SqlCall) operand).getOperandList()) {
+                    writer.sep(",");
+                    operand2.unparse(writer, 0, 0);
+                }
+                writer.endList(frame2);
+            } else if (operand instanceof SqlNodeList && ((SqlNodeList) operand).size() == 0) {
+                writer.keyword("()");
+            } else {
+                operand.unparse(writer, 0, 0);
+            }
+        }
+        writer.endList(frame);
+    }
 }
 
 // End SqlRollupOperator.java

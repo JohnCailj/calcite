@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql.type;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.linq4j.Ord;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlCallBinding;
@@ -23,8 +24,6 @@ import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlOperandCountRange;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.util.Pair;
-
-import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
@@ -34,82 +33,74 @@ import java.util.List;
  * parameter types (under the SQL definition of "assignable").
  */
 public class AssignableOperandTypeChecker implements SqlOperandTypeChecker {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final List<RelDataType> paramTypes;
-  private final ImmutableList<String> paramNames;
+    private final List<RelDataType>     paramTypes;
+    private final ImmutableList<String> paramNames;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Instantiates this strategy with a specific set of parameter types.
-   *
-   * @param paramTypes parameter types for operands; index in this array
-   *                   corresponds to operand number
-   * @param paramNames parameter names, or null
-   */
-  public AssignableOperandTypeChecker(List<RelDataType> paramTypes,
-      List<String> paramNames) {
-    this.paramTypes = ImmutableList.copyOf(paramTypes);
-    this.paramNames =
-        paramNames == null ? null : ImmutableList.copyOf(paramNames);
-  }
+    /**
+     * Instantiates this strategy with a specific set of parameter types.
+     *
+     * @param paramTypes parameter types for operands; index in this array
+     *                   corresponds to operand number
+     * @param paramNames parameter names, or null
+     */
+    public AssignableOperandTypeChecker(List<RelDataType> paramTypes, List<String> paramNames) {
+        this.paramTypes = ImmutableList.copyOf(paramTypes);
+        this.paramNames = paramNames == null ? null : ImmutableList.copyOf(paramNames);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public boolean isOptional(int i) {
-    return false;
-  }
+    public boolean isOptional(int i) {
+        return false;
+    }
 
-  public SqlOperandCountRange getOperandCountRange() {
-    return SqlOperandCountRanges.of(paramTypes.size());
-  }
+    public SqlOperandCountRange getOperandCountRange() {
+        return SqlOperandCountRanges.of(paramTypes.size());
+    }
 
-  public boolean checkOperandTypes(
-      SqlCallBinding callBinding,
-      boolean throwOnFailure) {
-    // Do not use callBinding.operands(). We have not resolved to a function
-    // yet, therefore we do not know the ordered parameter names.
-    final List<SqlNode> operands = callBinding.getCall().getOperandList();
-    for (Pair<RelDataType, SqlNode> pair : Pair.zip(paramTypes, operands)) {
-      RelDataType argType =
-          callBinding.getValidator().deriveType(
-              callBinding.getScope(),
-              pair.right);
-      if (!SqlTypeUtil.canAssignFrom(pair.left, argType)) {
-        if (throwOnFailure) {
-          throw callBinding.newValidationSignatureError();
-        } else {
-          return false;
+    public boolean checkOperandTypes(SqlCallBinding callBinding, boolean throwOnFailure) {
+        // Do not use callBinding.operands(). We have not resolved to a function
+        // yet, therefore we do not know the ordered parameter names.
+        final List<SqlNode> operands = callBinding.getCall().getOperandList();
+        for (Pair<RelDataType, SqlNode> pair : Pair.zip(paramTypes, operands)) {
+            RelDataType argType = callBinding.getValidator().deriveType(callBinding.getScope(), pair.right);
+            if (!SqlTypeUtil.canAssignFrom(pair.left, argType)) {
+                if (throwOnFailure) {
+                    throw callBinding.newValidationSignatureError();
+                } else {
+                    return false;
+                }
+            }
         }
-      }
+        return true;
     }
-    return true;
-  }
 
-  public String getAllowedSignatures(SqlOperator op, String opName) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(opName);
-    sb.append("(");
-    for (Ord<RelDataType> paramType : Ord.zip(paramTypes)) {
-      if (paramType.i > 0) {
-        sb.append(", ");
-      }
-      if (paramNames != null) {
-        sb.append(paramNames.get(paramType.i))
-            .append(" => ");
-      }
-      sb.append("<");
-      sb.append(paramType.e.getFamily());
-      sb.append(">");
+    public String getAllowedSignatures(SqlOperator op, String opName) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(opName);
+        sb.append("(");
+        for (Ord<RelDataType> paramType : Ord.zip(paramTypes)) {
+            if (paramType.i > 0) {
+                sb.append(", ");
+            }
+            if (paramNames != null) {
+                sb.append(paramNames.get(paramType.i)).append(" => ");
+            }
+            sb.append("<");
+            sb.append(paramType.e.getFamily());
+            sb.append(">");
+        }
+        sb.append(")");
+        return sb.toString();
     }
-    sb.append(")");
-    return sb.toString();
-  }
 
-  public Consistency getConsistency() {
-    return Consistency.NONE;
-  }
+    public Consistency getConsistency() {
+        return Consistency.NONE;
+    }
 }
 
 // End AssignableOperandTypeChecker.java

@@ -28,35 +28,37 @@ import java.util.Properties;
  * for Calcite.
  */
 public abstract class CalciteFactory implements AvaticaFactory {
-  protected final int major;
-  protected final int minor;
 
-  /** Creates a JDBC factory with given major/minor version number. */
-  protected CalciteFactory(int major, int minor) {
-    this.major = major;
-    this.minor = minor;
-  }
+    protected final int major;
+    protected final int minor;
 
-  public int getJdbcMajorVersion() {
-    return major;
-  }
+    /**
+     * Creates a JDBC factory with given major/minor version number.
+     */
+    protected CalciteFactory(int major, int minor) {
+        this.major = major;
+        this.minor = minor;
+    }
 
-  public int getJdbcMinorVersion() {
-    return minor;
-  }
+    public int getJdbcMajorVersion() {
+        return major;
+    }
 
-  public final AvaticaConnection newConnection(
-      UnregisteredDriver driver,
-      AvaticaFactory factory,
-      String url,
-      Properties info) {
-    return newConnection(driver, factory, url, info, null, null);
-  }
+    public int getJdbcMinorVersion() {
+        return minor;
+    }
 
-  /** Creates a connection with a root schema. */
-  public abstract AvaticaConnection newConnection(UnregisteredDriver driver,
-      AvaticaFactory factory, String url, Properties info,
-      CalciteSchema rootSchema, JavaTypeFactory typeFactory);
+    public final AvaticaConnection newConnection(UnregisteredDriver driver, AvaticaFactory factory, String url,
+                                                 Properties info) {
+        return newConnection(driver, factory, url, info, null, null);
+    }
+
+    /**
+     * Creates a connection with a root schema.
+     */
+    public abstract AvaticaConnection newConnection(UnregisteredDriver driver, AvaticaFactory factory, String url,
+                                                    Properties info, CalciteSchema rootSchema,
+                                                    JavaTypeFactory typeFactory);
 }
 
 // End CalciteFactory.java

@@ -27,22 +27,19 @@ import org.apache.calcite.rel.logical.LogicalWindow;
  * an {@link org.apache.calcite.adapter.enumerable.EnumerableWindow}.
  */
 class EnumerableWindowRule extends ConverterRule {
-  EnumerableWindowRule() {
-    super(LogicalWindow.class, Convention.NONE, EnumerableConvention.INSTANCE,
-        "EnumerableWindowRule");
-  }
 
-  public RelNode convert(RelNode rel) {
-    final LogicalWindow winAgg = (LogicalWindow) rel;
-    final RelTraitSet traitSet =
-        winAgg.getTraitSet().replace(EnumerableConvention.INSTANCE);
-    final RelNode child = winAgg.getInput();
-    final RelNode convertedChild =
-        convert(child,
-            child.getTraitSet().replace(EnumerableConvention.INSTANCE));
-    return new EnumerableWindow(rel.getCluster(), traitSet, convertedChild,
-        winAgg.getConstants(), winAgg.getRowType(), winAgg.groups);
-  }
+    EnumerableWindowRule() {
+        super(LogicalWindow.class, Convention.NONE, EnumerableConvention.INSTANCE, "EnumerableWindowRule");
+    }
+
+    public RelNode convert(RelNode rel) {
+        final LogicalWindow winAgg = (LogicalWindow) rel;
+        final RelTraitSet traitSet = winAgg.getTraitSet().replace(EnumerableConvention.INSTANCE);
+        final RelNode child = winAgg.getInput();
+        final RelNode convertedChild = convert(child, child.getTraitSet().replace(EnumerableConvention.INSTANCE));
+        return new EnumerableWindow(rel.getCluster(), traitSet, convertedChild, winAgg.getConstants(),
+                                    winAgg.getRowType(), winAgg.groups);
+    }
 }
 
 // End EnumerableWindowRule.java

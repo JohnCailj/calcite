@@ -21,38 +21,38 @@ import java.util.List;
 
 /**
  * JSON object representing a schema whose tables are explicitly specified.
- *
  * <p>Like the base class {@link JsonSchema},
  * occurs within {@link JsonRoot#schemas}.
  *
  * @see JsonRoot Description of JSON schema elements
  */
 public class JsonMapSchema extends JsonSchema {
-  /** Tables in this schema.
-   *
-   * <p>The list may be empty.
-   */
-  public final List<JsonTable> tables = new ArrayList<>();
 
-  /** Functions in this schema.
-   *
-   * <p>The list may be empty.
-   */
-  public final List<JsonFunction> functions = new ArrayList<>();
+    /**
+     * Tables in this schema.
+     * <p>The list may be empty.
+     */
+    public final List<JsonTable> tables = new ArrayList<>();
 
-  @Override public void accept(ModelHandler handler) {
-    handler.visit(this);
-  }
+    /**
+     * Functions in this schema.
+     * <p>The list may be empty.
+     */
+    public final List<JsonFunction> functions = new ArrayList<>();
 
-  @Override public void visitChildren(ModelHandler modelHandler) {
-    super.visitChildren(modelHandler);
-    for (JsonTable jsonTable : tables) {
-      jsonTable.accept(modelHandler);
+    @Override public void accept(ModelHandler handler) {
+        handler.visit(this);
     }
-    for (JsonFunction jsonFunction : functions) {
-      jsonFunction.accept(modelHandler);
+
+    @Override public void visitChildren(ModelHandler modelHandler) {
+        super.visitChildren(modelHandler);
+        for (JsonTable jsonTable : tables) {
+            jsonTable.accept(modelHandler);
+        }
+        for (JsonFunction jsonFunction : functions) {
+            jsonFunction.accept(modelHandler);
+        }
     }
-  }
 }
 
 // End JsonMapSchema.java

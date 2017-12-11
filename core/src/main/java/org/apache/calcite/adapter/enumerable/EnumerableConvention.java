@@ -16,54 +16,51 @@
  */
 package org.apache.calcite.adapter.enumerable;
 
-import org.apache.calcite.plan.Convention;
-import org.apache.calcite.plan.ConventionTraitDef;
-import org.apache.calcite.plan.RelOptPlanner;
-import org.apache.calcite.plan.RelTrait;
-import org.apache.calcite.plan.RelTraitDef;
-import org.apache.calcite.plan.RelTraitSet;
+import org.apache.calcite.plan.*;
 
 /**
  * Family of calling conventions that return results as an
  * {@link org.apache.calcite.linq4j.Enumerable}.
  */
 public enum EnumerableConvention implements Convention {
-  INSTANCE;
+    INSTANCE;
 
-  /** Cost of an enumerable node versus implementing an equivalent node in a
-   * "typical" calling convention. */
-  public static final double COST_MULTIPLIER = 1.0d;
+    /**
+     * Cost of an enumerable node versus implementing an equivalent node in a
+     * "typical" calling convention.
+     */
+    public static final double COST_MULTIPLIER = 1.0d;
 
-  @Override public String toString() {
-    return getName();
-  }
+    @Override public String toString() {
+        return getName();
+    }
 
-  public Class getInterface() {
-    return EnumerableRel.class;
-  }
+    public Class getInterface() {
+        return EnumerableRel.class;
+    }
 
-  public String getName() {
-    return "ENUMERABLE";
-  }
+    public String getName() {
+        return "ENUMERABLE";
+    }
 
-  public RelTraitDef getTraitDef() {
-    return ConventionTraitDef.INSTANCE;
-  }
+    public RelTraitDef getTraitDef() {
+        return ConventionTraitDef.INSTANCE;
+    }
 
-  public boolean satisfies(RelTrait trait) {
-    return this == trait;
-  }
+    public boolean satisfies(RelTrait trait) {
+        return this == trait;
+    }
 
-  public void register(RelOptPlanner planner) {}
+    public void register(RelOptPlanner planner) {
+    }
 
-  public boolean canConvertConvention(Convention toConvention) {
-    return false;
-  }
+    public boolean canConvertConvention(Convention toConvention) {
+        return false;
+    }
 
-  public boolean useAbstractConvertersForConversion(RelTraitSet fromTraits,
-      RelTraitSet toTraits) {
-    return false;
-  }
+    public boolean useAbstractConvertersForConversion(RelTraitSet fromTraits, RelTraitSet toTraits) {
+        return false;
+    }
 }
 
 // End EnumerableConvention.java

@@ -25,20 +25,27 @@ import static java.lang.annotation.ElementType.FIELD;
 /**
  * Annotation that indicates that a field is a map type.
  */
-@Target({FIELD })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Map {
-  /** Key type. */
-  Class key();
+@Target({ FIELD }) @Retention(RetentionPolicy.RUNTIME) public @interface Map {
 
-  /** Value type. */
-  Class value();
+    /**
+     * Key type.
+     */
+    Class key();
 
-  /** Whether keys may be null. */
-  boolean keyIsNullable() default true;
+    /**
+     * Value type.
+     */
+    Class value();
 
-  /** Whether values may be null. */
-  boolean valueIsNullable() default true;
+    /**
+     * Whether keys may be null.
+     */
+    boolean keyIsNullable() default true;
+
+    /**
+     * Whether values may be null.
+     */
+    boolean valueIsNullable() default true;
 }
 
 // End Map.java

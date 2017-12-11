@@ -16,46 +16,47 @@
  */
 package org.apache.calcite.rel.mutable;
 
-import org.apache.calcite.rel.type.RelDataType;
-
 import com.google.common.collect.ImmutableList;
+import org.apache.calcite.rel.type.RelDataType;
 
 import java.util.List;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.SingleRel}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.SingleRel}.
+ */
 abstract class MutableSingleRel extends MutableRel {
-  protected MutableRel input;
 
-  protected MutableSingleRel(MutableRelType type,
-      RelDataType rowType, MutableRel input) {
-    super(input.cluster, rowType, type);
-    this.input = input;
-    input.parent = this;
-    input.ordinalInParent = 0;
-  }
+    protected MutableRel input;
 
-  public void setInput(int ordinalInParent, MutableRel input) {
-    if (ordinalInParent > 0) {
-      throw new IllegalArgumentException();
+    protected MutableSingleRel(MutableRelType type, RelDataType rowType, MutableRel input) {
+        super(input.cluster, rowType, type);
+        this.input = input;
+        input.parent = this;
+        input.ordinalInParent = 0;
     }
-    this.input = input;
-    if (input != null) {
-      input.parent = this;
-      input.ordinalInParent = 0;
+
+    public void setInput(int ordinalInParent, MutableRel input) {
+        if (ordinalInParent > 0) {
+            throw new IllegalArgumentException();
+        }
+        this.input = input;
+        if (input != null) {
+            input.parent = this;
+            input.ordinalInParent = 0;
+        }
     }
-  }
 
-  public List<MutableRel> getInputs() {
-    return ImmutableList.of(input);
-  }
+    public List<MutableRel> getInputs() {
+        return ImmutableList.of(input);
+    }
 
-  public void childrenAccept(MutableRelVisitor visitor) {
-    visitor.visit(input);
-  }
+    public void childrenAccept(MutableRelVisitor visitor) {
+        visitor.visit(input);
+    }
 
-  public MutableRel getInput() {
-    return input;
-  }
+    public MutableRel getInput() {
+        return input;
+    }
 }
 
 // End MutableSingleRel.java

@@ -16,12 +16,7 @@
  */
 package org.apache.calcite.sql.fun;
 
-import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlCallBinding;
-import org.apache.calcite.sql.SqlFunction;
-import org.apache.calcite.sql.SqlFunctionCategory;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlWriter;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
 import org.apache.calcite.sql.type.SqlOperandTypeChecker;
@@ -30,73 +25,59 @@ import org.apache.calcite.sql.type.SqlOperandTypeChecker;
  * The <code>POSITION</code> function.
  */
 public class SqlPositionFunction extends SqlFunction {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  // FIXME jvs 25-Jan-2009:  POSITION should verify that
-  // params are all same character set, like OVERLAY does implicitly
-  // as part of rtiDyadicStringSumPrecision
+    // FIXME jvs 25-Jan-2009:  POSITION should verify that
+    // params are all same character set, like OVERLAY does implicitly
+    // as part of rtiDyadicStringSumPrecision
 
-  private static final SqlOperandTypeChecker OTC_CUSTOM =
-      OperandTypes.or(OperandTypes.STRING_SAME_SAME,
-          OperandTypes.STRING_SAME_SAME_INTEGER);
+    private static final SqlOperandTypeChecker OTC_CUSTOM = OperandTypes.or(OperandTypes.STRING_SAME_SAME,
+                                                                            OperandTypes.STRING_SAME_SAME_INTEGER);
 
-  public SqlPositionFunction() {
-    super(
-        "POSITION",
-        SqlKind.OTHER_FUNCTION,
-        ReturnTypes.INTEGER_NULLABLE,
-        null,
-        OTC_CUSTOM,
-        SqlFunctionCategory.NUMERIC);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void unparse(
-      SqlWriter writer,
-      SqlCall call,
-      int leftPrec,
-      int rightPrec) {
-    final SqlWriter.Frame frame = writer.startFunCall(getName());
-    call.operand(0).unparse(writer, leftPrec, rightPrec);
-    writer.sep("IN");
-    call.operand(1).unparse(writer, leftPrec, rightPrec);
-    if (3 == call.operandCount()) {
-      writer.sep("FROM");
-      call.operand(2).unparse(writer, leftPrec, rightPrec);
+    public SqlPositionFunction() {
+        super("POSITION", SqlKind.OTHER_FUNCTION, ReturnTypes.INTEGER_NULLABLE, null, OTC_CUSTOM,
+              SqlFunctionCategory.NUMERIC);
     }
-    writer.endFunCall(frame);
-  }
 
-  public String getSignatureTemplate(final int operandsCount) {
-    switch (operandsCount) {
-    case 2:
-      return "{0}({1} IN {2})";
-    case 3:
-      return "{0}({1} IN {2} FROM {3})";
-    default:
-      throw new AssertionError();
+    //~ Methods ----------------------------------------------------------------
+
+    public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        final SqlWriter.Frame frame = writer.startFunCall(getName());
+        call.operand(0).unparse(writer, leftPrec, rightPrec);
+        writer.sep("IN");
+        call.operand(1).unparse(writer, leftPrec, rightPrec);
+        if (3 == call.operandCount()) {
+            writer.sep("FROM");
+            call.operand(2).unparse(writer, leftPrec, rightPrec);
+        }
+        writer.endFunCall(frame);
     }
-  }
 
-  public boolean checkOperandTypes(
-      SqlCallBinding callBinding,
-      boolean throwOnFailure) {
-    // check that the two operands are of same type.
-    switch (callBinding.getOperandCount()) {
-    case 2:
-      return OperandTypes.SAME_SAME.checkOperandTypes(
-          callBinding, throwOnFailure)
-          && super.checkOperandTypes(callBinding, throwOnFailure);
-
-    case 3:
-      return OperandTypes.SAME_SAME_INTEGER.checkOperandTypes(
-          callBinding, throwOnFailure)
-          && super.checkOperandTypes(callBinding, throwOnFailure);
-    default:
-      throw new AssertionError();
+    public String getSignatureTemplate(final int operandsCount) {
+        switch (operandsCount) {
+            case 2:
+                return "{0}({1} IN {2})";
+            case 3:
+                return "{0}({1} IN {2} FROM {3})";
+            default:
+                throw new AssertionError();
+        }
     }
-  }
+
+    public boolean checkOperandTypes(SqlCallBinding callBinding, boolean throwOnFailure) {
+        // check that the two operands are of same type.
+        switch (callBinding.getOperandCount()) {
+            case 2:
+                return OperandTypes.SAME_SAME.checkOperandTypes(callBinding, throwOnFailure) && super.checkOperandTypes(
+                        callBinding, throwOnFailure);
+
+            case 3:
+                return OperandTypes.SAME_SAME_INTEGER.checkOperandTypes(callBinding, throwOnFailure)
+                       && super.checkOperandTypes(callBinding, throwOnFailure);
+            default:
+                throw new AssertionError();
+        }
+    }
 }
 
 // End SqlPositionFunction.java

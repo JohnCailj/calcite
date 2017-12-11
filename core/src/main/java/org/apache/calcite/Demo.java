@@ -22,22 +22,23 @@ import java.util.ArrayList;
  * Demo.
  */
 public class Demo {
-  private Demo() {
-  }
 
-  public static void main(String[] args) {
-    ArrayList<String> names = new ArrayList<String>();
-    names.add("John");
-    names.add("Paul");
-    names.add("George");
-    names.add("Ringo");
-
-    Iterable<String> nameIterable = names;
-
-    for (String name : nameIterable) {
-      System.out.println(name);
+    private Demo() {
     }
-  }
+
+    public static void main(String[] args) {
+        ArrayList<String> names = new ArrayList<String>();
+        names.add("John");
+        names.add("Paul");
+        names.add("George");
+        names.add("Ringo");
+
+        Iterable<String> nameIterable = names;
+
+        for (String name : nameIterable) {
+            System.out.println(name);
+        }
+    }
 }
 
 // End Demo.java

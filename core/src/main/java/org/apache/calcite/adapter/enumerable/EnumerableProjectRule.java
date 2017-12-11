@@ -27,20 +27,18 @@ import org.apache.calcite.rel.logical.LogicalProject;
  * {@link EnumerableProject}.
  */
 class EnumerableProjectRule extends ConverterRule {
-  EnumerableProjectRule() {
-    super(LogicalProject.class, RelOptUtil.PROJECT_PREDICATE, Convention.NONE,
-        EnumerableConvention.INSTANCE, "EnumerableProjectRule");
-  }
 
-  public RelNode convert(RelNode rel) {
-    final LogicalProject project = (LogicalProject) rel;
-    return EnumerableProject.create(
-        convert(project.getInput(),
-            project.getInput().getTraitSet()
-                .replace(EnumerableConvention.INSTANCE)),
-        project.getProjects(),
-        project.getRowType());
-  }
+    EnumerableProjectRule() {
+        super(LogicalProject.class, RelOptUtil.PROJECT_PREDICATE, Convention.NONE, EnumerableConvention.INSTANCE,
+              "EnumerableProjectRule");
+    }
+
+    public RelNode convert(RelNode rel) {
+        final LogicalProject project = (LogicalProject) rel;
+        return EnumerableProject.create(
+                convert(project.getInput(), project.getInput().getTraitSet().replace(EnumerableConvention.INSTANCE)),
+                project.getProjects(), project.getRowType());
+    }
 }
 
 // End EnumerableProjectRule.java

@@ -28,73 +28,70 @@ import org.apache.calcite.util.mapping.Mappings;
 import java.util.List;
 import java.util.Objects;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Project}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Project}.
+ */
 public class MutableProject extends MutableSingleRel {
-  public final List<RexNode> projects;
 
-  private MutableProject(RelDataType rowType, MutableRel input,
-      List<RexNode> projects) {
-    super(MutableRelType.PROJECT, rowType, input);
-    this.projects = projects;
-    assert RexUtil.compatibleTypes(projects, rowType, Litmus.THROW);
-  }
+    public final List<RexNode> projects;
 
-  /**
-   * Creates a MutableProject.
-   *
-   * @param rowType   Row type
-   * @param input     Input relational expression
-   * @param projects  List of expressions for the input columns
-   */
-  public static MutableProject of(RelDataType rowType, MutableRel input,
-      List<RexNode> projects) {
-    return new MutableProject(rowType, input, projects);
-  }
+    private MutableProject(RelDataType rowType, MutableRel input, List<RexNode> projects) {
+        super(MutableRelType.PROJECT, rowType, input);
+        this.projects = projects;
+        assert RexUtil.compatibleTypes(projects, rowType, Litmus.THROW);
+    }
 
-  /**
-   * Creates a MutableProject.
-   *
-   * @param input         Input relational expression
-   * @param exprList      List of expressions for the input columns
-   * @param fieldNameList Aliases of the expressions, or null to generate
-   */
-  public static MutableRel of(MutableRel input, List<RexNode> exprList,
-      List<String> fieldNameList) {
-    final RelDataType rowType =
-        RexUtil.createStructType(input.cluster.getTypeFactory(), exprList,
-            fieldNameList, SqlValidatorUtil.F_SUGGESTER);
-    return of(rowType, input, exprList);
-  }
+    /**
+     * Creates a MutableProject.
+     *
+     * @param rowType  Row type
+     * @param input    Input relational expression
+     * @param projects List of expressions for the input columns
+     */
+    public static MutableProject of(RelDataType rowType, MutableRel input, List<RexNode> projects) {
+        return new MutableProject(rowType, input, projects);
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableProject
-        && MutableRel.PAIRWISE_STRING_EQUIVALENCE.equivalent(
-            projects, ((MutableProject) obj).projects)
-        && input.equals(((MutableProject) obj).input);
-  }
+    /**
+     * Creates a MutableProject.
+     *
+     * @param input         Input relational expression
+     * @param exprList      List of expressions for the input columns
+     * @param fieldNameList Aliases of the expressions, or null to generate
+     */
+    public static MutableRel of(MutableRel input, List<RexNode> exprList, List<String> fieldNameList) {
+        final RelDataType rowType = RexUtil.createStructType(input.cluster.getTypeFactory(), exprList, fieldNameList,
+                                                             SqlValidatorUtil.F_SUGGESTER);
+        return of(rowType, input, exprList);
+    }
 
-  @Override public int hashCode() {
-    return Objects.hash(input,
-        MutableRel.PAIRWISE_STRING_EQUIVALENCE.hash(projects));
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof MutableProject && MutableRel.PAIRWISE_STRING_EQUIVALENCE.equivalent(
+                projects, ((MutableProject) obj).projects) && input.equals(((MutableProject) obj).input);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Project(projects: ").append(projects).append(")");
-  }
+    @Override public int hashCode() {
+        return Objects.hash(input, MutableRel.PAIRWISE_STRING_EQUIVALENCE.hash(projects));
+    }
 
-  /** Returns a list of (expression, name) pairs. */
-  public final List<Pair<RexNode, String>> getNamedProjects() {
-    return Pair.zip(projects, rowType.getFieldNames());
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Project(projects: ").append(projects).append(")");
+    }
 
-  public Mappings.TargetMapping getMapping() {
-    return Project.getMapping(input.rowType.getFieldCount(), projects);
-  }
+    /**
+     * Returns a list of (expression, name) pairs.
+     */
+    public final List<Pair<RexNode, String>> getNamedProjects() {
+        return Pair.zip(projects, rowType.getFieldNames());
+    }
 
-  @Override public MutableRel clone() {
-    return MutableProject.of(rowType, input.clone(), projects);
-  }
+    public Mappings.TargetMapping getMapping() {
+        return Project.getMapping(input.rowType.getFieldCount(), projects);
+    }
+
+    @Override public MutableRel clone() {
+        return MutableProject.of(rowType, input.clone(), projects);
+    }
 }
 
 // End MutableProject.java

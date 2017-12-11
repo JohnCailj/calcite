@@ -39,66 +39,67 @@ import java.util.List;
  * relational expression in Elasticsearch.
  */
 public class ElasticsearchSort extends Sort implements ElasticsearchRel {
-  public ElasticsearchSort(RelOptCluster cluster, RelTraitSet traitSet, RelNode child,
-      RelCollation collation, RexNode offset, RexNode fetch) {
-    super(cluster, traitSet, child, collation, offset, fetch);
-    assert getConvention() == ElasticsearchRel.CONVENTION;
-    assert getConvention() == child.getConvention();
-  }
 
-  @Override public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
-    return super.computeSelfCost(planner, mq).multiplyBy(0.05);
-  }
+    public ElasticsearchSort(RelOptCluster cluster, RelTraitSet traitSet, RelNode child, RelCollation collation,
+                             RexNode offset, RexNode fetch) {
+        super(cluster, traitSet, child, collation, offset, fetch);
+        assert getConvention() == ElasticsearchRel.CONVENTION;
+        assert getConvention() == child.getConvention();
+    }
 
-  @Override public Sort copy(RelTraitSet traitSet, RelNode relNode, RelCollation relCollation,
-      RexNode offset, RexNode fetch) {
-    return new ElasticsearchSort(getCluster(), traitSet, relNode, collation, offset, fetch);
-  }
+    @Override public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
+        return super.computeSelfCost(planner, mq).multiplyBy(0.05);
+    }
 
-  @Override public void implement(Implementor implementor) {
-    implementor.visitChild(0, getInput());
-    if (!collation.getFieldCollations().isEmpty()) {
-      final List<String> keys = new ArrayList<>();
-      if (input instanceof Project) {
-        final List<RexNode> projects = ((Project) input).getProjects();
+    @Override public Sort copy(RelTraitSet traitSet, RelNode relNode, RelCollation relCollation, RexNode offset,
+                               RexNode fetch) {
+        return new ElasticsearchSort(getCluster(), traitSet, relNode, collation, offset, fetch);
+    }
 
-        for (RelFieldCollation fieldCollation : collation.getFieldCollations()) {
-          RexNode project = projects.get(fieldCollation.getFieldIndex());
-          String name = project.accept(MapProjectionFieldVisitor.INSTANCE);
-          keys.add(ElasticsearchRules.quote(name) + ": " + direction(fieldCollation));
+    @Override public void implement(Implementor implementor) {
+        implementor.visitChild(0, getInput());
+        if (!collation.getFieldCollations().isEmpty()) {
+            final List<String> keys = new ArrayList<>();
+            if (input instanceof Project) {
+                final List<RexNode> projects = ((Project) input).getProjects();
+
+                for (RelFieldCollation fieldCollation : collation.getFieldCollations()) {
+                    RexNode project = projects.get(fieldCollation.getFieldIndex());
+                    String name = project.accept(MapProjectionFieldVisitor.INSTANCE);
+                    keys.add(ElasticsearchRules.quote(name) + ": " + direction(fieldCollation));
+                }
+            } else {
+                final List<RelDataTypeField> fields = getRowType().getFieldList();
+
+                for (RelFieldCollation fieldCollation : collation.getFieldCollations()) {
+                    final String name = fields.get(fieldCollation.getFieldIndex()).getName();
+                    keys.add(ElasticsearchRules.quote(name) + ": " + direction(fieldCollation));
+                }
+            }
+
+            implementor.add("\"sort\": [ " + Util.toString(keys, "{", "}, {", "}") + "]");
         }
-      } else {
-        final List<RelDataTypeField> fields = getRowType().getFieldList();
 
-        for (RelFieldCollation fieldCollation : collation.getFieldCollations()) {
-          final String name = fields.get(fieldCollation.getFieldIndex()).getName();
-          keys.add(ElasticsearchRules.quote(name) + ": " + direction(fieldCollation));
+        if (offset != null) {
+            implementor.add("\"from\": " + ((RexLiteral) offset).getValue());
         }
-      }
 
-      implementor.add("\"sort\": [ " + Util.toString(keys, "{", "}, {", "}") + "]");
+        if (fetch != null) {
+            implementor.add("\"size\": " + ((RexLiteral) fetch).getValue());
+        }
     }
 
-    if (offset != null) {
-      implementor.add("\"from\": " + ((RexLiteral) offset).getValue());
+    private String direction(RelFieldCollation fieldCollation) {
+        switch (fieldCollation.getDirection()) {
+            case DESCENDING:
+            case STRICTLY_DESCENDING:
+                return "\"desc\"";
+            case ASCENDING:
+            case STRICTLY_ASCENDING:
+            default:
+                return "\"asc\"";
+        }
     }
-
-    if (fetch != null) {
-      implementor.add("\"size\": " + ((RexLiteral) fetch).getValue());
-    }
-  }
-
-  private String direction(RelFieldCollation fieldCollation) {
-    switch (fieldCollation.getDirection()) {
-    case DESCENDING:
-    case STRICTLY_DESCENDING:
-      return "\"desc\"";
-    case ASCENDING:
-    case STRICTLY_ASCENDING:
-    default:
-      return "\"asc\"";
-    }
-  }
 }
 
 // End ElasticsearchSort.java

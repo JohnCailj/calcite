@@ -23,23 +23,29 @@ import java.util.RandomAccess;
 
 /**
  * Path from a root schema to a particular object (schema, table, function).
- *
  * <p>Examples:
  * <ul>
- *   <li>The root schema has a single element [(root, "")].
- *   <li>A direct child "foo" of the root schema has a two elements
- *   [(root, ""), (child, "foo")].
+ * <li>The root schema has a single element [(root, "")].
+ * <li>A direct child "foo" of the root schema has a two elements
+ * [(root, ""), (child, "foo")].
  * </ul>
  */
 public interface Path extends List<Pair<String, Schema>>, RandomAccess {
-  /** Returns the parent path, or null if the path is empty. */
-  Path parent();
 
-  /** Returns the names of this path, not including the name of the root. */
-  List<String> names();
+    /**
+     * Returns the parent path, or null if the path is empty.
+     */
+    Path parent();
 
-  /** Returns the schemas of this path. */
-  List<Schema> schemas();
+    /**
+     * Returns the names of this path, not including the name of the root.
+     */
+    List<String> names();
+
+    /**
+     * Returns the schemas of this path.
+     */
+    List<Schema> schemas();
 }
 
 // End Path.java

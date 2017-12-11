@@ -18,39 +18,39 @@ package org.apache.calcite.rel.mutable;
 
 import org.apache.calcite.rel.core.TableScan;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.TableScan}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.TableScan}.
+ */
 public class MutableScan extends MutableLeafRel {
-  private MutableScan(TableScan rel) {
-    super(MutableRelType.TABLE_SCAN, rel);
-  }
 
-  /**
-   * Creates a MutableScan.
-   *
-   * @param scan  The underlying TableScan object
-   */
-  public static MutableScan of(TableScan scan) {
-    return new MutableScan(scan);
-  }
+    private MutableScan(TableScan rel) {
+        super(MutableRelType.TABLE_SCAN, rel);
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableScan
-        && rel.equals(((MutableScan) obj).rel);
-  }
+    /**
+     * Creates a MutableScan.
+     *
+     * @param scan The underlying TableScan object
+     */
+    public static MutableScan of(TableScan scan) {
+        return new MutableScan(scan);
+    }
 
-  @Override public int hashCode() {
-    return rel.hashCode();
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof MutableScan && rel.equals(((MutableScan) obj).rel);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Scan(table: ")
-        .append(rel.getTable().getQualifiedName()).append(")");
-  }
+    @Override public int hashCode() {
+        return rel.hashCode();
+    }
 
-  @Override public MutableRel clone() {
-    return MutableScan.of((TableScan) rel);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Scan(table: ").append(rel.getTable().getQualifiedName()).append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableScan.of((TableScan) rel);
+    }
 }
 
 // End MutableScan.java

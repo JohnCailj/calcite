@@ -16,51 +16,51 @@
  */
 package org.apache.calcite.util;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.plan.Context;
 import org.apache.calcite.plan.RelOptPlanner;
-
-import com.google.common.base.Preconditions;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * CancelFlag is used to post and check cancellation requests.
- *
  * <p>Pass it to {@link RelOptPlanner} by putting it into a {@link Context}.
  */
 public class CancelFlag {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  /** The flag that holds the cancel state.
-   * Feel free to use the flag directly. */
-  public final AtomicBoolean atomicBoolean;
+    /**
+     * The flag that holds the cancel state.
+     * Feel free to use the flag directly.
+     */
+    public final AtomicBoolean atomicBoolean;
 
-  public CancelFlag(AtomicBoolean atomicBoolean) {
-    this.atomicBoolean = Preconditions.checkNotNull(atomicBoolean);
-  }
+    public CancelFlag(AtomicBoolean atomicBoolean) {
+        this.atomicBoolean = Preconditions.checkNotNull(atomicBoolean);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * @return whether a cancellation has been requested
-   */
-  public boolean isCancelRequested() {
-    return atomicBoolean.get();
-  }
+    /**
+     * @return whether a cancellation has been requested
+     */
+    public boolean isCancelRequested() {
+        return atomicBoolean.get();
+    }
 
-  /**
-   * Requests a cancellation.
-   */
-  public void requestCancel() {
-    atomicBoolean.compareAndSet(false, true);
-  }
+    /**
+     * Requests a cancellation.
+     */
+    public void requestCancel() {
+        atomicBoolean.compareAndSet(false, true);
+    }
 
-  /**
-   * Clears any pending cancellation request.
-   */
-  public void clearCancel() {
-    atomicBoolean.compareAndSet(true, false);
-  }
+    /**
+     * Clears any pending cancellation request.
+     */
+    public void clearCancel() {
+        atomicBoolean.compareAndSet(true, false);
+    }
 }
 
 // End CancelFlag.java

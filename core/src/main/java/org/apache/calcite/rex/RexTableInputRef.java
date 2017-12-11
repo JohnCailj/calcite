@@ -24,126 +24,120 @@ import java.util.List;
 
 /**
  * Variable which references a column of a table occurrence in a relational plan.
- *
  * <p>This object is used by
  * {@link org.apache.calcite.rel.metadata.BuiltInMetadata.ExpressionLineage}
  * and {@link org.apache.calcite.rel.metadata.BuiltInMetadata.AllPredicates}.
- *
  * <p>Given a relational expression, its purpose is to be able to reference uniquely
  * the provenance of a given expression. For that, it uses a unique table reference
  * (contained in a {@link RelTableRef}) and an column index within the table.
- *
  * <p>For example, {@code A.#0.$3 + 2} column {@code $3} in the {@code 0}
  * occurrence of table {@code A} in the plan.
- *
  * <p>Note that this kind of {@link RexNode} is an auxiliary data structure with
  * a very specific purpose and should not be used in relational expressions.
  */
 public class RexTableInputRef extends RexInputRef {
 
-  private final RelTableRef tableRef;
+    private final RelTableRef tableRef;
 
-  private RexTableInputRef(RelTableRef tableRef, int index, RelDataType type) {
-    super(index, type);
-    this.tableRef = tableRef;
-    this.digest = tableRef.toString() + ".$" + index;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  @Override public boolean equals(Object obj) {
-    return this == obj
-        || obj instanceof RexTableInputRef
-        && tableRef.equals(((RexTableInputRef) obj).tableRef)
-        && index == ((RexTableInputRef) obj).index;
-  }
-
-  @Override public int hashCode() {
-    return digest.hashCode();
-  }
-
-  public RelTableRef getTableRef() {
-    return tableRef;
-  }
-
-  public List<String> getQualifiedName() {
-    return tableRef.getQualifiedName();
-  }
-
-  public int getIdentifier() {
-    return tableRef.getEntityNumber();
-  }
-
-  public static RexTableInputRef of(RelTableRef tableRef, int index, RelDataType type) {
-    return new RexTableInputRef(tableRef, index, type);
-  }
-
-  public static RexTableInputRef of(RelTableRef tableRef, RexInputRef ref) {
-    return new RexTableInputRef(tableRef, ref.getIndex(), ref.getType());
-  }
-
-  @Override public <R> R accept(RexVisitor<R> visitor) {
-    return visitor.visitTableInputRef(this);
-  }
-
-  @Override public <R, P> R accept(RexBiVisitor<R, P> visitor, P arg) {
-    return visitor.visitTableInputRef(this, arg);
-  }
-
-  @Override public SqlKind getKind() {
-    return SqlKind.TABLE_INPUT_REF;
-  }
-
-  /** Identifies uniquely a table by its qualified name and its entity number (occurrence) */
-  public static class RelTableRef implements Comparable<RelTableRef> {
-
-    private final RelOptTable table;
-    private final int entityNumber;
-    private final String digest;
-
-    private RelTableRef(RelOptTable table, int entityNumber) {
-      this.table = table;
-      this.entityNumber = entityNumber;
-      this.digest = table.getQualifiedName() + ".#" + entityNumber;
+    private RexTableInputRef(RelTableRef tableRef, int index, RelDataType type) {
+        super(index, type);
+        this.tableRef = tableRef;
+        this.digest = tableRef.toString() + ".$" + index;
     }
 
     //~ Methods ----------------------------------------------------------------
 
     @Override public boolean equals(Object obj) {
-      return this == obj
-          || obj instanceof RelTableRef
-          && table.getQualifiedName().equals(((RelTableRef) obj).getQualifiedName())
-          && entityNumber == ((RelTableRef) obj).entityNumber;
+        return this == obj || obj instanceof RexTableInputRef && tableRef.equals(((RexTableInputRef) obj).tableRef)
+                              && index == ((RexTableInputRef) obj).index;
     }
 
     @Override public int hashCode() {
-      return digest.hashCode();
+        return digest.hashCode();
     }
 
-    public RelOptTable getTable() {
-      return table;
+    public RelTableRef getTableRef() {
+        return tableRef;
     }
 
     public List<String> getQualifiedName() {
-      return table.getQualifiedName();
+        return tableRef.getQualifiedName();
     }
 
-    public int getEntityNumber() {
-      return entityNumber;
+    public int getIdentifier() {
+        return tableRef.getEntityNumber();
     }
 
-    @Override public String toString() {
-      return digest;
+    public static RexTableInputRef of(RelTableRef tableRef, int index, RelDataType type) {
+        return new RexTableInputRef(tableRef, index, type);
     }
 
-    public static RelTableRef of(RelOptTable table, int entityNumber) {
-      return new RelTableRef(table, entityNumber);
+    public static RexTableInputRef of(RelTableRef tableRef, RexInputRef ref) {
+        return new RexTableInputRef(tableRef, ref.getIndex(), ref.getType());
     }
 
-    @Override public int compareTo(RelTableRef o) {
-      return digest.compareTo(o.digest);
+    @Override public <R> R accept(RexVisitor<R> visitor) {
+        return visitor.visitTableInputRef(this);
     }
-  }
+
+    @Override public <R, P> R accept(RexBiVisitor<R, P> visitor, P arg) {
+        return visitor.visitTableInputRef(this, arg);
+    }
+
+    @Override public SqlKind getKind() {
+        return SqlKind.TABLE_INPUT_REF;
+    }
+
+    /**
+     * Identifies uniquely a table by its qualified name and its entity number (occurrence)
+     */
+    public static class RelTableRef implements Comparable<RelTableRef> {
+
+        private final RelOptTable table;
+        private final int         entityNumber;
+        private final String      digest;
+
+        private RelTableRef(RelOptTable table, int entityNumber) {
+            this.table = table;
+            this.entityNumber = entityNumber;
+            this.digest = table.getQualifiedName() + ".#" + entityNumber;
+        }
+
+        //~ Methods ----------------------------------------------------------------
+
+        @Override public boolean equals(Object obj) {
+            return this == obj || obj instanceof RelTableRef && table.getQualifiedName().equals(
+                    ((RelTableRef) obj).getQualifiedName()) && entityNumber == ((RelTableRef) obj).entityNumber;
+        }
+
+        @Override public int hashCode() {
+            return digest.hashCode();
+        }
+
+        public RelOptTable getTable() {
+            return table;
+        }
+
+        public List<String> getQualifiedName() {
+            return table.getQualifiedName();
+        }
+
+        public int getEntityNumber() {
+            return entityNumber;
+        }
+
+        @Override public String toString() {
+            return digest;
+        }
+
+        public static RelTableRef of(RelOptTable table, int entityNumber) {
+            return new RelTableRef(table, entityNumber);
+        }
+
+        @Override public int compareTo(RelTableRef o) {
+            return digest.compareTo(o.digest);
+        }
+    }
 }
 
 // End RexTableInputRef.java

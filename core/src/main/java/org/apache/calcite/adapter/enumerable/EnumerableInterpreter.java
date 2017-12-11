@@ -32,73 +32,64 @@ import org.apache.calcite.util.BuiltInMethod;
 
 import java.util.List;
 
-/** Relational expression that executes its children using an interpreter.
- *
+/**
+ * Relational expression that executes its children using an interpreter.
  * <p>Although quite a few kinds of {@link org.apache.calcite.rel.RelNode} can
  * be interpreted, this is only created by default for
  * {@link org.apache.calcite.schema.FilterableTable} and
  * {@link org.apache.calcite.schema.ProjectableFilterableTable}.
  */
-public class EnumerableInterpreter extends SingleRel
-    implements EnumerableRel {
-  private final double factor;
+public class EnumerableInterpreter extends SingleRel implements EnumerableRel {
 
-  /**
-   * Creates an EnumerableInterpreter.
-   *
-   * <p>Use {@link #create} unless you know what you're doing.
-   *
-   * @param cluster Cluster
-   * @param traitSet Traits
-   * @param input Input relation
-   * @param factor Cost multiply factor
-   */
-  public EnumerableInterpreter(RelOptCluster cluster, RelTraitSet traitSet,
-      RelNode input, double factor) {
-    super(cluster, traitSet, input);
-    assert getConvention() instanceof EnumerableConvention;
-    this.factor = factor;
-  }
+    private final double factor;
 
-  /**
-   * Creates an EnumerableInterpreter.
-   *
-   * @param input Input relation
-   * @param factor Cost multiply factor
-   */
-  public static EnumerableInterpreter create(RelNode input, double factor) {
-    final RelTraitSet traitSet = input.getTraitSet()
-        .replace(EnumerableConvention.INSTANCE);
-    return new EnumerableInterpreter(input.getCluster(), traitSet, input,
-        factor);
-  }
+    /**
+     * Creates an EnumerableInterpreter.
+     * <p>Use {@link #create} unless you know what you're doing.
+     *
+     * @param cluster  Cluster
+     * @param traitSet Traits
+     * @param input    Input relation
+     * @param factor   Cost multiply factor
+     */
+    public EnumerableInterpreter(RelOptCluster cluster, RelTraitSet traitSet, RelNode input, double factor) {
+        super(cluster, traitSet, input);
+        assert getConvention() instanceof EnumerableConvention;
+        this.factor = factor;
+    }
 
-  @Override public RelOptCost computeSelfCost(RelOptPlanner planner,
-      RelMetadataQuery mq) {
-    return super.computeSelfCost(planner, mq).multiplyBy(factor);
-  }
+    /**
+     * Creates an EnumerableInterpreter.
+     *
+     * @param input  Input relation
+     * @param factor Cost multiply factor
+     */
+    public static EnumerableInterpreter create(RelNode input, double factor) {
+        final RelTraitSet traitSet = input.getTraitSet().replace(EnumerableConvention.INSTANCE);
+        return new EnumerableInterpreter(input.getCluster(), traitSet, input, factor);
+    }
 
-  @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-    return new EnumerableInterpreter(getCluster(), traitSet, sole(inputs),
-        factor);
-  }
+    @Override public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
+        return super.computeSelfCost(planner, mq).multiplyBy(factor);
+    }
 
-  public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
-    final JavaTypeFactory typeFactory = implementor.getTypeFactory();
-    final BlockBuilder builder = new BlockBuilder();
-    final PhysType physType =
-        PhysTypeImpl.of(typeFactory, getRowType(), JavaRowFormat.ARRAY);
-    final Expression interpreter_ = builder.append("interpreter",
-        Expressions.new_(Interpreter.class,
-            implementor.getRootExpression(),
-            implementor.stash(getInput(), RelNode.class)));
-    final Expression sliced_ =
-        getRowType().getFieldCount() == 1
-            ? Expressions.call(BuiltInMethod.SLICE0.method, interpreter_)
-            : interpreter_;
-    builder.add(sliced_);
-    return implementor.result(physType, builder.toBlock());
-  }
+    @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        return new EnumerableInterpreter(getCluster(), traitSet, sole(inputs), factor);
+    }
+
+    public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
+        final JavaTypeFactory typeFactory = implementor.getTypeFactory();
+        final BlockBuilder builder = new BlockBuilder();
+        final PhysType physType = PhysTypeImpl.of(typeFactory, getRowType(), JavaRowFormat.ARRAY);
+        final Expression interpreter_ = builder.append("interpreter", Expressions.new_(Interpreter.class,
+                                                                                       implementor.getRootExpression(),
+                                                                                       implementor.stash(getInput(),
+                                                                                                         RelNode.class)));
+        final Expression sliced_ = getRowType().getFieldCount() == 1 ? Expressions.call(BuiltInMethod.SLICE0.method,
+                                                                                        interpreter_) : interpreter_;
+        builder.add(sliced_);
+        return implementor.result(physType, builder.toBlock());
+    }
 }
 
 // End EnumerableInterpreter.java

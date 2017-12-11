@@ -33,38 +33,37 @@ import org.apache.calcite.tools.RelBuilderFactory;
  * (<code>all</code> = <code>true</code>).
  */
 public class UnionToDistinctRule extends RelOptRule {
-  public static final UnionToDistinctRule INSTANCE =
-      new UnionToDistinctRule(LogicalUnion.class, RelFactories.LOGICAL_BUILDER);
 
-  //~ Constructors -----------------------------------------------------------
+    public static final UnionToDistinctRule INSTANCE = new UnionToDistinctRule(LogicalUnion.class,
+                                                                               RelFactories.LOGICAL_BUILDER);
 
-  /**
-   * Creates a UnionToDistinctRule.
-   */
-  public UnionToDistinctRule(Class<? extends Union> unionClazz,
-      RelBuilderFactory relBuilderFactory) {
-    super(operand(unionClazz, any()), relBuilderFactory, null);
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  @Deprecated // to be removed before 2.0
-  public UnionToDistinctRule(Class<? extends Union> unionClazz,
-      RelFactories.SetOpFactory setOpFactory) {
-    this(unionClazz, RelBuilder.proto(setOpFactory));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    final Union union = call.rel(0);
-    if (union.all) {
-      return; // nothing to do
+    /**
+     * Creates a UnionToDistinctRule.
+     */
+    public UnionToDistinctRule(Class<? extends Union> unionClazz, RelBuilderFactory relBuilderFactory) {
+        super(operand(unionClazz, any()), relBuilderFactory, null);
     }
-    final RelBuilder relBuilder = call.builder();
-    relBuilder.pushAll(union.getInputs());
-    relBuilder.union(true, union.getInputs().size());
-    relBuilder.distinct();
-    call.transformTo(relBuilder.build());
-  }
+
+    @Deprecated // to be removed before 2.0
+    public UnionToDistinctRule(Class<? extends Union> unionClazz, RelFactories.SetOpFactory setOpFactory) {
+        this(unionClazz, RelBuilder.proto(setOpFactory));
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    public void onMatch(RelOptRuleCall call) {
+        final Union union = call.rel(0);
+        if (union.all) {
+            return; // nothing to do
+        }
+        final RelBuilder relBuilder = call.builder();
+        relBuilder.pushAll(union.getInputs());
+        relBuilder.union(true, union.getInputs().size());
+        relBuilder.distinct();
+        call.transformTo(relBuilder.build());
+    }
 }
 
 // End UnionToDistinctRule.java

@@ -21,21 +21,28 @@ package org.apache.calcite.tools;
  * {@link org.apache.calcite.rel.RelNode}s.
  */
 public class RelConversionException extends Exception {
-  /** Creates a RelConversionException with the specified detail message and
-   * cause. */
-  public RelConversionException(String message, Throwable cause) {
-    super(message, cause);
-  }
 
-  /** Creates a RelConversionException with the specified detail message. */
-  public RelConversionException(String message) {
-    super(message);
-  }
+    /**
+     * Creates a RelConversionException with the specified detail message and
+     * cause.
+     */
+    public RelConversionException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  /** Creates a RelConversionException with the specified cause. */
-  public RelConversionException(Throwable cause) {
-    super(cause);
-  }
+    /**
+     * Creates a RelConversionException with the specified detail message.
+     */
+    public RelConversionException(String message) {
+        super(message);
+    }
+
+    /**
+     * Creates a RelConversionException with the specified cause.
+     */
+    public RelConversionException(Throwable cause) {
+        super(cause);
+    }
 }
 
 // End RelConversionException.java

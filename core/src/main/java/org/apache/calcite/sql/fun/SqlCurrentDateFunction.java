@@ -16,11 +16,7 @@
  */
 package org.apache.calcite.sql.fun;
 
-import org.apache.calcite.sql.SqlFunction;
-import org.apache.calcite.sql.SqlFunctionCategory;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlOperatorBinding;
-import org.apache.calcite.sql.SqlSyntax;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
 import org.apache.calcite.sql.validate.SqlMonotonicity;
@@ -29,32 +25,27 @@ import org.apache.calcite.sql.validate.SqlMonotonicity;
  * The <code>CURRENT_DATE</code> function.
  */
 public class SqlCurrentDateFunction extends SqlFunction {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlCurrentDateFunction() {
-    super(
-        "CURRENT_DATE",
-        SqlKind.OTHER_FUNCTION,
-        ReturnTypes.DATE,
-        null,
-        OperandTypes.NILADIC,
-        SqlFunctionCategory.TIMEDATE);
-  }
+    public SqlCurrentDateFunction() {
+        super("CURRENT_DATE", SqlKind.OTHER_FUNCTION, ReturnTypes.DATE, null, OperandTypes.NILADIC,
+              SqlFunctionCategory.TIMEDATE);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public SqlSyntax getSyntax() {
-    return SqlSyntax.FUNCTION_ID;
-  }
+    public SqlSyntax getSyntax() {
+        return SqlSyntax.FUNCTION_ID;
+    }
 
-  @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
-    return SqlMonotonicity.INCREASING;
-  }
+    @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
+        return SqlMonotonicity.INCREASING;
+    }
 
-  // Plans referencing context variables should never be cached
-  public boolean isDynamicFunction() {
-    return true;
-  }
+    // Plans referencing context variables should never be cached
+    public boolean isDynamicFunction() {
+        return true;
+    }
 }
 
 // End SqlCurrentDateFunction.java

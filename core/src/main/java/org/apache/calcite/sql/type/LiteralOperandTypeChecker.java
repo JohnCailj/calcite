@@ -16,11 +16,7 @@
  */
 package org.apache.calcite.sql.type;
 
-import org.apache.calcite.sql.SqlCallBinding;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlOperandCountRange;
-import org.apache.calcite.sql.SqlOperator;
-import org.apache.calcite.sql.SqlUtil;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.util.Util;
 
 import static org.apache.calcite.util.Static.RESOURCE;
@@ -32,73 +28,60 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * ...)</code>
  */
 public class LiteralOperandTypeChecker implements SqlSingleOperandTypeChecker {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private boolean allowNull;
+    private boolean allowNull;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public LiteralOperandTypeChecker(boolean allowNull) {
-    this.allowNull = allowNull;
-  }
+    public LiteralOperandTypeChecker(boolean allowNull) {
+        this.allowNull = allowNull;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public boolean isOptional(int i) {
-    return false;
-  }
+    public boolean isOptional(int i) {
+        return false;
+    }
 
-  public boolean checkSingleOperandType(
-      SqlCallBinding callBinding,
-      SqlNode node,
-      int iFormalOperand,
-      boolean throwOnFailure) {
-    Util.discard(iFormalOperand);
+    public boolean checkSingleOperandType(SqlCallBinding callBinding, SqlNode node, int iFormalOperand,
+                                          boolean throwOnFailure) {
+        Util.discard(iFormalOperand);
 
-    if (SqlUtil.isNullLiteral(node, true)) {
-      if (allowNull) {
+        if (SqlUtil.isNullLiteral(node, true)) {
+            if (allowNull) {
+                return true;
+            }
+            if (throwOnFailure) {
+                throw callBinding.newError(RESOURCE.argumentMustNotBeNull(callBinding.getOperator().getName()));
+            }
+            return false;
+        }
+        if (!SqlUtil.isLiteral(node) && !SqlUtil.isLiteralChain(node)) {
+            if (throwOnFailure) {
+                throw callBinding.newError(RESOURCE.argumentMustBeLiteral(callBinding.getOperator().getName()));
+            }
+            return false;
+        }
+
         return true;
-      }
-      if (throwOnFailure) {
-        throw callBinding.newError(
-            RESOURCE.argumentMustNotBeNull(
-                callBinding.getOperator().getName()));
-      }
-      return false;
-    }
-    if (!SqlUtil.isLiteral(node) && !SqlUtil.isLiteralChain(node)) {
-      if (throwOnFailure) {
-        throw callBinding.newError(
-            RESOURCE.argumentMustBeLiteral(
-                callBinding.getOperator().getName()));
-      }
-      return false;
     }
 
-    return true;
-  }
+    public boolean checkOperandTypes(SqlCallBinding callBinding, boolean throwOnFailure) {
+        return checkSingleOperandType(callBinding, callBinding.operand(0), 0, throwOnFailure);
+    }
 
-  public boolean checkOperandTypes(
-      SqlCallBinding callBinding,
-      boolean throwOnFailure) {
-    return checkSingleOperandType(
-        callBinding,
-        callBinding.operand(0),
-        0,
-        throwOnFailure);
-  }
+    public SqlOperandCountRange getOperandCountRange() {
+        return SqlOperandCountRanges.of(1);
+    }
 
-  public SqlOperandCountRange getOperandCountRange() {
-    return SqlOperandCountRanges.of(1);
-  }
+    public String getAllowedSignatures(SqlOperator op, String opName) {
+        return "<LITERAL>";
+    }
 
-  public String getAllowedSignatures(SqlOperator op, String opName) {
-    return "<LITERAL>";
-  }
-
-  public Consistency getConsistency() {
-    return Consistency.NONE;
-  }
+    public Consistency getConsistency() {
+        return Consistency.NONE;
+    }
 }
 
 // End LiteralOperandTypeChecker.java

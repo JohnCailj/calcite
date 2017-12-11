@@ -25,27 +25,26 @@ import org.apache.calcite.util.Glossary;
  * @see Glossary#SQL99 SQL:1999 Part 2 Section 9.5
  */
 public interface RelDataTypePrecedenceList {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Determines whether a type appears in this precedence list.
-   *
-   * @param type type to check
-   * @return true iff this list contains type
-   */
-  boolean containsType(RelDataType type);
+    /**
+     * Determines whether a type appears in this precedence list.
+     *
+     * @param type type to check
+     * @return true iff this list contains type
+     */
+    boolean containsType(RelDataType type);
 
-  /**
-   * Compares the precedence of two types.
-   *
-   * <p>The list must contain both types.</p>
-   *
-   * @param type1 first type to compare
-   * @param type2 second type to compare
-   * @return positive if type1 has higher precedence; negative if type2 has
-   * higher precedence; 0 if types have equal precedence
-   */
-  int compareTypePrecedence(RelDataType type1, RelDataType type2);
+    /**
+     * Compares the precedence of two types.
+     * <p>The list must contain both types.</p>
+     *
+     * @param type1 first type to compare
+     * @param type2 second type to compare
+     * @return positive if type1 has higher precedence; negative if type2 has
+     * higher precedence; 0 if types have equal precedence
+     */
+    int compareTypePrecedence(RelDataType type1, RelDataType type2);
 }
 
 // End RelDataTypePrecedenceList.java

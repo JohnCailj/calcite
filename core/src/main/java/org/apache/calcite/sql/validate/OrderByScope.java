@@ -29,101 +29,94 @@ import static org.apache.calcite.util.Static.RESOURCE;
 
 /**
  * Represents the name-resolution context for expressions in an ORDER BY clause.
- *
  * <p>In some dialects of SQL, the ORDER BY clause can reference column aliases
  * in the SELECT clause. For example, the query</p>
- *
  * <blockquote><code>SELECT empno AS x<br>
  * FROM emp<br>
  * ORDER BY x</code></blockquote>
- *
  * <p>is valid.</p>
  */
 public class OrderByScope extends DelegatingScope {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlNodeList orderList;
-  private final SqlSelect select;
+    private final SqlNodeList orderList;
+    private final SqlSelect   select;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  OrderByScope(
-      SqlValidatorScope parent,
-      SqlNodeList orderList,
-      SqlSelect select) {
-    super(parent);
-    this.orderList = orderList;
-    this.select = select;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public SqlNode getNode() {
-    return orderList;
-  }
-
-  public void findAllColumnNames(List<SqlMoniker> result) {
-    final SqlValidatorNamespace ns = validator.getNamespace(select);
-    addColumnNames(ns, result);
-  }
-
-  public SqlQualified fullyQualify(SqlIdentifier identifier) {
-    // If it's a simple identifier, look for an alias.
-    if (identifier.isSimple()
-        && validator.getConformance().isSortByAlias()) {
-      final String name = identifier.names.get(0);
-      final SqlValidatorNamespace selectNs =
-          validator.getNamespace(select);
-      final RelDataType rowType = selectNs.getRowType();
-
-      final SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
-      final RelDataTypeField field = nameMatcher.field(rowType, name);
-      final int aliasCount = aliasCount(nameMatcher, name);
-      if (aliasCount > 1) {
-        // More than one column has this alias.
-        throw validator.newValidationError(identifier,
-            RESOURCE.columnAmbiguous(name));
-      }
-      if (field != null && !field.isDynamicStar() && aliasCount == 1) {
-        // if identifier is resolved to a dynamic star, use super.fullyQualify() for such case.
-        return SqlQualified.create(this, 1, selectNs, identifier);
-      }
+    OrderByScope(SqlValidatorScope parent, SqlNodeList orderList, SqlSelect select) {
+        super(parent);
+        this.orderList = orderList;
+        this.select = select;
     }
-    return super.fullyQualify(identifier);
-  }
 
-  /** Returns the number of columns in the SELECT clause that have {@code name}
-   * as their implicit (e.g. {@code t.name}) or explicit (e.g.
-   * {@code t.c as name}) alias. */
-  private int aliasCount(SqlNameMatcher nameMatcher, String name) {
-    int n = 0;
-    for (SqlNode s : select.getSelectList()) {
-      final String alias = SqlValidatorUtil.getAlias(s, -1);
-      if (alias != null && nameMatcher.matches(alias, name)) {
-        n++;
-      }
+    //~ Methods ----------------------------------------------------------------
+
+    public SqlNode getNode() {
+        return orderList;
     }
-    return n;
-  }
 
-  public RelDataType resolveColumn(String name, SqlNode ctx) {
-    final SqlValidatorNamespace selectNs = validator.getNamespace(select);
-    final RelDataType rowType = selectNs.getRowType();
-    final SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
-    final RelDataTypeField field = nameMatcher.field(rowType, name);
-    if (field != null) {
-      return field.getType();
+    public void findAllColumnNames(List<SqlMoniker> result) {
+        final SqlValidatorNamespace ns = validator.getNamespace(select);
+        addColumnNames(ns, result);
     }
-    final SqlValidatorScope selectScope = validator.getSelectScope(select);
-    return selectScope.resolveColumn(name, ctx);
-  }
 
-  public void validateExpr(SqlNode expr) {
-    SqlNode expanded = validator.expandOrderExpr(select, expr);
+    public SqlQualified fullyQualify(SqlIdentifier identifier) {
+        // If it's a simple identifier, look for an alias.
+        if (identifier.isSimple() && validator.getConformance().isSortByAlias()) {
+            final String name = identifier.names.get(0);
+            final SqlValidatorNamespace selectNs = validator.getNamespace(select);
+            final RelDataType rowType = selectNs.getRowType();
 
-    // expression needs to be valid in parent scope too
-    parent.validateExpr(expanded);
-  }
+            final SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
+            final RelDataTypeField field = nameMatcher.field(rowType, name);
+            final int aliasCount = aliasCount(nameMatcher, name);
+            if (aliasCount > 1) {
+                // More than one column has this alias.
+                throw validator.newValidationError(identifier, RESOURCE.columnAmbiguous(name));
+            }
+            if (field != null && !field.isDynamicStar() && aliasCount == 1) {
+                // if identifier is resolved to a dynamic star, use super.fullyQualify() for such case.
+                return SqlQualified.create(this, 1, selectNs, identifier);
+            }
+        }
+        return super.fullyQualify(identifier);
+    }
+
+    /**
+     * Returns the number of columns in the SELECT clause that have {@code name}
+     * as their implicit (e.g. {@code t.name}) or explicit (e.g.
+     * {@code t.c as name}) alias.
+     */
+    private int aliasCount(SqlNameMatcher nameMatcher, String name) {
+        int n = 0;
+        for (SqlNode s : select.getSelectList()) {
+            final String alias = SqlValidatorUtil.getAlias(s, -1);
+            if (alias != null && nameMatcher.matches(alias, name)) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    public RelDataType resolveColumn(String name, SqlNode ctx) {
+        final SqlValidatorNamespace selectNs = validator.getNamespace(select);
+        final RelDataType rowType = selectNs.getRowType();
+        final SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
+        final RelDataTypeField field = nameMatcher.field(rowType, name);
+        if (field != null) {
+            return field.getType();
+        }
+        final SqlValidatorScope selectScope = validator.getSelectScope(select);
+        return selectScope.resolveColumn(name, ctx);
+    }
+
+    public void validateExpr(SqlNode expr) {
+        SqlNode expanded = validator.expandOrderExpr(select, expr);
+
+        // expression needs to be valid in parent scope too
+        parent.validateExpr(expanded);
+    }
 }
 
 // End OrderByScope.java

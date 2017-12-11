@@ -21,7 +21,6 @@ import org.apache.calcite.linq4j.function.Function1;
 import org.apache.calcite.runtime.Hook;
 import org.apache.calcite.runtime.Utilities;
 import org.apache.calcite.util.Pair;
-
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.janino.ClassBodyEvaluator;
 import org.codehaus.janino.Scanner;
@@ -38,73 +37,68 @@ import java.util.List;
  * Result of compiling code generated from a {@link RexNode} expression.
  */
 public class RexExecutable {
-  private static final String GENERATED_CLASS_NAME = "Reducer";
 
-  private final Function1<DataContext, Object[]> compiledFunction;
-  private final String code;
-  private DataContext dataContext;
+    private static final String GENERATED_CLASS_NAME = "Reducer";
 
-  public RexExecutable(String code, Object reason) {
-    this.code = code;
-    this.compiledFunction = compile(code, reason);
-  }
+    private final Function1<DataContext, Object[]> compiledFunction;
+    private final String                           code;
+    private       DataContext                      dataContext;
 
-  private static Function1<DataContext, Object[]> compile(String code,
-      Object reason) {
-    try {
-      final ClassBodyEvaluator cbe = new ClassBodyEvaluator();
-      cbe.setClassName(GENERATED_CLASS_NAME);
-      cbe.setExtendedClass(Utilities.class);
-      cbe.setImplementedInterfaces(new Class[] {Function1.class, Serializable.class});
-      cbe.setParentClassLoader(RexExecutable.class.getClassLoader());
-      cbe.cook(new Scanner(null, new StringReader(code)));
-      Class c = cbe.getClazz();
-      //noinspection unchecked
-      final Constructor<Function1<DataContext, Object[]>> constructor =
-          c.getConstructor();
-      return constructor.newInstance();
-    } catch (CompileException | IOException | InstantiationException
-        | IllegalAccessException | InvocationTargetException
-        | NoSuchMethodException e) {
-      throw new RuntimeException("While compiling " + reason, e);
+    public RexExecutable(String code, Object reason) {
+        this.code = code;
+        this.compiledFunction = compile(code, reason);
     }
-  }
 
-  public void setDataContext(DataContext dataContext) {
-    this.dataContext = dataContext;
-  }
-
-  public void reduce(RexBuilder rexBuilder, List<RexNode> constExps,
-      List<RexNode> reducedValues) {
-    Object[] values;
-    try {
-      values = compiledFunction.apply(dataContext);
-      assert values.length == constExps.size();
-      final List<Object> valueList = Arrays.asList(values);
-      for (Pair<RexNode, Object> value : Pair.zip(constExps, valueList)) {
-        reducedValues.add(
-            rexBuilder.makeLiteral(value.right, value.left.getType(), true));
-      }
-    } catch (RuntimeException e) {
-      // One or more of the expressions failed.
-      // Don't reduce any of the expressions.
-      reducedValues.addAll(constExps);
-      values = new Object[constExps.size()];
+    private static Function1<DataContext, Object[]> compile(String code, Object reason) {
+        try {
+            final ClassBodyEvaluator cbe = new ClassBodyEvaluator();
+            cbe.setClassName(GENERATED_CLASS_NAME);
+            cbe.setExtendedClass(Utilities.class);
+            cbe.setImplementedInterfaces(new Class[] { Function1.class, Serializable.class });
+            cbe.setParentClassLoader(RexExecutable.class.getClassLoader());
+            cbe.cook(new Scanner(null, new StringReader(code)));
+            Class c = cbe.getClazz();
+            //noinspection unchecked
+            final Constructor<Function1<DataContext, Object[]>> constructor = c.getConstructor();
+            return constructor.newInstance();
+        } catch (CompileException | IOException | InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException("While compiling " + reason, e);
+        }
     }
-    Hook.EXPRESSION_REDUCER.run(Pair.of(code, values));
-  }
 
-  public Function1<DataContext, Object[]> getFunction() {
-    return compiledFunction;
-  }
+    public void setDataContext(DataContext dataContext) {
+        this.dataContext = dataContext;
+    }
 
-  public Object[] execute() {
-    return compiledFunction.apply(dataContext);
-  }
+    public void reduce(RexBuilder rexBuilder, List<RexNode> constExps, List<RexNode> reducedValues) {
+        Object[] values;
+        try {
+            values = compiledFunction.apply(dataContext);
+            assert values.length == constExps.size();
+            final List<Object> valueList = Arrays.asList(values);
+            for (Pair<RexNode, Object> value : Pair.zip(constExps, valueList)) {
+                reducedValues.add(rexBuilder.makeLiteral(value.right, value.left.getType(), true));
+            }
+        } catch (RuntimeException e) {
+            // One or more of the expressions failed.
+            // Don't reduce any of the expressions.
+            reducedValues.addAll(constExps);
+            values = new Object[constExps.size()];
+        }
+        Hook.EXPRESSION_REDUCER.run(Pair.of(code, values));
+    }
 
-  public String getSource() {
-    return code;
-  }
+    public Function1<DataContext, Object[]> getFunction() {
+        return compiledFunction;
+    }
+
+    public Object[] execute() {
+        return compiledFunction.apply(dataContext);
+    }
+
+    public String getSource() {
+        return code;
+    }
 }
 
 // End RexExecutable.java

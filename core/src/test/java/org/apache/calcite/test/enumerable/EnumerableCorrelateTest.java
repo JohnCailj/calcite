@@ -19,7 +19,6 @@ package org.apache.calcite.test.enumerable;
 import org.apache.calcite.adapter.java.ReflectiveSchema;
 import org.apache.calcite.test.CalciteAssert;
 import org.apache.calcite.test.JdbcTest;
-
 import org.junit.Test;
 
 /**
@@ -27,47 +26,38 @@ import org.junit.Test;
  * {@link org.apache.calcite.adapter.enumerable.EnumerableCorrelate}.
  */
 public class EnumerableCorrelateTest {
-  @Test public void simpleCorrelateDecorrelated() {
-    tester(true, new JdbcTest.HrSchema())
-        .query(
-            "select empid, name from emps e where exists (select 1 from depts d where d.deptno=e.deptno)")
-        .explainContains(""
-            + "EnumerableCalc(expr#0..2=[{inputs}], empid=[$t0], name=[$t2])\n"
-            + "  EnumerableSemiJoin(condition=[=($1, $3)], joinType=[inner])\n"
-            + "    EnumerableCalc(expr#0..4=[{inputs}], proj#0..2=[{exprs}])\n"
-            + "      EnumerableTableScan(table=[[s, emps]])\n"
-            + "    EnumerableTableScan(table=[[s, depts]])")
-        .returnsUnordered(
-            "empid=100; name=Bill",
-            "empid=110; name=Theodore",
-            "empid=150; name=Sebastian");
-  }
 
-  @Test public void simpleCorrelate() {
-    tester(false, new JdbcTest.HrSchema())
-        .query(
-            "select empid, name from emps e where exists (select 1 from depts d where d.deptno=e.deptno)")
-        .explainContains(""
-            + "EnumerableCalc(expr#0..3=[{inputs}], empid=[$t0], name=[$t2])\n"
-            + "  EnumerableCorrelate(correlation=[$cor0], joinType=[inner], requiredColumns=[{1}])\n"
-            + "    EnumerableCalc(expr#0..4=[{inputs}], proj#0..2=[{exprs}])\n"
-            + "      EnumerableTableScan(table=[[s, emps]])\n"
-            + "    EnumerableAggregate(group=[{0}])\n"
-            + "      EnumerableCalc(expr#0..3=[{inputs}], expr#4=[true], expr#5=[$cor0], expr#6=[$t5.deptno], expr#7=[=($t0, $t6)], i=[$t4], $condition=[$t7])\n"
-            + "        EnumerableTableScan(table=[[s, depts]])")
-        .returnsUnordered(
-            "empid=100; name=Bill",
-            "empid=110; name=Theodore",
-            "empid=150; name=Sebastian");
-  }
+    @Test public void simpleCorrelateDecorrelated() {
+        tester(true, new JdbcTest.HrSchema()).query(
+                "select empid, name from emps e where exists (select 1 from depts d where d.deptno=e.deptno)").explainContains(
+                "" + "EnumerableCalc(expr#0..2=[{inputs}], empid=[$t0], name=[$t2])\n"
+                + "  EnumerableSemiJoin(condition=[=($1, $3)], joinType=[inner])\n"
+                + "    EnumerableCalc(expr#0..4=[{inputs}], proj#0..2=[{exprs}])\n"
+                + "      EnumerableTableScan(table=[[s, emps]])\n"
+                + "    EnumerableTableScan(table=[[s, depts]])").returnsUnordered("empid=100; name=Bill",
+                                                                                  "empid=110; name=Theodore",
+                                                                                  "empid=150; name=Sebastian");
+    }
 
-  private CalciteAssert.AssertThat tester(boolean forceDecorrelate,
-      Object schema) {
-    return CalciteAssert.that()
-        .with("lex", "JAVA")
-        .with("forceDecorrelate", Boolean.toString(forceDecorrelate))
-        .withSchema("s", new ReflectiveSchema(schema));
-  }
+    @Test public void simpleCorrelate() {
+        tester(false, new JdbcTest.HrSchema()).query(
+                "select empid, name from emps e where exists (select 1 from depts d where d.deptno=e.deptno)").explainContains(
+                "" + "EnumerableCalc(expr#0..3=[{inputs}], empid=[$t0], name=[$t2])\n"
+                + "  EnumerableCorrelate(correlation=[$cor0], joinType=[inner], requiredColumns=[{1}])\n"
+                + "    EnumerableCalc(expr#0..4=[{inputs}], proj#0..2=[{exprs}])\n"
+                + "      EnumerableTableScan(table=[[s, emps]])\n" + "    EnumerableAggregate(group=[{0}])\n"
+                + "      EnumerableCalc(expr#0..3=[{inputs}], expr#4=[true], expr#5=[$cor0], expr#6=[$t5.deptno], expr#7=[=($t0, $t6)], i=[$t4], $condition=[$t7])\n"
+                + "        EnumerableTableScan(table=[[s, depts]])").returnsUnordered("empid=100; name=Bill",
+                                                                                      "empid=110; name=Theodore",
+                                                                                      "empid=150; name=Sebastian");
+    }
+
+    private CalciteAssert.AssertThat tester(boolean forceDecorrelate, Object schema) {
+        return CalciteAssert.that().with("lex", "JAVA").with("forceDecorrelate",
+                                                             Boolean.toString(forceDecorrelate)).withSchema("s",
+                                                                                                            new ReflectiveSchema(
+                                                                                                                    schema));
+    }
 }
 
 // End EnumerableCorrelateTest.java

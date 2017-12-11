@@ -30,19 +30,17 @@ import java.util.List;
  * @see org.apache.calcite.adapter.enumerable.CallImplementor
  */
 public interface NotNullImplementor {
-  /**
-   * Implements a call with assumption that all the null-checking is
-   * implemented by caller.
-   *
-   * @param translator translator to implement the code
-   * @param call call to implement
-   * @param translatedOperands arguments of a call
-   * @return expression that implements given call
-   */
-  Expression implement(
-      RexToLixTranslator translator,
-      RexCall call,
-      List<Expression> translatedOperands);
+
+    /**
+     * Implements a call with assumption that all the null-checking is
+     * implemented by caller.
+     *
+     * @param translator         translator to implement the code
+     * @param call               call to implement
+     * @param translatedOperands arguments of a call
+     * @return expression that implements given call
+     */
+    Expression implement(RexToLixTranslator translator, RexCall call, List<Expression> translatedOperands);
 }
 
 // End NotNullImplementor.java

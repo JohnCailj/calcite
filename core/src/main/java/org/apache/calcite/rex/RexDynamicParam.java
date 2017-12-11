@@ -23,42 +23,40 @@ import org.apache.calcite.sql.SqlKind;
  * Dynamic parameter reference in a row-expression.
  */
 public class RexDynamicParam extends RexVariable {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final int index;
+    private final int index;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a dynamic parameter.
-   *
-   * @param type  inferred type of parameter
-   * @param index 0-based index of dynamic parameter in statement
-   */
-  public RexDynamicParam(
-      RelDataType type,
-      int index) {
-    super("?" + index, type);
-    this.index = index;
-  }
+    /**
+     * Creates a dynamic parameter.
+     *
+     * @param type  inferred type of parameter
+     * @param index 0-based index of dynamic parameter in statement
+     */
+    public RexDynamicParam(RelDataType type, int index) {
+        super("?" + index, type);
+        this.index = index;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public SqlKind getKind() {
-    return SqlKind.DYNAMIC_PARAM;
-  }
+    public SqlKind getKind() {
+        return SqlKind.DYNAMIC_PARAM;
+    }
 
-  public int getIndex() {
-    return index;
-  }
+    public int getIndex() {
+        return index;
+    }
 
-  public <R> R accept(RexVisitor<R> visitor) {
-    return visitor.visitDynamicParam(this);
-  }
+    public <R> R accept(RexVisitor<R> visitor) {
+        return visitor.visitDynamicParam(this);
+    }
 
-  public <R, P> R accept(RexBiVisitor<R, P> visitor, P arg) {
-    return visitor.visitDynamicParam(this, arg);
-  }
+    public <R, P> R accept(RexBiVisitor<R, P> visitor, P arg) {
+        return visitor.visitDynamicParam(this, arg);
+    }
 }
 
 // End RexDynamicParam.java

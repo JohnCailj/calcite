@@ -25,15 +25,16 @@ import java.util.Set;
  * @param <E> Edge type
  */
 public class CycleDetector<V, E extends DefaultEdge> {
-  private final DirectedGraph<V, E> graph;
 
-  public CycleDetector(DirectedGraph<V, E> graph) {
-    this.graph = graph;
-  }
+    private final DirectedGraph<V, E> graph;
 
-  public Set<V> findCycles() {
-    return new TopologicalOrderIterator<V, E>(graph).findCycles();
-  }
+    public CycleDetector(DirectedGraph<V, E> graph) {
+        this.graph = graph;
+    }
+
+    public Set<V> findCycles() {
+        return new TopologicalOrderIterator<V, E>(graph).findCycles();
+    }
 }
 
 // End CycleDetector.java

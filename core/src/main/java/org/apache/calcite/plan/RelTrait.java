@@ -20,9 +20,7 @@ package org.apache.calcite.plan;
  * RelTrait represents the manifestation of a relational expression trait within
  * a trait definition. For example, a {@code CallingConvention.JAVA} is a trait
  * of the {@link ConventionTraitDef} trait definition.
- *
  * <h3><a name="EqualsHashCodeNote">Note about equals() and hashCode()</a></h3>
- *
  * <p>If all instances of RelTrait for a particular RelTraitDef are defined in
  * an {@code enum} and no new RelTraits can be introduced at runtime, you need
  * not override {@link #hashCode()} and {@link #equals(Object)}. If, however,
@@ -32,59 +30,55 @@ package org.apache.calcite.plan;
  * of your RelTrait objects.</p>
  */
 public interface RelTrait {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Returns the RelTraitDef that defines this RelTrait.
-   *
-   * @return the RelTraitDef that defines this RelTrait
-   */
-  RelTraitDef getTraitDef();
+    /**
+     * Returns the RelTraitDef that defines this RelTrait.
+     *
+     * @return the RelTraitDef that defines this RelTrait
+     */
+    RelTraitDef getTraitDef();
 
-  /**
-   * See <a href="#EqualsHashCodeNote">note about equals() and hashCode()</a>.
-   */
-  int hashCode();
+    /**
+     * See <a href="#EqualsHashCodeNote">note about equals() and hashCode()</a>.
+     */
+    int hashCode();
 
-  /**
-   * See <a href="#EqualsHashCodeNote">note about equals() and hashCode()</a>.
-   */
-  boolean equals(Object o);
+    /**
+     * See <a href="#EqualsHashCodeNote">note about equals() and hashCode()</a>.
+     */
+    boolean equals(Object o);
 
-  /**
-   * Returns whether this trait satisfies a given trait.
-   *
-   * <p>A trait satisfies another if it is the same or stricter. For example,
-   * {@code ORDER BY x, y} satisfies {@code ORDER BY x}.
-   *
-   * <p>A trait's {@code satisfies} relation must be a partial order (reflexive,
-   * anti-symmetric, transitive). Many traits cannot be "loosened"; their
-   * {@code satisfies} is an equivalence relation, where only X satisfies X.
-   *
-   * <p>If a trait has multiple values
-   * (see {@link org.apache.calcite.plan.RelCompositeTrait})
-   * a collection (T0, T1, ...) satisfies T if any Ti satisfies T.
-   *
-   * @param trait Given trait
-   * @return Whether this trait subsumes a given trait
-   */
-  boolean satisfies(RelTrait trait);
+    /**
+     * Returns whether this trait satisfies a given trait.
+     * <p>A trait satisfies another if it is the same or stricter. For example,
+     * {@code ORDER BY x, y} satisfies {@code ORDER BY x}.
+     * <p>A trait's {@code satisfies} relation must be a partial order (reflexive,
+     * anti-symmetric, transitive). Many traits cannot be "loosened"; their
+     * {@code satisfies} is an equivalence relation, where only X satisfies X.
+     * <p>If a trait has multiple values
+     * (see {@link org.apache.calcite.plan.RelCompositeTrait})
+     * a collection (T0, T1, ...) satisfies T if any Ti satisfies T.
+     *
+     * @param trait Given trait
+     * @return Whether this trait subsumes a given trait
+     */
+    boolean satisfies(RelTrait trait);
 
-  /**
-   * Returns a succinct name for this trait. The planner may use this String
-   * to describe the trait.
-   */
-  String toString();
+    /**
+     * Returns a succinct name for this trait. The planner may use this String
+     * to describe the trait.
+     */
+    String toString();
 
-  /**
-   * Registers a trait instance with the planner.
-   *
-   * <p>This is an opportunity to add rules that relate to that trait. However,
-   * typical implementations will do nothing.</p>
-   *
-   * @param planner Planner
-   */
-  void register(RelOptPlanner planner);
+    /**
+     * Registers a trait instance with the planner.
+     * <p>This is an opportunity to add rules that relate to that trait. However,
+     * typical implementations will do nothing.</p>
+     *
+     * @param planner Planner
+     */
+    void register(RelOptPlanner planner);
 }
 
 // End RelTrait.java

@@ -25,35 +25,33 @@ import org.apache.calcite.sql.SqlOperatorBinding;
  * A {@link SqlReturnTypeInference} which always returns the same SQL type.
  */
 public class ExplicitReturnTypeInference implements SqlReturnTypeInference {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  protected final RelProtoDataType protoType;
+    protected final RelProtoDataType protoType;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates an inference rule which always returns the same type object.
-   *
-   * <p>If the requesting type factory is different, returns a copy of the
-   * type object made using {@link RelDataTypeFactory#copyType(RelDataType)}
-   * within the requesting type factory.
-   *
-   * <p>A copy of the type is required because each statement is prepared using
-   * a different type factory; each type factory maintains its own cache of
-   * canonical instances of each type.
-   *
-   * @param protoType Type object
-   */
-  protected ExplicitReturnTypeInference(RelProtoDataType protoType) {
-    assert protoType != null;
-    this.protoType = protoType;
-  }
+    /**
+     * Creates an inference rule which always returns the same type object.
+     * <p>If the requesting type factory is different, returns a copy of the
+     * type object made using {@link RelDataTypeFactory#copyType(RelDataType)}
+     * within the requesting type factory.
+     * <p>A copy of the type is required because each statement is prepared using
+     * a different type factory; each type factory maintains its own cache of
+     * canonical instances of each type.
+     *
+     * @param protoType Type object
+     */
+    protected ExplicitReturnTypeInference(RelProtoDataType protoType) {
+        assert protoType != null;
+        this.protoType = protoType;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
-    return protoType.apply(opBinding.getTypeFactory());
-  }
+    public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+        return protoType.apply(opBinding.getTypeFactory());
+    }
 }
 
 // End ExplicitReturnTypeInference.java

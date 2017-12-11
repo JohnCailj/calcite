@@ -23,60 +23,54 @@ import java.util.List;
 
 /**
  * The base implementation of strict window aggregate function.
+ *
  * @see org.apache.calcite.adapter.enumerable.RexImpTable.FirstLastValueImplementor
  * @see org.apache.calcite.adapter.enumerable.RexImpTable.RankImplementor
  * @see org.apache.calcite.adapter.enumerable.RexImpTable.RowNumberImplementor
  */
-public abstract class StrictWinAggImplementor extends StrictAggImplementor
-    implements WinAggImplementor {
-  protected abstract void implementNotNullAdd(WinAggContext info,
-      WinAggAddContext add);
+public abstract class StrictWinAggImplementor extends StrictAggImplementor implements WinAggImplementor {
 
-  protected boolean nonDefaultOnEmptySet(WinAggContext info) {
-    return super.nonDefaultOnEmptySet(info);
-  }
+    protected abstract void implementNotNullAdd(WinAggContext info, WinAggAddContext add);
 
-  public List<Type> getNotNullState(WinAggContext info) {
-    return super.getNotNullState(info);
-  }
+    protected boolean nonDefaultOnEmptySet(WinAggContext info) {
+        return super.nonDefaultOnEmptySet(info);
+    }
 
-  protected void implementNotNullReset(WinAggContext info,
-      WinAggResetContext reset) {
-    super.implementNotNullReset(info, reset);
-  }
+    public List<Type> getNotNullState(WinAggContext info) {
+        return super.getNotNullState(info);
+    }
 
-  protected Expression implementNotNullResult(WinAggContext info,
-      WinAggResultContext result) {
-    return super.implementNotNullResult(info, result);
-  }
+    protected void implementNotNullReset(WinAggContext info, WinAggResetContext reset) {
+        super.implementNotNullReset(info, reset);
+    }
 
-  @Override protected final void implementNotNullAdd(AggContext info,
-      AggAddContext add) {
-    implementNotNullAdd((WinAggContext) info, (WinAggAddContext) add);
-  }
+    protected Expression implementNotNullResult(WinAggContext info, WinAggResultContext result) {
+        return super.implementNotNullResult(info, result);
+    }
 
-  @Override protected boolean nonDefaultOnEmptySet(AggContext info) {
-    return nonDefaultOnEmptySet((WinAggContext) info);
-  }
+    @Override protected final void implementNotNullAdd(AggContext info, AggAddContext add) {
+        implementNotNullAdd((WinAggContext) info, (WinAggAddContext) add);
+    }
 
-  @Override public final List<Type> getNotNullState(AggContext info) {
-    return getNotNullState((WinAggContext) info);
-  }
+    @Override protected boolean nonDefaultOnEmptySet(AggContext info) {
+        return nonDefaultOnEmptySet((WinAggContext) info);
+    }
 
-  @Override protected final void implementNotNullReset(AggContext info,
-      AggResetContext reset) {
-    implementNotNullReset((WinAggContext) info, (WinAggResetContext) reset);
-  }
+    @Override public final List<Type> getNotNullState(AggContext info) {
+        return getNotNullState((WinAggContext) info);
+    }
 
-  @Override protected final Expression implementNotNullResult(AggContext info,
-      AggResultContext result) {
-    return implementNotNullResult((WinAggContext) info,
-        (WinAggResultContext) result);
-  }
+    @Override protected final void implementNotNullReset(AggContext info, AggResetContext reset) {
+        implementNotNullReset((WinAggContext) info, (WinAggResetContext) reset);
+    }
 
-  public boolean needCacheWhenFrameIntact() {
-    return true;
-  }
+    @Override protected final Expression implementNotNullResult(AggContext info, AggResultContext result) {
+        return implementNotNullResult((WinAggContext) info, (WinAggResultContext) result);
+    }
+
+    public boolean needCacheWhenFrameIntact() {
+        return true;
+    }
 }
 
 // End StrictWinAggImplementor.java

@@ -23,43 +23,42 @@ import java.util.List;
 
 /**
  * Fully-qualified identifier.
- *
  * <p>The result of calling
  * {@link org.apache.calcite.sql.validate.SqlValidatorScope#fullyQualify(org.apache.calcite.sql.SqlIdentifier)},
  * a fully-qualified identifier contains the name (in correct case),
  * parser position, type, and scope of each component of the identifier.
- *
  * <p>It is immutable.
  */
 public class SqlQualified {
-  public final int prefixLength;
-  public final SqlValidatorNamespace namespace;
-  public final SqlIdentifier identifier;
 
-  private SqlQualified(SqlValidatorScope scope, int prefixLength,
-      SqlValidatorNamespace namespace, SqlIdentifier identifier) {
-    Util.discard(scope);
-    this.prefixLength = prefixLength;
-    this.namespace = namespace;
-    this.identifier = identifier;
-  }
+    public final int                   prefixLength;
+    public final SqlValidatorNamespace namespace;
+    public final SqlIdentifier         identifier;
 
-  @Override public String toString() {
-    return "{id: " + identifier.toString() + ", prefix: " + prefixLength + "}";
-  }
+    private SqlQualified(SqlValidatorScope scope, int prefixLength, SqlValidatorNamespace namespace,
+                         SqlIdentifier identifier) {
+        Util.discard(scope);
+        this.prefixLength = prefixLength;
+        this.namespace = namespace;
+        this.identifier = identifier;
+    }
 
-  public static SqlQualified create(SqlValidatorScope scope, int prefixLength,
-      SqlValidatorNamespace namespace, SqlIdentifier identifier) {
-    return new SqlQualified(scope, prefixLength, namespace, identifier);
-  }
+    @Override public String toString() {
+        return "{id: " + identifier.toString() + ", prefix: " + prefixLength + "}";
+    }
 
-  public final List<String> prefix() {
-    return identifier.names.subList(0, prefixLength);
-  }
+    public static SqlQualified create(SqlValidatorScope scope, int prefixLength, SqlValidatorNamespace namespace,
+                                      SqlIdentifier identifier) {
+        return new SqlQualified(scope, prefixLength, namespace, identifier);
+    }
 
-  public final List<String> suffix() {
-    return Util.skip(identifier.names, prefixLength);
-  }
+    public final List<String> prefix() {
+        return identifier.names.subList(0, prefixLength);
+    }
+
+    public final List<String> suffix() {
+        return Util.skip(identifier.names, prefixLength);
+    }
 }
 
 // End SqlQualified.java

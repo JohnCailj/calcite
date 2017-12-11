@@ -16,11 +16,7 @@
  */
 package org.apache.calcite.rel.convert;
 
-import org.apache.calcite.plan.RelOptCluster;
-import org.apache.calcite.plan.RelOptCost;
-import org.apache.calcite.plan.RelOptPlanner;
-import org.apache.calcite.plan.RelTraitDef;
-import org.apache.calcite.plan.RelTraitSet;
+import org.apache.calcite.plan.*;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.SingleRel;
 import org.apache.calcite.rel.metadata.RelMetadataQuery;
@@ -28,56 +24,49 @@ import org.apache.calcite.rel.metadata.RelMetadataQuery;
 /**
  * Abstract implementation of {@link Converter}.
  */
-public abstract class ConverterImpl extends SingleRel
-    implements Converter {
-  //~ Instance fields --------------------------------------------------------
+public abstract class ConverterImpl extends SingleRel implements Converter {
+    //~ Instance fields --------------------------------------------------------
 
-  protected RelTraitSet inTraits;
-  protected final RelTraitDef traitDef;
+    protected       RelTraitSet inTraits;
+    protected final RelTraitDef traitDef;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a ConverterImpl.
-   *
-   * @param cluster  planner's cluster
-   * @param traitDef the RelTraitDef this converter converts
-   * @param traits   the output traits of this converter
-   * @param child    child rel (provides input traits)
-   */
-  protected ConverterImpl(
-      RelOptCluster cluster,
-      RelTraitDef traitDef,
-      RelTraitSet traits,
-      RelNode child) {
-    super(cluster, traits, child);
-    this.inTraits = child.getTraitSet();
-    this.traitDef = traitDef;
-  }
+    /**
+     * Creates a ConverterImpl.
+     *
+     * @param cluster  planner's cluster
+     * @param traitDef the RelTraitDef this converter converts
+     * @param traits   the output traits of this converter
+     * @param child    child rel (provides input traits)
+     */
+    protected ConverterImpl(RelOptCluster cluster, RelTraitDef traitDef, RelTraitSet traits, RelNode child) {
+        super(cluster, traits, child);
+        this.inTraits = child.getTraitSet();
+        this.traitDef = traitDef;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public RelOptCost computeSelfCost(RelOptPlanner planner,
-      RelMetadataQuery mq) {
-    double dRows = mq.getRowCount(getInput());
-    double dCpu = dRows;
-    double dIo = 0;
-    return planner.getCostFactory().makeCost(dRows, dCpu, dIo);
-  }
+    @Override public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
+        double dRows = mq.getRowCount(getInput());
+        double dCpu = dRows;
+        double dIo = 0;
+        return planner.getCostFactory().makeCost(dRows, dCpu, dIo);
+    }
 
-  @Deprecated // to be removed before 2.0
-  protected Error cannotImplement() {
-    return new AssertionError(getClass() + " cannot convert from "
-        + inTraits + " traits");
-  }
+    @Deprecated // to be removed before 2.0
+    protected Error cannotImplement() {
+        return new AssertionError(getClass() + " cannot convert from " + inTraits + " traits");
+    }
 
-  public RelTraitSet getInputTraits() {
-    return inTraits;
-  }
+    public RelTraitSet getInputTraits() {
+        return inTraits;
+    }
 
-  public RelTraitDef getTraitDef() {
-    return traitDef;
-  }
+    public RelTraitDef getTraitDef() {
+        return traitDef;
+    }
 
 }
 

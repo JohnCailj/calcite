@@ -25,35 +25,30 @@ import org.apache.calcite.sql.type.ReturnTypes;
 
 /**
  * The <code>RAND_INTEGER</code> function. There are two overloads:
- *
  * <ul>
- *   <li>RAND_INTEGER(bound) returns a random integer between 0 and bound - 1
- *   <li>RAND_INTEGER(seed, bound) returns a random integer between 0 and
- *   bound - 1, initializing the random number generator with seed on first call
+ * <li>RAND_INTEGER(bound) returns a random integer between 0 and bound - 1
+ * <li>RAND_INTEGER(seed, bound) returns a random integer between 0 and
+ * bound - 1, initializing the random number generator with seed on first call
  * </ul>
  */
 public class SqlRandIntegerFunction extends SqlFunction {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlRandIntegerFunction() {
-    super("RAND_INTEGER",
-        SqlKind.OTHER_FUNCTION,
-        ReturnTypes.INTEGER,
-        null,
-        OperandTypes.or(OperandTypes.NUMERIC, OperandTypes.NUMERIC_NUMERIC),
-        SqlFunctionCategory.NUMERIC);
-  }
+    public SqlRandIntegerFunction() {
+        super("RAND_INTEGER", SqlKind.OTHER_FUNCTION, ReturnTypes.INTEGER, null,
+              OperandTypes.or(OperandTypes.NUMERIC, OperandTypes.NUMERIC_NUMERIC), SqlFunctionCategory.NUMERIC);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public SqlSyntax getSyntax() {
-    return SqlSyntax.FUNCTION;
-  }
+    public SqlSyntax getSyntax() {
+        return SqlSyntax.FUNCTION;
+    }
 
-  // Plans referencing context variables should never be cached
-  public boolean isDynamicFunction() {
-    return true;
-  }
+    // Plans referencing context variables should never be cached
+    public boolean isDynamicFunction() {
+        return true;
+    }
 }
 
 // End SqlRandIntegerFunction.java

@@ -22,12 +22,12 @@ import org.apache.calcite.sql.SqlCall;
  * Collection of {@link SqlRexConvertlet}s.
  */
 public interface SqlRexConvertletTable {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Returns the convertlet applicable to a given expression.
-   */
-  SqlRexConvertlet get(SqlCall call);
+    /**
+     * Returns the convertlet applicable to a given expression.
+     */
+    SqlRexConvertlet get(SqlCall call);
 }
 
 // End SqlRexConvertletTable.java

@@ -16,11 +16,7 @@
  */
 package org.apache.calcite.rel.convert;
 
-import org.apache.calcite.plan.Convention;
-import org.apache.calcite.plan.ConventionTraitDef;
-import org.apache.calcite.plan.RelOptCluster;
-import org.apache.calcite.plan.RelOptPlanner;
-import org.apache.calcite.plan.RelTraitSet;
+import org.apache.calcite.plan.*;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.util.Util;
 
@@ -31,32 +27,23 @@ import java.util.List;
  * {@link org.apache.calcite.plan.Convention#NONE}.
  */
 public class NoneConverter extends ConverterImpl {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public NoneConverter(
-      RelOptCluster cluster,
-      RelNode child) {
-    super(
-        cluster,
-        ConventionTraitDef.INSTANCE,
-        cluster.traitSetOf(Convention.NONE),
-        child);
-  }
+    public NoneConverter(RelOptCluster cluster, RelNode child) {
+        super(cluster, ConventionTraitDef.INSTANCE, cluster.traitSetOf(Convention.NONE), child);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
+    public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        assert traitSet.comprises(Convention.NONE);
+        return new NoneConverter(getCluster(), sole(inputs));
+    }
 
-  public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-    assert traitSet.comprises(Convention.NONE);
-    return new NoneConverter(
-        getCluster(),
-        sole(inputs));
-  }
-
-  public static void init(RelOptPlanner planner) {
-    // we can't convert from any conventions, therefore no rules to register
-    Util.discard(planner);
-  }
+    public static void init(RelOptPlanner planner) {
+        // we can't convert from any conventions, therefore no rules to register
+        Util.discard(planner);
+    }
 }
 
 // End NoneConverter.java

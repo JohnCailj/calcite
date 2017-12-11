@@ -20,21 +20,28 @@ package org.apache.calcite.tools;
  * An Exception thrown when attempting to validate a SQL parse tree.
  */
 public class ValidationException extends Exception {
-  /** Creates a ValidationException with the specified detail message and
-   * cause. */
-  public ValidationException(String message, Throwable cause) {
-    super(message, cause);
-  }
 
-  /** Creates a ValidationException with the specified detail message. */
-  public ValidationException(String message) {
-    super(message);
-  }
+    /**
+     * Creates a ValidationException with the specified detail message and
+     * cause.
+     */
+    public ValidationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  /** Creates a ValidationException with the specified cause. */
-  public ValidationException(Throwable cause) {
-    super(cause);
-  }
+    /**
+     * Creates a ValidationException with the specified detail message.
+     */
+    public ValidationException(String message) {
+        super(message);
+    }
+
+    /**
+     * Creates a ValidationException with the specified cause.
+     */
+    public ValidationException(Throwable cause) {
+        super(cause);
+    }
 }
 
 // End ValidationException.java

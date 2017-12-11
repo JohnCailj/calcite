@@ -23,19 +23,16 @@ import org.apache.calcite.sql.SqlCallBinding;
  * Strategy to infer unknown types of the operands of an operator call.
  */
 public interface SqlOperandTypeInference {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Infers any unknown operand types.
-   *
-   * @param callBinding  description of the call being analyzed
-   * @param returnType   the type known or inferred for the result of the call
-   * @param operandTypes receives the inferred types for all operands
-   */
-  void inferOperandTypes(
-      SqlCallBinding callBinding,
-      RelDataType returnType,
-      RelDataType[] operandTypes);
+    /**
+     * Infers any unknown operand types.
+     *
+     * @param callBinding  description of the call being analyzed
+     * @param returnType   the type known or inferred for the result of the call
+     * @param operandTypes receives the inferred types for all operands
+     */
+    void inferOperandTypes(SqlCallBinding callBinding, RelDataType returnType, RelDataType[] operandTypes);
 }
 
 // End SqlOperandTypeInference.java

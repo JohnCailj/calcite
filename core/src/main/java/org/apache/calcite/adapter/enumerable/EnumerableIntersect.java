@@ -28,54 +28,46 @@ import org.apache.calcite.util.BuiltInMethod;
 
 import java.util.List;
 
-/** Implementation of {@link org.apache.calcite.rel.core.Intersect} in
- * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}. */
+/**
+ * Implementation of {@link org.apache.calcite.rel.core.Intersect} in
+ * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}.
+ */
 public class EnumerableIntersect extends Intersect implements EnumerableRel {
-  public EnumerableIntersect(RelOptCluster cluster, RelTraitSet traitSet,
-      List<RelNode> inputs, boolean all) {
-    super(cluster, traitSet, inputs, all);
-    assert !all;
-  }
 
-  public EnumerableIntersect copy(RelTraitSet traitSet, List<RelNode> inputs,
-      boolean all) {
-    return new EnumerableIntersect(getCluster(), traitSet, inputs, all);
-  }
-
-  public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
-    final BlockBuilder builder = new BlockBuilder();
-    Expression intersectExp = null;
-    for (Ord<RelNode> ord : Ord.zip(inputs)) {
-      EnumerableRel input = (EnumerableRel) ord.e;
-      final Result result = implementor.visitChild(this, ord.i, input, pref);
-      Expression childExp =
-          builder.append(
-              "child" + ord.i,
-              result.block);
-
-      if (intersectExp == null) {
-        intersectExp = childExp;
-      } else {
-        intersectExp =
-            Expressions.call(intersectExp,
-                BuiltInMethod.INTERSECT.method,
-                Expressions.list(childExp)
-                    .appendIfNotNull(result.physType.comparer()));
-      }
-
-      // Once the first input has chosen its format, ask for the same for
-      // other inputs.
-      pref = pref.of(result.format);
+    public EnumerableIntersect(RelOptCluster cluster, RelTraitSet traitSet, List<RelNode> inputs, boolean all) {
+        super(cluster, traitSet, inputs, all);
+        assert !all;
     }
 
-    builder.add(intersectExp);
-    final PhysType physType =
-        PhysTypeImpl.of(
-            implementor.getTypeFactory(),
-            getRowType(),
-            pref.prefer(JavaRowFormat.CUSTOM));
-    return implementor.result(physType, builder.toBlock());
-  }
+    public EnumerableIntersect copy(RelTraitSet traitSet, List<RelNode> inputs, boolean all) {
+        return new EnumerableIntersect(getCluster(), traitSet, inputs, all);
+    }
+
+    public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
+        final BlockBuilder builder = new BlockBuilder();
+        Expression intersectExp = null;
+        for (Ord<RelNode> ord : Ord.zip(inputs)) {
+            EnumerableRel input = (EnumerableRel) ord.e;
+            final Result result = implementor.visitChild(this, ord.i, input, pref);
+            Expression childExp = builder.append("child" + ord.i, result.block);
+
+            if (intersectExp == null) {
+                intersectExp = childExp;
+            } else {
+                intersectExp = Expressions.call(intersectExp, BuiltInMethod.INTERSECT.method,
+                                                Expressions.list(childExp).appendIfNotNull(result.physType.comparer()));
+            }
+
+            // Once the first input has chosen its format, ask for the same for
+            // other inputs.
+            pref = pref.of(result.format);
+        }
+
+        builder.add(intersectExp);
+        final PhysType physType = PhysTypeImpl.of(implementor.getTypeFactory(), getRowType(),
+                                                  pref.prefer(JavaRowFormat.CUSTOM));
+        return implementor.result(physType, builder.toBlock());
+    }
 }
 
 // End EnumerableIntersect.java

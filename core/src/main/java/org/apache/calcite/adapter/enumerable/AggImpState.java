@@ -25,25 +25,24 @@ import java.util.List;
  * Represents internal state when implementing aggregate functions.
  */
 public class AggImpState {
-  public final int aggIdx;
-  public final AggregateCall call;
-  public final AggImplementor implementor;
-  public AggContext context;
-  public Expression result;
-  public List<Expression> state;
 
-  public AggImpState(int aggIdx, AggregateCall call, boolean windowContext) {
-    this.aggIdx = aggIdx;
-    this.call = call;
-    this.implementor =
-        RexImpTable.INSTANCE.get(call.getAggregation(), windowContext);
-    if (implementor == null) {
-      throw new IllegalArgumentException(
-          "Unable to get aggregate implementation for aggregate "
-          + call.getAggregation()
-          + (windowContext ? " in window context" : ""));
+    public final int              aggIdx;
+    public final AggregateCall    call;
+    public final AggImplementor   implementor;
+    public       AggContext       context;
+    public       Expression       result;
+    public       List<Expression> state;
+
+    public AggImpState(int aggIdx, AggregateCall call, boolean windowContext) {
+        this.aggIdx = aggIdx;
+        this.call = call;
+        this.implementor = RexImpTable.INSTANCE.get(call.getAggregation(), windowContext);
+        if (implementor == null) {
+            throw new IllegalArgumentException(
+                    "Unable to get aggregate implementation for aggregate " + call.getAggregation()
+                    + (windowContext ? " in window context" : ""));
+        }
     }
-  }
 }
 
 // End AggImpState.java

@@ -22,7 +22,6 @@ import org.junit.Test;
 import java.util.Map;
 
 import static org.apache.calcite.util.Static.RESOURCE;
-
 import static org.junit.Assert.assertThat;
 
 /**
@@ -31,22 +30,21 @@ import static org.junit.Assert.assertThat;
  * the resource-generation infrastructure).
  */
 public class CalciteResourceTest {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public CalciteResourceTest() {
-  }
+    public CalciteResourceTest() {
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Verifies that resource properties such as SQLSTATE are available at
-   * runtime.
-   */
-  @Test public void testSqlstateProperty() {
-    Map<String, String> props =
-        RESOURCE.illegalIntervalLiteral("", "").getProperties();
-    assertThat(props.get("SQLSTATE"), CoreMatchers.equalTo("42000"));
-  }
+    /**
+     * Verifies that resource properties such as SQLSTATE are available at
+     * runtime.
+     */
+    @Test public void testSqlstateProperty() {
+        Map<String, String> props = RESOURCE.illegalIntervalLiteral("", "").getProperties();
+        assertThat(props.get("SQLSTATE"), CoreMatchers.equalTo("42000"));
+    }
 }
 
 // End CalciteResourceTest.java

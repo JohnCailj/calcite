@@ -16,51 +16,37 @@
  */
 package org.apache.calcite.sql.fun;
 
-import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlFunction;
-import org.apache.calcite.sql.SqlFunctionCategory;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlWriter;
+import org.apache.calcite.sql.*;
 
 /**
  * Common base for the <code>CONVERT</code> and <code>TRANSLATE</code>
  * functions.
  */
 public class SqlConvertFunction extends SqlFunction {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  protected SqlConvertFunction(String name) {
-    super(
-        name,
-        SqlKind.OTHER_FUNCTION,
-        null,
-        null,
-        null,
-        SqlFunctionCategory.STRING);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void unparse(
-      SqlWriter writer,
-      SqlCall call,
-      int leftPrec,
-      int rightPrec) {
-    final SqlWriter.Frame frame = writer.startFunCall(getName());
-    call.operand(0).unparse(writer, leftPrec, rightPrec);
-    writer.sep("USING");
-    call.operand(1).unparse(writer, leftPrec, rightPrec);
-    writer.endFunCall(frame);
-  }
-
-  public String getSignatureTemplate(final int operandsCount) {
-    switch (operandsCount) {
-    case 2:
-      return "{0}({1} USING {2})";
+    protected SqlConvertFunction(String name) {
+        super(name, SqlKind.OTHER_FUNCTION, null, null, null, SqlFunctionCategory.STRING);
     }
-    assert false;
-    return null;
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        final SqlWriter.Frame frame = writer.startFunCall(getName());
+        call.operand(0).unparse(writer, leftPrec, rightPrec);
+        writer.sep("USING");
+        call.operand(1).unparse(writer, leftPrec, rightPrec);
+        writer.endFunCall(frame);
+    }
+
+    public String getSignatureTemplate(final int operandsCount) {
+        switch (operandsCount) {
+            case 2:
+                return "{0}({1} USING {2})";
+        }
+        assert false;
+        return null;
+    }
 }
 
 // End SqlConvertFunction.java

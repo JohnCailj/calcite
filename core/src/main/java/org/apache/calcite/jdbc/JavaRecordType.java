@@ -16,10 +16,9 @@
  */
 package org.apache.calcite.jdbc;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.rel.type.RelRecordType;
-
-import com.google.common.base.Preconditions;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,28 +26,26 @@ import java.util.Objects;
 /**
  * Record type based on a Java class. The fields of the type are the fields
  * of the class.
- *
  * <p><strong>NOTE: This class is experimental and subject to
  * change/removal without notice</strong>.</p>
  */
 public class JavaRecordType extends RelRecordType {
-  final Class clazz;
 
-  public JavaRecordType(List<RelDataTypeField> fields, Class clazz) {
-    super(fields);
-    this.clazz = Preconditions.checkNotNull(clazz);
-  }
+    final Class clazz;
 
-  @Override public boolean equals(Object obj) {
-    return this == obj
-        || obj instanceof JavaRecordType
-        && fieldList.equals(((JavaRecordType) obj).fieldList)
-        && clazz == ((JavaRecordType) obj).clazz;
-  }
+    public JavaRecordType(List<RelDataTypeField> fields, Class clazz) {
+        super(fields);
+        this.clazz = Preconditions.checkNotNull(clazz);
+    }
 
-  @Override public int hashCode() {
-    return Objects.hash(fieldList, clazz);
-  }
+    @Override public boolean equals(Object obj) {
+        return this == obj || obj instanceof JavaRecordType && fieldList.equals(((JavaRecordType) obj).fieldList)
+                              && clazz == ((JavaRecordType) obj).clazz;
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(fieldList, clazz);
+    }
 }
 
 // End JavaRecordType.java

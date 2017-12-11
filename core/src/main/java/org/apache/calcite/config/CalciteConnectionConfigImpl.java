@@ -31,145 +31,129 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-/** Implementation of {@link CalciteConnectionConfig}. */
-public class CalciteConnectionConfigImpl extends ConnectionConfigImpl
-    implements CalciteConnectionConfig {
-  public CalciteConnectionConfigImpl(Properties properties) {
-    super(properties);
-  }
+/**
+ * Implementation of {@link CalciteConnectionConfig}.
+ */
+public class CalciteConnectionConfigImpl extends ConnectionConfigImpl implements CalciteConnectionConfig {
 
-  /** Returns a copy of this configuration with one property changed. */
-  public CalciteConnectionConfigImpl set(CalciteConnectionProperty property,
-      String value) {
-    final Properties properties1 = new Properties(properties);
-    properties1.setProperty(property.camelName(), value);
-    return new CalciteConnectionConfigImpl(properties1);
-  }
-
-  public boolean approximateDistinctCount() {
-    return CalciteConnectionProperty.APPROXIMATE_DISTINCT_COUNT.wrap(properties)
-        .getBoolean();
-  }
-
-  public boolean approximateTopN() {
-    return CalciteConnectionProperty.APPROXIMATE_TOP_N.wrap(properties)
-        .getBoolean();
-  }
-
-  public boolean approximateDecimal() {
-    return CalciteConnectionProperty.APPROXIMATE_DECIMAL.wrap(properties)
-        .getBoolean();
-  }
-
-  public boolean autoTemp() {
-    return CalciteConnectionProperty.AUTO_TEMP.wrap(properties).getBoolean();
-  }
-
-  public boolean materializationsEnabled() {
-    return CalciteConnectionProperty.MATERIALIZATIONS_ENABLED.wrap(properties)
-        .getBoolean();
-  }
-
-  public boolean createMaterializations() {
-    return CalciteConnectionProperty.CREATE_MATERIALIZATIONS.wrap(properties)
-        .getBoolean();
-  }
-
-  public NullCollation defaultNullCollation() {
-    return CalciteConnectionProperty.DEFAULT_NULL_COLLATION.wrap(properties)
-        .getEnum(NullCollation.class, NullCollation.HIGH);
-  }
-
-  public <T> T fun(Class<T> operatorTableClass, T defaultOperatorTable) {
-    final String fun =
-        CalciteConnectionProperty.FUN.wrap(properties).getString();
-    if (fun == null || fun.equals("") || fun.equals("standard")) {
-      return defaultOperatorTable;
+    public CalciteConnectionConfigImpl(Properties properties) {
+        super(properties);
     }
-    final List<SqlOperatorTable> tables = new ArrayList<>();
-    for (String s : fun.split(",")) {
-      tables.add(operatorTable(s));
+
+    /**
+     * Returns a copy of this configuration with one property changed.
+     */
+    public CalciteConnectionConfigImpl set(CalciteConnectionProperty property, String value) {
+        final Properties properties1 = new Properties(properties);
+        properties1.setProperty(property.camelName(), value);
+        return new CalciteConnectionConfigImpl(properties1);
     }
-    return operatorTableClass.cast(
-        ChainedSqlOperatorTable.of(
-            tables.toArray(new SqlOperatorTable[tables.size()])));
-  }
 
-  private static SqlOperatorTable operatorTable(String s) {
-    switch (s) {
-    case "standard":
-      return SqlStdOperatorTable.instance();
-    case "oracle":
-      return ChainedSqlOperatorTable.of(OracleSqlOperatorTable.instance(),
-          SqlStdOperatorTable.instance());
-    default:
-      throw new IllegalArgumentException("Unknown operator table: " + s);
+    public boolean approximateDistinctCount() {
+        return CalciteConnectionProperty.APPROXIMATE_DISTINCT_COUNT.wrap(properties).getBoolean();
     }
-  }
 
-  public String model() {
-    return CalciteConnectionProperty.MODEL.wrap(properties).getString();
-  }
+    public boolean approximateTopN() {
+        return CalciteConnectionProperty.APPROXIMATE_TOP_N.wrap(properties).getBoolean();
+    }
 
-  public Lex lex() {
-    return CalciteConnectionProperty.LEX.wrap(properties).getEnum(Lex.class);
-  }
+    public boolean approximateDecimal() {
+        return CalciteConnectionProperty.APPROXIMATE_DECIMAL.wrap(properties).getBoolean();
+    }
 
-  public Quoting quoting() {
-    return CalciteConnectionProperty.QUOTING.wrap(properties)
-        .getEnum(Quoting.class, lex().quoting);
-  }
+    public boolean autoTemp() {
+        return CalciteConnectionProperty.AUTO_TEMP.wrap(properties).getBoolean();
+    }
 
-  public Casing unquotedCasing() {
-    return CalciteConnectionProperty.UNQUOTED_CASING.wrap(properties)
-        .getEnum(Casing.class, lex().unquotedCasing);
-  }
+    public boolean materializationsEnabled() {
+        return CalciteConnectionProperty.MATERIALIZATIONS_ENABLED.wrap(properties).getBoolean();
+    }
 
-  public Casing quotedCasing() {
-    return CalciteConnectionProperty.QUOTED_CASING.wrap(properties)
-        .getEnum(Casing.class, lex().quotedCasing);
-  }
+    public boolean createMaterializations() {
+        return CalciteConnectionProperty.CREATE_MATERIALIZATIONS.wrap(properties).getBoolean();
+    }
 
-  public boolean caseSensitive() {
-    return CalciteConnectionProperty.CASE_SENSITIVE.wrap(properties)
-        .getBoolean(lex().caseSensitive);
-  }
+    public NullCollation defaultNullCollation() {
+        return CalciteConnectionProperty.DEFAULT_NULL_COLLATION.wrap(properties).getEnum(NullCollation.class,
+                                                                                         NullCollation.HIGH);
+    }
 
-  public <T> T parserFactory(Class<T> parserFactoryClass,
-      T defaultParserFactory) {
-    return CalciteConnectionProperty.PARSER_FACTORY.wrap(properties)
-        .getPlugin(parserFactoryClass, defaultParserFactory);
-  }
+    public <T> T fun(Class<T> operatorTableClass, T defaultOperatorTable) {
+        final String fun = CalciteConnectionProperty.FUN.wrap(properties).getString();
+        if (fun == null || fun.equals("") || fun.equals("standard")) {
+            return defaultOperatorTable;
+        }
+        final List<SqlOperatorTable> tables = new ArrayList<>();
+        for (String s : fun.split(",")) {
+            tables.add(operatorTable(s));
+        }
+        return operatorTableClass.cast(ChainedSqlOperatorTable.of(tables.toArray(new SqlOperatorTable[tables.size()])));
+    }
 
-  public <T> T schemaFactory(Class<T> schemaFactoryClass,
-      T defaultSchemaFactory) {
-    return CalciteConnectionProperty.SCHEMA_FACTORY.wrap(properties)
-        .getPlugin(schemaFactoryClass, defaultSchemaFactory);
-  }
+    private static SqlOperatorTable operatorTable(String s) {
+        switch (s) {
+            case "standard":
+                return SqlStdOperatorTable.instance();
+            case "oracle":
+                return ChainedSqlOperatorTable.of(OracleSqlOperatorTable.instance(), SqlStdOperatorTable.instance());
+            default:
+                throw new IllegalArgumentException("Unknown operator table: " + s);
+        }
+    }
 
-  public JsonSchema.Type schemaType() {
-    return CalciteConnectionProperty.SCHEMA_TYPE.wrap(properties)
-        .getEnum(JsonSchema.Type.class);
-  }
+    public String model() {
+        return CalciteConnectionProperty.MODEL.wrap(properties).getString();
+    }
 
-  public boolean spark() {
-    return CalciteConnectionProperty.SPARK.wrap(properties).getBoolean();
-  }
+    public Lex lex() {
+        return CalciteConnectionProperty.LEX.wrap(properties).getEnum(Lex.class);
+    }
 
-  public boolean forceDecorrelate() {
-    return CalciteConnectionProperty.FORCE_DECORRELATE.wrap(properties)
-        .getBoolean();
-  }
+    public Quoting quoting() {
+        return CalciteConnectionProperty.QUOTING.wrap(properties).getEnum(Quoting.class, lex().quoting);
+    }
 
-  public <T> T typeSystem(Class<T> typeSystemClass, T defaultTypeSystem) {
-    return CalciteConnectionProperty.TYPE_SYSTEM.wrap(properties)
-        .getPlugin(typeSystemClass, defaultTypeSystem);
-  }
+    public Casing unquotedCasing() {
+        return CalciteConnectionProperty.UNQUOTED_CASING.wrap(properties).getEnum(Casing.class, lex().unquotedCasing);
+    }
 
-  public SqlConformance conformance() {
-    return CalciteConnectionProperty.CONFORMANCE.wrap(properties)
-        .getEnum(SqlConformanceEnum.class);
-  }
+    public Casing quotedCasing() {
+        return CalciteConnectionProperty.QUOTED_CASING.wrap(properties).getEnum(Casing.class, lex().quotedCasing);
+    }
+
+    public boolean caseSensitive() {
+        return CalciteConnectionProperty.CASE_SENSITIVE.wrap(properties).getBoolean(lex().caseSensitive);
+    }
+
+    public <T> T parserFactory(Class<T> parserFactoryClass, T defaultParserFactory) {
+        return CalciteConnectionProperty.PARSER_FACTORY.wrap(properties).getPlugin(parserFactoryClass,
+                                                                                   defaultParserFactory);
+    }
+
+    public <T> T schemaFactory(Class<T> schemaFactoryClass, T defaultSchemaFactory) {
+        return CalciteConnectionProperty.SCHEMA_FACTORY.wrap(properties).getPlugin(schemaFactoryClass,
+                                                                                   defaultSchemaFactory);
+    }
+
+    public JsonSchema.Type schemaType() {
+        return CalciteConnectionProperty.SCHEMA_TYPE.wrap(properties).getEnum(JsonSchema.Type.class);
+    }
+
+    public boolean spark() {
+        return CalciteConnectionProperty.SPARK.wrap(properties).getBoolean();
+    }
+
+    public boolean forceDecorrelate() {
+        return CalciteConnectionProperty.FORCE_DECORRELATE.wrap(properties).getBoolean();
+    }
+
+    public <T> T typeSystem(Class<T> typeSystemClass, T defaultTypeSystem) {
+        return CalciteConnectionProperty.TYPE_SYSTEM.wrap(properties).getPlugin(typeSystemClass, defaultTypeSystem);
+    }
+
+    public SqlConformance conformance() {
+        return CalciteConnectionProperty.CONFORMANCE.wrap(properties).getEnum(SqlConformanceEnum.class);
+    }
 }
 
 // End CalciteConnectionConfigImpl.java

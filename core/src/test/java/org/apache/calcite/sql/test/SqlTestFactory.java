@@ -25,18 +25,23 @@ import org.apache.calcite.sql.validate.SqlValidatorWithHints;
 import org.apache.calcite.test.MockCatalogReader;
 
 /**
-* Creates the objects needed to run a SQL parsing or validation test.
+ * Creates the objects needed to run a SQL parsing or validation test.
  *
  * @see org.apache.calcite.sql.test.SqlTester
-*/
+ */
 public interface SqlTestFactory {
-  MockCatalogReader createCatalogReader(SqlTestFactory testFactory,
-      JavaTypeFactory typeFactory);
-  SqlOperatorTable createOperatorTable(SqlTestFactory factory);
-  SqlParser createParser(SqlTestFactory factory, String sql);
-  SqlValidator getValidator(SqlTestFactory factory);
-  SqlAdvisor createAdvisor(SqlValidatorWithHints validator);
-  Object get(String name);
+
+    MockCatalogReader createCatalogReader(SqlTestFactory testFactory, JavaTypeFactory typeFactory);
+
+    SqlOperatorTable createOperatorTable(SqlTestFactory factory);
+
+    SqlParser createParser(SqlTestFactory factory, String sql);
+
+    SqlValidator getValidator(SqlTestFactory factory);
+
+    SqlAdvisor createAdvisor(SqlValidatorWithHints validator);
+
+    Object get(String name);
 }
 
 // End SqlTestFactory.java

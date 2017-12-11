@@ -16,12 +16,7 @@
  */
 package org.apache.calcite.sql.fun;
 
-import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlOperatorBinding;
-import org.apache.calcite.sql.SqlSpecialOperator;
-import org.apache.calcite.sql.SqlSyntax;
-import org.apache.calcite.sql.SqlWriter;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.type.InferTypes;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
@@ -30,51 +25,39 @@ import org.apache.calcite.sql.validate.SqlMonotonicity;
 /**
  * A special operator for the subtraction of two DATETIMEs. The format of
  * DATETIME subtraction is:
- *
  * <blockquote><code>"(" &lt;datetime&gt; "-" &lt;datetime&gt; ")"
  * &lt;interval qualifier&gt;</code></blockquote>
- *
  * <p>This operator is special since it needs to hold the
  * additional interval qualifier specification, when in {@link SqlCall} form.
  * In {@link org.apache.calcite.rex.RexNode} form, it has only two parameters,
  * and the return type describes the desired type of interval.
  */
 public class SqlDatetimeSubtractionOperator extends SqlSpecialOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlDatetimeSubtractionOperator() {
-    super(
-        "-",
-        SqlKind.MINUS,
-        40,
-        true,
-        ReturnTypes.ARG2_NULLABLE,
-        InferTypes.FIRST_KNOWN,
-        OperandTypes.MINUS_DATE_OPERATOR);
-  }
+    public SqlDatetimeSubtractionOperator() {
+        super("-", SqlKind.MINUS, 40, true, ReturnTypes.ARG2_NULLABLE, InferTypes.FIRST_KNOWN,
+              OperandTypes.MINUS_DATE_OPERATOR);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public SqlSyntax getSyntax() {
-    return SqlSyntax.SPECIAL;
-  }
+    public SqlSyntax getSyntax() {
+        return SqlSyntax.SPECIAL;
+    }
 
-  public void unparse(
-      SqlWriter writer,
-      SqlCall call,
-      int leftPrec,
-      int rightPrec) {
-    final SqlWriter.Frame frame = writer.startList("(", ")");
-    call.operand(0).unparse(writer, leftPrec, rightPrec);
-    writer.sep("-");
-    call.operand(1).unparse(writer, leftPrec, rightPrec);
-    writer.endList(frame);
-    call.operand(2).unparse(writer, leftPrec, rightPrec);
-  }
+    public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        final SqlWriter.Frame frame = writer.startList("(", ")");
+        call.operand(0).unparse(writer, leftPrec, rightPrec);
+        writer.sep("-");
+        call.operand(1).unparse(writer, leftPrec, rightPrec);
+        writer.endList(frame);
+        call.operand(2).unparse(writer, leftPrec, rightPrec);
+    }
 
-  @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
-    return SqlStdOperatorTable.MINUS.getMonotonicity(call);
-  }
+    @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
+        return SqlStdOperatorTable.MINUS.getMonotonicity(call);
+    }
 }
 
 // End SqlDatetimeSubtractionOperator.java

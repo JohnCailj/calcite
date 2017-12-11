@@ -27,22 +27,22 @@ import static org.junit.Assert.assertThat;
  * Tests for {@link Source}.
  */
 public class SourceTest {
-  @Test public void testAppend() {
-    final Source foo = Sources.file(null, "/foo");
-    final Source bar = Sources.file(null, "bar");
-    final Source fooBar = foo.append(bar);
-    assertThat(fooBar.file().toString(),
-        is("/foo/bar".replace('/', File.separatorChar)));
-  }
 
-  @Test public void testRelative() {
-    final Source fooBar = Sources.file(null, "/foo/bar");
-    final Source foo = Sources.file(null, "/foo");
-    final Source baz = Sources.file(null, "/baz");
-    final Source bar = fooBar.relative(foo);
-    assertThat(bar.file().toString(), is("bar"));
-    assertThat(fooBar.relative(baz), is(fooBar));
-  }
+    @Test public void testAppend() {
+        final Source foo = Sources.file(null, "/foo");
+        final Source bar = Sources.file(null, "bar");
+        final Source fooBar = foo.append(bar);
+        assertThat(fooBar.file().toString(), is("/foo/bar".replace('/', File.separatorChar)));
+    }
+
+    @Test public void testRelative() {
+        final Source fooBar = Sources.file(null, "/foo/bar");
+        final Source foo = Sources.file(null, "/foo");
+        final Source baz = Sources.file(null, "/baz");
+        final Source bar = fooBar.relative(foo);
+        assertThat(bar.file().toString(), is("bar"));
+        assertThat(fooBar.relative(baz), is(fooBar));
+    }
 }
 
 // End SourceTest.java

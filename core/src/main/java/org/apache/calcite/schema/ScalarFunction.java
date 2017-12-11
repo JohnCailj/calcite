@@ -23,13 +23,14 @@ import org.apache.calcite.rel.type.RelDataTypeFactory;
  * Function that returns a scalar result.
  */
 public interface ScalarFunction extends Function {
-  /**
-   * Returns the return type of this function, constructed using the given
-   * type factory.
-   *
-   * @param typeFactory Type factory
-   */
-  RelDataType getReturnType(RelDataTypeFactory typeFactory);
+
+    /**
+     * Returns the return type of this function, constructed using the given
+     * type factory.
+     *
+     * @param typeFactory Type factory
+     */
+    RelDataType getReturnType(RelDataTypeFactory typeFactory);
 }
 
 // End ScalarFunction.java

@@ -27,37 +27,28 @@ import java.util.Collections;
  * operand which is the real SqlCall.
  */
 public class SqlProcedureCallOperator extends SqlPrefixOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlProcedureCallOperator() {
-    super("CALL", SqlKind.PROCEDURE_CALL, 0, null, null, null);
-  }
+    public SqlProcedureCallOperator() {
+        super("CALL", SqlKind.PROCEDURE_CALL, 0, null, null, null);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  // override SqlOperator
-  public SqlNode rewriteCall(SqlValidator validator, SqlCall call) {
-    // for now, rewrite "CALL f(x)" to "SELECT f(x) FROM VALUES(0)"
-    // TODO jvs 18-Jan-2005:  rewrite to SELECT * FROM TABLE f(x)
-    // once we support function calls as tables
-    return new SqlSelect(SqlParserPos.ZERO,
-        null,
-        new SqlNodeList(
-            Collections.singletonList(call.operand(0)),
-            SqlParserPos.ZERO),
-        SqlStdOperatorTable.VALUES.createCall(
-            SqlParserPos.ZERO,
-            SqlStdOperatorTable.ROW.createCall(
-                SqlParserPos.ZERO,
-                SqlLiteral.createExactNumeric("0", SqlParserPos.ZERO))),
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null);
-  }
+    // override SqlOperator
+    public SqlNode rewriteCall(SqlValidator validator, SqlCall call) {
+        // for now, rewrite "CALL f(x)" to "SELECT f(x) FROM VALUES(0)"
+        // TODO jvs 18-Jan-2005:  rewrite to SELECT * FROM TABLE f(x)
+        // once we support function calls as tables
+        return new SqlSelect(SqlParserPos.ZERO, null,
+                             new SqlNodeList(Collections.singletonList(call.operand(0)), SqlParserPos.ZERO),
+                             SqlStdOperatorTable.VALUES.createCall(SqlParserPos.ZERO,
+                                                                   SqlStdOperatorTable.ROW.createCall(SqlParserPos.ZERO,
+                                                                                                      SqlLiteral.createExactNumeric(
+                                                                                                              "0",
+                                                                                                              SqlParserPos.ZERO))),
+                             null, null, null, null, null, null, null);
+    }
 }
 
 // End SqlProcedureCallOperator.java

@@ -16,47 +16,42 @@
  */
 package org.apache.calcite.sql.fun;
 
-import org.apache.calcite.sql.SqlKind;
-
 import com.google.common.base.Preconditions;
+import org.apache.calcite.sql.SqlKind;
 
 /**
  * Definition of the SQL <code>ALL</code> and <code>SOME</code>operators.
- *
  * <p>Each is used in combination with a relational operator:
  * <code>&lt;</code>, <code>&le;</code>,
  * <code>&gt;</code>, <code>&ge;</code>,
  * <code>=</code>, <code>&lt;&gt;</code>.
- *
  * <p><code>ANY</code> is a synonym for <code>SOME</code>.
  */
 public class SqlQuantifyOperator extends SqlInOperator {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  public final SqlKind comparisonKind;
+    public final SqlKind comparisonKind;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a SqlQuantifyOperator.
-   *
-   * @param kind Either ALL or SOME
-   * @param comparisonKind Either <code>&lt;</code>, <code>&le;</code>,
-   *   <code>&gt;</code>, <code>&ge;</code>,
-   *   <code>=</code> or <code>&lt;&gt;</code>.
-   */
-  SqlQuantifyOperator(SqlKind kind, SqlKind comparisonKind) {
-    super(comparisonKind.sql + " " + kind, kind);
-    this.comparisonKind = Preconditions.checkNotNull(comparisonKind);
-    Preconditions.checkArgument(comparisonKind == SqlKind.EQUALS
-        || comparisonKind == SqlKind.NOT_EQUALS
-        || comparisonKind == SqlKind.LESS_THAN_OR_EQUAL
-        || comparisonKind == SqlKind.LESS_THAN
-        || comparisonKind == SqlKind.GREATER_THAN_OR_EQUAL
-        || comparisonKind == SqlKind.GREATER_THAN);
-    Preconditions.checkArgument(kind == SqlKind.SOME
-        || kind == SqlKind.ALL);
-  }
+    /**
+     * Creates a SqlQuantifyOperator.
+     *
+     * @param kind           Either ALL or SOME
+     * @param comparisonKind Either <code>&lt;</code>, <code>&le;</code>,
+     *                       <code>&gt;</code>, <code>&ge;</code>,
+     *                       <code>=</code> or <code>&lt;&gt;</code>.
+     */
+    SqlQuantifyOperator(SqlKind kind, SqlKind comparisonKind) {
+        super(comparisonKind.sql + " " + kind, kind);
+        this.comparisonKind = Preconditions.checkNotNull(comparisonKind);
+        Preconditions.checkArgument(comparisonKind == SqlKind.EQUALS || comparisonKind == SqlKind.NOT_EQUALS
+                                    || comparisonKind == SqlKind.LESS_THAN_OR_EQUAL
+                                    || comparisonKind == SqlKind.LESS_THAN
+                                    || comparisonKind == SqlKind.GREATER_THAN_OR_EQUAL
+                                    || comparisonKind == SqlKind.GREATER_THAN);
+        Preconditions.checkArgument(kind == SqlKind.SOME || kind == SqlKind.ALL);
+    }
 }
 
 // End SqlQuantifyOperator.java

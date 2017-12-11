@@ -23,7 +23,6 @@ import java.util.List;
 /**
  * Children of a {@link org.apache.calcite.plan.RelOptRuleOperand} and the
  * policy for matching them.
- *
  * <p>Often created by calling one of the following methods:
  * {@link RelOptRule#some},
  * {@link RelOptRule#none},
@@ -31,25 +30,20 @@ import java.util.List;
  * {@link RelOptRule#unordered},</p>
  */
 public class RelOptRuleOperandChildren {
-  static final RelOptRuleOperandChildren ANY_CHILDREN =
-      new RelOptRuleOperandChildren(
-          RelOptRuleOperandChildPolicy.ANY,
-          ImmutableList.<RelOptRuleOperand>of());
 
-  static final RelOptRuleOperandChildren LEAF_CHILDREN =
-      new RelOptRuleOperandChildren(
-          RelOptRuleOperandChildPolicy.LEAF,
-          ImmutableList.<RelOptRuleOperand>of());
+    static final RelOptRuleOperandChildren ANY_CHILDREN = new RelOptRuleOperandChildren(
+            RelOptRuleOperandChildPolicy.ANY, ImmutableList.<RelOptRuleOperand>of());
 
-  final RelOptRuleOperandChildPolicy policy;
-  final ImmutableList<RelOptRuleOperand> operands;
+    static final RelOptRuleOperandChildren LEAF_CHILDREN = new RelOptRuleOperandChildren(
+            RelOptRuleOperandChildPolicy.LEAF, ImmutableList.<RelOptRuleOperand>of());
 
-  public RelOptRuleOperandChildren(
-      RelOptRuleOperandChildPolicy policy,
-      List<RelOptRuleOperand> operands) {
-    this.policy = policy;
-    this.operands = ImmutableList.copyOf(operands);
-  }
+    final RelOptRuleOperandChildPolicy     policy;
+    final ImmutableList<RelOptRuleOperand> operands;
+
+    public RelOptRuleOperandChildren(RelOptRuleOperandChildPolicy policy, List<RelOptRuleOperand> operands) {
+        this.policy = policy;
+        this.operands = ImmutableList.copyOf(operands);
+    }
 }
 
 // End RelOptRuleOperandChildren.java

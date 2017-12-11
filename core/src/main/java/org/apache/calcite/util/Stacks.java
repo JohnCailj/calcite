@@ -23,49 +23,49 @@ import java.util.List;
  */
 @Deprecated // to be removed before 2.0
 public class Stacks {
-  private Stacks() {
-  }
 
-  /**
-   * Returns the most recently added element in the stack. Throws if the
-   * stack is empty.
-   */
-  public static <T> T peek(List<T> stack) {
-    return stack.get(stack.size() - 1);
-  }
+    private Stacks() {
+    }
 
-  /**
-   * Returns the {@code n}th most recently added element in the stack.
-   * Throws if the stack is empty.
-   */
-  public static <T> T peek(int n, List<T> stack) {
-    return stack.get(stack.size() - n - 1);
-  }
+    /**
+     * Returns the most recently added element in the stack. Throws if the
+     * stack is empty.
+     */
+    public static <T> T peek(List<T> stack) {
+        return stack.get(stack.size() - 1);
+    }
 
-  /**
-   * Adds an element to the stack.
-   */
-  public static <T> void push(List<T> stack, T element) {
-    stack.add(element);
-  }
+    /**
+     * Returns the {@code n}th most recently added element in the stack.
+     * Throws if the stack is empty.
+     */
+    public static <T> T peek(int n, List<T> stack) {
+        return stack.get(stack.size() - n - 1);
+    }
 
-  /**
-   * Removes an element from the stack. Asserts of the element is not the
-   * one last added; throws if the stack is empty.
-   */
-  public static <T> void pop(List<T> stack, T element) {
-    assert stack.get(stack.size() - 1) == element;
-    stack.remove(stack.size() - 1);
-  }
+    /**
+     * Adds an element to the stack.
+     */
+    public static <T> void push(List<T> stack, T element) {
+        stack.add(element);
+    }
 
-  /**
-   * Removes an element from the stack and returns it.
-   *
-   * <p>Throws if the stack is empty.
-   */
-  public static <T> T pop(List<T> stack) {
-    return stack.remove(stack.size() - 1);
-  }
+    /**
+     * Removes an element from the stack. Asserts of the element is not the
+     * one last added; throws if the stack is empty.
+     */
+    public static <T> void pop(List<T> stack, T element) {
+        assert stack.get(stack.size() - 1) == element;
+        stack.remove(stack.size() - 1);
+    }
+
+    /**
+     * Removes an element from the stack and returns it.
+     * <p>Throws if the stack is empty.
+     */
+    public static <T> T pop(List<T> stack) {
+        return stack.remove(stack.size() - 1);
+    }
 }
 
 // End Stacks.java

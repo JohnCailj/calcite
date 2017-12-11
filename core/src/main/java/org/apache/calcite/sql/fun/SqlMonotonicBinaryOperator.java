@@ -33,134 +33,121 @@ import java.math.BigDecimal;
  * <code>c op m</code> where m is any monotonic expression and c is a constant.
  */
 public class SqlMonotonicBinaryOperator extends SqlBinaryOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlMonotonicBinaryOperator(
-      String name,
-      SqlKind kind,
-      int prec,
-      boolean isLeftAssoc,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker) {
-    super(
-        name,
-        kind,
-        prec,
-        isLeftAssoc,
-        returnTypeInference,
-        operandTypeInference,
-        operandTypeChecker);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
-    final SqlMonotonicity mono0 = call.getOperandMonotonicity(0);
-    final SqlMonotonicity mono1 = call.getOperandMonotonicity(1);
-
-    // constant <op> constant --> constant
-    if ((mono1 == SqlMonotonicity.CONSTANT)
-        && (mono0 == SqlMonotonicity.CONSTANT)) {
-      return SqlMonotonicity.CONSTANT;
+    public SqlMonotonicBinaryOperator(String name, SqlKind kind, int prec, boolean isLeftAssoc,
+                                      SqlReturnTypeInference returnTypeInference,
+                                      SqlOperandTypeInference operandTypeInference,
+                                      SqlOperandTypeChecker operandTypeChecker) {
+        super(name, kind, prec, isLeftAssoc, returnTypeInference, operandTypeInference, operandTypeChecker);
     }
 
-    // monotonic <op> constant
-    if (mono1 == SqlMonotonicity.CONSTANT) {
-      // mono0 + constant --> mono0
-      // mono0 - constant --> mono0
-      if (getName().equals("-")
-          || getName().equals("+")) {
-        return mono0;
-      }
-      assert getName().equals("*");
-      switch (signum(call.getOperandLiteralValue(1))) {
-      case -1:
-        // mono0 * negative constant --> reverse mono0
-        return mono0.reverse();
+    //~ Methods ----------------------------------------------------------------
 
-      case 0:
-        // mono0 * 0 --> constant (zero)
-        return SqlMonotonicity.CONSTANT;
+    @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
+        final SqlMonotonicity mono0 = call.getOperandMonotonicity(0);
+        final SqlMonotonicity mono1 = call.getOperandMonotonicity(1);
 
-      default:
-        // mono0 * positive constant --> mono0
-        return mono0;
-      }
-    }
-
-    // constant <op> mono
-    if (mono0 == SqlMonotonicity.CONSTANT) {
-      if (getName().equals("-")) {
-        // constant - mono1 --> reverse mono1
-        return mono1.reverse();
-      }
-      if (getName().equals("+")) {
-        // constant + mono1 --> mono1
-        return mono1;
-      }
-      assert getName().equals("*");
-      final Object v0 = call.getOperandLiteralValue(0);
-      if (v0 != null) {
-        switch (signum(v0)) {
-        case -1:
-          // negative constant * mono1 --> reverse mono1
-          return mono1.reverse();
-
-        case 0:
-          // 0 * mono1 --> constant (zero)
-          return SqlMonotonicity.CONSTANT;
-
-        default:
-          // positive constant * mono1 --> mono1
-          return mono1;
+        // constant <op> constant --> constant
+        if ((mono1 == SqlMonotonicity.CONSTANT) && (mono0 == SqlMonotonicity.CONSTANT)) {
+            return SqlMonotonicity.CONSTANT;
         }
-      }
+
+        // monotonic <op> constant
+        if (mono1 == SqlMonotonicity.CONSTANT) {
+            // mono0 + constant --> mono0
+            // mono0 - constant --> mono0
+            if (getName().equals("-") || getName().equals("+")) {
+                return mono0;
+            }
+            assert getName().equals("*");
+            switch (signum(call.getOperandLiteralValue(1))) {
+                case -1:
+                    // mono0 * negative constant --> reverse mono0
+                    return mono0.reverse();
+
+                case 0:
+                    // mono0 * 0 --> constant (zero)
+                    return SqlMonotonicity.CONSTANT;
+
+                default:
+                    // mono0 * positive constant --> mono0
+                    return mono0;
+            }
+        }
+
+        // constant <op> mono
+        if (mono0 == SqlMonotonicity.CONSTANT) {
+            if (getName().equals("-")) {
+                // constant - mono1 --> reverse mono1
+                return mono1.reverse();
+            }
+            if (getName().equals("+")) {
+                // constant + mono1 --> mono1
+                return mono1;
+            }
+            assert getName().equals("*");
+            final Object v0 = call.getOperandLiteralValue(0);
+            if (v0 != null) {
+                switch (signum(v0)) {
+                    case -1:
+                        // negative constant * mono1 --> reverse mono1
+                        return mono1.reverse();
+
+                    case 0:
+                        // 0 * mono1 --> constant (zero)
+                        return SqlMonotonicity.CONSTANT;
+
+                    default:
+                        // positive constant * mono1 --> mono1
+                        return mono1;
+                }
+            }
+        }
+
+        // strictly asc + strictly asc --> strictly asc
+        //   e.g. 2 * orderid + 3 * orderid
+        //     is strictly increasing if orderid is strictly increasing
+        // asc + asc --> asc
+        //   e.g. 2 * orderid + 3 * orderid
+        //     is increasing if orderid is increasing
+        // asc + desc --> not monotonic
+        //   e.g. 2 * orderid + (-3 * orderid) is not monotonic
+
+        if (getName().equals("+")) {
+            if (mono0 == mono1) {
+                return mono0;
+            } else if (mono0.unstrict() == mono1.unstrict()) {
+                return mono0.unstrict();
+            } else {
+                return SqlMonotonicity.NOT_MONOTONIC;
+            }
+        }
+        if (getName().equals("-")) {
+            if (mono0 == mono1.reverse()) {
+                return mono0;
+            } else if (mono0.unstrict() == mono1.reverse().unstrict()) {
+                return mono0.unstrict();
+            } else {
+                return SqlMonotonicity.NOT_MONOTONIC;
+            }
+        }
+        if (getName().equals("*")) {
+            return SqlMonotonicity.NOT_MONOTONIC;
+        }
+
+        return super.getMonotonicity(call);
     }
 
-    // strictly asc + strictly asc --> strictly asc
-    //   e.g. 2 * orderid + 3 * orderid
-    //     is strictly increasing if orderid is strictly increasing
-    // asc + asc --> asc
-    //   e.g. 2 * orderid + 3 * orderid
-    //     is increasing if orderid is increasing
-    // asc + desc --> not monotonic
-    //   e.g. 2 * orderid + (-3 * orderid) is not monotonic
-
-    if (getName().equals("+")) {
-      if (mono0 == mono1) {
-        return mono0;
-      } else if (mono0.unstrict() == mono1.unstrict()) {
-        return mono0.unstrict();
-      } else {
-        return SqlMonotonicity.NOT_MONOTONIC;
-      }
+    private int signum(Object o) {
+        if (o instanceof BigDecimal) {
+            return ((BigDecimal) o).signum();
+        } else if (o instanceof SqlIntervalLiteral.IntervalValue) {
+            return ((SqlIntervalLiteral.IntervalValue) o).getSign();
+        } else {
+            return 1;
+        }
     }
-    if (getName().equals("-")) {
-      if (mono0 == mono1.reverse()) {
-        return mono0;
-      } else if (mono0.unstrict() == mono1.reverse().unstrict()) {
-        return mono0.unstrict();
-      } else {
-        return SqlMonotonicity.NOT_MONOTONIC;
-      }
-    }
-    if (getName().equals("*")) {
-      return SqlMonotonicity.NOT_MONOTONIC;
-    }
-
-    return super.getMonotonicity(call);
-  }
-
-  private int signum(Object o) {
-    if (o instanceof BigDecimal) {
-      return ((BigDecimal) o).signum();
-    } else if (o instanceof SqlIntervalLiteral.IntervalValue) {
-      return ((SqlIntervalLiteral.IntervalValue) o).getSign();
-    } else {
-      return 1;
-    }
-  }
 }
 
 // End SqlMonotonicBinaryOperator.java

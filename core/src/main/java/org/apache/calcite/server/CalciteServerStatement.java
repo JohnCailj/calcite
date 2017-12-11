@@ -26,19 +26,24 @@ import java.util.Iterator;
  * Statement within a Calcite server.
  */
 public interface CalciteServerStatement {
-  /** Creates a context for preparing a statement for execution. */
-  CalcitePrepare.Context createPrepareContext();
 
-  /** Returns the connection. */
-  CalciteConnection getConnection();
+    /**
+     * Creates a context for preparing a statement for execution.
+     */
+    CalcitePrepare.Context createPrepareContext();
 
-  void setSignature(Meta.Signature signature);
+    /**
+     * Returns the connection.
+     */
+    CalciteConnection getConnection();
 
-  Meta.Signature getSignature();
+    void setSignature(Meta.Signature signature);
 
-  Iterator<Object> getResultSet();
+    Meta.Signature getSignature();
 
-  void setResultSet(Iterator<Object> resultSet);
+    Iterator<Object> getResultSet();
+
+    void setResultSet(Iterator<Object> resultSet);
 }
 
 // End CalciteServerStatement.java

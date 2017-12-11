@@ -39,97 +39,85 @@ import org.apache.calcite.util.Util;
  * Rule that converts a {@link org.apache.calcite.rel.logical.LogicalJoin}
  * into a {@link org.apache.calcite.rel.logical.LogicalCorrelate}, which can
  * then be implemented using nested loops.
- *
  * <p>For example,</p>
- *
  * <blockquote><code>select * from emp join dept on emp.deptno =
  * dept.deptno</code></blockquote>
- *
  * <p>becomes a Correlator which restarts LogicalTableScan("DEPT") for each
  * row read from LogicalTableScan("EMP").</p>
- *
  * <p>This rule is not applicable if for certain types of outer join. For
  * example,</p>
- *
  * <blockquote><code>select * from emp right join dept on emp.deptno =
  * dept.deptno</code></blockquote>
- *
  * <p>would require emitting a NULL emp row if a certain department contained no
  * employees, and Correlator cannot do that.</p>
  */
 public class JoinToCorrelateRule extends RelOptRule {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  public static final JoinToCorrelateRule INSTANCE =
-      new JoinToCorrelateRule(RelFactories.LOGICAL_BUILDER);
+    public static final JoinToCorrelateRule INSTANCE = new JoinToCorrelateRule(RelFactories.LOGICAL_BUILDER);
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Private constructor; use singleton {@link #INSTANCE}.
-   */
-  protected JoinToCorrelateRule(RelBuilderFactory relBuilderFactory) {
-    super(operand(LogicalJoin.class, any()), relBuilderFactory, null);
-  }
-
-  @Deprecated // to be removed before 2.0
-  protected JoinToCorrelateRule(RelFactories.FilterFactory filterFactory) {
-    this(RelBuilder.proto(Contexts.of(filterFactory)));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public boolean matches(RelOptRuleCall call) {
-    LogicalJoin join = call.rel(0);
-    switch (join.getJoinType()) {
-    case INNER:
-    case LEFT:
-      return true;
-    case FULL:
-    case RIGHT:
-      return false;
-    default:
-      throw Util.unexpected(join.getJoinType());
+    /**
+     * Private constructor; use singleton {@link #INSTANCE}.
+     */
+    protected JoinToCorrelateRule(RelBuilderFactory relBuilderFactory) {
+        super(operand(LogicalJoin.class, any()), relBuilderFactory, null);
     }
-  }
 
-  public void onMatch(RelOptRuleCall call) {
-    assert matches(call);
-    final LogicalJoin join = call.rel(0);
-    RelNode right = join.getRight();
-    final RelNode left = join.getLeft();
-    final int leftFieldCount = left.getRowType().getFieldCount();
-    final RelOptCluster cluster = join.getCluster();
-    final RexBuilder rexBuilder = cluster.getRexBuilder();
-    final RelBuilder relBuilder = call.builder();
-    final CorrelationId correlationId = cluster.createCorrel();
-    final RexNode corrVar =
-        rexBuilder.makeCorrel(left.getRowType(), correlationId);
-    final ImmutableBitSet.Builder requiredColumns = ImmutableBitSet.builder();
+    @Deprecated // to be removed before 2.0
+    protected JoinToCorrelateRule(RelFactories.FilterFactory filterFactory) {
+        this(RelBuilder.proto(Contexts.of(filterFactory)));
+    }
 
-    // Replace all references of left input with FieldAccess(corrVar, field)
-    final RexNode joinCondition = join.getCondition().accept(new RexShuttle() {
-      @Override public RexNode visitInputRef(RexInputRef input) {
-        int field = input.getIndex();
-        if (field >= leftFieldCount) {
-          return rexBuilder.makeInputRef(input.getType(),
-              input.getIndex() - leftFieldCount);
+    //~ Methods ----------------------------------------------------------------
+
+    public boolean matches(RelOptRuleCall call) {
+        LogicalJoin join = call.rel(0);
+        switch (join.getJoinType()) {
+            case INNER:
+            case LEFT:
+                return true;
+            case FULL:
+            case RIGHT:
+                return false;
+            default:
+                throw Util.unexpected(join.getJoinType());
         }
-        requiredColumns.set(field);
-        return rexBuilder.makeFieldAccess(corrVar, field);
-      }
-    });
+    }
 
-    relBuilder.push(right).filter(joinCondition);
+    public void onMatch(RelOptRuleCall call) {
+        assert matches(call);
+        final LogicalJoin join = call.rel(0);
+        RelNode right = join.getRight();
+        final RelNode left = join.getLeft();
+        final int leftFieldCount = left.getRowType().getFieldCount();
+        final RelOptCluster cluster = join.getCluster();
+        final RexBuilder rexBuilder = cluster.getRexBuilder();
+        final RelBuilder relBuilder = call.builder();
+        final CorrelationId correlationId = cluster.createCorrel();
+        final RexNode corrVar = rexBuilder.makeCorrel(left.getRowType(), correlationId);
+        final ImmutableBitSet.Builder requiredColumns = ImmutableBitSet.builder();
 
-    RelNode newRel =
-        LogicalCorrelate.create(left,
-            relBuilder.build(),
-            correlationId,
-            requiredColumns.build(),
-            SemiJoinType.of(join.getJoinType()));
-    call.transformTo(newRel);
-  }
+        // Replace all references of left input with FieldAccess(corrVar, field)
+        final RexNode joinCondition = join.getCondition().accept(new RexShuttle() {
+
+            @Override public RexNode visitInputRef(RexInputRef input) {
+                int field = input.getIndex();
+                if (field >= leftFieldCount) {
+                    return rexBuilder.makeInputRef(input.getType(), input.getIndex() - leftFieldCount);
+                }
+                requiredColumns.set(field);
+                return rexBuilder.makeFieldAccess(corrVar, field);
+            }
+        });
+
+        relBuilder.push(right).filter(joinCondition);
+
+        RelNode newRel = LogicalCorrelate.create(left, relBuilder.build(), correlationId, requiredColumns.build(),
+                                                 SemiJoinType.of(join.getJoinType()));
+        call.transformTo(newRel);
+    }
 }
 
 // End JoinToCorrelateRule.java

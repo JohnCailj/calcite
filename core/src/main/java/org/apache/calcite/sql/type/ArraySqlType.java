@@ -16,75 +16,73 @@
  */
 package org.apache.calcite.sql.type;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFamily;
 import org.apache.calcite.rel.type.RelDataTypePrecedenceList;
-
-import com.google.common.base.Preconditions;
 
 /**
  * SQL array type.
  */
 public class ArraySqlType extends AbstractSqlType {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final RelDataType elementType;
+    private final RelDataType elementType;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates an ArraySqlType. This constructor should only be called
-   * from a factory method.
-   */
-  public ArraySqlType(RelDataType elementType, boolean isNullable) {
-    super(SqlTypeName.ARRAY, isNullable, null);
-    this.elementType = Preconditions.checkNotNull(elementType);
-    computeDigest();
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  // implement RelDataTypeImpl
-  protected void generateTypeString(StringBuilder sb, boolean withDetail) {
-    if (withDetail) {
-      sb.append(elementType.getFullTypeString());
-    } else {
-      sb.append(elementType.toString());
+    /**
+     * Creates an ArraySqlType. This constructor should only be called
+     * from a factory method.
+     */
+    public ArraySqlType(RelDataType elementType, boolean isNullable) {
+        super(SqlTypeName.ARRAY, isNullable, null);
+        this.elementType = Preconditions.checkNotNull(elementType);
+        computeDigest();
     }
-    sb.append(" ARRAY");
-  }
 
-  // implement RelDataType
-  public RelDataType getComponentType() {
-    return elementType;
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  // implement RelDataType
-  public RelDataTypeFamily getFamily() {
-    return this;
-  }
-
-  @Override public RelDataTypePrecedenceList getPrecedenceList() {
-    return new RelDataTypePrecedenceList() {
-      public boolean containsType(RelDataType type) {
-        return type.getSqlTypeName() == getSqlTypeName()
-            && type.getComponentType() != null
-            && getComponentType().getPrecedenceList().containsType(
-                type.getComponentType());
-      }
-
-      public int compareTypePrecedence(RelDataType type1, RelDataType type2) {
-        if (!containsType(type1)) {
-          throw new IllegalArgumentException("must contain type: " + type1);
+    // implement RelDataTypeImpl
+    protected void generateTypeString(StringBuilder sb, boolean withDetail) {
+        if (withDetail) {
+            sb.append(elementType.getFullTypeString());
+        } else {
+            sb.append(elementType.toString());
         }
-        if (!containsType(type2)) {
-          throw new IllegalArgumentException("must contain type: " + type2);
-        }
-        return getComponentType().getPrecedenceList()
-            .compareTypePrecedence(type1.getComponentType(), type2.getComponentType());
-      }
-    };
-  }
+        sb.append(" ARRAY");
+    }
+
+    // implement RelDataType
+    public RelDataType getComponentType() {
+        return elementType;
+    }
+
+    // implement RelDataType
+    public RelDataTypeFamily getFamily() {
+        return this;
+    }
+
+    @Override public RelDataTypePrecedenceList getPrecedenceList() {
+        return new RelDataTypePrecedenceList() {
+
+            public boolean containsType(RelDataType type) {
+                return type.getSqlTypeName() == getSqlTypeName() && type.getComponentType() != null
+                       && getComponentType().getPrecedenceList().containsType(type.getComponentType());
+            }
+
+            public int compareTypePrecedence(RelDataType type1, RelDataType type2) {
+                if (!containsType(type1)) {
+                    throw new IllegalArgumentException("must contain type: " + type1);
+                }
+                if (!containsType(type2)) {
+                    throw new IllegalArgumentException("must contain type: " + type2);
+                }
+                return getComponentType().getPrecedenceList().compareTypePrecedence(type1.getComponentType(),
+                                                                                    type2.getComponentType());
+            }
+        };
+    }
 }
 
 // End ArraySqlType.java

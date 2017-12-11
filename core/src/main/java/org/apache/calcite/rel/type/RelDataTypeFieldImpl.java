@@ -24,87 +24,80 @@ import java.io.Serializable;
  * Default implementation of {@link RelDataTypeField}.
  */
 public class RelDataTypeFieldImpl implements RelDataTypeField, Serializable {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final RelDataType type;
-  private final String name;
-  private final int index;
+    private final RelDataType type;
+    private final String      name;
+    private final int         index;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a RelDataTypeFieldImpl.
-   */
-  public RelDataTypeFieldImpl(
-      String name,
-      int index,
-      RelDataType type) {
-    assert name != null;
-    assert type != null;
-    this.name = name;
-    this.index = index;
-    this.type = type;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  @Override public int hashCode() {
-    return index
-        ^ name.hashCode()
-        ^ type.hashCode();
-  }
-
-  @Override public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
+    /**
+     * Creates a RelDataTypeFieldImpl.
+     */
+    public RelDataTypeFieldImpl(String name, int index, RelDataType type) {
+        assert name != null;
+        assert type != null;
+        this.name = name;
+        this.index = index;
+        this.type = type;
     }
-    if (!(obj instanceof RelDataTypeFieldImpl)) {
-      return false;
+
+    //~ Methods ----------------------------------------------------------------
+
+    @Override public int hashCode() {
+        return index ^ name.hashCode() ^ type.hashCode();
     }
-    RelDataTypeFieldImpl that = (RelDataTypeFieldImpl) obj;
-    return this.index == that.index
-        && this.name.equals(that.name)
-        && this.type.equals(that.type);
-  }
 
-  // implement RelDataTypeField
-  public String getName() {
-    return name;
-  }
+    @Override public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof RelDataTypeFieldImpl)) {
+            return false;
+        }
+        RelDataTypeFieldImpl that = (RelDataTypeFieldImpl) obj;
+        return this.index == that.index && this.name.equals(that.name) && this.type.equals(that.type);
+    }
 
-  // implement RelDataTypeField
-  public int getIndex() {
-    return index;
-  }
+    // implement RelDataTypeField
+    public String getName() {
+        return name;
+    }
 
-  // implement RelDataTypeField
-  public RelDataType getType() {
-    return type;
-  }
+    // implement RelDataTypeField
+    public int getIndex() {
+        return index;
+    }
 
-  // implement Map.Entry
-  public final String getKey() {
-    return getName();
-  }
+    // implement RelDataTypeField
+    public RelDataType getType() {
+        return type;
+    }
 
-  // implement Map.Entry
-  public final RelDataType getValue() {
-    return getType();
-  }
+    // implement Map.Entry
+    public final String getKey() {
+        return getName();
+    }
 
-  // implement Map.Entry
-  public RelDataType setValue(RelDataType value) {
-    throw new UnsupportedOperationException();
-  }
+    // implement Map.Entry
+    public final RelDataType getValue() {
+        return getType();
+    }
 
-  // for debugging
-  public String toString() {
-    return "#" + index + ": " + name + " " + type;
-  }
+    // implement Map.Entry
+    public RelDataType setValue(RelDataType value) {
+        throw new UnsupportedOperationException();
+    }
 
-  public boolean isDynamicStar() {
-    return type.getSqlTypeName() == SqlTypeName.DYNAMIC_STAR;
-  }
+    // for debugging
+    public String toString() {
+        return "#" + index + ": " + name + " " + type;
+    }
+
+    public boolean isDynamicStar() {
+        return type.getSqlTypeName() == SqlTypeName.DYNAMIC_STAR;
+    }
 
 }
 

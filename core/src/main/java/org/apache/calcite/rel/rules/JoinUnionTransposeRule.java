@@ -33,82 +33,70 @@ import java.util.List;
  * past a non-distinct {@link org.apache.calcite.rel.core.Union}.
  */
 public class JoinUnionTransposeRule extends RelOptRule {
-  public static final JoinUnionTransposeRule LEFT_UNION =
-      new JoinUnionTransposeRule(
-          operand(Join.class,
-              operand(Union.class, any()),
-              operand(RelNode.class, any())),
-          "JoinUnionTransposeRule(Union-Other)");
 
-  public static final JoinUnionTransposeRule RIGHT_UNION =
-      new JoinUnionTransposeRule(
-          operand(Join.class,
-              operand(RelNode.class, any()),
-              operand(Union.class, any())),
-          "JoinUnionTransposeRule(Other-Union)");
+    public static final JoinUnionTransposeRule LEFT_UNION = new JoinUnionTransposeRule(
+            operand(Join.class, operand(Union.class, any()), operand(RelNode.class, any())),
+            "JoinUnionTransposeRule(Union-Other)");
 
-  private JoinUnionTransposeRule(RelOptRuleOperand operand,
-      String description) {
-    super(operand, description);
-  }
+    public static final JoinUnionTransposeRule RIGHT_UNION = new JoinUnionTransposeRule(
+            operand(Join.class, operand(RelNode.class, any()), operand(Union.class, any())),
+            "JoinUnionTransposeRule(Other-Union)");
 
-  public void onMatch(RelOptRuleCall call) {
-    final Join join = call.rel(0);
-    final Union unionRel;
-    RelNode otherInput;
-    boolean unionOnLeft;
-    if (call.rel(1) instanceof Union) {
-      unionRel = call.rel(1);
-      otherInput = call.rel(2);
-      unionOnLeft = true;
-    } else {
-      otherInput = call.rel(1);
-      unionRel = call.rel(2);
-      unionOnLeft = false;
+    private JoinUnionTransposeRule(RelOptRuleOperand operand, String description) {
+        super(operand, description);
     }
-    if (!unionRel.all) {
-      return;
+
+    public void onMatch(RelOptRuleCall call) {
+        final Join join = call.rel(0);
+        final Union unionRel;
+        RelNode otherInput;
+        boolean unionOnLeft;
+        if (call.rel(1) instanceof Union) {
+            unionRel = call.rel(1);
+            otherInput = call.rel(2);
+            unionOnLeft = true;
+        } else {
+            otherInput = call.rel(1);
+            unionRel = call.rel(2);
+            unionOnLeft = false;
+        }
+        if (!unionRel.all) {
+            return;
+        }
+        if (!join.getVariablesSet().isEmpty()) {
+            return;
+        }
+        // The UNION ALL cannot be on the null generating side
+        // of an outer join (otherwise we might generate incorrect
+        // rows for the other side for join keys which lack a match
+        // in one or both branches of the union)
+        if (unionOnLeft) {
+            if (join.getJoinType().generatesNullsOnLeft()) {
+                return;
+            }
+        } else {
+            if (join.getJoinType().generatesNullsOnRight()) {
+                return;
+            }
+        }
+        List<RelNode> newUnionInputs = new ArrayList<RelNode>();
+        for (RelNode input : unionRel.getInputs()) {
+            RelNode joinLeft;
+            RelNode joinRight;
+            if (unionOnLeft) {
+                joinLeft = input;
+                joinRight = otherInput;
+            } else {
+                joinLeft = otherInput;
+                joinRight = input;
+            }
+            newUnionInputs.add(
+                    join.copy(join.getTraitSet(), join.getCondition(), joinLeft, joinRight, join.getJoinType(),
+                              join.isSemiJoinDone()));
+        }
+        final SetOp newUnionRel = unionRel.copy(unionRel.getTraitSet(), newUnionInputs, true);
+        call.transformTo(newUnionRel);
     }
-    if (!join.getVariablesSet().isEmpty()) {
-      return;
-    }
-    // The UNION ALL cannot be on the null generating side
-    // of an outer join (otherwise we might generate incorrect
-    // rows for the other side for join keys which lack a match
-    // in one or both branches of the union)
-    if (unionOnLeft) {
-      if (join.getJoinType().generatesNullsOnLeft()) {
-        return;
-      }
-    } else {
-      if (join.getJoinType().generatesNullsOnRight()) {
-        return;
-      }
-    }
-    List<RelNode> newUnionInputs = new ArrayList<RelNode>();
-    for (RelNode input : unionRel.getInputs()) {
-      RelNode joinLeft;
-      RelNode joinRight;
-      if (unionOnLeft) {
-        joinLeft = input;
-        joinRight = otherInput;
-      } else {
-        joinLeft = otherInput;
-        joinRight = input;
-      }
-      newUnionInputs.add(
-          join.copy(
-              join.getTraitSet(),
-              join.getCondition(),
-              joinLeft,
-              joinRight,
-              join.getJoinType(),
-              join.isSemiJoinDone()));
-    }
-    final SetOp newUnionRel =
-        unionRel.copy(unionRel.getTraitSet(), newUnionInputs, true);
-    call.transformTo(newUnionRel);
-  }
 }
 
 // End JoinUnionTransposeRule.java

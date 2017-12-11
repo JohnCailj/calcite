@@ -23,19 +23,25 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-/** Implementations of {@link RelRunner}. */
+/**
+ * Implementations of {@link RelRunner}.
+ */
 public class RelRunners {
-  private RelRunners() {}
 
-  /** Runs a relational expression by creating a JDBC connection. */
-  public static PreparedStatement run(RelNode rel) {
-    try (Connection connection = DriverManager.getConnection("jdbc:calcite:")) {
-      final RelRunner runner = connection.unwrap(RelRunner.class);
-      return runner.prepare(rel);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
+    private RelRunners() {
     }
-  }
+
+    /**
+     * Runs a relational expression by creating a JDBC connection.
+     */
+    public static PreparedStatement run(RelNode rel) {
+        try (Connection connection = DriverManager.getConnection("jdbc:calcite:")) {
+            final RelRunner runner = connection.unwrap(RelRunner.class);
+            return runner.prepare(rel);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
 
 // End RelRunners.java

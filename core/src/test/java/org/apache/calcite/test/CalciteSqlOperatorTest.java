@@ -23,9 +23,10 @@ import org.apache.calcite.sql.test.SqlOperatorBaseTest;
  * that generates SQL statements and executes them using Calcite.
  */
 public class CalciteSqlOperatorTest extends SqlOperatorBaseTest {
-  public CalciteSqlOperatorTest() {
-    super(false, tester());
-  }
+
+    public CalciteSqlOperatorTest() {
+        super(false, tester());
+    }
 }
 
 // End CalciteSqlOperatorTest.java

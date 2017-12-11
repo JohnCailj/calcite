@@ -25,43 +25,29 @@ import org.apache.calcite.sql.type.ReturnTypes;
 
 /**
  * An internal operator that throws an exception.
- *
  * <p>The exception is thrown with a (localized) error message which is the only
  * input parameter to the operator.</p>
- *
  * <p>The return type is defined as a <code>BOOLEAN</code> to facilitate the use
  * of it in constructs such as the following:</p>
- *
  * <blockquote><code>CASE<br>
  * WHEN &lt;conditionn&gt; THEN true<br>
  * ELSE throw("what's wrong with you man?")<br>
  * END</code></blockquote>
  */
 public class SqlThrowOperator extends SqlSpecialOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlThrowOperator() {
-    super(
-        "$throw",
-        SqlKind.OTHER,
-        2,
-        true,
-        ReturnTypes.BOOLEAN,
-        null,
-        OperandTypes.CHARACTER);
-  }
+    public SqlThrowOperator() {
+        super("$throw", SqlKind.OTHER, 2, true, ReturnTypes.BOOLEAN, null, OperandTypes.CHARACTER);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public void unparse(
-      SqlWriter writer,
-      SqlCall call,
-      int leftPrec,
-      int rightPrec) {
-    final SqlWriter.Frame frame = writer.startFunCall(getName());
-    call.operand(0).unparse(writer, 0, 0);
-    writer.endFunCall(frame);
-  }
+    public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        final SqlWriter.Frame frame = writer.startFunCall(getName());
+        call.operand(0).unparse(writer, 0, 0);
+        writer.endFunCall(frame);
+    }
 }
 
 // End SqlThrowOperator.java

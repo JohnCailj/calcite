@@ -23,17 +23,12 @@ import org.apache.calcite.runtime.CalciteException;
 import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.sql.SqlOperatorTable;
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.test.DefaultSqlTestFactory;
-import org.apache.calcite.sql.test.DelegatingSqlTestFactory;
-import org.apache.calcite.sql.test.SqlTestFactory;
-import org.apache.calcite.sql.test.SqlTester;
-import org.apache.calcite.sql.test.SqlTesterImpl;
+import org.apache.calcite.sql.test.*;
 import org.apache.calcite.sql.type.SqlTypeFactoryImpl;
 import org.apache.calcite.sql.validate.SqlConformance;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorCatalogReader;
 import org.apache.calcite.sql.validate.SqlValidatorImpl;
-
 import org.junit.Test;
 
 import static org.apache.calcite.util.Static.RESOURCE;
@@ -43,138 +38,113 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * or disabled.
  */
 public class SqlValidatorFeatureTest extends SqlValidatorTestCase {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  private static final String FEATURE_DISABLED = "feature_disabled";
+    private static final String FEATURE_DISABLED = "feature_disabled";
 
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private Feature disabledFeature;
+    private Feature disabledFeature;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlValidatorFeatureTest() {
-    super();
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  @Override public SqlTester getTester() {
-    return new SqlTesterImpl(new FeatureTesterFactory());
-  }
-
-  @Test public void testDistinct() {
-    checkFeature(
-        "select ^distinct^ name from dept",
-        RESOURCE.sQLFeature_E051_01());
-  }
-
-  @Test public void testOrderByDesc() {
-    checkFeature(
-        "select name from dept order by ^name desc^",
-        RESOURCE.sQLConformance_OrderByDesc());
-  }
-
-  // NOTE jvs 6-Mar-2006:  carets don't come out properly placed
-  // for INTERSECT/EXCEPT, so don't bother
-
-  @Test public void testIntersect() {
-    checkFeature(
-        "^select name from dept intersect select name from dept^",
-        RESOURCE.sQLFeature_F302());
-  }
-
-  @Test public void testExcept() {
-    checkFeature(
-        "^select name from dept except select name from dept^",
-        RESOURCE.sQLFeature_E071_03());
-  }
-
-  @Test public void testMultiset() {
-    checkFeature(
-        "values ^multiset[1]^",
-        RESOURCE.sQLFeature_S271());
-
-    checkFeature(
-        "values ^multiset(select * from dept)^",
-        RESOURCE.sQLFeature_S271());
-  }
-
-  @Test public void testTablesample() {
-    checkFeature(
-        "select name from ^dept tablesample bernoulli(50)^",
-        RESOURCE.sQLFeature_T613());
-
-    checkFeature(
-        "select name from ^dept tablesample substitute('sample_dept')^",
-        RESOURCE.sQLFeatureExt_T613_Substitution());
-  }
-
-  private void checkFeature(String sql, Feature feature) {
-    // Test once with feature enabled:  should pass
-    check(sql);
-
-    // Test once with feature disabled:  should fail
-    try {
-      disabledFeature = feature;
-      checkFails(sql, FEATURE_DISABLED);
-    } finally {
-      disabledFeature = null;
-    }
-  }
-
-  //~ Inner Classes ----------------------------------------------------------
-
-  /** Factory for tester objects. */
-  private class FeatureTesterFactory extends DelegatingSqlTestFactory {
-    FeatureTesterFactory() {
-      super(DefaultSqlTestFactory.INSTANCE);
+    public SqlValidatorFeatureTest() {
+        super();
     }
 
-    @Override public SqlValidator getValidator(SqlTestFactory factory) {
-      final RelDataTypeFactory typeFactory =
-          new SqlTypeFactoryImpl(RelDataTypeSystem.DEFAULT);
-      SqlConformance conformance = (SqlConformance) get("conformance");
-      final boolean caseSensitive = (Boolean) get("caseSensitive");
-      return new FeatureValidator(
-          factory.createOperatorTable(factory),
-          new MockCatalogReader(typeFactory, caseSensitive).init(),
-          typeFactory,
-          conformance);
-    }
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  /** Extension to {@link SqlValidatorImpl} that validates features. */
-  private class FeatureValidator extends SqlValidatorImpl {
-    protected FeatureValidator(
-        SqlOperatorTable opTab,
-        SqlValidatorCatalogReader catalogReader,
-        RelDataTypeFactory typeFactory,
-        SqlConformance conformance) {
-      super(opTab, catalogReader, typeFactory, conformance);
+    @Override public SqlTester getTester() {
+        return new SqlTesterImpl(new FeatureTesterFactory());
     }
 
-    protected void validateFeature(
-        Feature feature,
-        SqlParserPos context) {
-      if (feature.equals(disabledFeature)) {
-        CalciteException ex =
-            new CalciteException(
-                FEATURE_DISABLED,
-                null);
-        if (context == null) {
-          throw ex;
+    @Test public void testDistinct() {
+        checkFeature("select ^distinct^ name from dept", RESOURCE.sQLFeature_E051_01());
+    }
+
+    @Test public void testOrderByDesc() {
+        checkFeature("select name from dept order by ^name desc^", RESOURCE.sQLConformance_OrderByDesc());
+    }
+
+    // NOTE jvs 6-Mar-2006:  carets don't come out properly placed
+    // for INTERSECT/EXCEPT, so don't bother
+
+    @Test public void testIntersect() {
+        checkFeature("^select name from dept intersect select name from dept^", RESOURCE.sQLFeature_F302());
+    }
+
+    @Test public void testExcept() {
+        checkFeature("^select name from dept except select name from dept^", RESOURCE.sQLFeature_E071_03());
+    }
+
+    @Test public void testMultiset() {
+        checkFeature("values ^multiset[1]^", RESOURCE.sQLFeature_S271());
+
+        checkFeature("values ^multiset(select * from dept)^", RESOURCE.sQLFeature_S271());
+    }
+
+    @Test public void testTablesample() {
+        checkFeature("select name from ^dept tablesample bernoulli(50)^", RESOURCE.sQLFeature_T613());
+
+        checkFeature("select name from ^dept tablesample substitute('sample_dept')^",
+                     RESOURCE.sQLFeatureExt_T613_Substitution());
+    }
+
+    private void checkFeature(String sql, Feature feature) {
+        // Test once with feature enabled:  should pass
+        check(sql);
+
+        // Test once with feature disabled:  should fail
+        try {
+            disabledFeature = feature;
+            checkFails(sql, FEATURE_DISABLED);
+        } finally {
+            disabledFeature = null;
         }
-        throw new CalciteContextException(
-            "location",
-            ex,
-            context.getLineNum(),
-            context.getColumnNum(),
-            context.getEndLineNum(),
-            context.getEndColumnNum());
-      }
     }
-  }
+
+    //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * Factory for tester objects.
+     */
+    private class FeatureTesterFactory extends DelegatingSqlTestFactory {
+
+        FeatureTesterFactory() {
+            super(DefaultSqlTestFactory.INSTANCE);
+        }
+
+        @Override public SqlValidator getValidator(SqlTestFactory factory) {
+            final RelDataTypeFactory typeFactory = new SqlTypeFactoryImpl(RelDataTypeSystem.DEFAULT);
+            SqlConformance conformance = (SqlConformance) get("conformance");
+            final boolean caseSensitive = (Boolean) get("caseSensitive");
+            return new FeatureValidator(factory.createOperatorTable(factory),
+                                        new MockCatalogReader(typeFactory, caseSensitive).init(), typeFactory,
+                                        conformance);
+        }
+    }
+
+    /**
+     * Extension to {@link SqlValidatorImpl} that validates features.
+     */
+    private class FeatureValidator extends SqlValidatorImpl {
+
+        protected FeatureValidator(SqlOperatorTable opTab, SqlValidatorCatalogReader catalogReader,
+                                   RelDataTypeFactory typeFactory, SqlConformance conformance) {
+            super(opTab, catalogReader, typeFactory, conformance);
+        }
+
+        protected void validateFeature(Feature feature, SqlParserPos context) {
+            if (feature.equals(disabledFeature)) {
+                CalciteException ex = new CalciteException(FEATURE_DISABLED, null);
+                if (context == null) {
+                    throw ex;
+                }
+                throw new CalciteContextException("location", ex, context.getLineNum(), context.getColumnNum(),
+                                                  context.getEndLineNum(), context.getEndColumnNum());
+            }
+        }
+    }
 }
 
 // End SqlValidatorFeatureTest.java

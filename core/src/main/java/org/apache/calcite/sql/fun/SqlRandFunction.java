@@ -25,35 +25,30 @@ import org.apache.calcite.sql.type.ReturnTypes;
 
 /**
  * The <code>RAND</code> function. There are two overloads:
- *
  * <ul>
- *   <li>RAND() returns a random double between 0 and 1
- *   <li>RAND(seed) returns a random double between 0 and 1, initializing the
- *   random number generator with seed on first call
+ * <li>RAND() returns a random double between 0 and 1
+ * <li>RAND(seed) returns a random double between 0 and 1, initializing the
+ * random number generator with seed on first call
  * </ul>
  */
 public class SqlRandFunction extends SqlFunction {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlRandFunction() {
-    super("RAND",
-        SqlKind.OTHER_FUNCTION,
-        ReturnTypes.DOUBLE,
-        null,
-        OperandTypes.or(OperandTypes.NILADIC, OperandTypes.NUMERIC),
-        SqlFunctionCategory.NUMERIC);
-  }
+    public SqlRandFunction() {
+        super("RAND", SqlKind.OTHER_FUNCTION, ReturnTypes.DOUBLE, null,
+              OperandTypes.or(OperandTypes.NILADIC, OperandTypes.NUMERIC), SqlFunctionCategory.NUMERIC);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public SqlSyntax getSyntax() {
-    return SqlSyntax.FUNCTION;
-  }
+    public SqlSyntax getSyntax() {
+        return SqlSyntax.FUNCTION;
+    }
 
-  // Plans referencing context variables should never be cached
-  public boolean isDynamicFunction() {
-    return true;
-  }
+    // Plans referencing context variables should never be cached
+    public boolean isDynamicFunction() {
+        return true;
+    }
 }
 
 // End SqlRandFunction.java

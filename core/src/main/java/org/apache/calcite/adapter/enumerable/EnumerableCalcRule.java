@@ -27,21 +27,20 @@ import org.apache.calcite.rel.logical.LogicalCalc;
  * {@link EnumerableCalc}.
  */
 class EnumerableCalcRule extends ConverterRule {
-  EnumerableCalcRule() {
-    // The predicate ensures that if there's a multiset, FarragoMultisetSplitter
-    // will work on it first.
-    super(LogicalCalc.class, RelOptUtil.CALC_PREDICATE, Convention.NONE,
-        EnumerableConvention.INSTANCE, "EnumerableCalcRule");
-  }
 
-  public RelNode convert(RelNode rel) {
-    final LogicalCalc calc = (LogicalCalc) rel;
-    final RelNode input = calc.getInput();
-    return EnumerableCalc.create(
-        convert(input,
-            input.getTraitSet().replace(EnumerableConvention.INSTANCE)),
-        calc.getProgram());
-  }
+    EnumerableCalcRule() {
+        // The predicate ensures that if there's a multiset, FarragoMultisetSplitter
+        // will work on it first.
+        super(LogicalCalc.class, RelOptUtil.CALC_PREDICATE, Convention.NONE, EnumerableConvention.INSTANCE,
+              "EnumerableCalcRule");
+    }
+
+    public RelNode convert(RelNode rel) {
+        final LogicalCalc calc = (LogicalCalc) rel;
+        final RelNode input = calc.getInput();
+        return EnumerableCalc.create(convert(input, input.getTraitSet().replace(EnumerableConvention.INSTANCE)),
+                                     calc.getProgram());
+    }
 }
 
 // End EnumerableCalcRule.java

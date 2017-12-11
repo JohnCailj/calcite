@@ -19,36 +19,32 @@ package org.apache.calcite.sql.parser.parserextensiontesting;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
 import org.apache.calcite.sql.parser.SqlParserTest;
-
 import org.junit.Test;
 
 /**
  * Testing for extension functionality of the base SQL parser impl.
- *
  * <p>This test runs all test cases of the base {@link SqlParserTest}, as well
  * as verifying specific extension points.
  */
 public class ExtensionSqlParserTest extends SqlParserTest {
 
-  @Override protected SqlParserImplFactory parserImplFactory() {
-    return ExtensionSqlParserImpl.FACTORY;
-  }
+    @Override protected SqlParserImplFactory parserImplFactory() {
+        return ExtensionSqlParserImpl.FACTORY;
+    }
 
-  @Test public void testAlterSystemExtension() throws SqlParseException {
-    check("alter system upload jar '/path/to/jar'",
-        "ALTER SYSTEM UPLOAD JAR '/path/to/jar'");
-  }
+    @Test public void testAlterSystemExtension() throws SqlParseException {
+        check("alter system upload jar '/path/to/jar'", "ALTER SYSTEM UPLOAD JAR '/path/to/jar'");
+    }
 
-  @Test public void testAlterSystemExtensionWithoutAlter() throws SqlParseException {
-    // We need to include the scope for custom alter operations
-    checkFails("^upload^ jar '/path/to/jar'",
-        "(?s).*Encountered \"upload\" at .*");
-  }
+    @Test public void testAlterSystemExtensionWithoutAlter() throws SqlParseException {
+        // We need to include the scope for custom alter operations
+        checkFails("^upload^ jar '/path/to/jar'", "(?s).*Encountered \"upload\" at .*");
+    }
 
-  @Test public void testCreateTable() {
-    sql("CREATE TABLE foo.baz(i INTEGER, j VARCHAR(10) NOT NULL)")
-        .ok("CREATE TABLE `FOO`.`BAZ` (`I` INTEGER, `J` VARCHAR(10) NOT NULL)");
-  }
+    @Test public void testCreateTable() {
+        sql("CREATE TABLE foo.baz(i INTEGER, j VARCHAR(10) NOT NULL)").ok(
+                "CREATE TABLE `FOO`.`BAZ` (`I` INTEGER, `J` VARCHAR(10) NOT NULL)");
+    }
 }
 
 // End ExtensionSqlParserTest.java

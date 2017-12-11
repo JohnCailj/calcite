@@ -21,11 +21,11 @@ import org.apache.calcite.jdbc.CalcitePrepare;
 /**
  * Mix-in interface for {@link SqlNode} that allows DDL commands to be
  * executed directly.
- *
  * <p>NOTE: Subject to change without notice.
  */
 public interface SqlExecutableStatement {
-  void execute(CalcitePrepare.Context context);
+
+    void execute(CalcitePrepare.Context context);
 }
 
 // End SqlExecutableStatement.java

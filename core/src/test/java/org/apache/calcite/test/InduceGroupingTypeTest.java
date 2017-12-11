@@ -16,11 +16,9 @@
  */
 package org.apache.calcite.test;
 
+import com.google.common.collect.Lists;
 import org.apache.calcite.rel.core.Aggregate;
 import org.apache.calcite.util.ImmutableBitSet;
-
-import com.google.common.collect.Lists;
-
 import org.junit.Test;
 
 import java.util.List;
@@ -33,115 +31,104 @@ import static org.junit.Assert.fail;
  * {@link org.apache.calcite.rel.core.Aggregate.Group#induce(ImmutableBitSet, List)}.
  */
 public class InduceGroupingTypeTest {
-  @Test public void testInduceGroupingType() {
-    final ImmutableBitSet groupSet = ImmutableBitSet.of(1, 2, 4, 5);
 
-    // SIMPLE
-    List<ImmutableBitSet> groupSets = Lists.newArrayList();
-    groupSets.add(groupSet);
-    assertEquals(Aggregate.Group.SIMPLE,
-        Aggregate.Group.induce(groupSet, groupSets));
+    @Test public void testInduceGroupingType() {
+        final ImmutableBitSet groupSet = ImmutableBitSet.of(1, 2, 4, 5);
 
-    // CUBE
-    groupSets = ImmutableBitSet.ORDERING.sortedCopy(groupSet.powerSet());
-    assertEquals(Aggregate.Group.CUBE,
-        Aggregate.Group.induce(groupSet, groupSets));
+        // SIMPLE
+        List<ImmutableBitSet> groupSets = Lists.newArrayList();
+        groupSets.add(groupSet);
+        assertEquals(Aggregate.Group.SIMPLE, Aggregate.Group.induce(groupSet, groupSets));
 
-    // ROLLUP
-    groupSets = Lists.newArrayList();
-    groupSets.add(ImmutableBitSet.of(1, 2, 4, 5));
-    groupSets.add(ImmutableBitSet.of(1, 2, 4));
-    groupSets.add(ImmutableBitSet.of(1, 2));
-    groupSets.add(ImmutableBitSet.of(1));
-    groupSets.add(ImmutableBitSet.of());
-    assertEquals(Aggregate.Group.ROLLUP,
-        Aggregate.Group.induce(groupSet, groupSets));
+        // CUBE
+        groupSets = ImmutableBitSet.ORDERING.sortedCopy(groupSet.powerSet());
+        assertEquals(Aggregate.Group.CUBE, Aggregate.Group.induce(groupSet, groupSets));
 
-    // OTHER
-    groupSets = Lists.newArrayList();
-    groupSets.add(ImmutableBitSet.of(1, 2, 4, 5));
-    groupSets.add(ImmutableBitSet.of(1, 2, 4));
-    groupSets.add(ImmutableBitSet.of(1, 2));
-    groupSets.add(ImmutableBitSet.of());
-    assertEquals(Aggregate.Group.OTHER,
-        Aggregate.Group.induce(groupSet, groupSets));
+        // ROLLUP
+        groupSets = Lists.newArrayList();
+        groupSets.add(ImmutableBitSet.of(1, 2, 4, 5));
+        groupSets.add(ImmutableBitSet.of(1, 2, 4));
+        groupSets.add(ImmutableBitSet.of(1, 2));
+        groupSets.add(ImmutableBitSet.of(1));
+        groupSets.add(ImmutableBitSet.of());
+        assertEquals(Aggregate.Group.ROLLUP, Aggregate.Group.induce(groupSet, groupSets));
 
-    groupSets = Lists.newArrayList();
-    groupSets.add(ImmutableBitSet.of(1, 2, 4, 5));
-    groupSets.add(ImmutableBitSet.of(1, 2, 4));
-    groupSets.add(ImmutableBitSet.of(1, 2));
-    groupSets.add(ImmutableBitSet.of(1));
-    assertEquals(Aggregate.Group.OTHER,
-        Aggregate.Group.induce(groupSet, groupSets));
+        // OTHER
+        groupSets = Lists.newArrayList();
+        groupSets.add(ImmutableBitSet.of(1, 2, 4, 5));
+        groupSets.add(ImmutableBitSet.of(1, 2, 4));
+        groupSets.add(ImmutableBitSet.of(1, 2));
+        groupSets.add(ImmutableBitSet.of());
+        assertEquals(Aggregate.Group.OTHER, Aggregate.Group.induce(groupSet, groupSets));
 
-    groupSets = Lists.newArrayList();
-    groupSets.add(ImmutableBitSet.of(1, 2, 5));
-    groupSets.add(ImmutableBitSet.of(1, 2, 4));
-    groupSets.add(ImmutableBitSet.of(1, 2));
-    groupSets.add(ImmutableBitSet.of(1));
-    groupSets.add(ImmutableBitSet.of());
+        groupSets = Lists.newArrayList();
+        groupSets.add(ImmutableBitSet.of(1, 2, 4, 5));
+        groupSets.add(ImmutableBitSet.of(1, 2, 4));
+        groupSets.add(ImmutableBitSet.of(1, 2));
+        groupSets.add(ImmutableBitSet.of(1));
+        assertEquals(Aggregate.Group.OTHER, Aggregate.Group.induce(groupSet, groupSets));
 
-    try {
-      final Aggregate.Group x = Aggregate.Group.induce(groupSet, groupSets);
-      fail("expected error, got " + x);
-    } catch (IllegalArgumentException ignore) {
-      // ok
+        groupSets = Lists.newArrayList();
+        groupSets.add(ImmutableBitSet.of(1, 2, 5));
+        groupSets.add(ImmutableBitSet.of(1, 2, 4));
+        groupSets.add(ImmutableBitSet.of(1, 2));
+        groupSets.add(ImmutableBitSet.of(1));
+        groupSets.add(ImmutableBitSet.of());
+
+        try {
+            final Aggregate.Group x = Aggregate.Group.induce(groupSet, groupSets);
+            fail("expected error, got " + x);
+        } catch (IllegalArgumentException ignore) {
+            // ok
+        }
+
+        groupSets = ImmutableBitSet.ORDERING.sortedCopy(groupSets);
+        assertEquals(Aggregate.Group.OTHER, Aggregate.Group.induce(groupSet, groupSets));
+
+        groupSets = Lists.newArrayList();
+        assertEquals(Aggregate.Group.OTHER, Aggregate.Group.induce(groupSet, groupSets));
+
+        groupSets = Lists.newArrayList();
+        groupSets.add(ImmutableBitSet.of());
+        assertEquals(Aggregate.Group.OTHER, Aggregate.Group.induce(groupSet, groupSets));
     }
 
-    groupSets = ImmutableBitSet.ORDERING.sortedCopy(groupSets);
-    assertEquals(Aggregate.Group.OTHER,
-        Aggregate.Group.induce(groupSet, groupSets));
+    /**
+     * Tests a singleton grouping set {2}, whose power set has only two elements,
+     * { {2}, {} }.
+     */
+    @Test public void testInduceGroupingType1() {
+        final ImmutableBitSet groupSet = ImmutableBitSet.of(2);
 
-    groupSets = Lists.newArrayList();
-    assertEquals(Aggregate.Group.OTHER,
-        Aggregate.Group.induce(groupSet, groupSets));
+        // Could be ROLLUP but we prefer CUBE
+        List<ImmutableBitSet> groupSets = Lists.newArrayList();
+        groupSets.add(groupSet);
+        groupSets.add(ImmutableBitSet.of());
+        assertEquals(Aggregate.Group.CUBE, Aggregate.Group.induce(groupSet, groupSets));
 
-    groupSets = Lists.newArrayList();
-    groupSets.add(ImmutableBitSet.of());
-    assertEquals(Aggregate.Group.OTHER,
-        Aggregate.Group.induce(groupSet, groupSets));
-  }
+        groupSets = Lists.newArrayList();
+        groupSets.add(ImmutableBitSet.of());
+        assertEquals(Aggregate.Group.OTHER, Aggregate.Group.induce(groupSet, groupSets));
 
-  /** Tests a singleton grouping set {2}, whose power set has only two elements,
-   * { {2}, {} }. */
-  @Test public void testInduceGroupingType1() {
-    final ImmutableBitSet groupSet = ImmutableBitSet.of(2);
+        groupSets = Lists.newArrayList();
+        groupSets.add(groupSet);
+        assertEquals(Aggregate.Group.SIMPLE, Aggregate.Group.induce(groupSet, groupSets));
 
-    // Could be ROLLUP but we prefer CUBE
-    List<ImmutableBitSet> groupSets = Lists.newArrayList();
-    groupSets.add(groupSet);
-    groupSets.add(ImmutableBitSet.of());
-    assertEquals(Aggregate.Group.CUBE,
-        Aggregate.Group.induce(groupSet, groupSets));
+        groupSets = Lists.newArrayList();
+        assertEquals(Aggregate.Group.OTHER, Aggregate.Group.induce(groupSet, groupSets));
+    }
 
-    groupSets = Lists.newArrayList();
-    groupSets.add(ImmutableBitSet.of());
-    assertEquals(Aggregate.Group.OTHER,
-        Aggregate.Group.induce(groupSet, groupSets));
+    @Test public void testInduceGroupingType0() {
+        final ImmutableBitSet groupSet = ImmutableBitSet.of();
 
-    groupSets = Lists.newArrayList();
-    groupSets.add(groupSet);
-    assertEquals(Aggregate.Group.SIMPLE,
-        Aggregate.Group.induce(groupSet, groupSets));
+        // Could be CUBE or ROLLUP but we choose SIMPLE
+        List<ImmutableBitSet> groupSets = Lists.newArrayList();
+        groupSets.add(groupSet);
+        assertEquals(Aggregate.Group.SIMPLE, Aggregate.Group.induce(groupSet, groupSets));
 
-    groupSets = Lists.newArrayList();
-    assertEquals(Aggregate.Group.OTHER,
-        Aggregate.Group.induce(groupSet, groupSets));
-  }
-
-  @Test public void testInduceGroupingType0() {
-    final ImmutableBitSet groupSet = ImmutableBitSet.of();
-
-    // Could be CUBE or ROLLUP but we choose SIMPLE
-    List<ImmutableBitSet> groupSets = Lists.newArrayList();
-    groupSets.add(groupSet);
-    assertEquals(Aggregate.Group.SIMPLE,
-        Aggregate.Group.induce(groupSet, groupSets));
-
-    groupSets = Lists.newArrayList();
-    assertEquals(Aggregate.Group.OTHER,
-        Aggregate.Group.induce(groupSet, groupSets));
-  }
+        groupSets = Lists.newArrayList();
+        assertEquals(Aggregate.Group.OTHER, Aggregate.Group.induce(groupSet, groupSets));
+    }
 }
 
 // End InduceGroupingTypeTest.java

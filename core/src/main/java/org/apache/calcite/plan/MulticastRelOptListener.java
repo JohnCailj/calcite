@@ -24,64 +24,64 @@ import java.util.List;
  * forwarding events on to a collection of other listeners.
  */
 public class MulticastRelOptListener implements RelOptListener {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final List<RelOptListener> listeners;
+    private final List<RelOptListener> listeners;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a new empty multicast listener.
-   */
-  public MulticastRelOptListener() {
-    listeners = new ArrayList<RelOptListener>();
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  /**
-   * Adds a listener which will receive multicast events.
-   *
-   * @param listener listener to add
-   */
-  public void addListener(RelOptListener listener) {
-    listeners.add(listener);
-  }
-
-  // implement RelOptListener
-  public void relEquivalenceFound(RelEquivalenceEvent event) {
-    for (RelOptListener listener : listeners) {
-      listener.relEquivalenceFound(event);
+    /**
+     * Creates a new empty multicast listener.
+     */
+    public MulticastRelOptListener() {
+        listeners = new ArrayList<RelOptListener>();
     }
-  }
 
-  // implement RelOptListener
-  public void ruleAttempted(RuleAttemptedEvent event) {
-    for (RelOptListener listener : listeners) {
-      listener.ruleAttempted(event);
-    }
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  // implement RelOptListener
-  public void ruleProductionSucceeded(RuleProductionEvent event) {
-    for (RelOptListener listener : listeners) {
-      listener.ruleProductionSucceeded(event);
+    /**
+     * Adds a listener which will receive multicast events.
+     *
+     * @param listener listener to add
+     */
+    public void addListener(RelOptListener listener) {
+        listeners.add(listener);
     }
-  }
 
-  // implement RelOptListener
-  public void relChosen(RelChosenEvent event) {
-    for (RelOptListener listener : listeners) {
-      listener.relChosen(event);
+    // implement RelOptListener
+    public void relEquivalenceFound(RelEquivalenceEvent event) {
+        for (RelOptListener listener : listeners) {
+            listener.relEquivalenceFound(event);
+        }
     }
-  }
 
-  // implement RelOptListener
-  public void relDiscarded(RelDiscardedEvent event) {
-    for (RelOptListener listener : listeners) {
-      listener.relDiscarded(event);
+    // implement RelOptListener
+    public void ruleAttempted(RuleAttemptedEvent event) {
+        for (RelOptListener listener : listeners) {
+            listener.ruleAttempted(event);
+        }
     }
-  }
+
+    // implement RelOptListener
+    public void ruleProductionSucceeded(RuleProductionEvent event) {
+        for (RelOptListener listener : listeners) {
+            listener.ruleProductionSucceeded(event);
+        }
+    }
+
+    // implement RelOptListener
+    public void relChosen(RelChosenEvent event) {
+        for (RelOptListener listener : listeners) {
+            listener.relChosen(event);
+        }
+    }
+
+    // implement RelOptListener
+    public void relDiscarded(RelDiscardedEvent event) {
+        for (RelOptListener listener : listeners) {
+            listener.relDiscarded(event);
+        }
+    }
 }
 
 // End MulticastRelOptListener.java

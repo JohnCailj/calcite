@@ -25,43 +25,41 @@ import org.apache.calcite.sql.SqlNode;
  * Namespace representing the row type produced by joining two relations.
  */
 class JoinNamespace extends AbstractNamespace {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlJoin join;
+    private final SqlJoin join;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  JoinNamespace(SqlValidatorImpl validator, SqlJoin join) {
-    super(validator, null);
-    this.join = join;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  protected RelDataType validateImpl(RelDataType targetRowType) {
-    RelDataType leftType =
-        validator.getNamespace(join.getLeft()).getRowType();
-    RelDataType rightType =
-        validator.getNamespace(join.getRight()).getRowType();
-    final RelDataTypeFactory typeFactory = validator.getTypeFactory();
-    switch (join.getJoinType()) {
-    case LEFT:
-      rightType = typeFactory.createTypeWithNullability(rightType, true);
-      break;
-    case RIGHT:
-      leftType = typeFactory.createTypeWithNullability(leftType, true);
-      break;
-    case FULL:
-      leftType = typeFactory.createTypeWithNullability(leftType, true);
-      rightType = typeFactory.createTypeWithNullability(rightType, true);
-      break;
+    JoinNamespace(SqlValidatorImpl validator, SqlJoin join) {
+        super(validator, null);
+        this.join = join;
     }
-    return typeFactory.createJoinType(leftType, rightType);
-  }
 
-  public SqlNode getNode() {
-    return join;
-  }
+    //~ Methods ----------------------------------------------------------------
+
+    protected RelDataType validateImpl(RelDataType targetRowType) {
+        RelDataType leftType = validator.getNamespace(join.getLeft()).getRowType();
+        RelDataType rightType = validator.getNamespace(join.getRight()).getRowType();
+        final RelDataTypeFactory typeFactory = validator.getTypeFactory();
+        switch (join.getJoinType()) {
+            case LEFT:
+                rightType = typeFactory.createTypeWithNullability(rightType, true);
+                break;
+            case RIGHT:
+                leftType = typeFactory.createTypeWithNullability(leftType, true);
+                break;
+            case FULL:
+                leftType = typeFactory.createTypeWithNullability(leftType, true);
+                rightType = typeFactory.createTypeWithNullability(rightType, true);
+                break;
+        }
+        return typeFactory.createJoinType(leftType, rightType);
+    }
+
+    public SqlNode getNode() {
+        return join;
+    }
 }
 
 // End JoinNamespace.java

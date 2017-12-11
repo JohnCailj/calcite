@@ -20,21 +20,26 @@ package org.apache.calcite.materialize;
  * Utilities for {@link Lattice}, {@link LatticeStatisticProvider}.
  */
 public class Lattices {
-  private Lattices() {}
 
-  /** Statistics provider that uses SQL. */
-  public static final LatticeStatisticProvider SQL =
-      SqlLatticeStatisticProvider.INSTANCE;
+    private Lattices() {
+    }
 
-  /** Statistics provider that uses SQL then stores the results in a cache. */
-  public static final LatticeStatisticProvider CACHED_SQL =
-      cache(SqlLatticeStatisticProvider.INSTANCE);
+    /**
+     * Statistics provider that uses SQL.
+     */
+    public static final LatticeStatisticProvider SQL = SqlLatticeStatisticProvider.INSTANCE;
 
-  /** Wraps a statistic provider in a cache. */
-  public static LatticeStatisticProvider cache(
-      LatticeStatisticProvider provider) {
-    return new CachingLatticeStatisticProvider(provider);
-  }
+    /**
+     * Statistics provider that uses SQL then stores the results in a cache.
+     */
+    public static final LatticeStatisticProvider CACHED_SQL = cache(SqlLatticeStatisticProvider.INSTANCE);
+
+    /**
+     * Wraps a statistic provider in a cache.
+     */
+    public static LatticeStatisticProvider cache(LatticeStatisticProvider provider) {
+        return new CachingLatticeStatisticProvider(provider);
+    }
 }
 
 // End Lattices.java

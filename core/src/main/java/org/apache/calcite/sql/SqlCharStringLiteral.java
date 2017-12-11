@@ -16,76 +16,70 @@
  */
 package org.apache.calcite.sql;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.util.Bug;
 import org.apache.calcite.util.NlsString;
 import org.apache.calcite.util.Util;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-
 import java.util.List;
 
 /**
  * A character string literal.
- *
  * <p>Its {@link #value} field is an {@link NlsString} and {@link #typeName} is
  * {@link SqlTypeName#CHAR}.
  */
 public class SqlCharStringLiteral extends SqlAbstractStringLiteral {
-  private static final Function<SqlLiteral, NlsString> F =
-      new Function<SqlLiteral, NlsString>() {
+
+    private static final Function<SqlLiteral, NlsString> F = new Function<SqlLiteral, NlsString>() {
+
         public NlsString apply(SqlLiteral literal) {
-          return ((SqlCharStringLiteral) literal).getNlsString();
+            return ((SqlCharStringLiteral) literal).getNlsString();
         }
-      };
+    };
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  protected SqlCharStringLiteral(NlsString val, SqlParserPos pos) {
-    super(val, SqlTypeName.CHAR, pos);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  /**
-   * @return the underlying NlsString
-   */
-  public NlsString getNlsString() {
-    return (NlsString) value;
-  }
-
-  /**
-   * @return the collation
-   */
-  public SqlCollation getCollation() {
-    return getNlsString().getCollation();
-  }
-
-  public SqlNode clone(SqlParserPos pos) {
-    return new SqlCharStringLiteral((NlsString) value, pos);
-  }
-
-  public void unparse(
-      SqlWriter writer,
-      int leftPrec,
-      int rightPrec) {
-    if (false) {
-      Util.discard(Bug.FRG78_FIXED);
-      String stringValue = ((NlsString) value).getValue();
-      writer.literal(
-          writer.getDialect().quoteStringLiteral(stringValue));
+    protected SqlCharStringLiteral(NlsString val, SqlParserPos pos) {
+        super(val, SqlTypeName.CHAR, pos);
     }
-    assert value instanceof NlsString;
-    writer.literal(value.toString());
-  }
 
-  protected SqlAbstractStringLiteral concat1(List<SqlLiteral> literals) {
-    return new SqlCharStringLiteral(
-        NlsString.concat(Lists.transform(literals, F)),
-        literals.get(0).getParserPosition());
-  }
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * @return the underlying NlsString
+     */
+    public NlsString getNlsString() {
+        return (NlsString) value;
+    }
+
+    /**
+     * @return the collation
+     */
+    public SqlCollation getCollation() {
+        return getNlsString().getCollation();
+    }
+
+    public SqlNode clone(SqlParserPos pos) {
+        return new SqlCharStringLiteral((NlsString) value, pos);
+    }
+
+    public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+        if (false) {
+            Util.discard(Bug.FRG78_FIXED);
+            String stringValue = ((NlsString) value).getValue();
+            writer.literal(writer.getDialect().quoteStringLiteral(stringValue));
+        }
+        assert value instanceof NlsString;
+        writer.literal(value.toString());
+    }
+
+    protected SqlAbstractStringLiteral concat1(List<SqlLiteral> literals) {
+        return new SqlCharStringLiteral(NlsString.concat(Lists.transform(literals, F)),
+                                        literals.get(0).getParserPosition());
+    }
 }
 
 // End SqlCharStringLiteral.java

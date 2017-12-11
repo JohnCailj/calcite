@@ -26,22 +26,27 @@ import java.lang.reflect.Type;
  * Extension to {@link Table} that can translate itself to a {@link Queryable}.
  */
 public interface QueryableTable extends Table {
-  /** Converts this table into a {@link Queryable}. */
-  <T> Queryable<T> asQueryable(QueryProvider queryProvider, SchemaPlus schema,
-      String tableName);
 
-  /** Returns the element type of the collection that will implement this
-   * table. */
-  Type getElementType();
+    /**
+     * Converts this table into a {@link Queryable}.
+     */
+    <T> Queryable<T> asQueryable(QueryProvider queryProvider, SchemaPlus schema, String tableName);
 
-  /** Generates an expression with which this table can be referenced in
-   * generated code.
-   *
-   * @param schema Schema
-   * @param tableName Table name (unique within schema)
-   * @param clazz The desired collection class; for example {@code Queryable}.
-   */
-  Expression getExpression(SchemaPlus schema, String tableName, Class clazz);
+    /**
+     * Returns the element type of the collection that will implement this
+     * table.
+     */
+    Type getElementType();
+
+    /**
+     * Generates an expression with which this table can be referenced in
+     * generated code.
+     *
+     * @param schema    Schema
+     * @param tableName Table name (unique within schema)
+     * @param clazz     The desired collection class; for example {@code Queryable}.
+     */
+    Expression getExpression(SchemaPlus schema, String tableName, Class clazz);
 }
 
 // End QueryableTable.java

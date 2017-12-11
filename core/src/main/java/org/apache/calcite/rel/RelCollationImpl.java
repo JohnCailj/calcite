@@ -16,6 +16,8 @@
  */
 package org.apache.calcite.rel;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.UnmodifiableIterator;
 import org.apache.calcite.plan.RelMultipleTrait;
 import org.apache.calcite.plan.RelOptPlanner;
 import org.apache.calcite.plan.RelTrait;
@@ -24,148 +26,140 @@ import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.runtime.Utilities;
 import org.apache.calcite.util.Util;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.UnmodifiableIterator;
-
+import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.Nonnull;
 
 /**
  * Simple implementation of {@link RelCollation}.
  */
 public class RelCollationImpl implements RelCollation {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  @Deprecated // to be removed before 2.0
-  public static final RelCollation EMPTY = RelCollations.EMPTY;
+    @Deprecated // to be removed before 2.0
+    public static final RelCollation EMPTY = RelCollations.EMPTY;
 
-  @Deprecated // to be removed before 2.0
-  public static final RelCollation PRESERVE = RelCollations.PRESERVE;
+    @Deprecated // to be removed before 2.0
+    public static final RelCollation PRESERVE = RelCollations.PRESERVE;
 
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final ImmutableList<RelFieldCollation> fieldCollations;
+    private final ImmutableList<RelFieldCollation> fieldCollations;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  protected RelCollationImpl(ImmutableList<RelFieldCollation> fieldCollations) {
-    this.fieldCollations = fieldCollations;
-  }
-
-  @Deprecated // to be removed before 2.0
-  public static RelCollation of(RelFieldCollation... fieldCollations) {
-    return RelCollations.of(fieldCollations);
-  }
-
-  @Deprecated // to be removed before 2.0
-  public static RelCollation of(List<RelFieldCollation> fieldCollations) {
-    return RelCollations.of(fieldCollations);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public RelTraitDef getTraitDef() {
-    return RelCollationTraitDef.INSTANCE;
-  }
-
-  public List<RelFieldCollation> getFieldCollations() {
-    return fieldCollations;
-  }
-
-  public int hashCode() {
-    return fieldCollations.hashCode();
-  }
-
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
+    protected RelCollationImpl(ImmutableList<RelFieldCollation> fieldCollations) {
+        this.fieldCollations = fieldCollations;
     }
-    if (obj instanceof RelCollationImpl) {
-      RelCollationImpl that = (RelCollationImpl) obj;
-      return this.fieldCollations.equals(that.fieldCollations);
+
+    @Deprecated // to be removed before 2.0
+    public static RelCollation of(RelFieldCollation... fieldCollations) {
+        return RelCollations.of(fieldCollations);
     }
-    return false;
-  }
 
-  public boolean isTop() {
-    return fieldCollations.isEmpty();
-  }
-
-  public int compareTo(@Nonnull RelMultipleTrait o) {
-    final RelCollationImpl that = (RelCollationImpl) o;
-    final UnmodifiableIterator<RelFieldCollation> iterator =
-        that.fieldCollations.iterator();
-    for (RelFieldCollation f : fieldCollations) {
-      if (!iterator.hasNext()) {
-        return 1;
-      }
-      final RelFieldCollation f2 = iterator.next();
-      int c = Utilities.compare(f.getFieldIndex(), f2.getFieldIndex());
-      if (c != 0) {
-        return c;
-      }
+    @Deprecated // to be removed before 2.0
+    public static RelCollation of(List<RelFieldCollation> fieldCollations) {
+        return RelCollations.of(fieldCollations);
     }
-    return iterator.hasNext() ? -1 : 0;
-  }
 
-  public void register(RelOptPlanner planner) {}
+    //~ Methods ----------------------------------------------------------------
 
-  public boolean satisfies(RelTrait trait) {
-    return this == trait
-        || trait instanceof RelCollationImpl
-        && Util.startsWith(fieldCollations,
-            ((RelCollationImpl) trait).fieldCollations);
-  }
-
-  /** Returns a string representation of this collation, suitably terse given
-   * that it will appear in plan traces. Examples:
-   * "[]", "[2]", "[0 DESC, 1]", "[0 DESC, 1 ASC NULLS LAST]". */
-  public String toString() {
-    Iterator<RelFieldCollation> it = fieldCollations.iterator();
-    if (! it.hasNext()) {
-      return "[]";
+    public RelTraitDef getTraitDef() {
+        return RelCollationTraitDef.INSTANCE;
     }
-    StringBuilder sb = new StringBuilder();
-    sb.append('[');
-    for (;;) {
-      RelFieldCollation e = it.next();
-      sb.append(e.getFieldIndex());
-      if (e.direction != RelFieldCollation.Direction.ASCENDING
-          || e.nullDirection != e.direction.defaultNullDirection()) {
-        sb.append(' ').append(e.shortString());
-      }
-      if (!it.hasNext()) {
-        return sb.append(']').toString();
-      }
-      sb.append(',').append(' ');
+
+    public List<RelFieldCollation> getFieldCollations() {
+        return fieldCollations;
     }
-  }
 
-  @Deprecated // to be removed before 2.0
-  public static List<RelCollation> createSingleton(int fieldIndex) {
-    return RelCollations.createSingleton(fieldIndex);
-  }
+    public int hashCode() {
+        return fieldCollations.hashCode();
+    }
 
-  @Deprecated // to be removed before 2.0
-  public static boolean isValid(
-      RelDataType rowType,
-      List<RelCollation> collationList,
-      boolean fail) {
-    return RelCollations.isValid(rowType, collationList, fail);
-  }
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof RelCollationImpl) {
+            RelCollationImpl that = (RelCollationImpl) obj;
+            return this.fieldCollations.equals(that.fieldCollations);
+        }
+        return false;
+    }
 
-  @Deprecated // to be removed before 2.0
-  public static boolean equal(
-      List<RelCollation> collationList1,
-      List<RelCollation> collationList2) {
-    return RelCollations.equal(collationList1, collationList2);
-  }
+    public boolean isTop() {
+        return fieldCollations.isEmpty();
+    }
 
-  @Deprecated // to be removed before 2.0
-  public static List<Integer> ordinals(RelCollation collation) {
-    return RelCollations.ordinals(collation);
-  }
+    public int compareTo(@Nonnull RelMultipleTrait o) {
+        final RelCollationImpl that = (RelCollationImpl) o;
+        final UnmodifiableIterator<RelFieldCollation> iterator = that.fieldCollations.iterator();
+        for (RelFieldCollation f : fieldCollations) {
+            if (!iterator.hasNext()) {
+                return 1;
+            }
+            final RelFieldCollation f2 = iterator.next();
+            int c = Utilities.compare(f.getFieldIndex(), f2.getFieldIndex());
+            if (c != 0) {
+                return c;
+            }
+        }
+        return iterator.hasNext() ? -1 : 0;
+    }
+
+    public void register(RelOptPlanner planner) {
+    }
+
+    public boolean satisfies(RelTrait trait) {
+        return this == trait || trait instanceof RelCollationImpl && Util.startsWith(fieldCollations,
+                                                                                     ((RelCollationImpl) trait).fieldCollations);
+    }
+
+    /**
+     * Returns a string representation of this collation, suitably terse given
+     * that it will appear in plan traces. Examples:
+     * "[]", "[2]", "[0 DESC, 1]", "[0 DESC, 1 ASC NULLS LAST]".
+     */
+    public String toString() {
+        Iterator<RelFieldCollation> it = fieldCollations.iterator();
+        if (!it.hasNext()) {
+            return "[]";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        for (; ; ) {
+            RelFieldCollation e = it.next();
+            sb.append(e.getFieldIndex());
+            if (e.direction != RelFieldCollation.Direction.ASCENDING
+                || e.nullDirection != e.direction.defaultNullDirection()) {
+                sb.append(' ').append(e.shortString());
+            }
+            if (!it.hasNext()) {
+                return sb.append(']').toString();
+            }
+            sb.append(',').append(' ');
+        }
+    }
+
+    @Deprecated // to be removed before 2.0
+    public static List<RelCollation> createSingleton(int fieldIndex) {
+        return RelCollations.createSingleton(fieldIndex);
+    }
+
+    @Deprecated // to be removed before 2.0
+    public static boolean isValid(RelDataType rowType, List<RelCollation> collationList, boolean fail) {
+        return RelCollations.isValid(rowType, collationList, fail);
+    }
+
+    @Deprecated // to be removed before 2.0
+    public static boolean equal(List<RelCollation> collationList1, List<RelCollation> collationList2) {
+        return RelCollations.equal(collationList1, collationList2);
+    }
+
+    @Deprecated // to be removed before 2.0
+    public static List<Integer> ordinals(RelCollation collation) {
+        return RelCollations.ordinals(collation);
+    }
 }
 
 // End RelCollationImpl.java

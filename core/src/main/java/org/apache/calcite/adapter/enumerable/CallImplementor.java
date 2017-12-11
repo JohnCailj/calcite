@@ -27,18 +27,16 @@ import org.apache.calcite.rex.RexCall;
  * @see org.apache.calcite.adapter.enumerable.RexImpTable
  */
 public interface CallImplementor {
-  /**
-   * Implements a call.
-   *
-   * @param translator Translator for the call
-   * @param call Call that should be implemented
-   * @param nullAs The desired mode of {@code null} translation
-   * @return Translated call
-   */
-  Expression implement(
-      RexToLixTranslator translator,
-      RexCall call,
-      RexImpTable.NullAs nullAs);
+
+    /**
+     * Implements a call.
+     *
+     * @param translator Translator for the call
+     * @param call       Call that should be implemented
+     * @param nullAs     The desired mode of {@code null} translation
+     * @return Translated call
+     */
+    Expression implement(RexToLixTranslator translator, RexCall call, RexImpTable.NullAs nullAs);
 }
 
 // End CallImplementor.java

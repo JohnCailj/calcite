@@ -21,35 +21,36 @@ import org.apache.calcite.rel.type.RelDataType;
 
 import java.util.List;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Union}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Union}.
+ */
 public class MutableUnion extends MutableSetOp {
-  private MutableUnion(RelOptCluster cluster, RelDataType rowType,
-      List<MutableRel> inputs, boolean all) {
-    super(cluster, rowType, MutableRelType.UNION, inputs, all);
-  }
 
-  /**
-   * Creates a MutableUnion.
-   *
-   * @param rowType Row type
-   * @param inputs  Input relational expressions
-   * @param all     Whether the union result should include all rows or
-   *                eliminate duplicates from input relational expressions
-   */
-  public static MutableUnion of(
-      RelDataType rowType, List<MutableRel> inputs, boolean all) {
-    assert inputs.size() >= 2;
-    final MutableRel input0 = inputs.get(0);
-    return new MutableUnion(input0.cluster, rowType, inputs, all);
-  }
+    private MutableUnion(RelOptCluster cluster, RelDataType rowType, List<MutableRel> inputs, boolean all) {
+        super(cluster, rowType, MutableRelType.UNION, inputs, all);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Union(all: ").append(all).append(")");
-  }
+    /**
+     * Creates a MutableUnion.
+     *
+     * @param rowType Row type
+     * @param inputs  Input relational expressions
+     * @param all     Whether the union result should include all rows or
+     *                eliminate duplicates from input relational expressions
+     */
+    public static MutableUnion of(RelDataType rowType, List<MutableRel> inputs, boolean all) {
+        assert inputs.size() >= 2;
+        final MutableRel input0 = inputs.get(0);
+        return new MutableUnion(input0.cluster, rowType, inputs, all);
+    }
 
-  @Override public MutableRel clone() {
-    return MutableUnion.of(rowType, cloneChildren(), all);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Union(all: ").append(all).append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableUnion.of(rowType, cloneChildren(), all);
+    }
 }
 
 // End MutableUnion.java

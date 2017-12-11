@@ -30,7 +30,6 @@ import org.apache.calcite.rex.RexProgramBuilder;
  * Planner rule that converts a
  * {@link org.apache.calcite.rel.logical.LogicalFilter} to a
  * {@link org.apache.calcite.rel.logical.LogicalCalc}.
- *
  * <p>The rule does <em>NOT</em> fire if the child is a
  * {@link org.apache.calcite.rel.logical.LogicalFilter} or a
  * {@link org.apache.calcite.rel.logical.LogicalProject} (we assume they they
@@ -41,34 +40,33 @@ import org.apache.calcite.rex.RexProgramBuilder;
  * converted by {@link FilterCalcMergeRule}.
  */
 public class FilterToCalcRule extends RelOptRule {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  public static final FilterToCalcRule INSTANCE = new FilterToCalcRule();
+    public static final FilterToCalcRule INSTANCE = new FilterToCalcRule();
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  private FilterToCalcRule() {
-    super(operand(LogicalFilter.class, any()));
-  }
+    private FilterToCalcRule() {
+        super(operand(LogicalFilter.class, any()));
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public void onMatch(RelOptRuleCall call) {
-    final LogicalFilter filter = call.rel(0);
-    final RelNode rel = filter.getInput();
+    public void onMatch(RelOptRuleCall call) {
+        final LogicalFilter filter = call.rel(0);
+        final RelNode rel = filter.getInput();
 
-    // Create a program containing a filter.
-    final RexBuilder rexBuilder = filter.getCluster().getRexBuilder();
-    final RelDataType inputRowType = rel.getRowType();
-    final RexProgramBuilder programBuilder =
-        new RexProgramBuilder(inputRowType, rexBuilder);
-    programBuilder.addIdentity();
-    programBuilder.addCondition(filter.getCondition());
-    final RexProgram program = programBuilder.getProgram();
+        // Create a program containing a filter.
+        final RexBuilder rexBuilder = filter.getCluster().getRexBuilder();
+        final RelDataType inputRowType = rel.getRowType();
+        final RexProgramBuilder programBuilder = new RexProgramBuilder(inputRowType, rexBuilder);
+        programBuilder.addIdentity();
+        programBuilder.addCondition(filter.getCondition());
+        final RexProgram program = programBuilder.getProgram();
 
-    final LogicalCalc calc = LogicalCalc.create(rel, program);
-    call.transformTo(calc);
-  }
+        final LogicalCalc calc = LogicalCalc.create(rel, program);
+        call.transformTo(calc);
+    }
 }
 
 // End FilterToCalcRule.java

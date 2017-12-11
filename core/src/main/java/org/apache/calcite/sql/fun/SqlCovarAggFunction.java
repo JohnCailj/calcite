@@ -16,14 +16,13 @@
  */
 package org.apache.calcite.sql.fun;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlAggFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
-
-import com.google.common.base.Preconditions;
 
 /**
  * <code>Covar</code> is an aggregator which returns the Covariance of the
@@ -32,56 +31,44 @@ import com.google.common.base.Preconditions;
  * double</code>), and the result is the same type.
  */
 public class SqlCovarAggFunction extends SqlAggFunction {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a SqlCovarAggFunction.
-   */
-  public SqlCovarAggFunction(SqlKind kind) {
-    super(kind.name(),
-        null,
-        kind,
-        ReturnTypes.COVAR_FUNCTION,
-        null,
-        OperandTypes.NUMERIC_NUMERIC,
-        SqlFunctionCategory.NUMERIC,
-        false,
-        false);
-    Preconditions.checkArgument(kind == SqlKind.COVAR_POP
-        || kind == SqlKind.COVAR_SAMP
-        || kind == SqlKind.REGR_SXX
-        || kind == SqlKind.REGR_SYY);
-  }
+    /**
+     * Creates a SqlCovarAggFunction.
+     */
+    public SqlCovarAggFunction(SqlKind kind) {
+        super(kind.name(), null, kind, ReturnTypes.COVAR_FUNCTION, null, OperandTypes.NUMERIC_NUMERIC,
+              SqlFunctionCategory.NUMERIC, false, false);
+        Preconditions.checkArgument(kind == SqlKind.COVAR_POP || kind == SqlKind.COVAR_SAMP || kind == SqlKind.REGR_SXX
+                                    || kind == SqlKind.REGR_SYY);
+    }
 
-  @Deprecated // to be removed before 2.0
-  public SqlCovarAggFunction(RelDataType type, Subtype subtype) {
-    this(SqlKind.valueOf(subtype.name()));
-  }
+    @Deprecated // to be removed before 2.0
+    public SqlCovarAggFunction(RelDataType type, Subtype subtype) {
+        this(SqlKind.valueOf(subtype.name()));
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Returns the specific function, e.g. COVAR_POP or COVAR_SAMP.
-   *
-   * @return Subtype
-   */
-  @Deprecated // to be removed before 2.0
-  public Subtype getSubtype() {
-    return Subtype.valueOf(kind.name());
-  }
+    /**
+     * Returns the specific function, e.g. COVAR_POP or COVAR_SAMP.
+     *
+     * @return Subtype
+     */
+    @Deprecated // to be removed before 2.0
+    public Subtype getSubtype() {
+        return Subtype.valueOf(kind.name());
+    }
 
-  /**
-   * Enum for defining specific types.
-   */
-  @Deprecated // to be removed before 2.0
-  public enum Subtype {
-    COVAR_POP,
-    COVAR_SAMP,
-    REGR_SXX,
-    REGR_SYY
-  }
+    /**
+     * Enum for defining specific types.
+     */
+    @Deprecated // to be removed before 2.0
+    public enum Subtype {
+        COVAR_POP, COVAR_SAMP, REGR_SXX, REGR_SYY
+    }
 }
 
 // End SqlCovarAggFunction.java

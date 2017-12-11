@@ -26,38 +26,34 @@ import org.apache.calcite.rel.core.Sort;
 /**
  * Planner rule that removes
  * a {@link org.apache.calcite.rel.core.Sort} if its input is already sorted.
- *
  * <p>Requires {@link RelCollationTraitDef}.
  */
 public class SortRemoveRule extends RelOptRule {
-  public static final SortRemoveRule INSTANCE = new SortRemoveRule();
 
-  private SortRemoveRule() {
-    super(
-        operand(Sort.class, any()),
-        "SortRemoveRule");
-  }
+    public static final SortRemoveRule INSTANCE = new SortRemoveRule();
 
-  @Override public void onMatch(RelOptRuleCall call) {
-    if (!call.getPlanner().getRelTraitDefs()
-        .contains(RelCollationTraitDef.INSTANCE)) {
-      // Collation is not an active trait.
-      return;
+    private SortRemoveRule() {
+        super(operand(Sort.class, any()), "SortRemoveRule");
     }
-    final Sort sort = call.rel(0);
-    if (sort.offset != null || sort.fetch != null) {
-      // Don't remove sort if would also remove OFFSET or LIMIT.
-      return;
+
+    @Override public void onMatch(RelOptRuleCall call) {
+        if (!call.getPlanner().getRelTraitDefs().contains(RelCollationTraitDef.INSTANCE)) {
+            // Collation is not an active trait.
+            return;
+        }
+        final Sort sort = call.rel(0);
+        if (sort.offset != null || sort.fetch != null) {
+            // Don't remove sort if would also remove OFFSET or LIMIT.
+            return;
+        }
+        // Express the "sortedness" requirement in terms of a collation trait and
+        // we can get rid of the sort. This allows us to use rels that just happen
+        // to be sorted but get the same effect.
+        final RelCollation collation = sort.getCollation();
+        assert collation == sort.getTraitSet().getTrait(RelCollationTraitDef.INSTANCE);
+        final RelTraitSet traits = sort.getInput().getTraitSet().replace(collation);
+        call.transformTo(convert(sort.getInput(), traits));
     }
-    // Express the "sortedness" requirement in terms of a collation trait and
-    // we can get rid of the sort. This allows us to use rels that just happen
-    // to be sorted but get the same effect.
-    final RelCollation collation = sort.getCollation();
-    assert collation == sort.getTraitSet()
-        .getTrait(RelCollationTraitDef.INSTANCE);
-    final RelTraitSet traits = sort.getInput().getTraitSet().replace(collation);
-    call.transformTo(convert(sort.getInput(), traits));
-  }
 }
 
 // End SortRemoveRule.java

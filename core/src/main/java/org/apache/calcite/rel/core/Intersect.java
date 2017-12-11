@@ -28,38 +28,34 @@ import java.util.List;
 /**
  * Relational expression that returns the intersection of the rows of its
  * inputs.
- *
  * <p>If "all" is true, performs then multiset intersection; otherwise,
  * performs set set intersection (implying no duplicates in the results).
  */
 public abstract class Intersect extends SetOp {
-  /**
-   * Creates an Intersect.
-   */
-  public Intersect(
-      RelOptCluster cluster,
-      RelTraitSet traits,
-      List<RelNode> inputs,
-      boolean all) {
-    super(cluster, traits, inputs, SqlKind.INTERSECT, all);
-  }
 
-  /**
-   * Creates an Intersect by parsing serialized output.
-   */
-  protected Intersect(RelInput input) {
-    super(input);
-  }
-
-  @Override public double estimateRowCount(RelMetadataQuery mq) {
-    // REVIEW jvs 30-May-2005:  I just pulled this out of a hat.
-    double dRows = Double.MAX_VALUE;
-    for (RelNode input : inputs) {
-      dRows = Math.min(dRows, mq.getRowCount(input));
+    /**
+     * Creates an Intersect.
+     */
+    public Intersect(RelOptCluster cluster, RelTraitSet traits, List<RelNode> inputs, boolean all) {
+        super(cluster, traits, inputs, SqlKind.INTERSECT, all);
     }
-    dRows *= 0.25;
-    return dRows;
-  }
+
+    /**
+     * Creates an Intersect by parsing serialized output.
+     */
+    protected Intersect(RelInput input) {
+        super(input);
+    }
+
+    @Override public double estimateRowCount(RelMetadataQuery mq) {
+        // REVIEW jvs 30-May-2005:  I just pulled this out of a hat.
+        double dRows = Double.MAX_VALUE;
+        for (RelNode input : inputs) {
+            dRows = Math.min(dRows, mq.getRowCount(input));
+        }
+        dRows *= 0.25;
+        return dRows;
+    }
 }
 
 // End Intersect.java

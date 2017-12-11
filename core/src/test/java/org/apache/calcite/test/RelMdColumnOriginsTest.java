@@ -16,64 +16,54 @@
  */
 package org.apache.calcite.test;
 
-import org.apache.calcite.jdbc.CalciteConnection;
-
 import com.google.common.collect.ImmutableMultiset;
-
+import org.apache.calcite.jdbc.CalciteConnection;
 import org.junit.Test;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Statement;
+import java.sql.*;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-/** Test case for CALCITE-542. */
+/**
+ * Test case for CALCITE-542.
+ */
 public class RelMdColumnOriginsTest {
-  /** Test case for
-   * <a href="https://issues.apache.org/jira/browse/CALCITE-542">[CALCITE-542]
-   * Support for Aggregate with grouping sets in RelMdColumnOrigins</a>. */
-  @Test public void testQueryWithAggregateGroupingSets() throws Exception {
-    Connection connection = DriverManager.getConnection("jdbc:calcite:");
-    CalciteConnection calciteConnection =
-        connection.unwrap(CalciteConnection.class);
 
-    calciteConnection.getRootSchema().add("T1",
-        new TableInRootSchemaTest.SimpleTable());
-    Statement statement = calciteConnection.createStatement();
-    ResultSet resultSet =
-        statement.executeQuery("SELECT TABLE1.ID, TABLE2.ID FROM "
-                + "(SELECT GROUPING(A) AS ID FROM T1 "
-                + "GROUP BY ROLLUP(A,B)) TABLE1 "
-                + "JOIN "
-                + "(SELECT GROUPING(A) AS ID FROM T1 "
-                + "GROUP BY ROLLUP(A,B)) TABLE2 "
-                + "ON TABLE1.ID = TABLE2.ID");
+    /**
+     * Test case for
+     * <a href="https://issues.apache.org/jira/browse/CALCITE-542">[CALCITE-542]
+     * Support for Aggregate with grouping sets in RelMdColumnOrigins</a>.
+     */
+    @Test public void testQueryWithAggregateGroupingSets() throws Exception {
+        Connection connection = DriverManager.getConnection("jdbc:calcite:");
+        CalciteConnection calciteConnection = connection.unwrap(CalciteConnection.class);
 
-    final String result1 = "ID=0; ID=0";
-    final String result2 = "ID=1; ID=1";
-    final ImmutableMultiset<String> expectedResult =
-        ImmutableMultiset.<String>builder()
-            .addCopies(result1, 25)
-            .add(result2)
-            .build();
-    assertThat(CalciteAssert.toSet(resultSet), equalTo(expectedResult));
+        calciteConnection.getRootSchema().add("T1", new TableInRootSchemaTest.SimpleTable());
+        Statement statement = calciteConnection.createStatement();
+        ResultSet resultSet = statement.executeQuery(
+                "SELECT TABLE1.ID, TABLE2.ID FROM " + "(SELECT GROUPING(A) AS ID FROM T1 "
+                + "GROUP BY ROLLUP(A,B)) TABLE1 " + "JOIN " + "(SELECT GROUPING(A) AS ID FROM T1 "
+                + "GROUP BY ROLLUP(A,B)) TABLE2 " + "ON TABLE1.ID = TABLE2.ID");
 
-    final ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-    assertThat(resultSetMetaData.getColumnName(1), equalTo("ID"));
-    assertThat(resultSetMetaData.getTableName(1), nullValue());
-    assertThat(resultSetMetaData.getSchemaName(1), nullValue());
-    assertThat(resultSetMetaData.getColumnName(2), equalTo("ID"));
-    assertThat(resultSetMetaData.getTableName(2), nullValue());
-    assertThat(resultSetMetaData.getSchemaName(2), nullValue());
-    resultSet.close();
-    statement.close();
-    connection.close();
-  }
+        final String result1 = "ID=0; ID=0";
+        final String result2 = "ID=1; ID=1";
+        final ImmutableMultiset<String> expectedResult = ImmutableMultiset.<String>builder().addCopies(result1, 25).add(
+                result2).build();
+        assertThat(CalciteAssert.toSet(resultSet), equalTo(expectedResult));
+
+        final ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+        assertThat(resultSetMetaData.getColumnName(1), equalTo("ID"));
+        assertThat(resultSetMetaData.getTableName(1), nullValue());
+        assertThat(resultSetMetaData.getSchemaName(1), nullValue());
+        assertThat(resultSetMetaData.getColumnName(2), equalTo("ID"));
+        assertThat(resultSetMetaData.getTableName(2), nullValue());
+        assertThat(resultSetMetaData.getSchemaName(2), nullValue());
+        resultSet.close();
+        statement.close();
+        connection.close();
+    }
 }
 
 // End RelMdColumnOriginsTest.java

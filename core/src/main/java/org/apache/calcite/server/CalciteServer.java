@@ -22,23 +22,23 @@ import org.apache.calcite.jdbc.CalciteConnection;
 
 /**
  * Server.
- *
  * <p>Represents shared state among connections, and will have monitoring and
  * management facilities.
  */
 public interface CalciteServer {
-  void removeStatement(Meta.StatementHandle h);
 
-  void addStatement(CalciteConnection connection, Meta.StatementHandle h);
+    void removeStatement(Meta.StatementHandle h);
 
-  /** Returns the statement with a given handle.
-   *
-   * @param h Statement handle
-   * @return Statement, never null
-   * @throws NoSuchStatementException if handle does not represent a statement
-   */
-  CalciteServerStatement getStatement(Meta.StatementHandle h)
-      throws NoSuchStatementException;
+    void addStatement(CalciteConnection connection, Meta.StatementHandle h);
+
+    /**
+     * Returns the statement with a given handle.
+     *
+     * @param h Statement handle
+     * @return Statement, never null
+     * @throws NoSuchStatementException if handle does not represent a statement
+     */
+    CalciteServerStatement getStatement(Meta.StatementHandle h) throws NoSuchStatementException;
 }
 
 // End CalciteServer.java

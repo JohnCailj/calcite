@@ -19,76 +19,93 @@ package org.apache.calcite.rel;
 import org.apache.calcite.plan.RelTrait;
 import org.apache.calcite.util.mapping.Mappings;
 
-import java.util.List;
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Description of the physical distribution of a relational expression.
- *
  * <p>TBD:</p>
  * <ul>
- *   <li>Can we shorten {@link Type#HASH_DISTRIBUTED} to HASH, etc.</li>
- *   <li>Do we need {@link RelDistributions}.DEFAULT?</li>
- *   <li>{@link RelDistributionTraitDef#convert}
- *       does not create specific physical operators as it does in Drill. Drill
- *       will need to create rules; or we could allow "converters" to be
- *       registered with the planner that are not trait-defs.
+ * <li>Can we shorten {@link Type#HASH_DISTRIBUTED} to HASH, etc.</li>
+ * <li>Do we need {@link RelDistributions}.DEFAULT?</li>
+ * <li>{@link RelDistributionTraitDef#convert}
+ * does not create specific physical operators as it does in Drill. Drill
+ * will need to create rules; or we could allow "converters" to be
+ * registered with the planner that are not trait-defs.
  * </ul>
  */
 public interface RelDistribution extends RelTrait {
-  /** Returns the type of distribution. */
-  @Nonnull Type getType();
 
-  /**
-   * Returns the ordinals of the key columns.
-   *
-   * <p>Order is important for some types (RANGE); other types (HASH) consider
-   * it unimportant but impose an arbitrary order; other types (BROADCAST,
-   * SINGLETON) never have keys.
-   */
-  @Nonnull List<Integer> getKeys();
+    /**
+     * Returns the type of distribution.
+     */
+    @Nonnull Type getType();
 
-  RelDistribution apply(Mappings.TargetMapping mapping);
+    /**
+     * Returns the ordinals of the key columns.
+     * <p>Order is important for some types (RANGE); other types (HASH) consider
+     * it unimportant but impose an arbitrary order; other types (BROADCAST,
+     * SINGLETON) never have keys.
+     */
+    @Nonnull List<Integer> getKeys();
 
-  /** Type of distribution. */
-  enum Type {
-    /** There is only one instance of the stream. It sees all records. */
-    SINGLETON("single"),
+    RelDistribution apply(Mappings.TargetMapping mapping);
 
-    /** There are multiple instances of the stream, and each instance contains
-     * records whose keys hash to a particular hash value. Instances are
-     * disjoint; a given record appears on exactly one stream. */
-    HASH_DISTRIBUTED("hash"),
+    /**
+     * Type of distribution.
+     */
+    enum Type {
+        /**
+         * There is only one instance of the stream. It sees all records.
+         */
+        SINGLETON("single"),
 
-    /** There are multiple instances of the stream, and each instance contains
-     * records whose keys fall into a particular range. Instances are disjoint;
-     * a given record appears on exactly one stream. */
-    RANGE_DISTRIBUTED("range"),
+        /**
+         * There are multiple instances of the stream, and each instance contains
+         * records whose keys hash to a particular hash value. Instances are
+         * disjoint; a given record appears on exactly one stream.
+         */
+        HASH_DISTRIBUTED("hash"),
 
-    /** There are multiple instances of the stream, and each instance contains
-     * randomly chosen records. Instances are disjoint; a given record appears
-     * on exactly one stream. */
-    RANDOM_DISTRIBUTED("random"),
+        /**
+         * There are multiple instances of the stream, and each instance contains
+         * records whose keys fall into a particular range. Instances are disjoint;
+         * a given record appears on exactly one stream.
+         */
+        RANGE_DISTRIBUTED("range"),
 
-    /** There are multiple instances of the stream, and records are assigned
-     * to instances in turn. Instances are disjoint; a given record appears
-     * on exactly one stream. */
-    ROUND_ROBIN_DISTRIBUTED("rr"),
+        /**
+         * There are multiple instances of the stream, and each instance contains
+         * randomly chosen records. Instances are disjoint; a given record appears
+         * on exactly one stream.
+         */
+        RANDOM_DISTRIBUTED("random"),
 
-    /** There are multiple instances of the stream, and all records appear in
-     * each instance. */
-    BROADCAST_DISTRIBUTED("broadcast"),
+        /**
+         * There are multiple instances of the stream, and records are assigned
+         * to instances in turn. Instances are disjoint; a given record appears
+         * on exactly one stream.
+         */
+        ROUND_ROBIN_DISTRIBUTED("rr"),
 
-    /** Not a valid distribution, but indicates that a consumer will accept any
-     * distribution. */
-    ANY("any");
+        /**
+         * There are multiple instances of the stream, and all records appear in
+         * each instance.
+         */
+        BROADCAST_DISTRIBUTED("broadcast"),
 
-    public final String shortName;
+        /**
+         * Not a valid distribution, but indicates that a consumer will accept any
+         * distribution.
+         */
+        ANY("any");
 
-    Type(String shortName) {
-      this.shortName = shortName;
+        public final String shortName;
+
+        Type(String shortName) {
+            this.shortName = shortName;
+        }
     }
-  }
 }
 
 // End RelDistribution.java

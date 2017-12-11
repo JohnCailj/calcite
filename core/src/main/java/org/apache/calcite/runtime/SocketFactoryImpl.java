@@ -16,18 +16,17 @@
  */
 package org.apache.calcite.runtime;
 
+import javax.net.SocketFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
-import javax.net.SocketFactory;
 
 /**
  * Extends the SocketFactory object with the main functionality being that the
  * created sockets inherit a set of options whose values are set in the
  * SocketFactoryImpl.
- *
  * <blockquote><pre>
  * 1.  SO_KEEPALIVE          - is keepalive enabled?
  * 2.  OOBINLINE             - is out of band in-line enabled?
@@ -42,122 +41,120 @@ import javax.net.SocketFactory;
  * </pre></blockquote>
  */
 public class SocketFactoryImpl extends SocketFactory {
-  /**
-   * should keep alives be sent
-   */
-  public static final boolean SO_KEEPALIVE = false;
 
-  /**
-   * is out of band in-line enabled
-   */
-  public static final boolean OOBINLINE = false;
+    /**
+     * should keep alives be sent
+     */
+    public static final boolean SO_KEEPALIVE = false;
 
-  /**
-   * should the address be reused
-   */
-  public static final boolean SO_REUSEADDR = false;
+    /**
+     * is out of band in-line enabled
+     */
+    public static final boolean OOBINLINE = false;
 
-  /**
-   * do not buffer send(s) iff true
-   */
-  public static final boolean TCP_NODELAY = true;
+    /**
+     * should the address be reused
+     */
+    public static final boolean SO_REUSEADDR = false;
 
-  /**
-   * size of receiving buffer
-   */
-  public static final int SO_RCVBUF = 8192;
+    /**
+     * do not buffer send(s) iff true
+     */
+    public static final boolean TCP_NODELAY = true;
 
-  /**
-   * size of sending buffer iff needed
-   */
-  public static final int SO_SNDBUF = 1024;
+    /**
+     * size of receiving buffer
+     */
+    public static final int SO_RCVBUF = 8192;
 
-  /**
-   * read timeout in milliseconds
-   */
-  public static final int SO_TIMEOUT = 12000;
+    /**
+     * size of sending buffer iff needed
+     */
+    public static final int SO_SNDBUF = 1024;
 
-  /**
-   * connect timeout in milliseconds
-   */
-  public static final int SO_CONNECT_TIMEOUT = 5000;
+    /**
+     * read timeout in milliseconds
+     */
+    public static final int SO_TIMEOUT = 12000;
 
-  /**
-   * enabling lingering with 0-timeout will cause the socket to be
-   * closed forcefully upon execution of close()
-   */
-  public static final boolean SO_LINGER = true;
+    /**
+     * connect timeout in milliseconds
+     */
+    public static final int SO_CONNECT_TIMEOUT = 5000;
 
-  /**
-   * amount of time to linger
-   */
-  public static final int LINGER = 0;
+    /**
+     * enabling lingering with 0-timeout will cause the socket to be
+     * closed forcefully upon execution of close()
+     */
+    public static final boolean SO_LINGER = true;
 
-  @Override public Socket createSocket() throws IOException {
-    Socket s = new Socket();
-    return applySettings(s);
-  }
+    /**
+     * amount of time to linger
+     */
+    public static final int LINGER = 0;
 
-  /**
-   * Applies the current settings to the given socket.
-   *
-   * @param s Socket to apply the settings to
-   * @return Socket the input socket
-   */
-  protected Socket applySettings(Socket s) {
-    try {
-      s.setKeepAlive(SO_KEEPALIVE);
-      s.setOOBInline(OOBINLINE);
-      s.setReuseAddress(SO_REUSEADDR);
-      s.setTcpNoDelay(TCP_NODELAY);
-      s.setOOBInline(OOBINLINE);
-
-      s.setReceiveBufferSize(SO_RCVBUF);
-      s.setSendBufferSize(SO_SNDBUF);
-      s.setSoTimeout(SO_TIMEOUT);
-      s.setSoLinger(SO_LINGER, LINGER);
-    } catch (SocketException e) {
-      throw new RuntimeException(e);
+    @Override public Socket createSocket() throws IOException {
+        Socket s = new Socket();
+        return applySettings(s);
     }
-    return s;
-  }
 
-  @Override public Socket createSocket(String host, int port)
-      throws IOException {
-    Socket s = createSocket();
-    s.connect(new InetSocketAddress(host, port), SO_CONNECT_TIMEOUT);
-    return s;
-  }
+    /**
+     * Applies the current settings to the given socket.
+     *
+     * @param s Socket to apply the settings to
+     * @return Socket the input socket
+     */
+    protected Socket applySettings(Socket s) {
+        try {
+            s.setKeepAlive(SO_KEEPALIVE);
+            s.setOOBInline(OOBINLINE);
+            s.setReuseAddress(SO_REUSEADDR);
+            s.setTcpNoDelay(TCP_NODELAY);
+            s.setOOBInline(OOBINLINE);
 
-  @Override public Socket createSocket(InetAddress host, int port)
-      throws IOException {
-    Socket s = createSocket();
-    s.connect(new InetSocketAddress(host, port), SO_CONNECT_TIMEOUT);
-    return s;
-  }
+            s.setReceiveBufferSize(SO_RCVBUF);
+            s.setSendBufferSize(SO_SNDBUF);
+            s.setSoTimeout(SO_TIMEOUT);
+            s.setSoLinger(SO_LINGER, LINGER);
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+        return s;
+    }
 
-  @Override public Socket createSocket(String host, int port, InetAddress local,
-      int localPort) throws IOException {
-    Socket s  = createSocket();
-    s.bind(new InetSocketAddress(local, localPort));
-    s.connect(new InetSocketAddress(host, port), SO_CONNECT_TIMEOUT);
-    return s;
-  }
+    @Override public Socket createSocket(String host, int port) throws IOException {
+        Socket s = createSocket();
+        s.connect(new InetSocketAddress(host, port), SO_CONNECT_TIMEOUT);
+        return s;
+    }
 
-  @Override public Socket createSocket(InetAddress host, int port,
-      InetAddress local, int localPort) throws IOException {
-    Socket s  = createSocket();
-    s.bind(new InetSocketAddress(local, localPort));
-    s.connect(new InetSocketAddress(host, port), SO_CONNECT_TIMEOUT);
-    return s;
-  }
+    @Override public Socket createSocket(InetAddress host, int port) throws IOException {
+        Socket s = createSocket();
+        s.connect(new InetSocketAddress(host, port), SO_CONNECT_TIMEOUT);
+        return s;
+    }
 
-  /**
-   * @see javax.net.SocketFactory#getDefault()
-   */
-  public static SocketFactory getDefault() {
-    return new SocketFactoryImpl();
-  }
+    @Override public Socket createSocket(String host, int port, InetAddress local, int localPort) throws IOException {
+        Socket s = createSocket();
+        s.bind(new InetSocketAddress(local, localPort));
+        s.connect(new InetSocketAddress(host, port), SO_CONNECT_TIMEOUT);
+        return s;
+    }
+
+    @Override public Socket createSocket(InetAddress host, int port, InetAddress local, int localPort)
+            throws IOException {
+        Socket s = createSocket();
+        s.bind(new InetSocketAddress(local, localPort));
+        s.connect(new InetSocketAddress(host, port), SO_CONNECT_TIMEOUT);
+        return s;
+    }
+
+    /**
+     * @see javax.net.SocketFactory#getDefault()
+     */
+    public static SocketFactory getDefault() {
+        return new SocketFactoryImpl();
+    }
 }
 
 // End SocketFactoryImpl.java

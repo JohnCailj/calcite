@@ -33,81 +33,72 @@ import java.util.List;
  * Planner rule that pushes
  * a {@link org.apache.calcite.rel.logical.LogicalProject}
  * past a {@link org.apache.calcite.rel.core.SetOp}.
- *
  * <p>The children of the {@code SetOp} will project
  * only the {@link RexInputRef}s referenced in the original
  * {@code LogicalProject}.
  */
 public class ProjectSetOpTransposeRule extends RelOptRule {
-  public static final ProjectSetOpTransposeRule INSTANCE =
-      new ProjectSetOpTransposeRule(
-          PushProjector.ExprCondition.FALSE, RelFactories.LOGICAL_BUILDER);
 
-  //~ Instance fields --------------------------------------------------------
+    public static final ProjectSetOpTransposeRule INSTANCE = new ProjectSetOpTransposeRule(
+            PushProjector.ExprCondition.FALSE, RelFactories.LOGICAL_BUILDER);
 
-  /**
-   * Expressions that should be preserved in the projection
-   */
-  private PushProjector.ExprCondition preserveExprCondition;
+    //~ Instance fields --------------------------------------------------------
 
-  //~ Constructors -----------------------------------------------------------
+    /**
+     * Expressions that should be preserved in the projection
+     */
+    private PushProjector.ExprCondition preserveExprCondition;
 
-  /**
-   * Creates a ProjectSetOpTransposeRule with an explicit condition whether
-   * to preserve expressions.
-   *
-   * @param preserveExprCondition Condition whether to preserve expressions
-   */
-  public ProjectSetOpTransposeRule(
-      PushProjector.ExprCondition preserveExprCondition,
-      RelBuilderFactory relBuilderFactory) {
-    super(
-        operand(
-            LogicalProject.class,
-            operand(SetOp.class, any())),
-        relBuilderFactory, null);
-    this.preserveExprCondition = preserveExprCondition;
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
-
-  // implement RelOptRule
-  public void onMatch(RelOptRuleCall call) {
-    LogicalProject origProj = call.rel(0);
-    SetOp setOp = call.rel(1);
-
-    // cannot push project past a distinct
-    if (!setOp.all) {
-      return;
+    /**
+     * Creates a ProjectSetOpTransposeRule with an explicit condition whether
+     * to preserve expressions.
+     *
+     * @param preserveExprCondition Condition whether to preserve expressions
+     */
+    public ProjectSetOpTransposeRule(PushProjector.ExprCondition preserveExprCondition,
+                                     RelBuilderFactory relBuilderFactory) {
+        super(operand(LogicalProject.class, operand(SetOp.class, any())), relBuilderFactory, null);
+        this.preserveExprCondition = preserveExprCondition;
     }
 
-    // locate all fields referenced in the projection
-    PushProjector pushProject =
-        new PushProjector(
-            origProj, null, setOp, preserveExprCondition, call.builder());
-    pushProject.locateAllRefs();
+    //~ Methods ----------------------------------------------------------------
 
-    List<RelNode> newSetOpInputs = new ArrayList<>();
-    int[] adjustments = pushProject.getAdjustments();
+    // implement RelOptRule
+    public void onMatch(RelOptRuleCall call) {
+        LogicalProject origProj = call.rel(0);
+        SetOp setOp = call.rel(1);
 
-    // push the projects completely below the setop; this
-    // is different from pushing below a join, where we decompose
-    // to try to keep expensive expressions above the join,
-    // because UNION ALL does not have any filtering effect,
-    // and it is the only operator this rule currently acts on
-    for (RelNode input : setOp.getInputs()) {
-      // be lazy:  produce two ProjectRels, and let another rule
-      // merge them (could probably just clone origProj instead?)
-      Project p = pushProject.createProjectRefsAndExprs(input, true, false);
-      newSetOpInputs.add(pushProject.createNewProject(p, adjustments));
+        // cannot push project past a distinct
+        if (!setOp.all) {
+            return;
+        }
+
+        // locate all fields referenced in the projection
+        PushProjector pushProject = new PushProjector(origProj, null, setOp, preserveExprCondition, call.builder());
+        pushProject.locateAllRefs();
+
+        List<RelNode> newSetOpInputs = new ArrayList<>();
+        int[] adjustments = pushProject.getAdjustments();
+
+        // push the projects completely below the setop; this
+        // is different from pushing below a join, where we decompose
+        // to try to keep expensive expressions above the join,
+        // because UNION ALL does not have any filtering effect,
+        // and it is the only operator this rule currently acts on
+        for (RelNode input : setOp.getInputs()) {
+            // be lazy:  produce two ProjectRels, and let another rule
+            // merge them (could probably just clone origProj instead?)
+            Project p = pushProject.createProjectRefsAndExprs(input, true, false);
+            newSetOpInputs.add(pushProject.createNewProject(p, adjustments));
+        }
+
+        // create a new setop whose children are the ProjectRels created above
+        SetOp newSetOp = setOp.copy(setOp.getTraitSet(), newSetOpInputs);
+
+        call.transformTo(newSetOp);
     }
-
-    // create a new setop whose children are the ProjectRels created above
-    SetOp newSetOp =
-        setOp.copy(setOp.getTraitSet(), newSetOpInputs);
-
-    call.transformTo(newSetOp);
-  }
 }
 
 // End ProjectSetOpTransposeRule.java

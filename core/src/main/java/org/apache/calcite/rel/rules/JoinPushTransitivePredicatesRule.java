@@ -33,65 +33,63 @@ import org.apache.calcite.tools.RelBuilderFactory;
  * {@link org.apache.calcite.rel.core.Join} and creates
  * {@link org.apache.calcite.rel.core.Filter}s if those predicates can be pushed
  * to its inputs.
- *
  * <p>Uses {@link org.apache.calcite.rel.metadata.RelMdPredicates} to infer
  * the predicates,
  * returns them in a {@link org.apache.calcite.plan.RelOptPredicateList}
  * and applies them appropriately.
  */
 public class JoinPushTransitivePredicatesRule extends RelOptRule {
-  /** The singleton. */
-  public static final JoinPushTransitivePredicatesRule INSTANCE =
-      new JoinPushTransitivePredicatesRule(Join.class,
-          RelFactories.LOGICAL_BUILDER);
 
-  /** Creates a JoinPushTransitivePredicatesRule. */
-  public JoinPushTransitivePredicatesRule(Class<? extends Join> clazz,
-      RelBuilderFactory relBuilderFactory) {
-    super(operand(clazz, any()), relBuilderFactory, null);
-  }
+    /**
+     * The singleton.
+     */
+    public static final JoinPushTransitivePredicatesRule INSTANCE = new JoinPushTransitivePredicatesRule(Join.class,
+                                                                                                         RelFactories.LOGICAL_BUILDER);
 
-  @Deprecated // to be removed before 2.0
-  public JoinPushTransitivePredicatesRule(Class<? extends Join> clazz,
-      RelFactories.FilterFactory filterFactory) {
-    this(clazz, RelBuilder.proto(Contexts.of(filterFactory)));
-  }
-
-  @Override public void onMatch(RelOptRuleCall call) {
-    Join join = call.rel(0);
-    final RelMetadataQuery mq = call.getMetadataQuery();
-    RelOptPredicateList preds = mq.getPulledUpPredicates(join);
-
-    if (preds.leftInferredPredicates.isEmpty()
-        && preds.rightInferredPredicates.isEmpty()) {
-      return;
+    /**
+     * Creates a JoinPushTransitivePredicatesRule.
+     */
+    public JoinPushTransitivePredicatesRule(Class<? extends Join> clazz, RelBuilderFactory relBuilderFactory) {
+        super(operand(clazz, any()), relBuilderFactory, null);
     }
 
-    final RexBuilder rexBuilder = join.getCluster().getRexBuilder();
-    final RelBuilder relBuilder = call.builder();
-
-    RelNode lChild = join.getLeft();
-    if (preds.leftInferredPredicates.size() > 0) {
-      RelNode curr = lChild;
-      lChild = relBuilder.push(lChild)
-          .filter(preds.leftInferredPredicates).build();
-      call.getPlanner().onCopy(curr, lChild);
+    @Deprecated // to be removed before 2.0
+    public JoinPushTransitivePredicatesRule(Class<? extends Join> clazz, RelFactories.FilterFactory filterFactory) {
+        this(clazz, RelBuilder.proto(Contexts.of(filterFactory)));
     }
 
-    RelNode rChild = join.getRight();
-    if (preds.rightInferredPredicates.size() > 0) {
-      RelNode curr = rChild;
-      rChild = relBuilder.push(rChild)
-          .filter(preds.rightInferredPredicates).build();
-      call.getPlanner().onCopy(curr, rChild);
+    @Override public void onMatch(RelOptRuleCall call) {
+        Join join = call.rel(0);
+        final RelMetadataQuery mq = call.getMetadataQuery();
+        RelOptPredicateList preds = mq.getPulledUpPredicates(join);
+
+        if (preds.leftInferredPredicates.isEmpty() && preds.rightInferredPredicates.isEmpty()) {
+            return;
+        }
+
+        final RexBuilder rexBuilder = join.getCluster().getRexBuilder();
+        final RelBuilder relBuilder = call.builder();
+
+        RelNode lChild = join.getLeft();
+        if (preds.leftInferredPredicates.size() > 0) {
+            RelNode curr = lChild;
+            lChild = relBuilder.push(lChild).filter(preds.leftInferredPredicates).build();
+            call.getPlanner().onCopy(curr, lChild);
+        }
+
+        RelNode rChild = join.getRight();
+        if (preds.rightInferredPredicates.size() > 0) {
+            RelNode curr = rChild;
+            rChild = relBuilder.push(rChild).filter(preds.rightInferredPredicates).build();
+            call.getPlanner().onCopy(curr, rChild);
+        }
+
+        RelNode newRel = join.copy(join.getTraitSet(), join.getCondition(), lChild, rChild, join.getJoinType(),
+                                   join.isSemiJoinDone());
+        call.getPlanner().onCopy(join, newRel);
+
+        call.transformTo(newRel);
     }
-
-    RelNode newRel = join.copy(join.getTraitSet(), join.getCondition(),
-        lChild, rChild, join.getJoinType(), join.isSemiJoinDone());
-    call.getPlanner().onCopy(join, newRel);
-
-    call.transformTo(newRel);
-  }
 }
 
 // End JoinPushTransitivePredicatesRule.java

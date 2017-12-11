@@ -26,26 +26,21 @@ import org.apache.calcite.rel.logical.LogicalCorrelate;
  * Implementation of nested loops over enumerable inputs.
  */
 public class EnumerableCorrelateRule extends ConverterRule {
-  EnumerableCorrelateRule() {
-    super(LogicalCorrelate.class, Convention.NONE,
-        EnumerableConvention.INSTANCE, "EnumerableCorrelateRule");
-  }
 
-  public RelNode convert(RelNode rel) {
-    final LogicalCorrelate c = (LogicalCorrelate) rel;
-    final RelTraitSet traitSet =
-        c.getTraitSet().replace(EnumerableConvention.INSTANCE);
-    return new EnumerableCorrelate(
-        rel.getCluster(),
-        traitSet,
-        convert(c.getLeft(), c.getLeft().getTraitSet()
-            .replace(EnumerableConvention.INSTANCE)),
-        convert(c.getRight(), c.getRight().getTraitSet()
-            .replace(EnumerableConvention.INSTANCE)),
-        c.getCorrelationId(),
-        c.getRequiredColumns(),
-        c.getJoinType());
-  }
+    EnumerableCorrelateRule() {
+        super(LogicalCorrelate.class, Convention.NONE, EnumerableConvention.INSTANCE, "EnumerableCorrelateRule");
+    }
+
+    public RelNode convert(RelNode rel) {
+        final LogicalCorrelate c = (LogicalCorrelate) rel;
+        final RelTraitSet traitSet = c.getTraitSet().replace(EnumerableConvention.INSTANCE);
+        return new EnumerableCorrelate(rel.getCluster(), traitSet, convert(c.getLeft(),
+                                                                           c.getLeft().getTraitSet().replace(
+                                                                                   EnumerableConvention.INSTANCE)),
+                                       convert(c.getRight(),
+                                               c.getRight().getTraitSet().replace(EnumerableConvention.INSTANCE)),
+                                       c.getCorrelationId(), c.getRequiredColumns(), c.getJoinType());
+    }
 }
 
 // End EnumerableCorrelateRule.java

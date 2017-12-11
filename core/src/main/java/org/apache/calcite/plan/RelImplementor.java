@@ -25,6 +25,7 @@ import org.apache.calcite.rel.RelNode;
  * tree, and correspondingly have their own implementors
  */
 public interface RelImplementor {
+
 }
 
 // End RelImplementor.java

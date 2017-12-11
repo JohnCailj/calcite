@@ -22,67 +22,65 @@ import java.util.NoSuchElementException;
 /**
  * Filtered iterator class: an iterator that includes only elements that are
  * instanceof a specified class.
- *
  * <p>Apologies for the dorky name.
  *
+ * @param <E> Element type
  * @see Util#cast(java.util.List, Class)
  * @see Util#cast(Iterator, Class)
- *
- * @param <E> Element type
  */
 public class Filterator<E> implements Iterator<E> {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  Class<E> includeFilter;
-  Iterator<? extends Object> iterator;
-  E lookAhead;
-  boolean ready;
+    Class<E>                   includeFilter;
+    Iterator<? extends Object> iterator;
+    E                          lookAhead;
+    boolean                    ready;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public Filterator(Iterator<?> iterator, Class<E> includeFilter) {
-    this.iterator = iterator;
-    this.includeFilter = includeFilter;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public boolean hasNext() {
-    if (ready) {
-      // Allow hasNext() to be called repeatedly.
-      return true;
+    public Filterator(Iterator<?> iterator, Class<E> includeFilter) {
+        this.iterator = iterator;
+        this.includeFilter = includeFilter;
     }
 
-    // look ahead to see if there are any additional elements
-    try {
-      lookAhead = next();
-      ready = true;
-      return true;
-    } catch (NoSuchElementException e) {
-      ready = false;
-      return false;
-    }
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  public E next() {
-    if (ready) {
-      E o = lookAhead;
-      ready = false;
-      return o;
+    public boolean hasNext() {
+        if (ready) {
+            // Allow hasNext() to be called repeatedly.
+            return true;
+        }
+
+        // look ahead to see if there are any additional elements
+        try {
+            lookAhead = next();
+            ready = true;
+            return true;
+        } catch (NoSuchElementException e) {
+            ready = false;
+            return false;
+        }
     }
 
-    while (iterator.hasNext()) {
-      Object o = iterator.next();
-      if (includeFilter.isInstance(o)) {
-        return includeFilter.cast(o);
-      }
-    }
-    throw new NoSuchElementException();
-  }
+    public E next() {
+        if (ready) {
+            E o = lookAhead;
+            ready = false;
+            return o;
+        }
 
-  public void remove() {
-    iterator.remove();
-  }
+        while (iterator.hasNext()) {
+            Object o = iterator.next();
+            if (includeFilter.isInstance(o)) {
+                return includeFilter.cast(o);
+            }
+        }
+        throw new NoSuchElementException();
+    }
+
+    public void remove() {
+        iterator.remove();
+    }
 }
 
 // End Filterator.java

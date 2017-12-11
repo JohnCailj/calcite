@@ -16,6 +16,8 @@
  */
 package org.apache.calcite.adapter.enumerable;
 
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.adapter.java.JavaTypeFactory;
 import org.apache.calcite.linq4j.tree.BlockBuilder;
 import org.apache.calcite.linq4j.tree.Expression;
@@ -23,11 +25,7 @@ import org.apache.calcite.linq4j.tree.Expressions;
 import org.apache.calcite.linq4j.tree.Primitive;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelTraitSet;
-import org.apache.calcite.rel.RelCollation;
-import org.apache.calcite.rel.RelCollationTraitDef;
-import org.apache.calcite.rel.RelDistribution;
-import org.apache.calcite.rel.RelDistributionTraitDef;
-import org.apache.calcite.rel.RelNode;
+import org.apache.calcite.rel.*;
 import org.apache.calcite.rel.core.Values;
 import org.apache.calcite.rel.metadata.RelMdCollation;
 import org.apache.calcite.rel.metadata.RelMdDistribution;
@@ -38,50 +36,51 @@ import org.apache.calcite.rex.RexLiteral;
 import org.apache.calcite.util.BuiltInMethod;
 import org.apache.calcite.util.Pair;
 
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableList;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Implementation of {@link org.apache.calcite.rel.core.Values} in
- * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}. */
+/**
+ * Implementation of {@link org.apache.calcite.rel.core.Values} in
+ * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}.
+ */
 public class EnumerableValues extends Values implements EnumerableRel {
-  /** Creates an EnumerableValues. */
-  private EnumerableValues(RelOptCluster cluster, RelDataType rowType,
-      ImmutableList<ImmutableList<RexLiteral>> tuples, RelTraitSet traitSet) {
-    super(cluster, rowType, tuples, traitSet);
-  }
 
-  /** Creates an EnumerableValues. */
-  public static EnumerableValues create(RelOptCluster cluster,
-      final RelDataType rowType,
-      final ImmutableList<ImmutableList<RexLiteral>> tuples) {
-    final RelMetadataQuery mq = cluster.getMetadataQuery();
-    final RelTraitSet traitSet =
-        cluster.traitSetOf(EnumerableConvention.INSTANCE)
-            .replaceIfs(RelCollationTraitDef.INSTANCE,
-                new Supplier<List<RelCollation>>() {
-                  public List<RelCollation> get() {
-                    return RelMdCollation.values(mq, rowType, tuples);
-                  }
-                })
-            .replaceIf(RelDistributionTraitDef.INSTANCE,
-                new Supplier<RelDistribution>() {
-                  public RelDistribution get() {
-                    return RelMdDistribution.values(rowType, tuples);
-                  }
-                });
-    return new EnumerableValues(cluster, rowType, tuples, traitSet);
-  }
+    /**
+     * Creates an EnumerableValues.
+     */
+    private EnumerableValues(RelOptCluster cluster, RelDataType rowType,
+                             ImmutableList<ImmutableList<RexLiteral>> tuples, RelTraitSet traitSet) {
+        super(cluster, rowType, tuples, traitSet);
+    }
 
-  @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-    assert inputs.isEmpty();
-    return create(getCluster(), rowType, tuples);
-  }
+    /**
+     * Creates an EnumerableValues.
+     */
+    public static EnumerableValues create(RelOptCluster cluster, final RelDataType rowType,
+                                          final ImmutableList<ImmutableList<RexLiteral>> tuples) {
+        final RelMetadataQuery mq = cluster.getMetadataQuery();
+        final RelTraitSet traitSet = cluster.traitSetOf(EnumerableConvention.INSTANCE).replaceIfs(
+                RelCollationTraitDef.INSTANCE, new Supplier<List<RelCollation>>() {
 
-  public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
+                    public List<RelCollation> get() {
+                        return RelMdCollation.values(mq, rowType, tuples);
+                    }
+                }).replaceIf(RelDistributionTraitDef.INSTANCE, new Supplier<RelDistribution>() {
+
+            public RelDistribution get() {
+                return RelMdDistribution.values(rowType, tuples);
+            }
+        });
+        return new EnumerableValues(cluster, rowType, tuples, traitSet);
+    }
+
+    @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        assert inputs.isEmpty();
+        return create(getCluster(), rowType, tuples);
+    }
+
+    public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
 /*
           return Linq4j.asEnumerable(
               new Object[][] {
@@ -89,40 +88,26 @@ public class EnumerableValues extends Values implements EnumerableRel {
                   new Object[] {3, 4}
               });
 */
-    final JavaTypeFactory typeFactory =
-        (JavaTypeFactory) getCluster().getTypeFactory();
-    final BlockBuilder builder = new BlockBuilder();
-    final PhysType physType =
-        PhysTypeImpl.of(
-            implementor.getTypeFactory(),
-            getRowType(),
-            pref.preferCustom());
-    final Type rowClass = physType.getJavaRowType();
+        final JavaTypeFactory typeFactory = (JavaTypeFactory) getCluster().getTypeFactory();
+        final BlockBuilder builder = new BlockBuilder();
+        final PhysType physType = PhysTypeImpl.of(implementor.getTypeFactory(), getRowType(), pref.preferCustom());
+        final Type rowClass = physType.getJavaRowType();
 
-    final List<Expression> expressions = new ArrayList<Expression>();
-    final List<RelDataTypeField> fields = rowType.getFieldList();
-    for (List<RexLiteral> tuple : tuples) {
-      final List<Expression> literals = new ArrayList<Expression>();
-      for (Pair<RelDataTypeField, RexLiteral> pair
-          : Pair.zip(fields, tuple)) {
-        literals.add(
-            RexToLixTranslator.translateLiteral(
-                pair.right,
-                pair.left.getType(),
-                typeFactory,
-                RexImpTable.NullAs.NULL));
-      }
-      expressions.add(physType.record(literals));
+        final List<Expression> expressions = new ArrayList<Expression>();
+        final List<RelDataTypeField> fields = rowType.getFieldList();
+        for (List<RexLiteral> tuple : tuples) {
+            final List<Expression> literals = new ArrayList<Expression>();
+            for (Pair<RelDataTypeField, RexLiteral> pair : Pair.zip(fields, tuple)) {
+                literals.add(RexToLixTranslator.translateLiteral(pair.right, pair.left.getType(), typeFactory,
+                                                                 RexImpTable.NullAs.NULL));
+            }
+            expressions.add(physType.record(literals));
+        }
+        builder.add(Expressions.return_(null, Expressions.call(BuiltInMethod.AS_ENUMERABLE.method,
+                                                               Expressions.newArrayInit(Primitive.box(rowClass),
+                                                                                        expressions))));
+        return implementor.result(physType, builder.toBlock());
     }
-    builder.add(
-        Expressions.return_(
-            null,
-            Expressions.call(
-                BuiltInMethod.AS_ENUMERABLE.method,
-                Expressions.newArrayInit(
-                    Primitive.box(rowClass), expressions))));
-    return implementor.result(physType, builder.toBlock());
-  }
 }
 
 // End EnumerableValues.java

@@ -21,61 +21,60 @@ import org.apache.calcite.rex.RexNode;
 
 import java.util.Objects;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Sort}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Sort}.
+ */
 public class MutableSort extends MutableSingleRel {
-  public final RelCollation collation;
-  public final RexNode offset;
-  public final RexNode fetch;
 
-  private MutableSort(MutableRel input, RelCollation collation,
-      RexNode offset, RexNode fetch) {
-    super(MutableRelType.SORT, input.rowType, input);
-    this.collation = collation;
-    this.offset = offset;
-    this.fetch = fetch;
-  }
+    public final RelCollation collation;
+    public final RexNode      offset;
+    public final RexNode      fetch;
 
-  /**
-   * Creates a MutableSort.
-   *
-   * @param input     Input relational expression
-   * @param collation Array of sort specifications
-   * @param offset    Expression for number of rows to discard before returning
-   *                  first row
-   * @param fetch     Expression for number of rows to fetch
-   */
-  public static MutableSort of(MutableRel input, RelCollation collation,
-      RexNode offset, RexNode fetch) {
-    return new MutableSort(input, collation, offset, fetch);
-  }
-
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableSort
-        && collation.equals(((MutableSort) obj).collation)
-        && Objects.equals(offset, ((MutableSort) obj).offset)
-        && Objects.equals(fetch, ((MutableSort) obj).fetch)
-        && input.equals(((MutableSort) obj).input);
-  }
-
-  @Override public int hashCode() {
-    return Objects.hash(input, collation, offset, fetch);
-  }
-
-  @Override public StringBuilder digest(StringBuilder buf) {
-    buf.append("Sort(collation: ").append(collation);
-    if (offset != null) {
-      buf.append(", offset: ").append(offset);
+    private MutableSort(MutableRel input, RelCollation collation, RexNode offset, RexNode fetch) {
+        super(MutableRelType.SORT, input.rowType, input);
+        this.collation = collation;
+        this.offset = offset;
+        this.fetch = fetch;
     }
-    if (fetch != null) {
-      buf.append(", fetch: ").append(fetch);
-    }
-    return buf.append(")");
-  }
 
-  @Override public MutableRel clone() {
-    return MutableSort.of(input.clone(), collation, offset, fetch);
-  }
+    /**
+     * Creates a MutableSort.
+     *
+     * @param input     Input relational expression
+     * @param collation Array of sort specifications
+     * @param offset    Expression for number of rows to discard before returning
+     *                  first row
+     * @param fetch     Expression for number of rows to fetch
+     */
+    public static MutableSort of(MutableRel input, RelCollation collation, RexNode offset, RexNode fetch) {
+        return new MutableSort(input, collation, offset, fetch);
+    }
+
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof MutableSort && collation.equals(((MutableSort) obj).collation)
+                              && Objects.equals(offset, ((MutableSort) obj).offset) && Objects.equals(fetch,
+                                                                                                      ((MutableSort) obj).fetch)
+                              && input.equals(((MutableSort) obj).input);
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(input, collation, offset, fetch);
+    }
+
+    @Override public StringBuilder digest(StringBuilder buf) {
+        buf.append("Sort(collation: ").append(collation);
+        if (offset != null) {
+            buf.append(", offset: ").append(offset);
+        }
+        if (fetch != null) {
+            buf.append(", fetch: ").append(fetch);
+        }
+        return buf.append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableSort.of(input.clone(), collation, offset, fetch);
+    }
 }
 
 // End MutableSort.java

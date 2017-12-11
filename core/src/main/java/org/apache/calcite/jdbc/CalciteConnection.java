@@ -30,56 +30,55 @@ import java.util.Properties;
  * Extension to Calcite's implementation of
  * {@link java.sql.Connection JDBC connection} allows schemas to be defined
  * dynamically.
- *
  * <p>You can start off with an empty connection (no schemas), define one
  * or two schemas, and start querying them.</p>
- *
  * <p>Since a {@code CalciteConnection} implements the linq4j
  * {@link QueryProvider} interface, you can use a connection to execute
  * expression trees as queries.</p>
  */
 public interface CalciteConnection extends Connection, QueryProvider {
-  /**
-   * Returns the root schema.
-   *
-   * <p>You can define objects (such as relations) in this schema, and
-   * also nested schemas.</p>
-   *
-   * @return Root schema
-   */
-  SchemaPlus getRootSchema();
 
-  /**
-   * Returns the type factory.
-   *
-   * @return Type factory
-   */
-  JavaTypeFactory getTypeFactory();
+    /**
+     * Returns the root schema.
+     * <p>You can define objects (such as relations) in this schema, and
+     * also nested schemas.</p>
+     *
+     * @return Root schema
+     */
+    SchemaPlus getRootSchema();
 
-  /**
-   * Returns an instance of the connection properties.
-   *
-   * <p>NOTE: The resulting collection of properties is same collection used
-   * by the connection, and is writable, but behavior if you modify the
-   * collection is undefined. Some implementations might, for example, see
-   * a modified property, but only if you set it before you create a
-   * statement. We will remove this method when there are better
-   * implementations of stateful connections and configuration.</p>
-   *
-   * @return properties
-   */
-  Properties getProperties();
+    /**
+     * Returns the type factory.
+     *
+     * @return Type factory
+     */
+    JavaTypeFactory getTypeFactory();
 
-  // in java.sql.Connection from JDK 1.7, but declare here to allow other JDKs
-  void setSchema(String schema) throws SQLException;
+    /**
+     * Returns an instance of the connection properties.
+     * <p>NOTE: The resulting collection of properties is same collection used
+     * by the connection, and is writable, but behavior if you modify the
+     * collection is undefined. Some implementations might, for example, see
+     * a modified property, but only if you set it before you create a
+     * statement. We will remove this method when there are better
+     * implementations of stateful connections and configuration.</p>
+     *
+     * @return properties
+     */
+    Properties getProperties();
 
-  // in java.sql.Connection from JDK 1.7, but declare here to allow other JDKs
-  String getSchema() throws SQLException;
+    // in java.sql.Connection from JDK 1.7, but declare here to allow other JDKs
+    void setSchema(String schema) throws SQLException;
 
-  CalciteConnectionConfig config();
+    // in java.sql.Connection from JDK 1.7, but declare here to allow other JDKs
+    String getSchema() throws SQLException;
 
-  /** Creates a context for preparing a statement for execution. */
-  Context createPrepareContext();
+    CalciteConnectionConfig config();
+
+    /**
+     * Creates a context for preparing a statement for execution.
+     */
+    Context createPrepareContext();
 }
 
 // End CalciteConnection.java

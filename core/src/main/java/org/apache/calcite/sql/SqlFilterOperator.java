@@ -29,94 +29,81 @@ import static org.apache.calcite.util.Static.RESOURCE;
 /**
  * An operator that applies a filter before rows are included in an aggregate
  * function.
- *
  * <p>Operands are as follows:</p>
- *
  * <ul>
  * <li>0: a call to an aggregate function ({@link SqlCall})
  * <li>1: predicate
  * </ul>
  */
 public class SqlFilterOperator extends SqlBinaryOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlFilterOperator() {
-    super("FILTER", SqlKind.FILTER, 2, true, ReturnTypes.ARG0_FORCE_NULLABLE,
-        null, OperandTypes.ANY_ANY);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-
-  @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec,
-      int rightPrec) {
-    assert call.operandCount() == 2;
-    final SqlWriter.Frame frame =
-        writer.startList(SqlWriter.FrameTypeEnum.SIMPLE);
-    call.operand(0).unparse(writer, leftPrec, getLeftPrec());
-    writer.sep(getName());
-    writer.sep("(");
-    writer.sep("WHERE");
-    call.operand(1).unparse(writer, getRightPrec(), rightPrec);
-    writer.sep(")");
-    writer.endList(frame);
-  }
-
-  public void validateCall(
-      SqlCall call,
-      SqlValidator validator,
-      SqlValidatorScope scope,
-      SqlValidatorScope operandScope) {
-    assert call.getOperator() == this;
-    assert call.operandCount() == 2;
-    SqlCall aggCall = call.operand(0);
-    if (!aggCall.getOperator().isAggregator()) {
-      throw validator.newValidationError(aggCall,
-          RESOURCE.filterNonAggregate());
-    }
-    final SqlNode condition = call.operand(1);
-    validator.validateAggregateParams(aggCall, condition, scope);
-
-    final RelDataType type = validator.deriveType(scope, condition);
-    if (!SqlTypeUtil.inBooleanFamily(type)) {
-      throw validator.newValidationError(condition,
-          RESOURCE.condMustBeBoolean("FILTER"));
-    }
-  }
-
-  public RelDataType deriveType(
-      SqlValidator validator,
-      SqlValidatorScope scope,
-      SqlCall call) {
-    // Validate type of the inner aggregate call
-    validateOperands(validator, scope, call);
-
-    // Assume the first operand is an aggregate call and derive its type.
-    SqlNode agg = call.operand(0);
-
-    if (!(agg instanceof SqlCall)) {
-      throw new IllegalStateException("Argument to SqlOverOperator"
-          + " should be SqlCall, got " + agg.getClass() + ": " + agg);
+    public SqlFilterOperator() {
+        super("FILTER", SqlKind.FILTER, 2, true, ReturnTypes.ARG0_FORCE_NULLABLE, null, OperandTypes.ANY_ANY);
     }
 
-    final SqlCall aggCall = (SqlCall) agg;
+    //~ Methods ----------------------------------------------------------------
 
-    // Pretend that group-count is 0. This tells the aggregate function that it
-    // might be invoked with 0 rows in a group. Most aggregate functions will
-    // return NULL in this case.
-    SqlCallBinding opBinding = new SqlCallBinding(validator, scope, aggCall) {
-      @Override public int getGroupCount() {
-        return 0;
-      }
-    };
+    @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        assert call.operandCount() == 2;
+        final SqlWriter.Frame frame = writer.startList(SqlWriter.FrameTypeEnum.SIMPLE);
+        call.operand(0).unparse(writer, leftPrec, getLeftPrec());
+        writer.sep(getName());
+        writer.sep("(");
+        writer.sep("WHERE");
+        call.operand(1).unparse(writer, getRightPrec(), rightPrec);
+        writer.sep(")");
+        writer.endList(frame);
+    }
 
-    RelDataType ret = aggCall.getOperator().inferReturnType(opBinding);
+    public void validateCall(SqlCall call, SqlValidator validator, SqlValidatorScope scope,
+                             SqlValidatorScope operandScope) {
+        assert call.getOperator() == this;
+        assert call.operandCount() == 2;
+        SqlCall aggCall = call.operand(0);
+        if (!aggCall.getOperator().isAggregator()) {
+            throw validator.newValidationError(aggCall, RESOURCE.filterNonAggregate());
+        }
+        final SqlNode condition = call.operand(1);
+        validator.validateAggregateParams(aggCall, condition, scope);
 
-    // Copied from validateOperands
-    ((SqlValidatorImpl) validator).setValidatedNodeType(call, ret);
-    ((SqlValidatorImpl) validator).setValidatedNodeType(agg, ret);
-    return ret;
-  }
+        final RelDataType type = validator.deriveType(scope, condition);
+        if (!SqlTypeUtil.inBooleanFamily(type)) {
+            throw validator.newValidationError(condition, RESOURCE.condMustBeBoolean("FILTER"));
+        }
+    }
+
+    public RelDataType deriveType(SqlValidator validator, SqlValidatorScope scope, SqlCall call) {
+        // Validate type of the inner aggregate call
+        validateOperands(validator, scope, call);
+
+        // Assume the first operand is an aggregate call and derive its type.
+        SqlNode agg = call.operand(0);
+
+        if (!(agg instanceof SqlCall)) {
+            throw new IllegalStateException(
+                    "Argument to SqlOverOperator" + " should be SqlCall, got " + agg.getClass() + ": " + agg);
+        }
+
+        final SqlCall aggCall = (SqlCall) agg;
+
+        // Pretend that group-count is 0. This tells the aggregate function that it
+        // might be invoked with 0 rows in a group. Most aggregate functions will
+        // return NULL in this case.
+        SqlCallBinding opBinding = new SqlCallBinding(validator, scope, aggCall) {
+
+            @Override public int getGroupCount() {
+                return 0;
+            }
+        };
+
+        RelDataType ret = aggCall.getOperator().inferReturnType(opBinding);
+
+        // Copied from validateOperands
+        ((SqlValidatorImpl) validator).setValidatedNodeType(call, ret);
+        ((SqlValidatorImpl) validator).setValidatedNodeType(agg, ret);
+        return ret;
+    }
 }
 
 // End SqlFilterOperator.java

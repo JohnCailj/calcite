@@ -28,35 +28,42 @@ import java.util.Map;
  * @see SqlNameMatchers
  */
 public interface SqlNameMatcher {
-  /** Returns whether name matching is case-sensitive. */
-  boolean isCaseSensitive();
 
-  /** Returns a name matches another.
-   *
-   * @param string Name written in code
-   * @param name Name of object we are trying to match
-   * @return Whether matches
-   */
-  boolean matches(String string, String name);
+    /**
+     * Returns whether name matching is case-sensitive.
+     */
+    boolean isCaseSensitive();
 
-  /** Looks up an item in a map. */
-  <K extends List<String>, V> V get(Map<K, V> map, List<String> prefixNames,
-      List<String> names);
+    /**
+     * Returns a name matches another.
+     *
+     * @param string Name written in code
+     * @param name   Name of object we are trying to match
+     * @return Whether matches
+     */
+    boolean matches(String string, String name);
 
-  /** Returns the most recent match.
-   *
-   * <p>In the default implementation,
-   * throws {@link UnsupportedOperationException}. */
-  String bestString();
+    /**
+     * Looks up an item in a map.
+     */
+    <K extends List<String>, V> V get(Map<K, V> map, List<String> prefixNames, List<String> names);
 
-  /** Finds a field with a given name, using the currenct case-sensitivity,
-   * returning null if not found.
-   *
-   * @param rowType    Row type
-   * @param fieldName Field name
-   * @return Field, or null if not found
-   */
-  RelDataTypeField field(RelDataType rowType, String fieldName);
+    /**
+     * Returns the most recent match.
+     * <p>In the default implementation,
+     * throws {@link UnsupportedOperationException}.
+     */
+    String bestString();
+
+    /**
+     * Finds a field with a given name, using the currenct case-sensitivity,
+     * returning null if not found.
+     *
+     * @param rowType   Row type
+     * @param fieldName Field name
+     * @return Field, or null if not found
+     */
+    RelDataTypeField field(RelDataType rowType, String fieldName);
 }
 
 // End SqlNameMatcher.java

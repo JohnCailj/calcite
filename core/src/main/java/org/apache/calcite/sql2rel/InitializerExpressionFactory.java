@@ -27,49 +27,38 @@ import java.util.List;
  * InitializerExpressionFactory supplies default values for INSERT, UPDATE, and NEW.
  */
 public interface InitializerExpressionFactory {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Whether a column is always generated. If a column is always generated,
-   * then non-generated values cannot be inserted into the column.
-   */
-  boolean isGeneratedAlways(
-      RelOptTable table,
-      int iColumn);
+    /**
+     * Whether a column is always generated. If a column is always generated,
+     * then non-generated values cannot be inserted into the column.
+     */
+    boolean isGeneratedAlways(RelOptTable table, int iColumn);
 
-  /**
-   * Creates an expression which evaluates to the default value for a
-   * particular column.
-   *
-   * @param table   the table containing the column
-   * @param iColumn the 0-based offset of the column in the table
-   * @param context Context for creating the expression
-   *
-   * @return default value expression
-   */
-  RexNode newColumnDefaultValue(
-      RelOptTable table,
-      int iColumn,
-      InitializerContext context);
+    /**
+     * Creates an expression which evaluates to the default value for a
+     * particular column.
+     *
+     * @param table   the table containing the column
+     * @param iColumn the 0-based offset of the column in the table
+     * @param context Context for creating the expression
+     * @return default value expression
+     */
+    RexNode newColumnDefaultValue(RelOptTable table, int iColumn, InitializerContext context);
 
-  /**
-   * Creates an expression which evaluates to the initializer expression for a
-   * particular attribute of a structured type.
-   *
-   * @param type            the structured type
-   * @param constructor     the constructor invoked to initialize the type
-   * @param iAttribute      the 0-based offset of the attribute in the type
-   * @param constructorArgs arguments passed to the constructor invocation
-   * @param context Context for creating the expression
-   *
-   * @return default value expression
-   */
-  RexNode newAttributeInitializer(
-      RelDataType type,
-      SqlFunction constructor,
-      int iAttribute,
-      List<RexNode> constructorArgs,
-      InitializerContext context);
+    /**
+     * Creates an expression which evaluates to the initializer expression for a
+     * particular attribute of a structured type.
+     *
+     * @param type            the structured type
+     * @param constructor     the constructor invoked to initialize the type
+     * @param iAttribute      the 0-based offset of the attribute in the type
+     * @param constructorArgs arguments passed to the constructor invocation
+     * @param context         Context for creating the expression
+     * @return default value expression
+     */
+    RexNode newAttributeInitializer(RelDataType type, SqlFunction constructor, int iAttribute,
+                                    List<RexNode> constructorArgs, InitializerContext context);
 }
 
 // End InitializerExpressionFactory.java

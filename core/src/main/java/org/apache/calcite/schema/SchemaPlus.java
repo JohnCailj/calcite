@@ -16,22 +16,18 @@
  */
 package org.apache.calcite.schema;
 
-import org.apache.calcite.materialize.Lattice;
-
 import com.google.common.collect.ImmutableList;
+import org.apache.calcite.materialize.Lattice;
 
 /**
  * Extension to the {@link Schema} interface.
- *
  * <p>Given a user-defined schema that implements the {@link Schema} interface,
  * Calcite creates a wrapper that implements the {@code SchemaPlus} interface.
  * This provides extra functionality, such as access to tables that have been
  * added explicitly.
- *
  * <p>A user-defined schema does not need to implement this interface, but by
  * the time a schema is passed to a method in a user-defined schema or
  * user-defined table, it will have been wrapped in this interface.
- *
  * <p>SchemaPlus is intended to be used by users but not instantiated by them.
  * Users should only use the SchemaPlus they are given by the system.
  * The purpose of SchemaPlus is to expose to user code, in a read only manner,
@@ -42,45 +38,55 @@ import com.google.common.collect.ImmutableList;
  * {@link Schema}, or indeed might not.
  */
 public interface SchemaPlus extends Schema {
-  /**
-   * Returns the parent schema, or null if this schema has no parent.
-   */
-  SchemaPlus getParentSchema();
 
-  /**
-   * Returns the name of this schema.
-   *
-   * <p>The name must not be null, and must be unique within its parent.
-   * The root schema is typically named "".
-   */
-  String getName();
+    /**
+     * Returns the parent schema, or null if this schema has no parent.
+     */
+    SchemaPlus getParentSchema();
 
-  // override with stricter return
-  SchemaPlus getSubSchema(String name);
+    /**
+     * Returns the name of this schema.
+     * <p>The name must not be null, and must be unique within its parent.
+     * The root schema is typically named "".
+     */
+    String getName();
 
-  /** Adds a schema as a sub-schema of this schema, and returns the wrapped
-   * object. */
-  SchemaPlus add(String name, Schema schema);
+    // override with stricter return
+    SchemaPlus getSubSchema(String name);
 
-  /** Adds a table to this schema. */
-  void add(String name, Table table);
+    /**
+     * Adds a schema as a sub-schema of this schema, and returns the wrapped
+     * object.
+     */
+    SchemaPlus add(String name, Schema schema);
 
-  /** Adds a function to this schema. */
-  void add(String name, Function function);
+    /**
+     * Adds a table to this schema.
+     */
+    void add(String name, Table table);
 
-  /** Adds a lattice to this schema. */
-  void add(String name, Lattice lattice);
+    /**
+     * Adds a function to this schema.
+     */
+    void add(String name, Function function);
 
-  boolean isMutable();
+    /**
+     * Adds a lattice to this schema.
+     */
+    void add(String name, Lattice lattice);
 
-  /** Returns an underlying object. */
-  <T> T unwrap(Class<T> clazz);
+    boolean isMutable();
 
-  void setPath(ImmutableList<ImmutableList<String>> path);
+    /**
+     * Returns an underlying object.
+     */
+    <T> T unwrap(Class<T> clazz);
 
-  void setCacheEnabled(boolean cache);
+    void setPath(ImmutableList<ImmutableList<String>> path);
 
-  boolean isCacheEnabled();
+    void setCacheEnabled(boolean cache);
+
+    boolean isCacheEnabled();
 }
 
 // End SchemaPlus.java

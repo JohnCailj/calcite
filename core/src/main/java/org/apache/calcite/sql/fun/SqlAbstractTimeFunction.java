@@ -17,11 +17,7 @@
 package org.apache.calcite.sql.fun;
 
 import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.sql.SqlFunction;
-import org.apache.calcite.sql.SqlFunctionCategory;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlOperatorBinding;
-import org.apache.calcite.sql.SqlSyntax;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.SqlOperandTypeChecker;
 import org.apache.calcite.sql.type.SqlTypeName;
@@ -34,59 +30,54 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * Base class for time functions such as "LOCALTIME", "LOCALTIME(n)".
  */
 public class SqlAbstractTimeFunction extends SqlFunction {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  private static final SqlOperandTypeChecker OTC_CUSTOM =
-      OperandTypes.or(
-          OperandTypes.POSITIVE_INTEGER_LITERAL, OperandTypes.NILADIC);
+    private static final SqlOperandTypeChecker OTC_CUSTOM = OperandTypes.or(OperandTypes.POSITIVE_INTEGER_LITERAL,
+                                                                            OperandTypes.NILADIC);
 
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlTypeName typeName;
+    private final SqlTypeName typeName;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  protected SqlAbstractTimeFunction(String name, SqlTypeName typeName) {
-    super(name, SqlKind.OTHER_FUNCTION, null, null, OTC_CUSTOM,
-        SqlFunctionCategory.TIMEDATE);
-    this.typeName = typeName;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public SqlSyntax getSyntax() {
-    return SqlSyntax.FUNCTION_ID;
-  }
-
-  public RelDataType inferReturnType(
-      SqlOperatorBinding opBinding) {
-    // REVIEW jvs 20-Feb-2005: Need to take care of time zones.
-    int precision = 0;
-    if (opBinding.getOperandCount() == 1) {
-      RelDataType type = opBinding.getOperandType(0);
-      if (SqlTypeUtil.isNumeric(type)) {
-        precision = ((Number) opBinding.getOperandLiteralValue(0)).intValue();
-      }
+    protected SqlAbstractTimeFunction(String name, SqlTypeName typeName) {
+        super(name, SqlKind.OTHER_FUNCTION, null, null, OTC_CUSTOM, SqlFunctionCategory.TIMEDATE);
+        this.typeName = typeName;
     }
-    assert precision >= 0;
-    if (precision > SqlTypeName.MAX_DATETIME_PRECISION) {
-      throw opBinding.newError(
-          RESOURCE.argumentMustBeValidPrecision(
-              opBinding.getOperator().getName(), 0,
-              SqlTypeName.MAX_DATETIME_PRECISION));
+
+    //~ Methods ----------------------------------------------------------------
+
+    public SqlSyntax getSyntax() {
+        return SqlSyntax.FUNCTION_ID;
     }
-    return opBinding.getTypeFactory().createSqlType(typeName, precision);
-  }
 
-  // All of the time functions are increasing. Not strictly increasing.
-  @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
-    return SqlMonotonicity.INCREASING;
-  }
+    public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+        // REVIEW jvs 20-Feb-2005: Need to take care of time zones.
+        int precision = 0;
+        if (opBinding.getOperandCount() == 1) {
+            RelDataType type = opBinding.getOperandType(0);
+            if (SqlTypeUtil.isNumeric(type)) {
+                precision = ((Number) opBinding.getOperandLiteralValue(0)).intValue();
+            }
+        }
+        assert precision >= 0;
+        if (precision > SqlTypeName.MAX_DATETIME_PRECISION) {
+            throw opBinding.newError(RESOURCE.argumentMustBeValidPrecision(opBinding.getOperator().getName(), 0,
+                                                                           SqlTypeName.MAX_DATETIME_PRECISION));
+        }
+        return opBinding.getTypeFactory().createSqlType(typeName, precision);
+    }
 
-  // Plans referencing context variables should never be cached
-  public boolean isDynamicFunction() {
-    return true;
-  }
+    // All of the time functions are increasing. Not strictly increasing.
+    @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
+        return SqlMonotonicity.INCREASING;
+    }
+
+    // Plans referencing context variables should never be cached
+    public boolean isDynamicFunction() {
+        return true;
+    }
 }
 
 // End SqlAbstractTimeFunction.java

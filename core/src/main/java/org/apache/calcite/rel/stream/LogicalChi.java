@@ -25,9 +25,10 @@ import org.apache.calcite.rel.RelNode;
  * not targeted at any particular engine or calling convention.
  */
 public final class LogicalChi extends Chi {
-  public LogicalChi(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
-    super(cluster, traits, input);
-  }
+
+    public LogicalChi(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
+        super(cluster, traits, input);
+    }
 }
 
 // End LogicalChi.java

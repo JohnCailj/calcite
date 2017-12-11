@@ -38,82 +38,73 @@ import java.util.Set;
  * past a {@link org.apache.calcite.rel.logical.LogicalTableFunctionScan}.
  */
 public class FilterTableFunctionTransposeRule extends RelOptRule {
-  public static final FilterTableFunctionTransposeRule INSTANCE =
-      new FilterTableFunctionTransposeRule();
 
-  //~ Constructors -----------------------------------------------------------
+    public static final FilterTableFunctionTransposeRule INSTANCE = new FilterTableFunctionTransposeRule();
 
-  /**
-   * Creates a FilterTableFunctionTransposeRule.
-   */
-  private FilterTableFunctionTransposeRule() {
-    super(
-        operand(LogicalFilter.class,
-            operand(LogicalTableFunctionScan.class, any())));
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
-
-  // implement RelOptRule
-  public void onMatch(RelOptRuleCall call) {
-    LogicalFilter filter = call.rel(0);
-    LogicalTableFunctionScan funcRel = call.rel(1);
-    Set<RelColumnMapping> columnMappings = funcRel.getColumnMappings();
-    if (columnMappings == null || columnMappings.isEmpty()) {
-      // No column mapping information, so no push-down
-      // possible.
-      return;
+    /**
+     * Creates a FilterTableFunctionTransposeRule.
+     */
+    private FilterTableFunctionTransposeRule() {
+        super(operand(LogicalFilter.class, operand(LogicalTableFunctionScan.class, any())));
     }
 
-    List<RelNode> funcInputs = funcRel.getInputs();
-    if (funcInputs.size() != 1) {
-      // TODO:  support more than one relational input; requires
-      // offsetting field indices, similar to join
-      return;
-    }
-    // TODO:  support mappings other than 1-to-1
-    if (funcRel.getRowType().getFieldCount()
-        != funcInputs.get(0).getRowType().getFieldCount()) {
-      return;
-    }
-    for (RelColumnMapping mapping : columnMappings) {
-      if (mapping.iInputColumn != mapping.iOutputColumn) {
-        return;
-      }
-      if (mapping.derived) {
-        return;
-      }
-    }
-    final List<RelNode> newFuncInputs = new ArrayList<RelNode>();
-    final RelOptCluster cluster = funcRel.getCluster();
-    final RexNode condition = filter.getCondition();
+    //~ Methods ----------------------------------------------------------------
 
-    // create filters on top of each func input, modifying the filter
-    // condition to reference the child instead
-    RexBuilder rexBuilder = filter.getCluster().getRexBuilder();
-    List<RelDataTypeField> origFields = funcRel.getRowType().getFieldList();
-    // TODO:  these need to be non-zero once we
-    // support arbitrary mappings
-    int[] adjustments = new int[origFields.size()];
-    for (RelNode funcInput : funcInputs) {
-      RexNode newCondition =
-          condition.accept(
-              new RelOptUtil.RexInputConverter(
-                  rexBuilder,
-                  origFields,
-                  funcInput.getRowType().getFieldList(),
-                  adjustments));
-      newFuncInputs.add(
-          LogicalFilter.create(funcInput, newCondition));
-    }
+    // implement RelOptRule
+    public void onMatch(RelOptRuleCall call) {
+        LogicalFilter filter = call.rel(0);
+        LogicalTableFunctionScan funcRel = call.rel(1);
+        Set<RelColumnMapping> columnMappings = funcRel.getColumnMappings();
+        if (columnMappings == null || columnMappings.isEmpty()) {
+            // No column mapping information, so no push-down
+            // possible.
+            return;
+        }
 
-    // create a new UDX whose children are the filters created above
-    LogicalTableFunctionScan newFuncRel =
-        LogicalTableFunctionScan.create(cluster, newFuncInputs,
-            funcRel.getCall(), funcRel.getElementType(), funcRel.getRowType(),
-            columnMappings);
-    call.transformTo(newFuncRel);
-  }
+        List<RelNode> funcInputs = funcRel.getInputs();
+        if (funcInputs.size() != 1) {
+            // TODO:  support more than one relational input; requires
+            // offsetting field indices, similar to join
+            return;
+        }
+        // TODO:  support mappings other than 1-to-1
+        if (funcRel.getRowType().getFieldCount() != funcInputs.get(0).getRowType().getFieldCount()) {
+            return;
+        }
+        for (RelColumnMapping mapping : columnMappings) {
+            if (mapping.iInputColumn != mapping.iOutputColumn) {
+                return;
+            }
+            if (mapping.derived) {
+                return;
+            }
+        }
+        final List<RelNode> newFuncInputs = new ArrayList<RelNode>();
+        final RelOptCluster cluster = funcRel.getCluster();
+        final RexNode condition = filter.getCondition();
+
+        // create filters on top of each func input, modifying the filter
+        // condition to reference the child instead
+        RexBuilder rexBuilder = filter.getCluster().getRexBuilder();
+        List<RelDataTypeField> origFields = funcRel.getRowType().getFieldList();
+        // TODO:  these need to be non-zero once we
+        // support arbitrary mappings
+        int[] adjustments = new int[origFields.size()];
+        for (RelNode funcInput : funcInputs) {
+            RexNode newCondition = condition.accept(
+                    new RelOptUtil.RexInputConverter(rexBuilder, origFields, funcInput.getRowType().getFieldList(),
+                                                     adjustments));
+            newFuncInputs.add(LogicalFilter.create(funcInput, newCondition));
+        }
+
+        // create a new UDX whose children are the filters created above
+        LogicalTableFunctionScan newFuncRel = LogicalTableFunctionScan.create(cluster, newFuncInputs, funcRel.getCall(),
+                                                                              funcRel.getElementType(),
+                                                                              funcRel.getRowType(), columnMappings);
+        call.transformTo(newFuncRel);
+    }
 }
 
 // End FilterTableFunctionTransposeRule.java

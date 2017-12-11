@@ -16,9 +16,8 @@
  */
 package org.apache.calcite.rel;
 
-import org.apache.calcite.runtime.Utilities;
-
 import com.google.common.collect.Ordering;
+import org.apache.calcite.runtime.Utilities;
 
 import java.util.Comparator;
 
@@ -26,44 +25,53 @@ import java.util.Comparator;
  * Utilities concerning relational expressions.
  */
 public class RelNodes {
-  /** Comparator that provides an arbitrary but stable ordering to
-   * {@link RelNode}s. */
-  public static final Comparator<RelNode> COMPARATOR =
-      new RelNodeComparator();
 
-  /** Ordering for {@link RelNode}s. */
-  public static final Ordering<RelNode> ORDERING = Ordering.from(COMPARATOR);
+    /**
+     * Comparator that provides an arbitrary but stable ordering to
+     * {@link RelNode}s.
+     */
+    public static final Comparator<RelNode> COMPARATOR = new RelNodeComparator();
 
-  private RelNodes() {}
+    /**
+     * Ordering for {@link RelNode}s.
+     */
+    public static final Ordering<RelNode> ORDERING = Ordering.from(COMPARATOR);
 
-  /** Compares arrays of {@link RelNode}. */
-  public static int compareRels(RelNode[] rels0, RelNode[] rels1) {
-    int c = Utilities.compare(rels0.length, rels1.length);
-    if (c != 0) {
-      return c;
+    private RelNodes() {
     }
-    for (int i = 0; i < rels0.length; i++) {
-      c = COMPARATOR.compare(rels0[i], rels1[i]);
-      if (c != 0) {
-        return c;
-      }
-    }
-    return 0;
-  }
 
-  /** Arbitrary stable comparator for {@link RelNode}s. */
-  private static class RelNodeComparator implements Comparator<RelNode> {
-    public int compare(RelNode o1, RelNode o2) {
-      // Compare on field count first. It is more stable than id (when rules
-      // are added to the set of active rules).
-      final int c = Utilities.compare(o1.getRowType().getFieldCount(),
-          o2.getRowType().getFieldCount());
-      if (c != 0) {
-        return -c;
-      }
-      return Utilities.compare(o1.getId(), o2.getId());
+    /**
+     * Compares arrays of {@link RelNode}.
+     */
+    public static int compareRels(RelNode[] rels0, RelNode[] rels1) {
+        int c = Utilities.compare(rels0.length, rels1.length);
+        if (c != 0) {
+            return c;
+        }
+        for (int i = 0; i < rels0.length; i++) {
+            c = COMPARATOR.compare(rels0[i], rels1[i]);
+            if (c != 0) {
+                return c;
+            }
+        }
+        return 0;
     }
-  }
+
+    /**
+     * Arbitrary stable comparator for {@link RelNode}s.
+     */
+    private static class RelNodeComparator implements Comparator<RelNode> {
+
+        public int compare(RelNode o1, RelNode o2) {
+            // Compare on field count first. It is more stable than id (when rules
+            // are added to the set of active rules).
+            final int c = Utilities.compare(o1.getRowType().getFieldCount(), o2.getRowType().getFieldCount());
+            if (c != 0) {
+                return -c;
+            }
+            return Utilities.compare(o1.getId(), o2.getId());
+        }
+    }
 }
 
 // End RelNodes.java

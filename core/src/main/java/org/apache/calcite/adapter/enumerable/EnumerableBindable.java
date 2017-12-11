@@ -16,12 +16,9 @@
  */
 package org.apache.calcite.adapter.enumerable;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.calcite.DataContext;
-import org.apache.calcite.interpreter.BindableConvention;
-import org.apache.calcite.interpreter.BindableRel;
-import org.apache.calcite.interpreter.Node;
-import org.apache.calcite.interpreter.Row;
-import org.apache.calcite.interpreter.Sink;
+import org.apache.calcite.interpreter.*;
 import org.apache.calcite.linq4j.Enumerable;
 import org.apache.calcite.linq4j.Enumerator;
 import org.apache.calcite.plan.ConventionTraitDef;
@@ -33,8 +30,6 @@ import org.apache.calcite.rel.convert.ConverterRule;
 import org.apache.calcite.runtime.ArrayBindable;
 import org.apache.calcite.runtime.Bindable;
 
-import com.google.common.collect.ImmutableMap;
-
 import java.util.List;
 
 /**
@@ -45,58 +40,57 @@ import java.util.List;
  * @see org.apache.calcite.interpreter.BindableConvention
  */
 public class EnumerableBindable extends ConverterImpl implements BindableRel {
-  protected EnumerableBindable(RelOptCluster cluster, RelNode input) {
-    super(cluster, ConventionTraitDef.INSTANCE,
-        cluster.traitSetOf(BindableConvention.INSTANCE), input);
-  }
 
-  @Override public EnumerableBindable copy(RelTraitSet traitSet,
-      List<RelNode> inputs) {
-    return new EnumerableBindable(getCluster(), sole(inputs));
-  }
+    protected EnumerableBindable(RelOptCluster cluster, RelNode input) {
+        super(cluster, ConventionTraitDef.INSTANCE, cluster.traitSetOf(BindableConvention.INSTANCE), input);
+    }
 
-  public Class<Object[]> getElementType() {
-    return Object[].class;
-  }
+    @Override public EnumerableBindable copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        return new EnumerableBindable(getCluster(), sole(inputs));
+    }
 
-  public Enumerable<Object[]> bind(DataContext dataContext) {
-    final ImmutableMap<String, Object> map = ImmutableMap.of();
-    final Bindable bindable = EnumerableInterpretable.toBindable(map, null,
-        (EnumerableRel) getInput(), EnumerableRel.Prefer.ARRAY);
-    final ArrayBindable arrayBindable = EnumerableInterpretable.box(bindable);
-    return arrayBindable.bind(dataContext);
-  }
+    public Class<Object[]> getElementType() {
+        return Object[].class;
+    }
 
-  public Node implement(final InterpreterImplementor implementor) {
-    return new Node() {
-      public void run() throws InterruptedException {
-        final Sink sink =
-            implementor.relSinks.get(EnumerableBindable.this).get(0);
-        final Enumerable<Object[]> enumerable = bind(implementor.dataContext);
-        final Enumerator<Object[]> enumerator = enumerable.enumerator();
-        while (enumerator.moveNext()) {
-          sink.send(Row.asCopy(enumerator.current()));
+    public Enumerable<Object[]> bind(DataContext dataContext) {
+        final ImmutableMap<String, Object> map = ImmutableMap.of();
+        final Bindable bindable = EnumerableInterpretable.toBindable(map, null, (EnumerableRel) getInput(),
+                                                                     EnumerableRel.Prefer.ARRAY);
+        final ArrayBindable arrayBindable = EnumerableInterpretable.box(bindable);
+        return arrayBindable.bind(dataContext);
+    }
+
+    public Node implement(final InterpreterImplementor implementor) {
+        return new Node() {
+
+            public void run() throws InterruptedException {
+                final Sink sink = implementor.relSinks.get(EnumerableBindable.this).get(0);
+                final Enumerable<Object[]> enumerable = bind(implementor.dataContext);
+                final Enumerator<Object[]> enumerator = enumerable.enumerator();
+                while (enumerator.moveNext()) {
+                    sink.send(Row.asCopy(enumerator.current()));
+                }
+            }
+        };
+    }
+
+    /**
+     * Rule that converts any enumerable relational expression to bindable.
+     */
+    public static class EnumerableToBindableConverterRule extends ConverterRule {
+
+        public static final EnumerableToBindableConverterRule INSTANCE = new EnumerableToBindableConverterRule();
+
+        private EnumerableToBindableConverterRule() {
+            super(EnumerableRel.class, EnumerableConvention.INSTANCE, BindableConvention.INSTANCE,
+                  "EnumerableToBindableConverterRule");
         }
-      }
-    };
-  }
 
-  /**
-   * Rule that converts any enumerable relational expression to bindable.
-   */
-  public static class EnumerableToBindableConverterRule extends ConverterRule {
-    public static final EnumerableToBindableConverterRule INSTANCE =
-        new EnumerableToBindableConverterRule();
-
-    private EnumerableToBindableConverterRule() {
-      super(EnumerableRel.class, EnumerableConvention.INSTANCE,
-          BindableConvention.INSTANCE, "EnumerableToBindableConverterRule");
+        @Override public RelNode convert(RelNode rel) {
+            return new EnumerableBindable(rel.getCluster(), rel);
+        }
     }
-
-    @Override public RelNode convert(RelNode rel) {
-      return new EnumerableBindable(rel.getCluster(), rel);
-    }
-  }
 }
 
 // End EnumerableBindable.java

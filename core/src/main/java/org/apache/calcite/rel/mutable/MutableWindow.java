@@ -23,51 +23,50 @@ import org.apache.calcite.rex.RexLiteral;
 import java.util.List;
 import java.util.Objects;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Window}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Window}.
+ */
 public class MutableWindow extends MutableSingleRel {
-  public final List<Group> groups;
-  public final List<RexLiteral> constants;
 
-  private MutableWindow(RelDataType rowType, MutableRel input,
-      List<Group> groups, List<RexLiteral> constants) {
-    super(MutableRelType.WINDOW, rowType, input);
-    this.groups = groups;
-    this.constants = constants;
-  }
+    public final List<Group>      groups;
+    public final List<RexLiteral> constants;
 
-  /**
-   * Creates a MutableWindow.
-   *
-   * @param rowType   Row type
-   * @param input     Input relational expression
-   * @param groups    Window groups
-   * @param constants List of constants that are additional inputs
-   */
-  public static MutableWindow of(RelDataType rowType,
-      MutableRel input, List<Group> groups, List<RexLiteral> constants) {
-    return new MutableWindow(rowType, input, groups, constants);
-  }
+    private MutableWindow(RelDataType rowType, MutableRel input, List<Group> groups, List<RexLiteral> constants) {
+        super(MutableRelType.WINDOW, rowType, input);
+        this.groups = groups;
+        this.constants = constants;
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableWindow
-        && groups.equals(((MutableWindow) obj).groups)
-        && constants.equals(((MutableWindow) obj).constants)
-        && input.equals(((MutableWindow) obj).input);
-  }
+    /**
+     * Creates a MutableWindow.
+     *
+     * @param rowType   Row type
+     * @param input     Input relational expression
+     * @param groups    Window groups
+     * @param constants List of constants that are additional inputs
+     */
+    public static MutableWindow of(RelDataType rowType, MutableRel input, List<Group> groups,
+                                   List<RexLiteral> constants) {
+        return new MutableWindow(rowType, input, groups, constants);
+    }
 
-  @Override public int hashCode() {
-    return Objects.hash(input, groups, constants);
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof MutableWindow && groups.equals(((MutableWindow) obj).groups)
+                              && constants.equals(((MutableWindow) obj).constants) && input.equals(
+                ((MutableWindow) obj).input);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Window(groups: ").append(groups)
-        .append(", constants: ").append(constants).append(")");
-  }
+    @Override public int hashCode() {
+        return Objects.hash(input, groups, constants);
+    }
 
-  @Override public MutableRel clone() {
-    return MutableWindow.of(rowType, input.clone(), groups, constants);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Window(groups: ").append(groups).append(", constants: ").append(constants).append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableWindow.of(rowType, input.clone(), groups, constants);
+    }
 }
 
 // End MutableWindow.java

@@ -16,13 +16,12 @@
  */
 package org.apache.calcite.materialize;
 
-import org.apache.calcite.jdbc.CalciteSchema;
-import org.apache.calcite.rel.type.RelDataType;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import org.apache.calcite.jdbc.CalciteSchema;
+import org.apache.calcite.rel.type.RelDataType;
 
 import java.util.List;
 import java.util.Map;
@@ -32,83 +31,84 @@ import java.util.Objects;
  * Actor that manages the state of materializations in the system.
  */
 class MaterializationActor {
-  // Not an actor yet -- TODO make members private and add request/response
-  // queues
+    // Not an actor yet -- TODO make members private and add request/response
+    // queues
 
-  final Map<MaterializationKey, Materialization> keyMap = Maps.newHashMap();
+    final Map<MaterializationKey, Materialization> keyMap = Maps.newHashMap();
 
-  final Map<QueryKey, MaterializationKey> keyBySql = Maps.newHashMap();
+    final Map<QueryKey, MaterializationKey> keyBySql = Maps.newHashMap();
 
-  final Map<TileKey, MaterializationKey> keyByTile = Maps.newHashMap();
+    final Map<TileKey, MaterializationKey> keyByTile = Maps.newHashMap();
 
-  /** Tiles grouped by dimensionality. We use a
-   *  {@link TileKey} with no measures to represent a
-   *  dimensionality. */
-  final Multimap<TileKey, TileKey> tilesByDimensionality =
-      HashMultimap.create();
-
-  /** A query materialized in a table, so that reading from the table gives the
-   * same results as executing the query. */
-  static class Materialization {
-    final MaterializationKey key;
-    final CalciteSchema rootSchema;
-    CalciteSchema.TableEntry materializedTable;
-    final String sql;
-    final RelDataType rowType;
-    final List<String> viewSchemaPath;
-
-    /** Creates a materialization.
-     *
-     * @param key  Unique identifier of this materialization
-     * @param materializedTable Table that currently materializes the query.
-     *                          That is, executing "select * from table" will
-     *                          give the same results as executing the query.
-     *                          May be null when the materialization is created;
-     *                          materialization service will change the value as
-     * @param sql  Query that is materialized
-     * @param rowType Row type
+    /**
+     * Tiles grouped by dimensionality. We use a
+     * {@link TileKey} with no measures to represent a
+     * dimensionality.
      */
-    Materialization(MaterializationKey key,
-        CalciteSchema rootSchema,
-        CalciteSchema.TableEntry materializedTable,
-        String sql,
-        RelDataType rowType,
-        List<String> viewSchemaPath) {
-      this.key = key;
-      this.rootSchema = Preconditions.checkNotNull(rootSchema);
-      Preconditions.checkArgument(rootSchema.isRoot(), "must be root schema");
-      this.materializedTable = materializedTable; // may be null
-      this.sql = sql;
-      this.rowType = rowType;
-      this.viewSchemaPath = viewSchemaPath;
-    }
-  }
+    final Multimap<TileKey, TileKey> tilesByDimensionality = HashMultimap.create();
 
-  /** A materialization can be re-used if it is the same SQL, on the same
-   * schema, with the same path for resolving functions. */
-  static class QueryKey {
-    final String sql;
-    final CalciteSchema schema;
-    final List<String> path;
+    /**
+     * A query materialized in a table, so that reading from the table gives the
+     * same results as executing the query.
+     */
+    static class Materialization {
 
-    QueryKey(String sql, CalciteSchema schema, List<String> path) {
-      this.sql = sql;
-      this.schema = schema;
-      this.path = path;
+        final MaterializationKey key;
+        final CalciteSchema      rootSchema;
+        CalciteSchema.TableEntry materializedTable;
+        final String       sql;
+        final RelDataType  rowType;
+        final List<String> viewSchemaPath;
+
+        /**
+         * Creates a materialization.
+         *
+         * @param key               Unique identifier of this materialization
+         * @param materializedTable Table that currently materializes the query.
+         *                          That is, executing "select * from table" will
+         *                          give the same results as executing the query.
+         *                          May be null when the materialization is created;
+         *                          materialization service will change the value as
+         * @param sql               Query that is materialized
+         * @param rowType           Row type
+         */
+        Materialization(MaterializationKey key, CalciteSchema rootSchema, CalciteSchema.TableEntry materializedTable,
+                        String sql, RelDataType rowType, List<String> viewSchemaPath) {
+            this.key = key;
+            this.rootSchema = Preconditions.checkNotNull(rootSchema);
+            Preconditions.checkArgument(rootSchema.isRoot(), "must be root schema");
+            this.materializedTable = materializedTable; // may be null
+            this.sql = sql;
+            this.rowType = rowType;
+            this.viewSchemaPath = viewSchemaPath;
+        }
     }
 
-    @Override public boolean equals(Object obj) {
-      return obj == this
-          || obj instanceof QueryKey
-          && sql.equals(((QueryKey) obj).sql)
-          && schema.equals(((QueryKey) obj).schema)
-          && path.equals(((QueryKey) obj).path);
-    }
+    /**
+     * A materialization can be re-used if it is the same SQL, on the same
+     * schema, with the same path for resolving functions.
+     */
+    static class QueryKey {
 
-    @Override public int hashCode() {
-      return Objects.hash(sql, schema, path);
+        final String        sql;
+        final CalciteSchema schema;
+        final List<String>  path;
+
+        QueryKey(String sql, CalciteSchema schema, List<String> path) {
+            this.sql = sql;
+            this.schema = schema;
+            this.path = path;
+        }
+
+        @Override public boolean equals(Object obj) {
+            return obj == this || obj instanceof QueryKey && sql.equals(((QueryKey) obj).sql) && schema.equals(
+                    ((QueryKey) obj).schema) && path.equals(((QueryKey) obj).path);
+        }
+
+        @Override public int hashCode() {
+            return Objects.hash(sql, schema, path);
+        }
     }
-  }
 }
 
 // End MaterializationActor.java

@@ -30,56 +30,59 @@ import org.apache.calcite.util.BuiltInMethod;
  * @see org.apache.calcite.rel.metadata.RelMetadataQuery#isPhaseTransition
  * @see org.apache.calcite.rel.metadata.RelMetadataQuery#splitCount
  */
-public class RelMdParallelism
-    implements MetadataHandler<BuiltInMetadata.Parallelism> {
-  /** Source for
-   * {@link org.apache.calcite.rel.metadata.BuiltInMetadata.Parallelism}. */
-  public static final RelMetadataProvider SOURCE =
-      ReflectiveRelMetadataProvider.reflectiveSource(new RelMdParallelism(),
-          BuiltInMethod.IS_PHASE_TRANSITION.method,
-          BuiltInMethod.SPLIT_COUNT.method);
+public class RelMdParallelism implements MetadataHandler<BuiltInMetadata.Parallelism> {
 
-  //~ Constructors -----------------------------------------------------------
+    /**
+     * Source for
+     * {@link org.apache.calcite.rel.metadata.BuiltInMetadata.Parallelism}.
+     */
+    public static final RelMetadataProvider SOURCE = ReflectiveRelMetadataProvider.reflectiveSource(
+            new RelMdParallelism(), BuiltInMethod.IS_PHASE_TRANSITION.method, BuiltInMethod.SPLIT_COUNT.method);
 
-  protected RelMdParallelism() {}
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
+    protected RelMdParallelism() {
+    }
 
-  public MetadataDef<BuiltInMetadata.Parallelism> getDef() {
-    return BuiltInMetadata.Parallelism.DEF;
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  /** Catch-all implementation for
-   * {@link BuiltInMetadata.Parallelism#isPhaseTransition()},
-   * invoked using reflection.
-   *
-   * @see org.apache.calcite.rel.metadata.RelMetadataQuery#isPhaseTransition
-   */
-  public Boolean isPhaseTransition(RelNode rel, RelMetadataQuery mq) {
-    return false;
-  }
+    public MetadataDef<BuiltInMetadata.Parallelism> getDef() {
+        return BuiltInMetadata.Parallelism.DEF;
+    }
 
-  public Boolean isPhaseTransition(TableScan rel, RelMetadataQuery mq) {
-    return true;
-  }
+    /**
+     * Catch-all implementation for
+     * {@link BuiltInMetadata.Parallelism#isPhaseTransition()},
+     * invoked using reflection.
+     *
+     * @see org.apache.calcite.rel.metadata.RelMetadataQuery#isPhaseTransition
+     */
+    public Boolean isPhaseTransition(RelNode rel, RelMetadataQuery mq) {
+        return false;
+    }
 
-  public Boolean isPhaseTransition(Values rel, RelMetadataQuery mq) {
-    return true;
-  }
+    public Boolean isPhaseTransition(TableScan rel, RelMetadataQuery mq) {
+        return true;
+    }
 
-  public Boolean isPhaseTransition(Exchange rel, RelMetadataQuery mq) {
-    return true;
-  }
+    public Boolean isPhaseTransition(Values rel, RelMetadataQuery mq) {
+        return true;
+    }
 
-  /** Catch-all implementation for
-   * {@link BuiltInMetadata.Parallelism#splitCount()},
-   * invoked using reflection.
-   *
-   * @see org.apache.calcite.rel.metadata.RelMetadataQuery#splitCount
-   */
-  public Integer splitCount(RelNode rel, RelMetadataQuery mq) {
-    return 1;
-  }
+    public Boolean isPhaseTransition(Exchange rel, RelMetadataQuery mq) {
+        return true;
+    }
+
+    /**
+     * Catch-all implementation for
+     * {@link BuiltInMetadata.Parallelism#splitCount()},
+     * invoked using reflection.
+     *
+     * @see org.apache.calcite.rel.metadata.RelMetadataQuery#splitCount
+     */
+    public Integer splitCount(RelNode rel, RelMetadataQuery mq) {
+        return 1;
+    }
 }
 
 // End RelMdParallelism.java

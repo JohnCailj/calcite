@@ -20,37 +20,39 @@ import java.util.List;
 
 /**
  * Element that describes how a table is a materialization of a query.
- *
  * <p>Occurs within {@link JsonSchema#materializations}.
  *
  * @see JsonRoot Description of schema elements
  */
 public class JsonMaterialization {
-  public String view;
-  public String table;
 
-  /** SQL query that defines the materialization.
-   *
-   * <p>Must be a string or a list of strings (which are concatenated into a
-   * multi-line SQL string, separated by newlines).
-   */
-  public Object sql;
+    public String view;
+    public String table;
 
-  public List<String> viewSchemaPath;
+    /**
+     * SQL query that defines the materialization.
+     * <p>Must be a string or a list of strings (which are concatenated into a
+     * multi-line SQL string, separated by newlines).
+     */
+    public Object sql;
 
-  public void accept(ModelHandler handler) {
-    handler.visit(this);
-  }
+    public List<String> viewSchemaPath;
 
-  @Override public String toString() {
-    return "JsonMaterialization(table=" + table + ", view=" + view + ")";
-  }
+    public void accept(ModelHandler handler) {
+        handler.visit(this);
+    }
 
-  /** Returns the SQL query as a string, concatenating a list of lines if
-   * necessary. */
-  public String getSql() {
-    return JsonLattice.toString(sql);
-  }
+    @Override public String toString() {
+        return "JsonMaterialization(table=" + table + ", view=" + view + ")";
+    }
+
+    /**
+     * Returns the SQL query as a string, concatenating a list of lines if
+     * necessary.
+     */
+    public String getSql() {
+        return JsonLattice.toString(sql);
+    }
 }
 
 // End JsonMaterialization.java

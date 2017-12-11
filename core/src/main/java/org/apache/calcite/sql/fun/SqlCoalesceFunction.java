@@ -16,12 +16,7 @@
  */
 package org.apache.calcite.sql.fun;
 
-import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlFunction;
-import org.apache.calcite.sql.SqlFunctionCategory;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
@@ -34,54 +29,46 @@ import java.util.List;
  * The <code>COALESCE</code> function.
  */
 public class SqlCoalesceFunction extends SqlFunction {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlCoalesceFunction() {
-    // NOTE jvs 26-July-2006:  We fill in the type strategies here,
-    // but normally they are not used because the validator invokes
-    // rewriteCall to convert COALESCE into CASE early.  However,
-    // validator rewrite can optionally be disabled, in which case these
-    // strategies are used.
-    super("COALESCE",
-        SqlKind.COALESCE,
-        ReturnTypes.LEAST_RESTRICTIVE,
-        null,
-        OperandTypes.SAME_VARIADIC,
-        SqlFunctionCategory.SYSTEM);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  // override SqlOperator
-  public SqlNode rewriteCall(SqlValidator validator, SqlCall call) {
-    validateQuantifier(validator, call); // check DISTINCT/ALL
-
-    List<SqlNode> operands = call.getOperandList();
-
-    if (operands.size() == 1) {
-      // No CASE needed
-      return operands.get(0);
+    public SqlCoalesceFunction() {
+        // NOTE jvs 26-July-2006:  We fill in the type strategies here,
+        // but normally they are not used because the validator invokes
+        // rewriteCall to convert COALESCE into CASE early.  However,
+        // validator rewrite can optionally be disabled, in which case these
+        // strategies are used.
+        super("COALESCE", SqlKind.COALESCE, ReturnTypes.LEAST_RESTRICTIVE, null, OperandTypes.SAME_VARIADIC,
+              SqlFunctionCategory.SYSTEM);
     }
 
-    SqlParserPos pos = call.getParserPosition();
+    //~ Methods ----------------------------------------------------------------
 
-    SqlNodeList whenList = new SqlNodeList(pos);
-    SqlNodeList thenList = new SqlNodeList(pos);
+    // override SqlOperator
+    public SqlNode rewriteCall(SqlValidator validator, SqlCall call) {
+        validateQuantifier(validator, call); // check DISTINCT/ALL
 
-    // todo: optimize when know operand is not null.
+        List<SqlNode> operands = call.getOperandList();
 
-    for (int i = 0; (i + 1) < operands.size(); ++i) {
-      whenList.add(
-          SqlStdOperatorTable.IS_NOT_NULL.createCall(
-              pos,
-              operands.get(i)));
-      thenList.add(operands.get(i).clone(operands.get(i).getParserPosition()));
+        if (operands.size() == 1) {
+            // No CASE needed
+            return operands.get(0);
+        }
+
+        SqlParserPos pos = call.getParserPosition();
+
+        SqlNodeList whenList = new SqlNodeList(pos);
+        SqlNodeList thenList = new SqlNodeList(pos);
+
+        // todo: optimize when know operand is not null.
+
+        for (int i = 0; (i + 1) < operands.size(); ++i) {
+            whenList.add(SqlStdOperatorTable.IS_NOT_NULL.createCall(pos, operands.get(i)));
+            thenList.add(operands.get(i).clone(operands.get(i).getParserPosition()));
+        }
+        SqlNode elseExpr = Util.last(operands);
+        assert call.getFunctionQuantifier() == null;
+        return SqlCase.createSwitched(pos, null, whenList, thenList, elseExpr);
     }
-    SqlNode elseExpr = Util.last(operands);
-    assert call.getFunctionQuantifier() == null;
-    return SqlCase.createSwitched(
-        pos, null, whenList, thenList, elseExpr);
-  }
 }
 
 // End SqlCoalesceFunction.java

@@ -22,50 +22,60 @@ package org.apache.calcite.util;
  * @param <T> Value type
  */
 public class TryThreadLocal<T> extends ThreadLocal<T> {
-  private final T initialValue;
 
-  /** Creates a TryThreadLocal.
-   *
-   * @param initialValue Initial value
-   */
-  public static <T> TryThreadLocal<T> of(T initialValue) {
-    return new TryThreadLocal<>(initialValue);
-  }
+    private final T initialValue;
 
-  private TryThreadLocal(T initialValue) {
-    this.initialValue = initialValue;
-  }
+    /**
+     * Creates a TryThreadLocal.
+     *
+     * @param initialValue Initial value
+     */
+    public static <T> TryThreadLocal<T> of(T initialValue) {
+        return new TryThreadLocal<>(initialValue);
+    }
 
-  // It is important that this method is final.
-  // This ensures that the sub-class does not choose a different initial
-  // value. Then the close logic can detect whether the previous value was
-  // equal to the initial value.
-  @Override protected final T initialValue() {
-    return initialValue;
-  }
+    private TryThreadLocal(T initialValue) {
+        this.initialValue = initialValue;
+    }
 
-  /** Assigns the value as {@code value} for the current thread.
-   * Returns a {@link Memo} which, when closed, will assign the value
-   * back to the previous value. */
-  public Memo push(T value) {
-    final T previous = get();
-    set(value);
-    return new Memo() {
-      public void close() {
-        if (previous == initialValue) {
-          remove();
-        } else {
-          set(previous);
-        }
-      }
-    };
-  }
+    // It is important that this method is final.
+    // This ensures that the sub-class does not choose a different initial
+    // value. Then the close logic can detect whether the previous value was
+    // equal to the initial value.
+    @Override protected final T initialValue() {
+        return initialValue;
+    }
 
-  /** Remembers to set the value back. */
-  public interface Memo extends AutoCloseable {
-    /** Sets the value back; never throws. */
-    @Override void close();
-  }
+    /**
+     * Assigns the value as {@code value} for the current thread.
+     * Returns a {@link Memo} which, when closed, will assign the value
+     * back to the previous value.
+     */
+    public Memo push(T value) {
+        final T previous = get();
+        set(value);
+        return new Memo() {
+
+            public void close() {
+                if (previous == initialValue) {
+                    remove();
+                } else {
+                    set(previous);
+                }
+            }
+        };
+    }
+
+    /**
+     * Remembers to set the value back.
+     */
+    public interface Memo extends AutoCloseable {
+
+        /**
+         * Sets the value back; never throws.
+         */
+        @Override void close();
+    }
 }
 
 // End TryThreadLocal.java

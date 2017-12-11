@@ -16,10 +16,9 @@
  */
 package org.apache.calcite.sql.type;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlOperatorBinding;
-
-import com.google.common.collect.ImmutableList;
 
 /**
  * Strategy to infer the type of an operator call from the type of the operands
@@ -27,41 +26,38 @@ import com.google.common.collect.ImmutableList;
  * {@link SqlTypeTransform}s
  */
 public class SqlTypeTransformCascade implements SqlReturnTypeInference {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlReturnTypeInference rule;
-  private final ImmutableList<SqlTypeTransform> transforms;
+    private final SqlReturnTypeInference          rule;
+    private final ImmutableList<SqlTypeTransform> transforms;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a SqlTypeTransformCascade from a rule and an array of one or more
-   * transforms.
-   */
-  public SqlTypeTransformCascade(
-      SqlReturnTypeInference rule,
-      SqlTypeTransform... transforms) {
-    assert rule != null;
-    assert transforms.length > 0;
-    this.rule = rule;
-    this.transforms = ImmutableList.copyOf(transforms);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public RelDataType inferReturnType(
-      SqlOperatorBinding opBinding) {
-    RelDataType ret = rule.inferReturnType(opBinding);
-    if (ret == null) {
-      // inferReturnType may return null; transformType does not accept or
-      // return null types
-      return null;
+    /**
+     * Creates a SqlTypeTransformCascade from a rule and an array of one or more
+     * transforms.
+     */
+    public SqlTypeTransformCascade(SqlReturnTypeInference rule, SqlTypeTransform... transforms) {
+        assert rule != null;
+        assert transforms.length > 0;
+        this.rule = rule;
+        this.transforms = ImmutableList.copyOf(transforms);
     }
-    for (SqlTypeTransform transform : transforms) {
-      ret = transform.transformType(opBinding, ret);
+
+    //~ Methods ----------------------------------------------------------------
+
+    public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+        RelDataType ret = rule.inferReturnType(opBinding);
+        if (ret == null) {
+            // inferReturnType may return null; transformType does not accept or
+            // return null types
+            return null;
+        }
+        for (SqlTypeTransform transform : transforms) {
+            ret = transform.transformType(opBinding, ret);
+        }
+        return ret;
     }
-    return ret;
-  }
 }
 
 // End SqlTypeTransformCascade.java

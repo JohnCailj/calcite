@@ -27,63 +27,51 @@ import org.apache.calcite.rel.logical.LogicalJoin;
 
 /**
  * Rule to add a semi-join into a join. Transformation is as follows:
- *
  * <p>LogicalJoin(X, Y) &rarr; LogicalJoin(SemiJoin(X, Y), Y)
- *
  * <p>The constructor is parameterized to allow any sub-class of
  * {@link org.apache.calcite.rel.core.Join}, not just
  * {@link org.apache.calcite.rel.logical.LogicalJoin}.
  */
 public class JoinAddRedundantSemiJoinRule extends RelOptRule {
-  public static final JoinAddRedundantSemiJoinRule INSTANCE =
-      new JoinAddRedundantSemiJoinRule(LogicalJoin.class);
 
-  //~ Constructors -----------------------------------------------------------
+    public static final JoinAddRedundantSemiJoinRule INSTANCE = new JoinAddRedundantSemiJoinRule(LogicalJoin.class);
 
-  /**
-   * Creates an JoinAddRedundantSemiJoinRule.
-   */
-  private JoinAddRedundantSemiJoinRule(Class<? extends Join> clazz) {
-    super(operand(clazz, any()));
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    Join origJoinRel = call.rel(0);
-    if (origJoinRel.isSemiJoinDone()) {
-      return;
+    /**
+     * Creates an JoinAddRedundantSemiJoinRule.
+     */
+    private JoinAddRedundantSemiJoinRule(Class<? extends Join> clazz) {
+        super(operand(clazz, any()));
     }
 
-    // can't process outer joins using semijoins
-    if (origJoinRel.getJoinType() != JoinRelType.INNER) {
-      return;
+    //~ Methods ----------------------------------------------------------------
+
+    public void onMatch(RelOptRuleCall call) {
+        Join origJoinRel = call.rel(0);
+        if (origJoinRel.isSemiJoinDone()) {
+            return;
+        }
+
+        // can't process outer joins using semijoins
+        if (origJoinRel.getJoinType() != JoinRelType.INNER) {
+            return;
+        }
+
+        // determine if we have a valid join condition
+        final JoinInfo joinInfo = origJoinRel.analyzeCondition();
+        if (joinInfo.leftKeys.size() == 0) {
+            return;
+        }
+
+        RelNode semiJoin = SemiJoin.create(origJoinRel.getLeft(), origJoinRel.getRight(), origJoinRel.getCondition(),
+                                           joinInfo.leftKeys, joinInfo.rightKeys);
+
+        RelNode newJoinRel = origJoinRel.copy(origJoinRel.getTraitSet(), origJoinRel.getCondition(), semiJoin,
+                                              origJoinRel.getRight(), JoinRelType.INNER, true);
+
+        call.transformTo(newJoinRel);
     }
-
-    // determine if we have a valid join condition
-    final JoinInfo joinInfo = origJoinRel.analyzeCondition();
-    if (joinInfo.leftKeys.size() == 0) {
-      return;
-    }
-
-    RelNode semiJoin =
-        SemiJoin.create(origJoinRel.getLeft(),
-            origJoinRel.getRight(),
-            origJoinRel.getCondition(),
-            joinInfo.leftKeys,
-            joinInfo.rightKeys);
-
-    RelNode newJoinRel =
-        origJoinRel.copy(
-            origJoinRel.getTraitSet(),
-            origJoinRel.getCondition(),
-            semiJoin,
-            origJoinRel.getRight(),
-            JoinRelType.INNER,
-            true);
-
-    call.transformTo(newJoinRel);
-  }
 }
 
 // End JoinAddRedundantSemiJoinRule.java

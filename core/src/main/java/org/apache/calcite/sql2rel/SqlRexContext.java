@@ -31,68 +31,67 @@ import org.apache.calcite.sql.validate.SqlValidator;
  * {@link SqlNode} expression into a {@link RexNode}.
  */
 public interface SqlRexContext {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Converts an expression from {@link SqlNode} to {@link RexNode} format.
-   *
-   * @param expr Expression to translate
-   * @return Converted expression
-   */
-  RexNode convertExpression(SqlNode expr);
+    /**
+     * Converts an expression from {@link SqlNode} to {@link RexNode} format.
+     *
+     * @param expr Expression to translate
+     * @return Converted expression
+     */
+    RexNode convertExpression(SqlNode expr);
 
-  /**
-   * If the operator call occurs in an aggregate query, returns the number of
-   * columns in the GROUP BY clause. For example, for "SELECT count(*) FROM emp
-   * GROUP BY deptno, gender", returns 2.
-   * If the operator call occurs in window aggregate query, then returns 1 if
-   * the window is guaranteed to be non-empty, or 0 if the window might be
-   * empty.
-   *
-   * <p>Returns 0 if the query is implicitly "GROUP BY ()" because of an
-   * aggregate expression. For example, "SELECT sum(sal) FROM emp".</p>
-   *
-   * <p>Returns -1 if the query is not an aggregate query.</p>
-   * @return 0 if the query is implicitly GROUP BY (), -1 if the query is not
-   * and aggregate query
-   * @see org.apache.calcite.sql.SqlOperatorBinding#getGroupCount()
-   */
-  int getGroupCount();
+    /**
+     * If the operator call occurs in an aggregate query, returns the number of
+     * columns in the GROUP BY clause. For example, for "SELECT count(*) FROM emp
+     * GROUP BY deptno, gender", returns 2.
+     * If the operator call occurs in window aggregate query, then returns 1 if
+     * the window is guaranteed to be non-empty, or 0 if the window might be
+     * empty.
+     * <p>Returns 0 if the query is implicitly "GROUP BY ()" because of an
+     * aggregate expression. For example, "SELECT sum(sal) FROM emp".</p>
+     * <p>Returns -1 if the query is not an aggregate query.</p>
+     *
+     * @return 0 if the query is implicitly GROUP BY (), -1 if the query is not
+     * and aggregate query
+     * @see org.apache.calcite.sql.SqlOperatorBinding#getGroupCount()
+     */
+    int getGroupCount();
 
-  /**
-   * Returns the {@link RexBuilder} to use to create {@link RexNode} objects.
-   */
-  RexBuilder getRexBuilder();
+    /**
+     * Returns the {@link RexBuilder} to use to create {@link RexNode} objects.
+     */
+    RexBuilder getRexBuilder();
 
-  /**
-   * Returns the expression used to access a given IN or EXISTS
-   * {@link SqlSelect sub-query}.
-   *
-   * @param call IN or EXISTS expression
-   * @return Expression used to access current row of sub-query
-   */
-  RexRangeRef getSubQueryExpr(SqlCall call);
+    /**
+     * Returns the expression used to access a given IN or EXISTS
+     * {@link SqlSelect sub-query}.
+     *
+     * @param call IN or EXISTS expression
+     * @return Expression used to access current row of sub-query
+     */
+    RexRangeRef getSubQueryExpr(SqlCall call);
 
-  /**
-   * Returns the type factory.
-   */
-  RelDataTypeFactory getTypeFactory();
+    /**
+     * Returns the type factory.
+     */
+    RelDataTypeFactory getTypeFactory();
 
-  /**
-   * Returns the factory which supplies default values for INSERT, UPDATE, and
-   * NEW.
-   */
-  InitializerExpressionFactory getInitializerExpressionFactory();
+    /**
+     * Returns the factory which supplies default values for INSERT, UPDATE, and
+     * NEW.
+     */
+    InitializerExpressionFactory getInitializerExpressionFactory();
 
-  /**
-   * Returns the validator.
-   */
-  SqlValidator getValidator();
+    /**
+     * Returns the validator.
+     */
+    SqlValidator getValidator();
 
-  /**
-   * Converts a literal.
-   */
-  RexNode convertLiteral(SqlLiteral literal);
+    /**
+     * Converts a literal.
+     */
+    RexNode convertLiteral(SqlLiteral literal);
 }
 
 // End SqlRexContext.java

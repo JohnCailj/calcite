@@ -18,43 +18,45 @@ package org.apache.calcite.schema.impl;
 
 import org.apache.calcite.schema.SchemaVersion;
 
-/** Implementation of SchemaVersion that uses a long value as representation. */
+/**
+ * Implementation of SchemaVersion that uses a long value as representation.
+ */
 public class LongSchemaVersion implements SchemaVersion {
-  private final long value;
 
-  public LongSchemaVersion(long value) {
-    this.value = value;
-  }
+    private final long value;
 
-  public boolean isBefore(SchemaVersion other) {
-    if (!(other instanceof LongSchemaVersion)) {
-      throw new IllegalArgumentException(
-          "Cannot compare a LongSchemaVersion object with a "
-          + other.getClass() + " object.");
+    public LongSchemaVersion(long value) {
+        this.value = value;
     }
 
-    return this.value < ((LongSchemaVersion) other).value;
-  }
+    public boolean isBefore(SchemaVersion other) {
+        if (!(other instanceof LongSchemaVersion)) {
+            throw new IllegalArgumentException(
+                    "Cannot compare a LongSchemaVersion object with a " + other.getClass() + " object.");
+        }
 
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
+        return this.value < ((LongSchemaVersion) other).value;
     }
 
-    if (!(obj instanceof LongSchemaVersion)) {
-      return false;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof LongSchemaVersion)) {
+            return false;
+        }
+
+        return this.value == ((LongSchemaVersion) obj).value;
     }
 
-    return this.value == ((LongSchemaVersion) obj).value;
-  }
+    public int hashCode() {
+        return Long.valueOf(value).hashCode();
+    }
 
-  public int hashCode() {
-    return Long.valueOf(value).hashCode();
-  }
-
-  public String toString() {
-    return String.valueOf(value);
-  }
+    public String toString() {
+        return String.valueOf(value);
+    }
 }
 
 // End LongSchemaVersion.java

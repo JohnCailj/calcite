@@ -29,16 +29,18 @@ import java.util.List;
  * @see ScannableTable
  */
 public interface FilterableTable extends Table {
-  /** Returns an enumerator over the rows in this Table. Each row is represented
-   * as an array of its column values.
-   *
-   * <p>The list of filters is mutable.
-   * If the table can implement a particular filter, it should remove that
-   * filter from the list.
-   * If it cannot implement a filter, it should leave it in the list.
-   * Any filters remaining will be implemented by the consuming Calcite
-   * operator. */
-  Enumerable<Object[]> scan(DataContext root, List<RexNode> filters);
+
+    /**
+     * Returns an enumerator over the rows in this Table. Each row is represented
+     * as an array of its column values.
+     * <p>The list of filters is mutable.
+     * If the table can implement a particular filter, it should remove that
+     * filter from the list.
+     * If it cannot implement a filter, it should leave it in the list.
+     * Any filters remaining will be implemented by the consuming Calcite
+     * operator.
+     */
+    Enumerable<Object[]> scan(DataContext root, List<RexNode> filters);
 }
 
 // End FilterableTable.java

@@ -29,29 +29,27 @@ import java.util.List;
 /**
  * Relational expression that returns the rows of its first input minus any
  * matching rows from its other inputs.
- *
  * <p>Corresponds to the SQL {@code EXCEPT} operator.
- *
  * <p>If "all" is true, then multiset subtraction is
  * performed; otherwise, set subtraction is performed (implying no duplicates in
  * the results).
  */
 public abstract class Minus extends SetOp {
-  public Minus(RelOptCluster cluster, RelTraitSet traits, List<RelNode> inputs,
-      boolean all) {
-    super(cluster, traits, inputs, SqlKind.EXCEPT, all);
-  }
 
-  /**
-   * Creates a Minus by parsing serialized output.
-   */
-  protected Minus(RelInput input) {
-    super(input);
-  }
+    public Minus(RelOptCluster cluster, RelTraitSet traits, List<RelNode> inputs, boolean all) {
+        super(cluster, traits, inputs, SqlKind.EXCEPT, all);
+    }
 
-  @Override public double estimateRowCount(RelMetadataQuery mq) {
-    return RelMdUtil.getMinusRowCount(mq, this);
-  }
+    /**
+     * Creates a Minus by parsing serialized output.
+     */
+    protected Minus(RelInput input) {
+        super(input);
+    }
+
+    @Override public double estimateRowCount(RelMetadataQuery mq) {
+        return RelMdUtil.getMinusRowCount(mq, this);
+    }
 }
 
 // End Minus.java

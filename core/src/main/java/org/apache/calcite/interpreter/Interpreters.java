@@ -26,25 +26,30 @@ import org.apache.calcite.runtime.ArrayBindable;
  * and {@link org.apache.calcite.interpreter.InterpretableConvention}.
  */
 public class Interpreters {
-  private Interpreters() {}
 
-  /** Creates a {@link org.apache.calcite.runtime.Bindable} that interprets a
-   * given relational expression. */
-  public static ArrayBindable bindable(final RelNode rel) {
-    if (rel instanceof ArrayBindable) {
-      // E.g. if rel instanceof BindableRel
-      return (ArrayBindable) rel;
+    private Interpreters() {
     }
-    return new ArrayBindable() {
-      public Enumerable<Object[]> bind(DataContext dataContext) {
-        return new Interpreter(dataContext, rel);
-      }
 
-      public Class<Object[]> getElementType() {
-        return Object[].class;
-      }
-    };
-  }
+    /**
+     * Creates a {@link org.apache.calcite.runtime.Bindable} that interprets a
+     * given relational expression.
+     */
+    public static ArrayBindable bindable(final RelNode rel) {
+        if (rel instanceof ArrayBindable) {
+            // E.g. if rel instanceof BindableRel
+            return (ArrayBindable) rel;
+        }
+        return new ArrayBindable() {
+
+            public Enumerable<Object[]> bind(DataContext dataContext) {
+                return new Interpreter(dataContext, rel);
+            }
+
+            public Class<Object[]> getElementType() {
+                return Object[].class;
+            }
+        };
+    }
 }
 
 // End Interpreters.java

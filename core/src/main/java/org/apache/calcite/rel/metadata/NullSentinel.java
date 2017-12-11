@@ -16,28 +16,34 @@
  */
 package org.apache.calcite.rel.metadata;
 
-/** Placeholder for null values. */
+/**
+ * Placeholder for null values.
+ */
 public enum NullSentinel {
-  /** Placeholder for a null value. */
-  INSTANCE,
+    /**
+     * Placeholder for a null value.
+     */
+    INSTANCE,
 
-  /** Placeholder that means that a request for metadata is already active,
-   * therefore this request forms a cycle. */
-  ACTIVE;
+    /**
+     * Placeholder that means that a request for metadata is already active,
+     * therefore this request forms a cycle.
+     */
+    ACTIVE;
 
-  public static Comparable mask(Comparable value) {
-    if (value == null) {
-      return INSTANCE;
+    public static Comparable mask(Comparable value) {
+        if (value == null) {
+            return INSTANCE;
+        }
+        return value;
     }
-    return value;
-  }
 
-  public static Object mask(Object value) {
-    if (value == null) {
-      return INSTANCE;
+    public static Object mask(Object value) {
+        if (value == null) {
+            return INSTANCE;
+        }
+        return value;
     }
-    return value;
-  }
 }
 
 // End NullSentinel.java

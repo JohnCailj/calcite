@@ -24,34 +24,33 @@ import java.util.List;
 
 /**
  * Function that returns a table during execution time.
- *
  * <p>In contrast with {@code TableMacro}, the result of the table is not known
  * until execution.
  */
 public interface TableFunction extends Function {
-  /**
-   * Returns the record type of the table yielded by this function when
-   * applied to given arguments. Only literal arguments are passed,
-   * non-literal are replaced with default values (null, 0, false, etc).
-   *
-   * @param typeFactory Type factory
-   * @param arguments arguments of a function call (only literal arguments
-   *                  are passed, nulls for non-literal ones)
-   * @return row type of the table
-   */
-  RelDataType getRowType(RelDataTypeFactory typeFactory,
-      List<Object> arguments);
 
-  /**
-   * Returns the row type of the table yielded by this function when
-   * applied to given arguments. Only literal arguments are passed,
-   * non-literal are replaced with default values (null, 0, false, etc).
-   *
-   * @param arguments arguments of a function call (only literal arguments
-   *                  are passed, nulls for non-literal ones)
-   * @return element type of the table (e.g. {@code Object[].class})
-   */
-  Type getElementType(List<Object> arguments);
+    /**
+     * Returns the record type of the table yielded by this function when
+     * applied to given arguments. Only literal arguments are passed,
+     * non-literal are replaced with default values (null, 0, false, etc).
+     *
+     * @param typeFactory Type factory
+     * @param arguments   arguments of a function call (only literal arguments
+     *                    are passed, nulls for non-literal ones)
+     * @return row type of the table
+     */
+    RelDataType getRowType(RelDataTypeFactory typeFactory, List<Object> arguments);
+
+    /**
+     * Returns the row type of the table yielded by this function when
+     * applied to given arguments. Only literal arguments are passed,
+     * non-literal are replaced with default values (null, 0, false, etc).
+     *
+     * @param arguments arguments of a function call (only literal arguments
+     *                  are passed, nulls for non-literal ones)
+     * @return element type of the table (e.g. {@code Object[].class})
+     */
+    Type getElementType(List<Object> arguments);
 }
 
 // End TableFunction.java

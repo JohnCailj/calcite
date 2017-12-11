@@ -31,91 +31,72 @@ import org.apache.calcite.util.Litmus;
 
 /**
  * A relational operator that performs nested-loop joins.
- *
  * <p>It behaves like a kind of {@link org.apache.calcite.rel.core.Join},
  * but works by setting variables in its environment and restarting its
  * right-hand input.
- *
  * <p>A LogicalCorrelate is used to represent a correlated query. One
  * implementation strategy is to de-correlate the expression.
  *
  * @see org.apache.calcite.rel.core.CorrelationId
  */
 public final class LogicalCorrelate extends Correlate {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a LogicalCorrelate.
-   * @param cluster      cluster this relational expression belongs to
-   * @param left         left input relational expression
-   * @param right        right input relational expression
-   * @param correlationId variable name for the row of left input
-   * @param requiredColumns Required columns
-   * @param joinType     join type
-   */
-  public LogicalCorrelate(
-      RelOptCluster cluster,
-      RelTraitSet traitSet,
-      RelNode left,
-      RelNode right,
-      CorrelationId correlationId,
-      ImmutableBitSet requiredColumns,
-      SemiJoinType joinType) {
-    super(
-        cluster,
-        traitSet,
-        left,
-        right,
-        correlationId,
-        requiredColumns,
-        joinType);
-    assert !CalcitePrepareImpl.DEBUG || isValid(Litmus.THROW, null);
-  }
+    /**
+     * Creates a LogicalCorrelate.
+     *
+     * @param cluster         cluster this relational expression belongs to
+     * @param left            left input relational expression
+     * @param right           right input relational expression
+     * @param correlationId   variable name for the row of left input
+     * @param requiredColumns Required columns
+     * @param joinType        join type
+     */
+    public LogicalCorrelate(RelOptCluster cluster, RelTraitSet traitSet, RelNode left, RelNode right,
+                            CorrelationId correlationId, ImmutableBitSet requiredColumns, SemiJoinType joinType) {
+        super(cluster, traitSet, left, right, correlationId, requiredColumns, joinType);
+        assert !CalcitePrepareImpl.DEBUG || isValid(Litmus.THROW, null);
+    }
 
-  @Deprecated // to be removed before 2.0
-  public LogicalCorrelate(RelOptCluster cluster, RelNode left, RelNode right,
-      CorrelationId correlationId,
-      ImmutableBitSet requiredColumns, SemiJoinType joinType) {
-    this(cluster, cluster.traitSetOf(Convention.NONE), left, right,
-        correlationId, requiredColumns, joinType);
-  }
+    @Deprecated // to be removed before 2.0
+    public LogicalCorrelate(RelOptCluster cluster, RelNode left, RelNode right, CorrelationId correlationId,
+                            ImmutableBitSet requiredColumns, SemiJoinType joinType) {
+        this(cluster, cluster.traitSetOf(Convention.NONE), left, right, correlationId, requiredColumns, joinType);
+    }
 
-  /**
-   * Creates a LogicalCorrelate by parsing serialized output.
-   */
-  public LogicalCorrelate(RelInput input) {
-    this(input.getCluster(), input.getTraitSet(), input.getInputs().get(0),
-        input.getInputs().get(1),
-        new CorrelationId((Integer) input.get("correlationId")),
-        input.getBitSet("requiredColumns"),
-        input.getEnum("joinType", SemiJoinType.class));
-  }
+    /**
+     * Creates a LogicalCorrelate by parsing serialized output.
+     */
+    public LogicalCorrelate(RelInput input) {
+        this(input.getCluster(), input.getTraitSet(), input.getInputs().get(0), input.getInputs().get(1),
+             new CorrelationId((Integer) input.get("correlationId")), input.getBitSet("requiredColumns"),
+             input.getEnum("joinType", SemiJoinType.class));
+    }
 
-  /** Creates a LogicalCorrelate. */
-  public static LogicalCorrelate create(RelNode left, RelNode right,
-      CorrelationId correlationId, ImmutableBitSet requiredColumns,
-      SemiJoinType joinType) {
-    final RelOptCluster cluster = left.getCluster();
-    final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
-    return new LogicalCorrelate(cluster, traitSet, left, right, correlationId,
-        requiredColumns, joinType);
-  }
+    /**
+     * Creates a LogicalCorrelate.
+     */
+    public static LogicalCorrelate create(RelNode left, RelNode right, CorrelationId correlationId,
+                                          ImmutableBitSet requiredColumns, SemiJoinType joinType) {
+        final RelOptCluster cluster = left.getCluster();
+        final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
+        return new LogicalCorrelate(cluster, traitSet, left, right, correlationId, requiredColumns, joinType);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public LogicalCorrelate copy(RelTraitSet traitSet,
-      RelNode left, RelNode right, CorrelationId correlationId,
-      ImmutableBitSet requiredColumns, SemiJoinType joinType) {
-    assert traitSet.containsIfApplicable(Convention.NONE);
-    return new LogicalCorrelate(getCluster(), traitSet, left, right,
-        correlationId, requiredColumns, joinType);
-  }
+    @Override public LogicalCorrelate copy(RelTraitSet traitSet, RelNode left, RelNode right,
+                                           CorrelationId correlationId, ImmutableBitSet requiredColumns,
+                                           SemiJoinType joinType) {
+        assert traitSet.containsIfApplicable(Convention.NONE);
+        return new LogicalCorrelate(getCluster(), traitSet, left, right, correlationId, requiredColumns, joinType);
+    }
 
-  @Override public RelNode accept(RelShuttle shuttle) {
-    return shuttle.visit(this);
-  }
+    @Override public RelNode accept(RelShuttle shuttle) {
+        return shuttle.visit(this);
+    }
 }
 
 // End LogicalCorrelate.java

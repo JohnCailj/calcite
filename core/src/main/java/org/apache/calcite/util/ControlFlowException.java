@@ -19,14 +19,14 @@ package org.apache.calcite.util;
 /**
  * Exception intended to be used for control flow, as opposed to the usual
  * use of exceptions which is to signal an error condition.
- *
  * <p>{@code ControlFlowException} does not populate its own stack trace, which
  * makes instantiating one of these (or a sub-class) more efficient.</p>
  */
 public class ControlFlowException extends RuntimeException {
-  @Override public Throwable fillInStackTrace() {
-    return this;
-  }
+
+    @Override public Throwable fillInStackTrace() {
+        return this;
+    }
 }
 
 // End ControlFlowException.java

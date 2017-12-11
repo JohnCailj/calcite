@@ -34,93 +34,90 @@ import java.util.NoSuchElementException;
  * Table that returns a range of integers.
  */
 public class RangeTable extends AbstractQueryableTable {
-  private final String columnName;
-  private final int start;
-  private final int end;
 
-  protected RangeTable(Class<?> elementType, String columnName, int start,
-      int end) {
-    super(elementType);
-    this.columnName = columnName;
-    this.start = start;
-    this.end = end;
-  }
+    private final String columnName;
+    private final int    start;
+    private final int    end;
 
-  /** Creates a RangeTable. */
-  public static RangeTable create(Class<?> elementType, String columnName,
-      int start, int end) {
-    return new RangeTable(elementType, columnName, start, end);
-  }
-
-  public RelDataType getRowType(RelDataTypeFactory typeFactory) {
-    return typeFactory.builder()
-        .add(columnName, SqlTypeName.INTEGER)
-        .build();
-  }
-
-  public <T> Queryable<T> asQueryable(QueryProvider queryProvider,
-      SchemaPlus schema, String tableName) {
-    return new AbstractTableQueryable<T>(queryProvider, schema, this,
-        tableName) {
-      public Enumerator<T> enumerator() {
-        //noinspection unchecked
-        return (Enumerator<T>) RangeTable.this.enumerator();
-      }
-    };
-  }
-
-  public Enumerator<Integer> enumerator() {
-    return new Enumerator<Integer>() {
-      int current = start - 1;
-
-      public Integer current() {
-        if (current >= end) {
-          throw new NoSuchElementException();
-        }
-        return current;
-      }
-
-      public boolean moveNext() {
-        ++current;
-        return current < end;
-      }
-
-      public void reset() {
-        current = start - 1;
-      }
-
-      public void close() {
-      }
-    };
-  }
-
-  /** Implementation of {@link org.apache.calcite.schema.TableFactory} that
-   * allows a {@link RangeTable} to be included as a custom table in a Calcite
-   * model file. */
-  public static class Factory implements TableFactory<RangeTable> {
-    public RangeTable create(
-        SchemaPlus schema,
-        String name,
-        Map<String, Object> operand,
-        RelDataType rowType) {
-      final String columnName = (String) operand.get("column");
-      final int start = (Integer) operand.get("start");
-      final int end = (Integer) operand.get("end");
-      final String elementType = (String) operand.get("elementType");
-      Class<?> type;
-      if ("array".equals(elementType)) {
-        type = Object[].class;
-      } else if ("object".equals(elementType)) {
-        type = Object.class;
-      } else if ("integer".equals(elementType)) {
-        type = Integer.class;
-      } else {
-        throw new IllegalArgumentException(
-            "Illegal 'elementType' value: " + elementType);
-      }
-      return RangeTable.create(type, columnName, start, end);
+    protected RangeTable(Class<?> elementType, String columnName, int start, int end) {
+        super(elementType);
+        this.columnName = columnName;
+        this.start = start;
+        this.end = end;
     }
-  }
+
+    /**
+     * Creates a RangeTable.
+     */
+    public static RangeTable create(Class<?> elementType, String columnName, int start, int end) {
+        return new RangeTable(elementType, columnName, start, end);
+    }
+
+    public RelDataType getRowType(RelDataTypeFactory typeFactory) {
+        return typeFactory.builder().add(columnName, SqlTypeName.INTEGER).build();
+    }
+
+    public <T> Queryable<T> asQueryable(QueryProvider queryProvider, SchemaPlus schema, String tableName) {
+        return new AbstractTableQueryable<T>(queryProvider, schema, this, tableName) {
+
+            public Enumerator<T> enumerator() {
+                //noinspection unchecked
+                return (Enumerator<T>) RangeTable.this.enumerator();
+            }
+        };
+    }
+
+    public Enumerator<Integer> enumerator() {
+        return new Enumerator<Integer>() {
+
+            int current = start - 1;
+
+            public Integer current() {
+                if (current >= end) {
+                    throw new NoSuchElementException();
+                }
+                return current;
+            }
+
+            public boolean moveNext() {
+                ++current;
+                return current < end;
+            }
+
+            public void reset() {
+                current = start - 1;
+            }
+
+            public void close() {
+            }
+        };
+    }
+
+    /**
+     * Implementation of {@link org.apache.calcite.schema.TableFactory} that
+     * allows a {@link RangeTable} to be included as a custom table in a Calcite
+     * model file.
+     */
+    public static class Factory implements TableFactory<RangeTable> {
+
+        public RangeTable create(SchemaPlus schema, String name, Map<String, Object> operand, RelDataType rowType) {
+            final String columnName = (String) operand.get("column");
+            final int start = (Integer) operand.get("start");
+            final int end = (Integer) operand.get("end");
+            final String elementType = (String) operand.get("elementType");
+            Class<?> type;
+            if ("array".equals(elementType)) {
+                type = Object[].class;
+            } else if ("object".equals(elementType)) {
+                type = Object.class;
+            } else if ("integer".equals(elementType)) {
+                type = Integer.class;
+            } else {
+                throw new IllegalArgumentException("Illegal 'elementType' value: " + elementType);
+            }
+            return RangeTable.create(type, columnName, start, end);
+        }
+    }
 }
 
 // End RangeTable.java

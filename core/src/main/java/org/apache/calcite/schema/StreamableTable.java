@@ -24,9 +24,12 @@ import org.apache.calcite.rel.stream.Delta;
  * @see Delta
  */
 public interface StreamableTable extends Table {
-  /** Returns an enumerator over the rows in this Table. Each row is represented
-   * as an array of its column values. */
-  Table stream();
+
+    /**
+     * Returns an enumerator over the rows in this Table. Each row is represented
+     * as an array of its column values.
+     */
+    Table stream();
 }
 
 // End StreamableTable.java

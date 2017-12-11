@@ -16,11 +16,8 @@
  */
 package org.apache.calcite.adapter.enumerable;
 
-import org.apache.calcite.linq4j.tree.BlockBuilder;
-import org.apache.calcite.linq4j.tree.Expression;
-import org.apache.calcite.linq4j.tree.Expressions;
-import org.apache.calcite.linq4j.tree.ParameterExpression;
-import org.apache.calcite.linq4j.tree.Primitive;
+import com.google.common.collect.ImmutableList;
+import org.apache.calcite.linq4j.tree.*;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelTraitSet;
 import org.apache.calcite.rel.RelNode;
@@ -31,87 +28,64 @@ import org.apache.calcite.sql.SemiJoinType;
 import org.apache.calcite.util.BuiltInMethod;
 import org.apache.calcite.util.ImmutableBitSet;
 
-import com.google.common.collect.ImmutableList;
-
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
-/** Implementation of {@link org.apache.calcite.rel.core.Correlate} in
- * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}. */
-public class EnumerableCorrelate extends Correlate
-    implements EnumerableRel {
+/**
+ * Implementation of {@link org.apache.calcite.rel.core.Correlate} in
+ * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}.
+ */
+public class EnumerableCorrelate extends Correlate implements EnumerableRel {
 
-  public EnumerableCorrelate(RelOptCluster cluster, RelTraitSet traits,
-      RelNode left, RelNode right,
-      CorrelationId correlationId,
-      ImmutableBitSet requiredColumns, SemiJoinType joinType) {
-    super(cluster, traits, left, right, correlationId, requiredColumns,
-        joinType);
-  }
-
-  @Override public EnumerableCorrelate copy(RelTraitSet traitSet,
-      RelNode left, RelNode right, CorrelationId correlationId,
-      ImmutableBitSet requiredColumns, SemiJoinType joinType) {
-    return new EnumerableCorrelate(getCluster(),
-        traitSet, left, right, correlationId, requiredColumns, joinType);
-  }
-
-  public Result implement(EnumerableRelImplementor implementor,
-      Prefer pref) {
-    final BlockBuilder builder = new BlockBuilder();
-    final Result leftResult =
-        implementor.visitChild(this, 0, (EnumerableRel) left, pref);
-    Expression leftExpression =
-        builder.append(
-            "left", leftResult.block);
-
-    final BlockBuilder corrBlock = new BlockBuilder();
-    Type corrVarType = leftResult.physType.getJavaRowType();
-    ParameterExpression corrRef; // correlate to be used in inner loop
-    ParameterExpression corrArg; // argument to correlate lambda (must be boxed)
-    if (!Primitive.is(corrVarType)) {
-      corrArg =
-          Expressions.parameter(Modifier.FINAL,
-              corrVarType, getCorrelVariable());
-      corrRef = corrArg;
-    } else {
-      corrArg =
-          Expressions.parameter(Modifier.FINAL,
-              Primitive.box(corrVarType), "$box" + getCorrelVariable());
-      corrRef = (ParameterExpression) corrBlock.append(getCorrelVariable(),
-          Expressions.unbox(corrArg));
+    public EnumerableCorrelate(RelOptCluster cluster, RelTraitSet traits, RelNode left, RelNode right,
+                               CorrelationId correlationId, ImmutableBitSet requiredColumns, SemiJoinType joinType) {
+        super(cluster, traits, left, right, correlationId, requiredColumns, joinType);
     }
 
-    implementor.registerCorrelVariable(getCorrelVariable(), corrRef,
-        corrBlock, leftResult.physType);
+    @Override public EnumerableCorrelate copy(RelTraitSet traitSet, RelNode left, RelNode right,
+                                              CorrelationId correlationId, ImmutableBitSet requiredColumns,
+                                              SemiJoinType joinType) {
+        return new EnumerableCorrelate(getCluster(), traitSet, left, right, correlationId, requiredColumns, joinType);
+    }
 
-    final Result rightResult =
-        implementor.visitChild(this, 1, (EnumerableRel) right, pref);
+    public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
+        final BlockBuilder builder = new BlockBuilder();
+        final Result leftResult = implementor.visitChild(this, 0, (EnumerableRel) left, pref);
+        Expression leftExpression = builder.append("left", leftResult.block);
 
-    implementor.clearCorrelVariable(getCorrelVariable());
+        final BlockBuilder corrBlock = new BlockBuilder();
+        Type corrVarType = leftResult.physType.getJavaRowType();
+        ParameterExpression corrRef; // correlate to be used in inner loop
+        ParameterExpression corrArg; // argument to correlate lambda (must be boxed)
+        if (!Primitive.is(corrVarType)) {
+            corrArg = Expressions.parameter(Modifier.FINAL, corrVarType, getCorrelVariable());
+            corrRef = corrArg;
+        } else {
+            corrArg = Expressions.parameter(Modifier.FINAL, Primitive.box(corrVarType), "$box" + getCorrelVariable());
+            corrRef = (ParameterExpression) corrBlock.append(getCorrelVariable(), Expressions.unbox(corrArg));
+        }
 
-    corrBlock.add(rightResult.block);
+        implementor.registerCorrelVariable(getCorrelVariable(), corrRef, corrBlock, leftResult.physType);
 
-    final PhysType physType =
-        PhysTypeImpl.of(
-            implementor.getTypeFactory(),
-            getRowType(),
-            pref.prefer(JavaRowFormat.CUSTOM));
+        final Result rightResult = implementor.visitChild(this, 1, (EnumerableRel) right, pref);
 
-    Expression selector =
-        EnumUtils.joinSelector(
-            joinType.returnsJustFirstInput() ? joinType.toJoinType()
-                : JoinRelType.INNER, physType,
-            ImmutableList.of(leftResult.physType, rightResult.physType));
+        implementor.clearCorrelVariable(getCorrelVariable());
 
-    builder.append(
-        Expressions.call(leftExpression, BuiltInMethod.CORRELATE_JOIN.method,
-            Expressions.constant(joinType.toLinq4j()),
-        Expressions.lambda(corrBlock.toBlock(), corrArg),
-        selector));
+        corrBlock.add(rightResult.block);
 
-    return implementor.result(physType, builder.toBlock());
-  }
+        final PhysType physType = PhysTypeImpl.of(implementor.getTypeFactory(), getRowType(),
+                                                  pref.prefer(JavaRowFormat.CUSTOM));
+
+        Expression selector = EnumUtils.joinSelector(
+                joinType.returnsJustFirstInput() ? joinType.toJoinType() : JoinRelType.INNER, physType,
+                ImmutableList.of(leftResult.physType, rightResult.physType));
+
+        builder.append(Expressions.call(leftExpression, BuiltInMethod.CORRELATE_JOIN.method,
+                                        Expressions.constant(joinType.toLinq4j()),
+                                        Expressions.lambda(corrBlock.toBlock(), corrArg), selector));
+
+        return implementor.result(physType, builder.toBlock());
+    }
 }
 
 // End EnumerableCorrelate.java

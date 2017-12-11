@@ -21,21 +21,22 @@ import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.convert.ConverterRule;
 import org.apache.calcite.rel.logical.LogicalValues;
 
-/** Planner rule that converts a
+/**
+ * Planner rule that converts a
  * {@link org.apache.calcite.rel.logical.LogicalValues}
  * relational expression
- * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}. */
+ * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}.
+ */
 public class EnumerableValuesRule extends ConverterRule {
-  EnumerableValuesRule() {
-    super(LogicalValues.class, Convention.NONE, EnumerableConvention.INSTANCE,
-        "EnumerableValuesRule");
-  }
 
-  @Override public RelNode convert(RelNode rel) {
-    LogicalValues values = (LogicalValues) rel;
-    return EnumerableValues.create(values.getCluster(), values.getRowType(),
-        values.getTuples());
-  }
+    EnumerableValuesRule() {
+        super(LogicalValues.class, Convention.NONE, EnumerableConvention.INSTANCE, "EnumerableValuesRule");
+    }
+
+    @Override public RelNode convert(RelNode rel) {
+        LogicalValues values = (LogicalValues) rel;
+        return EnumerableValues.create(values.getCluster(), values.getRowType(), values.getTuples());
+    }
 }
 
 // End EnumerableValuesRule.java

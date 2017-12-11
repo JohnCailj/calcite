@@ -21,54 +21,49 @@ import org.apache.calcite.sql.SqlNode;
 
 /**
  * Implementation of {@link SqlValidatorNamespace} for a field of a record.
- *
  * <p>A field is not a very interesting namespace - except if the field has a
  * record or multiset type - but this class exists to make fields behave
  * similarly to other records for purposes of name resolution.
  */
 class FieldNamespace extends AbstractNamespace {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a FieldNamespace.
-   *
-   * @param validator Validator
-   * @param dataType  Data type of field
-   */
-  FieldNamespace(
-      SqlValidatorImpl validator,
-      RelDataType dataType) {
-    super(validator, null);
-    assert dataType != null;
-    this.rowType = dataType;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void setType(RelDataType type) {
-    throw new UnsupportedOperationException();
-  }
-
-  protected RelDataType validateImpl(RelDataType targetRowType) {
-    return rowType;
-  }
-
-  public SqlNode getNode() {
-    return null;
-  }
-
-  public SqlValidatorNamespace lookupChild(String name) {
-    if (rowType.isStruct()) {
-      return validator.lookupFieldNamespace(
-          rowType,
-          name);
+    /**
+     * Creates a FieldNamespace.
+     *
+     * @param validator Validator
+     * @param dataType  Data type of field
+     */
+    FieldNamespace(SqlValidatorImpl validator, RelDataType dataType) {
+        super(validator, null);
+        assert dataType != null;
+        this.rowType = dataType;
     }
-    return null;
-  }
 
-  public boolean fieldExists(String name) {
-    return false;
-  }
+    //~ Methods ----------------------------------------------------------------
+
+    public void setType(RelDataType type) {
+        throw new UnsupportedOperationException();
+    }
+
+    protected RelDataType validateImpl(RelDataType targetRowType) {
+        return rowType;
+    }
+
+    public SqlNode getNode() {
+        return null;
+    }
+
+    public SqlValidatorNamespace lookupChild(String name) {
+        if (rowType.isStruct()) {
+            return validator.lookupFieldNamespace(rowType, name);
+        }
+        return null;
+    }
+
+    public boolean fieldExists(String name) {
+        return false;
+    }
 }
 
 // End FieldNamespace.java

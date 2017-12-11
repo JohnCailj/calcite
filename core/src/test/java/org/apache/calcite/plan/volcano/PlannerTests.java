@@ -16,13 +16,7 @@
  */
 package org.apache.calcite.plan.volcano;
 
-import org.apache.calcite.plan.Convention;
-import org.apache.calcite.plan.RelOptCluster;
-import org.apache.calcite.plan.RelOptCost;
-import org.apache.calcite.plan.RelOptPlanner;
-import org.apache.calcite.plan.RelOptRule;
-import org.apache.calcite.plan.RelOptRuleCall;
-import org.apache.calcite.plan.RelTraitSet;
+import org.apache.calcite.plan.*;
 import org.apache.calcite.rel.AbstractRelNode;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.RelWriter;
@@ -40,168 +34,182 @@ import java.util.List;
  */
 class PlannerTests {
 
-  private PlannerTests() {}
+    private PlannerTests() {
+    }
 
-  /**
-   * Private calling convention representing a physical implementation.
-   */
-  static final Convention PHYS_CALLING_CONVENTION =
-      new Convention.Impl("PHYS", RelNode.class) {
+    /**
+     * Private calling convention representing a physical implementation.
+     */
+    static final Convention PHYS_CALLING_CONVENTION = new Convention.Impl("PHYS", RelNode.class) {
+
         @Override public boolean canConvertConvention(Convention toConvention) {
-          return true;
+            return true;
         }
 
-        @Override public boolean useAbstractConvertersForConversion(
-            RelTraitSet fromTraits, RelTraitSet toTraits) {
-          return true;
+        @Override public boolean useAbstractConvertersForConversion(RelTraitSet fromTraits, RelTraitSet toTraits) {
+            return true;
         }
-      };
+    };
 
-  static RelOptCluster newCluster(VolcanoPlanner planner) {
-    final RelDataTypeFactory typeFactory =
-        new SqlTypeFactoryImpl(org.apache.calcite.rel.type.RelDataTypeSystem.DEFAULT);
-    return RelOptCluster.create(planner, new RexBuilder(typeFactory));
-  }
-
-  /** Leaf relational expression. */
-  abstract static class TestLeafRel extends AbstractRelNode {
-    final String label;
-
-    TestLeafRel(RelOptCluster cluster, RelTraitSet traits, String label) {
-      super(cluster, traits);
-      this.label = label;
+    static RelOptCluster newCluster(VolcanoPlanner planner) {
+        final RelDataTypeFactory typeFactory = new SqlTypeFactoryImpl(
+                org.apache.calcite.rel.type.RelDataTypeSystem.DEFAULT);
+        return RelOptCluster.create(planner, new RexBuilder(typeFactory));
     }
 
-    @Override public RelOptCost computeSelfCost(RelOptPlanner planner,
-        RelMetadataQuery mq) {
-      return planner.getCostFactory().makeInfiniteCost();
+    /**
+     * Leaf relational expression.
+     */
+    abstract static class TestLeafRel extends AbstractRelNode {
+
+        final String label;
+
+        TestLeafRel(RelOptCluster cluster, RelTraitSet traits, String label) {
+            super(cluster, traits);
+            this.label = label;
+        }
+
+        @Override public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
+            return planner.getCostFactory().makeInfiniteCost();
+        }
+
+        @Override protected RelDataType deriveRowType() {
+            final RelDataTypeFactory typeFactory = getCluster().getTypeFactory();
+            return typeFactory.builder().add("this", typeFactory.createJavaType(Void.TYPE)).build();
+        }
+
+        @Override public RelWriter explainTerms(RelWriter pw) {
+            return super.explainTerms(pw).item("label", label);
+        }
     }
 
-    @Override protected RelDataType deriveRowType() {
-      final RelDataTypeFactory typeFactory = getCluster().getTypeFactory();
-      return typeFactory.builder()
-          .add("this", typeFactory.createJavaType(Void.TYPE))
-          .build();
+    /**
+     * Relational expression with one input.
+     */
+    abstract static class TestSingleRel extends SingleRel {
+
+        TestSingleRel(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
+            super(cluster, traits, input);
+        }
+
+        @Override public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
+            return planner.getCostFactory().makeInfiniteCost();
+        }
+
+        @Override protected RelDataType deriveRowType() {
+            return getInput().getRowType();
+        }
     }
 
-    @Override public RelWriter explainTerms(RelWriter pw) {
-      return super.explainTerms(pw).item("label", label);
-    }
-  }
+    /**
+     * Relational expression with one input and convention NONE.
+     */
+    static class NoneSingleRel extends TestSingleRel {
 
-  /** Relational expression with one input. */
-  abstract static class TestSingleRel extends SingleRel {
-    TestSingleRel(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
-      super(cluster, traits, input);
-    }
+        NoneSingleRel(RelOptCluster cluster, RelNode input) {
+            super(cluster, cluster.traitSetOf(Convention.NONE), input);
+        }
 
-    @Override public RelOptCost computeSelfCost(RelOptPlanner planner,
-        RelMetadataQuery mq) {
-      return planner.getCostFactory().makeInfiniteCost();
-    }
-
-    @Override protected RelDataType deriveRowType() {
-      return getInput().getRowType();
-    }
-  }
-
-  /** Relational expression with one input and convention NONE. */
-  static class NoneSingleRel extends TestSingleRel {
-    NoneSingleRel(RelOptCluster cluster, RelNode input) {
-      super(cluster, cluster.traitSetOf(Convention.NONE), input);
+        @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+            assert traitSet.comprises(Convention.NONE);
+            return new NoneSingleRel(getCluster(), sole(inputs));
+        }
     }
 
-    @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-      assert traitSet.comprises(Convention.NONE);
-      return new NoneSingleRel(getCluster(), sole(inputs));
-    }
-  }
+    /**
+     * Relational expression with zero inputs and convention NONE.
+     */
+    static class NoneLeafRel extends TestLeafRel {
 
-  /** Relational expression with zero inputs and convention NONE. */
-  static class NoneLeafRel extends TestLeafRel {
-    NoneLeafRel(RelOptCluster cluster, String label) {
-      super(cluster, cluster.traitSetOf(Convention.NONE), label);
-    }
+        NoneLeafRel(RelOptCluster cluster, String label) {
+            super(cluster, cluster.traitSetOf(Convention.NONE), label);
+        }
 
-    @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-      assert traitSet.comprises(Convention.NONE);
-      assert inputs.isEmpty();
-      return this;
-    }
-  }
-
-  /** Relational expression with zero inputs and convention PHYS. */
-  static class PhysLeafRel extends TestLeafRel {
-    PhysLeafRel(RelOptCluster cluster, String label) {
-      super(cluster, cluster.traitSetOf(PHYS_CALLING_CONVENTION), label);
+        @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+            assert traitSet.comprises(Convention.NONE);
+            assert inputs.isEmpty();
+            return this;
+        }
     }
 
-    @Override public RelOptCost computeSelfCost(RelOptPlanner planner,
-        RelMetadataQuery mq) {
-      return planner.getCostFactory().makeTinyCost();
+    /**
+     * Relational expression with zero inputs and convention PHYS.
+     */
+    static class PhysLeafRel extends TestLeafRel {
+
+        PhysLeafRel(RelOptCluster cluster, String label) {
+            super(cluster, cluster.traitSetOf(PHYS_CALLING_CONVENTION), label);
+        }
+
+        @Override public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
+            return planner.getCostFactory().makeTinyCost();
+        }
+
+        @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+            assert traitSet.comprises(PHYS_CALLING_CONVENTION);
+            assert inputs.isEmpty();
+            return this;
+        }
     }
 
-    @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-      assert traitSet.comprises(PHYS_CALLING_CONVENTION);
-      assert inputs.isEmpty();
-      return this;
-    }
-  }
+    /**
+     * Relational expression with one input and convention PHYS.
+     */
+    static class PhysSingleRel extends TestSingleRel {
 
-  /** Relational expression with one input and convention PHYS. */
-  static class PhysSingleRel extends TestSingleRel {
-    PhysSingleRel(RelOptCluster cluster, RelNode input) {
-      super(cluster, cluster.traitSetOf(PHYS_CALLING_CONVENTION), input);
-    }
+        PhysSingleRel(RelOptCluster cluster, RelNode input) {
+            super(cluster, cluster.traitSetOf(PHYS_CALLING_CONVENTION), input);
+        }
 
-    @Override public RelOptCost computeSelfCost(RelOptPlanner planner,
-        RelMetadataQuery mq) {
-      return planner.getCostFactory().makeTinyCost();
-    }
+        @Override public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
+            return planner.getCostFactory().makeTinyCost();
+        }
 
-    public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-      assert traitSet.comprises(PHYS_CALLING_CONVENTION);
-      return new PhysSingleRel(getCluster(), sole(inputs));
-    }
-  }
-
-  /** Planner rule that converts {@link NoneLeafRel} to PHYS convention. */
-  static class PhysLeafRule extends RelOptRule {
-    PhysLeafRule() {
-      super(operand(NoneLeafRel.class, any()));
+        public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+            assert traitSet.comprises(PHYS_CALLING_CONVENTION);
+            return new PhysSingleRel(getCluster(), sole(inputs));
+        }
     }
 
-    @Override public Convention getOutConvention() {
-      return PHYS_CALLING_CONVENTION;
+    /**
+     * Planner rule that converts {@link NoneLeafRel} to PHYS convention.
+     */
+    static class PhysLeafRule extends RelOptRule {
+
+        PhysLeafRule() {
+            super(operand(NoneLeafRel.class, any()));
+        }
+
+        @Override public Convention getOutConvention() {
+            return PHYS_CALLING_CONVENTION;
+        }
+
+        public void onMatch(RelOptRuleCall call) {
+            NoneLeafRel leafRel = call.rel(0);
+            call.transformTo(new PhysLeafRel(leafRel.getCluster(), leafRel.label));
+        }
     }
 
-    public void onMatch(RelOptRuleCall call) {
-      NoneLeafRel leafRel = call.rel(0);
-      call.transformTo(
-          new PhysLeafRel(leafRel.getCluster(), leafRel.label));
-    }
-  }
+    /**
+     * Planner rule that matches a {@link NoneSingleRel} and succeeds.
+     */
+    static class GoodSingleRule extends RelOptRule {
 
-  /** Planner rule that matches a {@link NoneSingleRel} and succeeds. */
-  static class GoodSingleRule extends RelOptRule {
-    GoodSingleRule() {
-      super(operand(NoneSingleRel.class, any()));
-    }
+        GoodSingleRule() {
+            super(operand(NoneSingleRel.class, any()));
+        }
 
-    @Override public Convention getOutConvention() {
-      return PHYS_CALLING_CONVENTION;
-    }
+        @Override public Convention getOutConvention() {
+            return PHYS_CALLING_CONVENTION;
+        }
 
-    public void onMatch(RelOptRuleCall call) {
-      NoneSingleRel single = call.rel(0);
-      RelNode input = single.getInput();
-      RelNode physInput =
-          convert(input,
-              single.getTraitSet().replace(PHYS_CALLING_CONVENTION));
-      call.transformTo(
-          new PhysSingleRel(single.getCluster(), physInput));
+        public void onMatch(RelOptRuleCall call) {
+            NoneSingleRel single = call.rel(0);
+            RelNode input = single.getInput();
+            RelNode physInput = convert(input, single.getTraitSet().replace(PHYS_CALLING_CONVENTION));
+            call.transformTo(new PhysSingleRel(single.getCluster(), physInput));
+        }
     }
-  }
 }
 
 // End PlannerTests.java

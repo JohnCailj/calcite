@@ -22,24 +22,25 @@ import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.convert.ConverterRule;
 import org.apache.calcite.rel.logical.LogicalTableFunctionScan;
 
-/** Planner rule that converts a
+/**
+ * Planner rule that converts a
  * {@link org.apache.calcite.rel.logical.LogicalTableFunctionScan}
  * relational expression
- * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}. */
+ * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}.
+ */
 public class EnumerableTableFunctionScanRule extends ConverterRule {
-  public EnumerableTableFunctionScanRule() {
-    super(LogicalTableFunctionScan.class, Convention.NONE,
-        EnumerableConvention.INSTANCE, "EnumerableTableFunctionScanRule");
-  }
 
-  @Override public RelNode convert(RelNode rel) {
-    final RelTraitSet traitSet =
-        rel.getTraitSet().replace(EnumerableConvention.INSTANCE);
-    LogicalTableFunctionScan tbl = (LogicalTableFunctionScan) rel;
-    return new EnumerableTableFunctionScan(rel.getCluster(), traitSet,
-        tbl.getInputs(), tbl.getElementType(), tbl.getRowType(),
-        tbl.getCall(), tbl.getColumnMappings());
-  }
+    public EnumerableTableFunctionScanRule() {
+        super(LogicalTableFunctionScan.class, Convention.NONE, EnumerableConvention.INSTANCE,
+              "EnumerableTableFunctionScanRule");
+    }
+
+    @Override public RelNode convert(RelNode rel) {
+        final RelTraitSet traitSet = rel.getTraitSet().replace(EnumerableConvention.INSTANCE);
+        LogicalTableFunctionScan tbl = (LogicalTableFunctionScan) rel;
+        return new EnumerableTableFunctionScan(rel.getCluster(), traitSet, tbl.getInputs(), tbl.getElementType(),
+                                               tbl.getRowType(), tbl.getCall(), tbl.getColumnMappings());
+    }
 }
 
 // End EnumerableTableFunctionScanRule.java

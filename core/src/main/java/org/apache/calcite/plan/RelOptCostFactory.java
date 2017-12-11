@@ -20,30 +20,31 @@ package org.apache.calcite.plan;
  * Cost model for query planning.
  */
 public interface RelOptCostFactory {
-  /**
-   * Creates a cost object.
-   */
-  RelOptCost makeCost(double rowCount, double cpu, double io);
 
-  /**
-   * Creates a cost object representing an enormous non-infinite cost.
-   */
-  RelOptCost makeHugeCost();
+    /**
+     * Creates a cost object.
+     */
+    RelOptCost makeCost(double rowCount, double cpu, double io);
 
-  /**
-   * Creates a cost object representing infinite cost.
-   */
-  RelOptCost makeInfiniteCost();
+    /**
+     * Creates a cost object representing an enormous non-infinite cost.
+     */
+    RelOptCost makeHugeCost();
 
-  /**
-   * Creates a cost object representing a small positive cost.
-   */
-  RelOptCost makeTinyCost();
+    /**
+     * Creates a cost object representing infinite cost.
+     */
+    RelOptCost makeInfiniteCost();
 
-  /**
-   * Creates a cost object representing zero cost.
-   */
-  RelOptCost makeZeroCost();
+    /**
+     * Creates a cost object representing a small positive cost.
+     */
+    RelOptCost makeTinyCost();
+
+    /**
+     * Creates a cost object representing zero cost.
+     */
+    RelOptCost makeZeroCost();
 }
 
 // End RelOptCostFactory.java

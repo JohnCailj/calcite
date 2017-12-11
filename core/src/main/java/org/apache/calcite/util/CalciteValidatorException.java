@@ -23,6 +23,7 @@ package org.apache.calcite.util;
  * adding a dependency on it from client-side code.
  */
 public interface CalciteValidatorException {
+
 }
 
 // End CalciteValidatorException.java

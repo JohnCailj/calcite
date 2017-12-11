@@ -16,9 +16,8 @@
  */
 package org.apache.calcite.tools;
 
-import org.apache.calcite.plan.RelOptRule;
-
 import com.google.common.collect.ImmutableList;
+import org.apache.calcite.plan.RelOptRule;
 
 import java.util.Iterator;
 
@@ -28,41 +27,47 @@ import java.util.Iterator;
  * @see org.apache.calcite.tools.RuleSet
  */
 public class RuleSets {
-  private RuleSets() {
-  }
 
-  /** Creates a rule set with a given array of rules. */
-  public static RuleSet ofList(RelOptRule... rules) {
-    return new ListRuleSet(ImmutableList.copyOf(rules));
-  }
-
-  /** Creates a rule set with a given collection of rules. */
-  public static RuleSet ofList(Iterable<? extends RelOptRule> rules) {
-    return new ListRuleSet(ImmutableList.copyOf(rules));
-  }
-
-  /** Rule set that consists of a list of rules. */
-  private static class ListRuleSet implements RuleSet {
-    private final ImmutableList<RelOptRule> rules;
-
-    ListRuleSet(ImmutableList<RelOptRule> rules) {
-      this.rules = rules;
+    private RuleSets() {
     }
 
-    @Override public int hashCode() {
-      return rules.hashCode();
+    /**
+     * Creates a rule set with a given array of rules.
+     */
+    public static RuleSet ofList(RelOptRule... rules) {
+        return new ListRuleSet(ImmutableList.copyOf(rules));
     }
 
-    @Override public boolean equals(Object obj) {
-      return obj == this
-          || obj instanceof ListRuleSet
-          && rules.equals(((ListRuleSet) obj).rules);
+    /**
+     * Creates a rule set with a given collection of rules.
+     */
+    public static RuleSet ofList(Iterable<? extends RelOptRule> rules) {
+        return new ListRuleSet(ImmutableList.copyOf(rules));
     }
 
-    public Iterator<RelOptRule> iterator() {
-      return rules.iterator();
+    /**
+     * Rule set that consists of a list of rules.
+     */
+    private static class ListRuleSet implements RuleSet {
+
+        private final ImmutableList<RelOptRule> rules;
+
+        ListRuleSet(ImmutableList<RelOptRule> rules) {
+            this.rules = rules;
+        }
+
+        @Override public int hashCode() {
+            return rules.hashCode();
+        }
+
+        @Override public boolean equals(Object obj) {
+            return obj == this || obj instanceof ListRuleSet && rules.equals(((ListRuleSet) obj).rules);
+        }
+
+        public Iterator<RelOptRule> iterator() {
+            return rules.iterator();
+        }
     }
-  }
 }
 
 // End RuleSets.java

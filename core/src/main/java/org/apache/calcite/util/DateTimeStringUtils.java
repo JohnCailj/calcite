@@ -23,65 +23,65 @@ import java.util.TimeZone;
  */
 public class DateTimeStringUtils {
 
-  private DateTimeStringUtils() {}
-
-  static String pad(int length, long v) {
-    StringBuilder s = new StringBuilder(Long.toString(v));
-    while (s.length() < length) {
-      s.insert(0, "0");
+    private DateTimeStringUtils() {
     }
-    return s.toString();
-  }
 
-  static StringBuilder hms(StringBuilder b, int h, int m, int s) {
-    int2(b, h);
-    b.append(':');
-    int2(b, m);
-    b.append(':');
-    int2(b, s);
-    return b;
-  }
-
-  static StringBuilder ymdhms(StringBuilder b, int year, int month, int day,
-      int h, int m, int s) {
-    ymd(b, year, month, day);
-    b.append(' ');
-    hms(b, h, m, s);
-    return b;
-  }
-
-  static StringBuilder ymd(StringBuilder b, int year, int month, int day) {
-    int4(b, year);
-    b.append('-');
-    int2(b, month);
-    b.append('-');
-    int2(b, day);
-    return b;
-  }
-
-  private static void int4(StringBuilder buf, int i) {
-    buf.append((char) ('0' + (i / 1000) % 10));
-    buf.append((char) ('0' + (i / 100) % 10));
-    buf.append((char) ('0' + (i / 10) % 10));
-    buf.append((char) ('0' + i % 10));
-  }
-
-  private static void int2(StringBuilder buf, int i) {
-    buf.append((char) ('0' + (i / 10) % 10));
-    buf.append((char) ('0' + i % 10));
-  }
-
-  static boolean isValidTimeZone(final String timeZone) {
-    if (timeZone.equals("GMT")) {
-      return true;
-    } else {
-      String id = TimeZone.getTimeZone(timeZone).getID();
-      if (!id.equals("GMT")) {
-        return true;
-      }
+    static String pad(int length, long v) {
+        StringBuilder s = new StringBuilder(Long.toString(v));
+        while (s.length() < length) {
+            s.insert(0, "0");
+        }
+        return s.toString();
     }
-    return false;
-  }
+
+    static StringBuilder hms(StringBuilder b, int h, int m, int s) {
+        int2(b, h);
+        b.append(':');
+        int2(b, m);
+        b.append(':');
+        int2(b, s);
+        return b;
+    }
+
+    static StringBuilder ymdhms(StringBuilder b, int year, int month, int day, int h, int m, int s) {
+        ymd(b, year, month, day);
+        b.append(' ');
+        hms(b, h, m, s);
+        return b;
+    }
+
+    static StringBuilder ymd(StringBuilder b, int year, int month, int day) {
+        int4(b, year);
+        b.append('-');
+        int2(b, month);
+        b.append('-');
+        int2(b, day);
+        return b;
+    }
+
+    private static void int4(StringBuilder buf, int i) {
+        buf.append((char) ('0' + (i / 1000) % 10));
+        buf.append((char) ('0' + (i / 100) % 10));
+        buf.append((char) ('0' + (i / 10) % 10));
+        buf.append((char) ('0' + i % 10));
+    }
+
+    private static void int2(StringBuilder buf, int i) {
+        buf.append((char) ('0' + (i / 10) % 10));
+        buf.append((char) ('0' + i % 10));
+    }
+
+    static boolean isValidTimeZone(final String timeZone) {
+        if (timeZone.equals("GMT")) {
+            return true;
+        } else {
+            String id = TimeZone.getTimeZone(timeZone).getID();
+            if (!id.equals("GMT")) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
 

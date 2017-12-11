@@ -37,109 +37,76 @@ import java.util.List;
  * the join.
  */
 public class ProjectJoinTransposeRule extends RelOptRule {
-  public static final ProjectJoinTransposeRule INSTANCE =
-      new ProjectJoinTransposeRule(
-          PushProjector.ExprCondition.TRUE,
-          RelFactories.LOGICAL_BUILDER);
 
-  //~ Instance fields --------------------------------------------------------
+    public static final ProjectJoinTransposeRule INSTANCE = new ProjectJoinTransposeRule(
+            PushProjector.ExprCondition.TRUE, RelFactories.LOGICAL_BUILDER);
 
-  /**
-   * Condition for expressions that should be preserved in the projection.
-   */
-  private final PushProjector.ExprCondition preserveExprCondition;
+    //~ Instance fields --------------------------------------------------------
 
-  //~ Constructors -----------------------------------------------------------
+    /**
+     * Condition for expressions that should be preserved in the projection.
+     */
+    private final PushProjector.ExprCondition preserveExprCondition;
 
-  /**
-   * Creates a ProjectJoinTransposeRule with an explicit condition.
-   *
-   * @param preserveExprCondition Condition for expressions that should be
-   *                              preserved in the projection
-   */
-  public ProjectJoinTransposeRule(
-      PushProjector.ExprCondition preserveExprCondition,
-      RelBuilderFactory relFactory) {
-    super(
-        operand(Project.class,
-            operand(Join.class, any())),
-        relFactory, null);
-    this.preserveExprCondition = preserveExprCondition;
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
-
-  // implement RelOptRule
-  public void onMatch(RelOptRuleCall call) {
-    Project origProj = call.rel(0);
-    final Join join = call.rel(1);
-
-    if (join instanceof SemiJoin) {
-      return; // TODO: support SemiJoin
-    }
-    // locate all fields referenced in the projection and join condition;
-    // determine which inputs are referenced in the projection and
-    // join condition; if all fields are being referenced and there are no
-    // special expressions, no point in proceeding any further
-    PushProjector pushProject =
-        new PushProjector(
-            origProj,
-            join.getCondition(),
-            join,
-            preserveExprCondition,
-            call.builder());
-    if (pushProject.locateAllRefs()) {
-      return;
+    /**
+     * Creates a ProjectJoinTransposeRule with an explicit condition.
+     *
+     * @param preserveExprCondition Condition for expressions that should be
+     *                              preserved in the projection
+     */
+    public ProjectJoinTransposeRule(PushProjector.ExprCondition preserveExprCondition, RelBuilderFactory relFactory) {
+        super(operand(Project.class, operand(Join.class, any())), relFactory, null);
+        this.preserveExprCondition = preserveExprCondition;
     }
 
-    // create left and right projections, projecting only those
-    // fields referenced on each side
-    RelNode leftProjRel =
-        pushProject.createProjectRefsAndExprs(
-            join.getLeft(),
-            true,
-            false);
-    RelNode rightProjRel =
-        pushProject.createProjectRefsAndExprs(
-            join.getRight(),
-            true,
-            true);
+    //~ Methods ----------------------------------------------------------------
 
-    // convert the join condition to reference the projected columns
-    RexNode newJoinFilter = null;
-    int[] adjustments = pushProject.getAdjustments();
-    if (join.getCondition() != null) {
-      List<RelDataTypeField> projJoinFieldList = new ArrayList<>();
-      projJoinFieldList.addAll(
-          join.getSystemFieldList());
-      projJoinFieldList.addAll(
-          leftProjRel.getRowType().getFieldList());
-      projJoinFieldList.addAll(
-          rightProjRel.getRowType().getFieldList());
-      newJoinFilter =
-          pushProject.convertRefsAndExprs(
-              join.getCondition(),
-              projJoinFieldList,
-              adjustments);
+    // implement RelOptRule
+    public void onMatch(RelOptRuleCall call) {
+        Project origProj = call.rel(0);
+        final Join join = call.rel(1);
+
+        if (join instanceof SemiJoin) {
+            return; // TODO: support SemiJoin
+        }
+        // locate all fields referenced in the projection and join condition;
+        // determine which inputs are referenced in the projection and
+        // join condition; if all fields are being referenced and there are no
+        // special expressions, no point in proceeding any further
+        PushProjector pushProject = new PushProjector(origProj, join.getCondition(), join, preserveExprCondition,
+                                                      call.builder());
+        if (pushProject.locateAllRefs()) {
+            return;
+        }
+
+        // create left and right projections, projecting only those
+        // fields referenced on each side
+        RelNode leftProjRel = pushProject.createProjectRefsAndExprs(join.getLeft(), true, false);
+        RelNode rightProjRel = pushProject.createProjectRefsAndExprs(join.getRight(), true, true);
+
+        // convert the join condition to reference the projected columns
+        RexNode newJoinFilter = null;
+        int[] adjustments = pushProject.getAdjustments();
+        if (join.getCondition() != null) {
+            List<RelDataTypeField> projJoinFieldList = new ArrayList<>();
+            projJoinFieldList.addAll(join.getSystemFieldList());
+            projJoinFieldList.addAll(leftProjRel.getRowType().getFieldList());
+            projJoinFieldList.addAll(rightProjRel.getRowType().getFieldList());
+            newJoinFilter = pushProject.convertRefsAndExprs(join.getCondition(), projJoinFieldList, adjustments);
+        }
+
+        // create a new join with the projected children
+        Join newJoinRel = join.copy(join.getTraitSet(), newJoinFilter, leftProjRel, rightProjRel, join.getJoinType(),
+                                    join.isSemiJoinDone());
+
+        // put the original project on top of the join, converting it to
+        // reference the modified projection list
+        RelNode topProject = pushProject.createNewProject(newJoinRel, adjustments);
+
+        call.transformTo(topProject);
     }
-
-    // create a new join with the projected children
-    Join newJoinRel =
-        join.copy(
-            join.getTraitSet(),
-            newJoinFilter,
-            leftProjRel,
-            rightProjRel,
-            join.getJoinType(),
-            join.isSemiJoinDone());
-
-    // put the original project on top of the join, converting it to
-    // reference the modified projection list
-    RelNode topProject =
-        pushProject.createNewProject(newJoinRel, adjustments);
-
-    call.transformTo(topProject);
-  }
 }
 
 // End ProjectJoinTransposeRule.java

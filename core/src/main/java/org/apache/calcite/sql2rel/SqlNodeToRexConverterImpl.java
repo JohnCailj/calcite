@@ -16,28 +16,17 @@
  */
 package org.apache.calcite.sql2rel;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.avatica.util.ByteString;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.rex.RexBuilder;
 import org.apache.calcite.rex.RexLiteral;
 import org.apache.calcite.rex.RexNode;
-import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlIntervalLiteral;
-import org.apache.calcite.sql.SqlIntervalQualifier;
-import org.apache.calcite.sql.SqlLiteral;
-import org.apache.calcite.sql.SqlTimeLiteral;
-import org.apache.calcite.sql.SqlTimestampLiteral;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.sql.validate.SqlValidator;
-import org.apache.calcite.util.BitString;
-import org.apache.calcite.util.DateString;
-import org.apache.calcite.util.NlsString;
-import org.apache.calcite.util.TimeString;
-import org.apache.calcite.util.TimestampString;
-import org.apache.calcite.util.Util;
-
-import com.google.common.base.Preconditions;
+import org.apache.calcite.util.*;
 
 import java.math.BigDecimal;
 
@@ -45,124 +34,110 @@ import java.math.BigDecimal;
  * Standard implementation of {@link SqlNodeToRexConverter}.
  */
 public class SqlNodeToRexConverterImpl implements SqlNodeToRexConverter {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlRexConvertletTable convertletTable;
+    private final SqlRexConvertletTable convertletTable;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  SqlNodeToRexConverterImpl(SqlRexConvertletTable convertletTable) {
-    this.convertletTable = convertletTable;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public RexNode convertCall(SqlRexContext cx, SqlCall call) {
-    final SqlRexConvertlet convertlet = convertletTable.get(call);
-    if (convertlet != null) {
-      return convertlet.convertCall(cx, call);
+    SqlNodeToRexConverterImpl(SqlRexConvertletTable convertletTable) {
+        this.convertletTable = convertletTable;
     }
 
-    // No convertlet was suitable. (Unlikely, because the standard
-    // convertlet table has a fall-back for all possible calls.)
-    throw Util.needToImplement(call);
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  public RexLiteral convertInterval(
-      SqlRexContext cx,
-      SqlIntervalQualifier intervalQualifier) {
-    RexBuilder rexBuilder = cx.getRexBuilder();
+    public RexNode convertCall(SqlRexContext cx, SqlCall call) {
+        final SqlRexConvertlet convertlet = convertletTable.get(call);
+        if (convertlet != null) {
+            return convertlet.convertCall(cx, call);
+        }
 
-    return rexBuilder.makeIntervalLiteral(intervalQualifier);
-  }
-
-  public RexNode convertLiteral(
-      SqlRexContext cx,
-      SqlLiteral literal) {
-    RexBuilder rexBuilder = cx.getRexBuilder();
-    RelDataTypeFactory typeFactory = cx.getTypeFactory();
-    SqlValidator validator = cx.getValidator();
-    if (literal.getValue() == null) {
-      // Since there is no eq. RexLiteral of SqlLiteral.Unknown we
-      // treat it as a cast(null as boolean)
-      RelDataType type;
-      if (literal.getTypeName() == SqlTypeName.BOOLEAN) {
-        type = typeFactory.createSqlType(SqlTypeName.BOOLEAN);
-        type = typeFactory.createTypeWithNullability(type, true);
-      } else {
-        type = validator.getValidatedNodeType(literal);
-      }
-      return rexBuilder.makeCast(
-          type,
-          rexBuilder.constantNull());
+        // No convertlet was suitable. (Unlikely, because the standard
+        // convertlet table has a fall-back for all possible calls.)
+        throw Util.needToImplement(call);
     }
 
-    BitString bitString;
-    SqlIntervalLiteral.IntervalValue intervalValue;
-    long l;
+    public RexLiteral convertInterval(SqlRexContext cx, SqlIntervalQualifier intervalQualifier) {
+        RexBuilder rexBuilder = cx.getRexBuilder();
 
-    switch (literal.getTypeName()) {
-    case DECIMAL:
-      // exact number
-      BigDecimal bd = literal.getValueAs(BigDecimal.class);
-      return rexBuilder.makeExactLiteral(
-          bd,
-          literal.createSqlType(typeFactory));
-
-    case DOUBLE:
-      // approximate type
-      // TODO:  preserve fixed-point precision and large integers
-      return rexBuilder.makeApproxLiteral(literal.getValueAs(BigDecimal.class));
-
-    case CHAR:
-      return rexBuilder.makeCharLiteral(literal.getValueAs(NlsString.class));
-    case BOOLEAN:
-      return rexBuilder.makeLiteral(literal.getValueAs(Boolean.class));
-    case BINARY:
-      bitString = literal.getValueAs(BitString.class);
-      Preconditions.checkArgument((bitString.getBitCount() % 8) == 0,
-          "incomplete octet");
-
-      // An even number of hexits (e.g. X'ABCD') makes whole number
-      // of bytes.
-      ByteString byteString = new ByteString(bitString.getAsByteArray());
-      return rexBuilder.makeBinaryLiteral(byteString);
-    case SYMBOL:
-      return rexBuilder.makeFlag(literal.getValueAs(Enum.class));
-    case TIMESTAMP:
-      return rexBuilder.makeTimestampLiteral(
-          literal.getValueAs(TimestampString.class),
-          ((SqlTimestampLiteral) literal).getPrec());
-    case TIME:
-      return rexBuilder.makeTimeLiteral(
-          literal.getValueAs(TimeString.class),
-          ((SqlTimeLiteral) literal).getPrec());
-    case DATE:
-      return rexBuilder.makeDateLiteral(literal.getValueAs(DateString.class));
-
-    case INTERVAL_YEAR:
-    case INTERVAL_YEAR_MONTH:
-    case INTERVAL_MONTH:
-    case INTERVAL_DAY:
-    case INTERVAL_DAY_HOUR:
-    case INTERVAL_DAY_MINUTE:
-    case INTERVAL_DAY_SECOND:
-    case INTERVAL_HOUR:
-    case INTERVAL_HOUR_MINUTE:
-    case INTERVAL_HOUR_SECOND:
-    case INTERVAL_MINUTE:
-    case INTERVAL_MINUTE_SECOND:
-    case INTERVAL_SECOND:
-      SqlIntervalQualifier sqlIntervalQualifier =
-          literal.getValueAs(SqlIntervalLiteral.IntervalValue.class)
-              .getIntervalQualifier();
-      return rexBuilder.makeIntervalLiteral(
-          literal.getValueAs(BigDecimal.class),
-          sqlIntervalQualifier);
-    default:
-      throw Util.unexpected(literal.getTypeName());
+        return rexBuilder.makeIntervalLiteral(intervalQualifier);
     }
-  }
+
+    public RexNode convertLiteral(SqlRexContext cx, SqlLiteral literal) {
+        RexBuilder rexBuilder = cx.getRexBuilder();
+        RelDataTypeFactory typeFactory = cx.getTypeFactory();
+        SqlValidator validator = cx.getValidator();
+        if (literal.getValue() == null) {
+            // Since there is no eq. RexLiteral of SqlLiteral.Unknown we
+            // treat it as a cast(null as boolean)
+            RelDataType type;
+            if (literal.getTypeName() == SqlTypeName.BOOLEAN) {
+                type = typeFactory.createSqlType(SqlTypeName.BOOLEAN);
+                type = typeFactory.createTypeWithNullability(type, true);
+            } else {
+                type = validator.getValidatedNodeType(literal);
+            }
+            return rexBuilder.makeCast(type, rexBuilder.constantNull());
+        }
+
+        BitString bitString;
+        SqlIntervalLiteral.IntervalValue intervalValue;
+        long l;
+
+        switch (literal.getTypeName()) {
+            case DECIMAL:
+                // exact number
+                BigDecimal bd = literal.getValueAs(BigDecimal.class);
+                return rexBuilder.makeExactLiteral(bd, literal.createSqlType(typeFactory));
+
+            case DOUBLE:
+                // approximate type
+                // TODO:  preserve fixed-point precision and large integers
+                return rexBuilder.makeApproxLiteral(literal.getValueAs(BigDecimal.class));
+
+            case CHAR:
+                return rexBuilder.makeCharLiteral(literal.getValueAs(NlsString.class));
+            case BOOLEAN:
+                return rexBuilder.makeLiteral(literal.getValueAs(Boolean.class));
+            case BINARY:
+                bitString = literal.getValueAs(BitString.class);
+                Preconditions.checkArgument((bitString.getBitCount() % 8) == 0, "incomplete octet");
+
+                // An even number of hexits (e.g. X'ABCD') makes whole number
+                // of bytes.
+                ByteString byteString = new ByteString(bitString.getAsByteArray());
+                return rexBuilder.makeBinaryLiteral(byteString);
+            case SYMBOL:
+                return rexBuilder.makeFlag(literal.getValueAs(Enum.class));
+            case TIMESTAMP:
+                return rexBuilder.makeTimestampLiteral(literal.getValueAs(TimestampString.class),
+                                                       ((SqlTimestampLiteral) literal).getPrec());
+            case TIME:
+                return rexBuilder.makeTimeLiteral(literal.getValueAs(TimeString.class),
+                                                  ((SqlTimeLiteral) literal).getPrec());
+            case DATE:
+                return rexBuilder.makeDateLiteral(literal.getValueAs(DateString.class));
+
+            case INTERVAL_YEAR:
+            case INTERVAL_YEAR_MONTH:
+            case INTERVAL_MONTH:
+            case INTERVAL_DAY:
+            case INTERVAL_DAY_HOUR:
+            case INTERVAL_DAY_MINUTE:
+            case INTERVAL_DAY_SECOND:
+            case INTERVAL_HOUR:
+            case INTERVAL_HOUR_MINUTE:
+            case INTERVAL_HOUR_SECOND:
+            case INTERVAL_MINUTE:
+            case INTERVAL_MINUTE_SECOND:
+            case INTERVAL_SECOND:
+                SqlIntervalQualifier sqlIntervalQualifier = literal.getValueAs(
+                        SqlIntervalLiteral.IntervalValue.class).getIntervalQualifier();
+                return rexBuilder.makeIntervalLiteral(literal.getValueAs(BigDecimal.class), sqlIntervalQualifier);
+            default:
+                throw Util.unexpected(literal.getTypeName());
+        }
+    }
 }
 
 // End SqlNodeToRexConverterImpl.java

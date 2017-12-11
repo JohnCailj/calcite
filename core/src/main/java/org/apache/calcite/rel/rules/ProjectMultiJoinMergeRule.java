@@ -33,47 +33,46 @@ import org.apache.calcite.tools.RelBuilderFactory;
  * @see org.apache.calcite.rel.rules.FilterMultiJoinMergeRule
  */
 public class ProjectMultiJoinMergeRule extends RelOptRule {
-  public static final ProjectMultiJoinMergeRule INSTANCE =
-      new ProjectMultiJoinMergeRule(RelFactories.LOGICAL_BUILDER);
 
-  //~ Constructors -----------------------------------------------------------
+    public static final ProjectMultiJoinMergeRule INSTANCE = new ProjectMultiJoinMergeRule(
+            RelFactories.LOGICAL_BUILDER);
 
-  /** Creates a ProjectMultiJoinMergeRule. */
-  private ProjectMultiJoinMergeRule(RelBuilderFactory relBuilderFactory) {
-    super(
-        operand(LogicalProject.class,
-            operand(MultiJoin.class, any())), relBuilderFactory, null);
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    LogicalProject project = call.rel(0);
-    MultiJoin multiJoin = call.rel(1);
-
-    // if all inputs have their projFields set, then projection information
-    // has already been pushed into each input
-    boolean allSet = true;
-    for (int i = 0; i < multiJoin.getInputs().size(); i++) {
-      if (multiJoin.getProjFields().get(i) == null) {
-        allSet = false;
-        break;
-      }
-    }
-    if (allSet) {
-      return;
+    /**
+     * Creates a ProjectMultiJoinMergeRule.
+     */
+    private ProjectMultiJoinMergeRule(RelBuilderFactory relBuilderFactory) {
+        super(operand(LogicalProject.class, operand(MultiJoin.class, any())), relBuilderFactory, null);
     }
 
-    // create a new MultiJoin that reflects the columns in the projection
-    // above the MultiJoin
-    final RelBuilder relBuilder = call.builder();
-    MultiJoin newMultiJoin =
-        RelOptUtil.projectMultiJoin(multiJoin, project);
-    relBuilder.push(newMultiJoin)
-        .project(project.getProjects(), project.getRowType().getFieldNames());
+    //~ Methods ----------------------------------------------------------------
 
-    call.transformTo(relBuilder.build());
-  }
+    public void onMatch(RelOptRuleCall call) {
+        LogicalProject project = call.rel(0);
+        MultiJoin multiJoin = call.rel(1);
+
+        // if all inputs have their projFields set, then projection information
+        // has already been pushed into each input
+        boolean allSet = true;
+        for (int i = 0; i < multiJoin.getInputs().size(); i++) {
+            if (multiJoin.getProjFields().get(i) == null) {
+                allSet = false;
+                break;
+            }
+        }
+        if (allSet) {
+            return;
+        }
+
+        // create a new MultiJoin that reflects the columns in the projection
+        // above the MultiJoin
+        final RelBuilder relBuilder = call.builder();
+        MultiJoin newMultiJoin = RelOptUtil.projectMultiJoin(multiJoin, project);
+        relBuilder.push(newMultiJoin).project(project.getProjects(), project.getRowType().getFieldNames());
+
+        call.transformTo(relBuilder.build());
+    }
 }
 
 // End ProjectMultiJoinMergeRule.java

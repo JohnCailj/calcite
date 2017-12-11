@@ -27,50 +27,40 @@ import org.apache.calcite.rel.logical.LogicalFilter;
  * Planner rule that pushes
  * {@link org.apache.calcite.rel.core.SemiJoin}s down in a tree past
  * a {@link org.apache.calcite.rel.core.Filter}.
- *
  * <p>The intention is to trigger other rules that will convert
  * {@code SemiJoin}s.
- *
  * <p>SemiJoin(LogicalFilter(X), Y) &rarr; LogicalFilter(SemiJoin(X, Y))
  *
  * @see SemiJoinProjectTransposeRule
  */
 public class SemiJoinFilterTransposeRule extends RelOptRule {
-  public static final SemiJoinFilterTransposeRule INSTANCE =
-      new SemiJoinFilterTransposeRule();
 
-  //~ Constructors -----------------------------------------------------------
+    public static final SemiJoinFilterTransposeRule INSTANCE = new SemiJoinFilterTransposeRule();
 
-  /**
-   * Creates a SemiJoinFilterTransposeRule.
-   */
-  private SemiJoinFilterTransposeRule() {
-    super(
-        operand(SemiJoin.class,
-            some(operand(LogicalFilter.class, any()))));
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
+    /**
+     * Creates a SemiJoinFilterTransposeRule.
+     */
+    private SemiJoinFilterTransposeRule() {
+        super(operand(SemiJoin.class, some(operand(LogicalFilter.class, any()))));
+    }
 
-  // implement RelOptRule
-  public void onMatch(RelOptRuleCall call) {
-    SemiJoin semiJoin = call.rel(0);
-    LogicalFilter filter = call.rel(1);
+    //~ Methods ----------------------------------------------------------------
 
-    RelNode newSemiJoin =
-        SemiJoin.create(filter.getInput(),
-            semiJoin.getRight(),
-            semiJoin.getCondition(),
-            semiJoin.getLeftKeys(),
-            semiJoin.getRightKeys());
+    // implement RelOptRule
+    public void onMatch(RelOptRuleCall call) {
+        SemiJoin semiJoin = call.rel(0);
+        LogicalFilter filter = call.rel(1);
 
-    final RelFactories.FilterFactory factory =
-        RelFactories.DEFAULT_FILTER_FACTORY;
-    RelNode newFilter =
-        factory.createFilter(newSemiJoin, filter.getCondition());
+        RelNode newSemiJoin = SemiJoin.create(filter.getInput(), semiJoin.getRight(), semiJoin.getCondition(),
+                                              semiJoin.getLeftKeys(), semiJoin.getRightKeys());
 
-    call.transformTo(newFilter);
-  }
+        final RelFactories.FilterFactory factory = RelFactories.DEFAULT_FILTER_FACTORY;
+        RelNode newFilter = factory.createFilter(newSemiJoin, filter.getCondition());
+
+        call.transformTo(newFilter);
+    }
 }
 
 // End SemiJoinFilterTransposeRule.java

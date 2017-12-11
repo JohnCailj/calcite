@@ -22,10 +22,11 @@ import java.lang.reflect.Type;
  * Adds type information to a {@link org.apache.calcite.linq4j.Enumerable}.
  */
 public interface Typed {
-  /**
-   * Gets the type of the element(s) that are returned in this collection.
-   */
-  Type getElementType();
+
+    /**
+     * Gets the type of the element(s) that are returned in this collection.
+     */
+    Type getElementType();
 }
 
 // End Typed.java

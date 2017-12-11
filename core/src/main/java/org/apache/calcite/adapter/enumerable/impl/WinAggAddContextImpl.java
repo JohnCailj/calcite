@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.adapter.enumerable.impl;
 
+import com.google.common.base.Function;
 import org.apache.calcite.adapter.enumerable.RexToLixTranslator;
 import org.apache.calcite.adapter.enumerable.WinAggAddContext;
 import org.apache.calcite.adapter.enumerable.WinAggFrameResultContext;
@@ -24,30 +25,26 @@ import org.apache.calcite.linq4j.tree.BlockBuilder;
 import org.apache.calcite.linq4j.tree.Expression;
 import org.apache.calcite.linq4j.tree.Expressions;
 
-import com.google.common.base.Function;
-
 import java.util.List;
 
 /**
  * Implementation of
  * {@link org.apache.calcite.adapter.enumerable.WinAggAddContext}.
  */
-public abstract class WinAggAddContextImpl extends WinAggResultContextImpl
-    implements WinAggAddContext {
-  public WinAggAddContextImpl(BlockBuilder block, List<Expression> accumulator,
-      Function<BlockBuilder, WinAggFrameResultContext> frame) {
-    super(block, accumulator, frame);
-  }
+public abstract class WinAggAddContextImpl extends WinAggResultContextImpl implements WinAggAddContext {
 
-  public final RexToLixTranslator rowTranslator() {
-    return rowTranslator(
-        computeIndex(Expressions.constant(0),
-            WinAggImplementor.SeekType.AGG_INDEX));
-  }
+    public WinAggAddContextImpl(BlockBuilder block, List<Expression> accumulator,
+                                Function<BlockBuilder, WinAggFrameResultContext> frame) {
+        super(block, accumulator, frame);
+    }
 
-  public final List<Expression> arguments() {
-    return rowTranslator().translateList(rexArguments());
-  }
+    public final RexToLixTranslator rowTranslator() {
+        return rowTranslator(computeIndex(Expressions.constant(0), WinAggImplementor.SeekType.AGG_INDEX));
+    }
+
+    public final List<Expression> arguments() {
+        return rowTranslator().translateList(rexArguments());
+    }
 }
 
 // End WinAggAddContextImpl.java

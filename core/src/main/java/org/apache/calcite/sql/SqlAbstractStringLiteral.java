@@ -25,26 +25,22 @@ import java.util.List;
  * Abstract base for character and binary string literals.
  */
 abstract class SqlAbstractStringLiteral extends SqlLiteral {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  protected SqlAbstractStringLiteral(
-      Object value,
-      SqlTypeName typeName,
-      SqlParserPos pos) {
-    super(value, typeName, pos);
-  }
+    protected SqlAbstractStringLiteral(Object value, SqlTypeName typeName, SqlParserPos pos) {
+        super(value, typeName, pos);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Helper routine for {@link SqlUtil#concatenateLiterals}.
-   *
-   * @param literals homogeneous StringLiteral args
-   * @return StringLiteral with concatenated value. this == lits[0], used only
-   * for method dispatch.
-   */
-  protected abstract SqlAbstractStringLiteral concat1(
-      List<SqlLiteral> literals);
+    /**
+     * Helper routine for {@link SqlUtil#concatenateLiterals}.
+     *
+     * @param literals homogeneous StringLiteral args
+     * @return StringLiteral with concatenated value. this == lits[0], used only
+     * for method dispatch.
+     */
+    protected abstract SqlAbstractStringLiteral concat1(List<SqlLiteral> literals);
 }
 
 // End SqlAbstractStringLiteral.java

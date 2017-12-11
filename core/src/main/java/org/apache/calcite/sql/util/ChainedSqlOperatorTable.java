@@ -16,13 +16,8 @@
  */
 package org.apache.calcite.sql.util;
 
-import org.apache.calcite.sql.SqlFunctionCategory;
-import org.apache.calcite.sql.SqlIdentifier;
-import org.apache.calcite.sql.SqlOperator;
-import org.apache.calcite.sql.SqlOperatorTable;
-import org.apache.calcite.sql.SqlSyntax;
-
 import com.google.common.collect.ImmutableList;
+import org.apache.calcite.sql.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,54 +27,55 @@ import java.util.List;
  * chaining together any number of underlying operator table instances.
  */
 public class ChainedSqlOperatorTable implements SqlOperatorTable {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  protected final List<SqlOperatorTable> tableList;
+    protected final List<SqlOperatorTable> tableList;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a table based on a given list.
-   */
-  public ChainedSqlOperatorTable(List<SqlOperatorTable> tableList) {
-    this.tableList = ImmutableList.copyOf(tableList);
-  }
-
-  /** Creates a {@code ChainedSqlOperatorTable}. */
-  public static SqlOperatorTable of(SqlOperatorTable... tables) {
-    return new ChainedSqlOperatorTable(ImmutableList.copyOf(tables));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  /**
-   * Adds an underlying table. The order in which tables are added is
-   * significant; tables added earlier have higher lookup precedence. A table
-   * is not added if it is already on the list.
-   *
-   * @param table table to add
-   */
-  public void add(SqlOperatorTable table) {
-    if (!tableList.contains(table)) {
-      tableList.add(table);
+    /**
+     * Creates a table based on a given list.
+     */
+    public ChainedSqlOperatorTable(List<SqlOperatorTable> tableList) {
+        this.tableList = ImmutableList.copyOf(tableList);
     }
-  }
 
-  public void lookupOperatorOverloads(SqlIdentifier opName,
-      SqlFunctionCategory category, SqlSyntax syntax,
-      List<SqlOperator> operatorList) {
-    for (SqlOperatorTable table : tableList) {
-      table.lookupOperatorOverloads(opName, category, syntax, operatorList);
+    /**
+     * Creates a {@code ChainedSqlOperatorTable}.
+     */
+    public static SqlOperatorTable of(SqlOperatorTable... tables) {
+        return new ChainedSqlOperatorTable(ImmutableList.copyOf(tables));
     }
-  }
 
-  public List<SqlOperator> getOperatorList() {
-    List<SqlOperator> list = new ArrayList<>();
-    for (SqlOperatorTable table : tableList) {
-      list.addAll(table.getOperatorList());
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * Adds an underlying table. The order in which tables are added is
+     * significant; tables added earlier have higher lookup precedence. A table
+     * is not added if it is already on the list.
+     *
+     * @param table table to add
+     */
+    public void add(SqlOperatorTable table) {
+        if (!tableList.contains(table)) {
+            tableList.add(table);
+        }
     }
-    return list;
-  }
+
+    public void lookupOperatorOverloads(SqlIdentifier opName, SqlFunctionCategory category, SqlSyntax syntax,
+                                        List<SqlOperator> operatorList) {
+        for (SqlOperatorTable table : tableList) {
+            table.lookupOperatorOverloads(opName, category, syntax, operatorList);
+        }
+    }
+
+    public List<SqlOperator> getOperatorList() {
+        List<SqlOperator> list = new ArrayList<>();
+        for (SqlOperatorTable table : tableList) {
+            list.addAll(table.getOperatorList());
+        }
+        return list;
+    }
 }
 
 // End ChainedSqlOperatorTable.java

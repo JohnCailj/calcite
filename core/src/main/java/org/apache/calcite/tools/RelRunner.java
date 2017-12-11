@@ -22,14 +22,16 @@ import java.sql.PreparedStatement;
 
 /**
  * Runs a relational expression.
- *
  * <p>Experimental.
  *
  * @see RelRunners
  */
 public interface RelRunner {
-  /** Runs a relational expression. */
-  PreparedStatement prepare(RelNode rel);
+
+    /**
+     * Runs a relational expression.
+     */
+    PreparedStatement prepare(RelNode rel);
 }
 
 // End RelRunner.java

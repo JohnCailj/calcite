@@ -16,75 +16,69 @@
  */
 package org.apache.calcite.rel.mutable;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.core.Aggregate;
 import org.apache.calcite.rel.core.AggregateCall;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.util.ImmutableBitSet;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 import java.util.Objects;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Aggregate}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Aggregate}.
+ */
 public class MutableAggregate extends MutableSingleRel {
-  public final ImmutableBitSet groupSet;
-  public final ImmutableList<ImmutableBitSet> groupSets;
-  public final List<AggregateCall> aggCalls;
 
-  private MutableAggregate(MutableRel input, RelDataType rowType,
-      ImmutableBitSet groupSet,
-      List<ImmutableBitSet> groupSets, List<AggregateCall> aggCalls) {
-    super(MutableRelType.AGGREGATE, rowType, input);
-    this.groupSet = groupSet;
-    this.groupSets = groupSets == null
-        ? ImmutableList.of(groupSet)
-        : ImmutableList.copyOf(groupSets);
-    this.aggCalls = aggCalls;
-  }
+    public final ImmutableBitSet                groupSet;
+    public final ImmutableList<ImmutableBitSet> groupSets;
+    public final List<AggregateCall>            aggCalls;
 
-  /**
-   * Creates a MutableAggregate.
-   *
-   * @param input     Input relational expression
-   * @param groupSet  Bit set of grouping fields
-   * @param groupSets List of all grouping sets; null for just {@code groupSet}
-   * @param aggCalls  Collection of calls to aggregate functions
-   */
-  public static MutableAggregate of(MutableRel input, ImmutableBitSet groupSet,
-      ImmutableList<ImmutableBitSet> groupSets, List<AggregateCall> aggCalls) {
-    RelDataType rowType =
-        Aggregate.deriveRowType(input.cluster.getTypeFactory(),
-            input.rowType, false, groupSet, groupSets, aggCalls);
-    return new MutableAggregate(input, rowType, groupSet,
-        groupSets, aggCalls);
-  }
+    private MutableAggregate(MutableRel input, RelDataType rowType, ImmutableBitSet groupSet,
+                             List<ImmutableBitSet> groupSets, List<AggregateCall> aggCalls) {
+        super(MutableRelType.AGGREGATE, rowType, input);
+        this.groupSet = groupSet;
+        this.groupSets = groupSets == null ? ImmutableList.of(groupSet) : ImmutableList.copyOf(groupSets);
+        this.aggCalls = aggCalls;
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableAggregate
-        && groupSet.equals(((MutableAggregate) obj).groupSet)
-        && aggCalls.equals(((MutableAggregate) obj).aggCalls)
-        && input.equals(((MutableAggregate) obj).input);
-  }
+    /**
+     * Creates a MutableAggregate.
+     *
+     * @param input     Input relational expression
+     * @param groupSet  Bit set of grouping fields
+     * @param groupSets List of all grouping sets; null for just {@code groupSet}
+     * @param aggCalls  Collection of calls to aggregate functions
+     */
+    public static MutableAggregate of(MutableRel input, ImmutableBitSet groupSet,
+                                      ImmutableList<ImmutableBitSet> groupSets, List<AggregateCall> aggCalls) {
+        RelDataType rowType = Aggregate.deriveRowType(input.cluster.getTypeFactory(), input.rowType, false, groupSet,
+                                                      groupSets, aggCalls);
+        return new MutableAggregate(input, rowType, groupSet, groupSets, aggCalls);
+    }
 
-  @Override public int hashCode() {
-    return Objects.hash(input, groupSet, aggCalls);
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof MutableAggregate && groupSet.equals(((MutableAggregate) obj).groupSet)
+                              && aggCalls.equals(((MutableAggregate) obj).aggCalls) && input.equals(
+                ((MutableAggregate) obj).input);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Aggregate(groupSet: ").append(groupSet)
-        .append(", groupSets: ").append(groupSets)
-        .append(", calls: ").append(aggCalls).append(")");
-  }
+    @Override public int hashCode() {
+        return Objects.hash(input, groupSet, aggCalls);
+    }
 
-  public Aggregate.Group getGroupType() {
-    return Aggregate.Group.induce(groupSet, groupSets);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Aggregate(groupSet: ").append(groupSet).append(", groupSets: ").append(groupSets).append(
+                ", calls: ").append(aggCalls).append(")");
+    }
 
-  @Override public MutableRel clone() {
-    return MutableAggregate.of(input.clone(), groupSet, groupSets, aggCalls);
-  }
+    public Aggregate.Group getGroupType() {
+        return Aggregate.Group.induce(groupSet, groupSets);
+    }
+
+    @Override public MutableRel clone() {
+        return MutableAggregate.of(input.clone(), groupSet, groupSets, aggCalls);
+    }
 }
 
 // End MutableAggregate.java

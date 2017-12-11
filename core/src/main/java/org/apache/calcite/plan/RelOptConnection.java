@@ -18,15 +18,15 @@ package org.apache.calcite.plan;
 
 /**
  * The planner's view of a connection to a database.
- *
  * <p>A connection contains a {@link RelOptSchema}, via which the query planner
  * can access {@link RelOptTable} objects.</p>
  */
 public interface RelOptConnection {
-  /**
-   * Returns the schema underlying this connection.
-   */
-  RelOptSchema getRelOptSchema();
+
+    /**
+     * Returns the schema underlying this connection.
+     */
+    RelOptSchema getRelOptSchema();
 }
 
 // End RelOptConnection.java

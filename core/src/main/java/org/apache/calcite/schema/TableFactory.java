@@ -22,11 +22,9 @@ import java.util.Map;
 
 /**
  * Factory for {@link Table} objects.
- *
  * <p>A table factory allows you to include custom tables in a model file.
  * For example, here is a model that contains a custom table that generates
  * a range of integers.</p>
- *
  * <blockquote><pre>{
  *   version: '1.0',
  *   defaultSchema: 'MATH',
@@ -48,13 +46,9 @@ import java.util.Map;
  *     }
  *   ]
  * }</pre></blockquote>
- *
  * <p>Given that schema, the query</p>
- *
  * <blockquote><pre>SELECT * FROM math.integers</pre></blockquote>
- *
  * <p>returns</p>
- *
  * <blockquote><pre>
  * +---+
  * | N |
@@ -65,25 +59,22 @@ import java.util.Map;
  * | 6 |
  * +---+
  * </pre></blockquote>
- *
  * <p>A class that implements TableFactory specified in a schema must have a
  * public default constructor.</p>
  *
  * @param <T> Sub-type of table created by this factory
  */
 public interface TableFactory<T extends Table> {
-  /** Creates a Table.
-   *
-   * @param schema Schema this table belongs to
-   * @param name Name of this table
-   * @param operand The "operand" JSON property
-   * @param rowType Row type. Specified if the "columns" JSON property.
-   */
-  T create(
-      SchemaPlus schema,
-      String name,
-      Map<String, Object> operand,
-      RelDataType rowType);
+
+    /**
+     * Creates a Table.
+     *
+     * @param schema  Schema this table belongs to
+     * @param name    Name of this table
+     * @param operand The "operand" JSON property
+     * @param rowType Row type. Specified if the "columns" JSON property.
+     */
+    T create(SchemaPlus schema, String name, Map<String, Object> operand, RelDataType rowType);
 }
 
 // End TableFactory.java

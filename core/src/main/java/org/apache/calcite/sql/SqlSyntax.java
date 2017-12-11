@@ -23,141 +23,93 @@ import org.apache.calcite.util.Util;
  * Enumeration of possible syntactic types of {@link SqlOperator operators}.
  */
 public enum SqlSyntax {
-  /**
-   * Function syntax, as in "Foo(x, y)".
-   */
-  FUNCTION {
-    public void unparse(
-        SqlWriter writer,
-        SqlOperator operator,
-        SqlCall call,
-        int leftPrec,
-        int rightPrec) {
-      SqlUtil.unparseFunctionSyntax(operator, writer, call);
-    }
-  },
+    /**
+     * Function syntax, as in "Foo(x, y)".
+     */
+    FUNCTION {
+        public void unparse(SqlWriter writer, SqlOperator operator, SqlCall call, int leftPrec, int rightPrec) {
+            SqlUtil.unparseFunctionSyntax(operator, writer, call);
+        }
+    },
 
-  /**
-   * Function syntax, as in "Foo(x, y)", but uses "*" if there are no arguments,
-   * for example "COUNT(*)".
-   */
-  FUNCTION_STAR {
-    public void unparse(
-        SqlWriter writer,
-        SqlOperator operator,
-        SqlCall call,
-        int leftPrec,
-        int rightPrec) {
-      SqlUtil.unparseFunctionSyntax(operator, writer, call);
-    }
-  },
+    /**
+     * Function syntax, as in "Foo(x, y)", but uses "*" if there are no arguments,
+     * for example "COUNT(*)".
+     */
+    FUNCTION_STAR {
+        public void unparse(SqlWriter writer, SqlOperator operator, SqlCall call, int leftPrec, int rightPrec) {
+            SqlUtil.unparseFunctionSyntax(operator, writer, call);
+        }
+    },
 
-  /**
-   * Binary operator syntax, as in "x + y".
-   */
-  BINARY {
-    public void unparse(
-        SqlWriter writer,
-        SqlOperator operator,
-        SqlCall call,
-        int leftPrec,
-        int rightPrec) {
-      SqlUtil.unparseBinarySyntax(operator, call, writer, leftPrec, rightPrec);
-    }
-  },
+    /**
+     * Binary operator syntax, as in "x + y".
+     */
+    BINARY {
+        public void unparse(SqlWriter writer, SqlOperator operator, SqlCall call, int leftPrec, int rightPrec) {
+            SqlUtil.unparseBinarySyntax(operator, call, writer, leftPrec, rightPrec);
+        }
+    },
 
-  /**
-   * Prefix unary operator syntax, as in "- x".
-   */
-  PREFIX {
-    public void unparse(
-        SqlWriter writer,
-        SqlOperator operator,
-        SqlCall call,
-        int leftPrec,
-        int rightPrec) {
-      assert call.operandCount() == 1;
-      writer.keyword(operator.getName());
-      call.operand(0).unparse(writer, operator.getLeftPrec(),
-          operator.getRightPrec());
-    }
-  },
+    /**
+     * Prefix unary operator syntax, as in "- x".
+     */
+    PREFIX {
+        public void unparse(SqlWriter writer, SqlOperator operator, SqlCall call, int leftPrec, int rightPrec) {
+            assert call.operandCount() == 1;
+            writer.keyword(operator.getName());
+            call.operand(0).unparse(writer, operator.getLeftPrec(), operator.getRightPrec());
+        }
+    },
 
-  /**
-   * Postfix unary operator syntax, as in "x ++".
-   */
-  POSTFIX {
-    public void unparse(
-        SqlWriter writer,
-        SqlOperator operator,
-        SqlCall call,
-        int leftPrec,
-        int rightPrec) {
-      assert call.operandCount() == 1;
-      call.operand(0).unparse(writer, operator.getLeftPrec(),
-          operator.getRightPrec());
-      writer.keyword(operator.getName());
-    }
-  },
+    /**
+     * Postfix unary operator syntax, as in "x ++".
+     */
+    POSTFIX {
+        public void unparse(SqlWriter writer, SqlOperator operator, SqlCall call, int leftPrec, int rightPrec) {
+            assert call.operandCount() == 1;
+            call.operand(0).unparse(writer, operator.getLeftPrec(), operator.getRightPrec());
+            writer.keyword(operator.getName());
+        }
+    },
 
-  /**
-   * Special syntax, such as that of the SQL CASE operator, "CASE x WHEN 1
-   * THEN 2 ELSE 3 END".
-   */
-  SPECIAL {
-    public void unparse(
-        SqlWriter writer,
-        SqlOperator operator,
-        SqlCall call,
-        int leftPrec,
-        int rightPrec) {
-      // You probably need to override the operator's unparse
-      // method.
-      throw Util.needToImplement(this);
-    }
-  },
+    /**
+     * Special syntax, such as that of the SQL CASE operator, "CASE x WHEN 1
+     * THEN 2 ELSE 3 END".
+     */
+    SPECIAL {
+        public void unparse(SqlWriter writer, SqlOperator operator, SqlCall call, int leftPrec, int rightPrec) {
+            // You probably need to override the operator's unparse
+            // method.
+            throw Util.needToImplement(this);
+        }
+    },
 
-  /**
-   * Function syntax which takes no parentheses if there are no arguments, for
-   * example "CURRENTTIME".
-   *
-   * @see SqlConformance#allowNiladicParentheses()
-   */
-  FUNCTION_ID {
-    public void unparse(
-        SqlWriter writer,
-        SqlOperator operator,
-        SqlCall call,
-        int leftPrec,
-        int rightPrec) {
-      SqlUtil.unparseFunctionSyntax(operator, writer, call);
-    }
-  },
+    /**
+     * Function syntax which takes no parentheses if there are no arguments, for
+     * example "CURRENTTIME".
+     *
+     * @see SqlConformance#allowNiladicParentheses()
+     */
+    FUNCTION_ID {
+        public void unparse(SqlWriter writer, SqlOperator operator, SqlCall call, int leftPrec, int rightPrec) {
+            SqlUtil.unparseFunctionSyntax(operator, writer, call);
+        }
+    },
 
-  /**
-   * Syntax of an internal operator, which does not appear in the SQL.
-   */
-  INTERNAL {
-    public void unparse(
-        SqlWriter writer,
-        SqlOperator operator,
-        SqlCall call,
-        int leftPrec,
-        int rightPrec) {
-      throw new UnsupportedOperationException("Internal operator '"
-          + operator + "' " + "cannot be un-parsed");
-    }
-  };
+    /**
+     * Syntax of an internal operator, which does not appear in the SQL.
+     */
+    INTERNAL {
+        public void unparse(SqlWriter writer, SqlOperator operator, SqlCall call, int leftPrec, int rightPrec) {
+            throw new UnsupportedOperationException("Internal operator '" + operator + "' " + "cannot be un-parsed");
+        }
+    };
 
-  /**
-   * Converts a call to an operator of this syntax into a string.
-   */
-  public abstract void unparse(
-      SqlWriter writer,
-      SqlOperator operator,
-      SqlCall call,
-      int leftPrec,
-      int rightPrec);
+    /**
+     * Converts a call to an operator of this syntax into a string.
+     */
+    public abstract void unparse(SqlWriter writer, SqlOperator operator, SqlCall call, int leftPrec, int rightPrec);
 }
 
 // End SqlSyntax.java

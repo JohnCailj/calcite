@@ -24,33 +24,32 @@ import java.sql.SQLException;
 /**
  * Implementation of {@link java.sql.PreparedStatement}
  * for the Calcite engine.
- *
  * <p>This class has sub-classes which implement JDBC 3.0 and JDBC 4.0 APIs;
  * it is instantiated using
  * {@link org.apache.calcite.avatica.AvaticaFactory#newPreparedStatement}.
  */
 abstract class CalcitePreparedStatement extends AvaticaPreparedStatement {
-  /**
-   * Creates a CalcitePreparedStatement.
-   *
-   * @param connection Connection
-   * @param h Statement handle
-   * @param signature Result of preparing statement
-   * @param resultSetType Result set type
-   * @param resultSetConcurrency Result set concurrency
-   * @param resultSetHoldability Result set holdability
-   * @throws SQLException if database error occurs
-   */
-  protected CalcitePreparedStatement(CalciteConnectionImpl connection,
-      Meta.StatementHandle h, Meta.Signature signature, int resultSetType,
-      int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-    super(connection, h, signature, resultSetType, resultSetConcurrency,
-        resultSetHoldability);
-  }
 
-  @Override public CalciteConnectionImpl getConnection() {
-    return (CalciteConnectionImpl) super.getConnection();
-  }
+    /**
+     * Creates a CalcitePreparedStatement.
+     *
+     * @param connection           Connection
+     * @param h                    Statement handle
+     * @param signature            Result of preparing statement
+     * @param resultSetType        Result set type
+     * @param resultSetConcurrency Result set concurrency
+     * @param resultSetHoldability Result set holdability
+     * @throws SQLException if database error occurs
+     */
+    protected CalcitePreparedStatement(CalciteConnectionImpl connection, Meta.StatementHandle h,
+                                       Meta.Signature signature, int resultSetType, int resultSetConcurrency,
+                                       int resultSetHoldability) throws SQLException {
+        super(connection, h, signature, resultSetType, resultSetConcurrency, resultSetHoldability);
+    }
+
+    @Override public CalciteConnectionImpl getConnection() {
+        return (CalciteConnectionImpl) super.getConnection();
+    }
 }
 
 // End CalcitePreparedStatement.java

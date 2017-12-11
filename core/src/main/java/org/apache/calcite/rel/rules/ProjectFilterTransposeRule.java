@@ -34,79 +34,72 @@ import org.apache.calcite.tools.RelBuilderFactory;
  * past a {@link org.apache.calcite.rel.core.Filter}.
  */
 public class ProjectFilterTransposeRule extends RelOptRule {
-  public static final ProjectFilterTransposeRule INSTANCE = new ProjectFilterTransposeRule(
-      LogicalProject.class, LogicalFilter.class, RelFactories.LOGICAL_BUILDER,
-      PushProjector.ExprCondition.FALSE);
 
-  //~ Instance fields --------------------------------------------------------
+    public static final ProjectFilterTransposeRule INSTANCE = new ProjectFilterTransposeRule(LogicalProject.class,
+                                                                                             LogicalFilter.class,
+                                                                                             RelFactories.LOGICAL_BUILDER,
+                                                                                             PushProjector.ExprCondition.FALSE);
 
-  /**
-   * Expressions that should be preserved in the projection
-   */
-  private final PushProjector.ExprCondition preserveExprCondition;
+    //~ Instance fields --------------------------------------------------------
 
-  //~ Constructors -----------------------------------------------------------
+    /**
+     * Expressions that should be preserved in the projection
+     */
+    private final PushProjector.ExprCondition preserveExprCondition;
 
-  /**
-   * Creates a ProjectFilterTransposeRule.
-   *
-   * @param preserveExprCondition Condition for expressions that should be
-   *                              preserved in the projection
-   */
-  public ProjectFilterTransposeRule(
-      Class<? extends Project> projectClass,
-      Class<? extends Filter> filterClass,
-      RelBuilderFactory relBuilderFactory,
-      PushProjector.ExprCondition preserveExprCondition) {
-    this(
-        operand(
-            projectClass,
-            operand(filterClass, any())),
-        preserveExprCondition, relBuilderFactory);
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  protected ProjectFilterTransposeRule(RelOptRuleOperand operand,
-      PushProjector.ExprCondition preserveExprCondition,
-      RelBuilderFactory relBuilderFactory) {
-    super(operand, relBuilderFactory, null);
-    this.preserveExprCondition = preserveExprCondition;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  // implement RelOptRule
-  public void onMatch(RelOptRuleCall call) {
-    Project origProj;
-    Filter filter;
-    if (call.rels.length >= 2) {
-      origProj = call.rel(0);
-      filter = call.rel(1);
-    } else {
-      origProj = null;
-      filter = call.rel(0);
-    }
-    RelNode rel = filter.getInput();
-    RexNode origFilter = filter.getCondition();
-
-    if ((origProj != null)
-        && RexOver.containsOver(origProj.getProjects(), null)) {
-      // Cannot push project through filter if project contains a windowed
-      // aggregate -- it will affect row counts. Abort this rule
-      // invocation; pushdown will be considered after the windowed
-      // aggregate has been implemented. It's OK if the filter contains a
-      // windowed aggregate.
-      return;
+    /**
+     * Creates a ProjectFilterTransposeRule.
+     *
+     * @param preserveExprCondition Condition for expressions that should be
+     *                              preserved in the projection
+     */
+    public ProjectFilterTransposeRule(Class<? extends Project> projectClass, Class<? extends Filter> filterClass,
+                                      RelBuilderFactory relBuilderFactory,
+                                      PushProjector.ExprCondition preserveExprCondition) {
+        this(operand(projectClass, operand(filterClass, any())), preserveExprCondition, relBuilderFactory);
     }
 
-    PushProjector pushProjector =
-        new PushProjector(
-            origProj, origFilter, rel, preserveExprCondition, call.builder());
-    RelNode topProject = pushProjector.convertProject(null);
-
-    if (topProject != null) {
-      call.transformTo(topProject);
+    protected ProjectFilterTransposeRule(RelOptRuleOperand operand, PushProjector.ExprCondition preserveExprCondition,
+                                         RelBuilderFactory relBuilderFactory) {
+        super(operand, relBuilderFactory, null);
+        this.preserveExprCondition = preserveExprCondition;
     }
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    // implement RelOptRule
+    public void onMatch(RelOptRuleCall call) {
+        Project origProj;
+        Filter filter;
+        if (call.rels.length >= 2) {
+            origProj = call.rel(0);
+            filter = call.rel(1);
+        } else {
+            origProj = null;
+            filter = call.rel(0);
+        }
+        RelNode rel = filter.getInput();
+        RexNode origFilter = filter.getCondition();
+
+        if ((origProj != null) && RexOver.containsOver(origProj.getProjects(), null)) {
+            // Cannot push project through filter if project contains a windowed
+            // aggregate -- it will affect row counts. Abort this rule
+            // invocation; pushdown will be considered after the windowed
+            // aggregate has been implemented. It's OK if the filter contains a
+            // windowed aggregate.
+            return;
+        }
+
+        PushProjector pushProjector = new PushProjector(origProj, origFilter, rel, preserveExprCondition,
+                                                        call.builder());
+        RelNode topProject = pushProjector.convertProject(null);
+
+        if (topProject != null) {
+            call.transformTo(topProject);
+        }
+    }
 }
 
 // End ProjectFilterTransposeRule.java

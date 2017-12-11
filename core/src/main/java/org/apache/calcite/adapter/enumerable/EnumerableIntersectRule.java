@@ -28,21 +28,20 @@ import org.apache.calcite.rel.logical.LogicalIntersect;
  * {@link EnumerableIntersect}.
  */
 class EnumerableIntersectRule extends ConverterRule {
-  EnumerableIntersectRule() {
-    super(LogicalIntersect.class, Convention.NONE,
-        EnumerableConvention.INSTANCE, "EnumerableIntersectRule");
-  }
 
-  public RelNode convert(RelNode rel) {
-    final LogicalIntersect intersect = (LogicalIntersect) rel;
-    if (intersect.all) {
-      return null; // INTERSECT ALL not implemented
+    EnumerableIntersectRule() {
+        super(LogicalIntersect.class, Convention.NONE, EnumerableConvention.INSTANCE, "EnumerableIntersectRule");
     }
-    final EnumerableConvention out = EnumerableConvention.INSTANCE;
-    final RelTraitSet traitSet = intersect.getTraitSet().replace(out);
-    return new EnumerableIntersect(rel.getCluster(), traitSet,
-        convertList(intersect.getInputs(), out), false);
-  }
+
+    public RelNode convert(RelNode rel) {
+        final LogicalIntersect intersect = (LogicalIntersect) rel;
+        if (intersect.all) {
+            return null; // INTERSECT ALL not implemented
+        }
+        final EnumerableConvention out = EnumerableConvention.INSTANCE;
+        final RelTraitSet traitSet = intersect.getTraitSet().replace(out);
+        return new EnumerableIntersect(rel.getCluster(), traitSet, convertList(intersect.getInputs(), out), false);
+    }
 }
 
 // End EnumerableIntersectRule.java

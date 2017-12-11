@@ -22,17 +22,16 @@ import java.util.List;
 
 /**
  * Description of the physical ordering of a relational expression.
- *
  * <p>An ordering consists of a list of one or more column ordinals and the
  * direction of the ordering.
  */
 public interface RelCollation extends RelMultipleTrait {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Returns the ordinals and directions of the columns in this ordering.
-   */
-  List<RelFieldCollation> getFieldCollations();
+    /**
+     * Returns the ordinals and directions of the columns in this ordering.
+     */
+    List<RelFieldCollation> getFieldCollations();
 }
 
 // End RelCollation.java

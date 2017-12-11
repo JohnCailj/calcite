@@ -22,78 +22,86 @@ import java.util.Locale;
  * Enumeration of join types.
  */
 public enum JoinRelType {
-  INNER, LEFT, RIGHT, FULL;
+    INNER, LEFT, RIGHT, FULL;
 
-  /** Lower-case name. */
-  public final String lowerName = name().toLowerCase(Locale.ROOT);
+    /**
+     * Lower-case name.
+     */
+    public final String lowerName = name().toLowerCase(Locale.ROOT);
 
-  /**
-   * Returns whether a join of this type may generate NULL values on the
-   * right-hand side.
-   */
-  public boolean generatesNullsOnRight() {
-    return (this == LEFT) || (this == FULL);
-  }
-
-  /**
-   * Returns whether a join of this type may generate NULL values on the
-   * left-hand side.
-   */
-  public boolean generatesNullsOnLeft() {
-    return (this == RIGHT) || (this == FULL);
-  }
-
-  /**
-   * Swaps left to right, and vice versa.
-   */
-  public JoinRelType swap() {
-    switch (this) {
-    case LEFT:
-      return RIGHT;
-    case RIGHT:
-      return LEFT;
-    default:
-      return this;
+    /**
+     * Returns whether a join of this type may generate NULL values on the
+     * right-hand side.
+     */
+    public boolean generatesNullsOnRight() {
+        return (this == LEFT) || (this == FULL);
     }
-  }
 
-  /** Returns whether this join type generates nulls on side #{@code i}. */
-  public boolean generatesNullsOn(int i) {
-    switch (i) {
-    case 0:
-      return generatesNullsOnLeft();
-    case 1:
-      return generatesNullsOnRight();
-    default:
-      throw new IllegalArgumentException("invalid: " + i);
+    /**
+     * Returns whether a join of this type may generate NULL values on the
+     * left-hand side.
+     */
+    public boolean generatesNullsOnLeft() {
+        return (this == RIGHT) || (this == FULL);
     }
-  }
 
-  /** Returns a join type similar to this but that does not generate nulls on
-   * the left. */
-  public JoinRelType cancelNullsOnLeft() {
-    switch (this) {
-    case RIGHT:
-      return INNER;
-    case FULL:
-      return LEFT;
-    default:
-      return this;
+    /**
+     * Swaps left to right, and vice versa.
+     */
+    public JoinRelType swap() {
+        switch (this) {
+            case LEFT:
+                return RIGHT;
+            case RIGHT:
+                return LEFT;
+            default:
+                return this;
+        }
     }
-  }
 
-  /** Returns a join type similar to this but that does not generate nulls on
-   * the right. */
-  public JoinRelType cancelNullsOnRight() {
-    switch (this) {
-    case LEFT:
-      return INNER;
-    case FULL:
-      return RIGHT;
-    default:
-      return this;
+    /**
+     * Returns whether this join type generates nulls on side #{@code i}.
+     */
+    public boolean generatesNullsOn(int i) {
+        switch (i) {
+            case 0:
+                return generatesNullsOnLeft();
+            case 1:
+                return generatesNullsOnRight();
+            default:
+                throw new IllegalArgumentException("invalid: " + i);
+        }
     }
-  }
+
+    /**
+     * Returns a join type similar to this but that does not generate nulls on
+     * the left.
+     */
+    public JoinRelType cancelNullsOnLeft() {
+        switch (this) {
+            case RIGHT:
+                return INNER;
+            case FULL:
+                return LEFT;
+            default:
+                return this;
+        }
+    }
+
+    /**
+     * Returns a join type similar to this but that does not generate nulls on
+     * the right.
+     */
+    public JoinRelType cancelNullsOnRight() {
+        switch (this) {
+            case LEFT:
+                return INNER;
+            case FULL:
+                return RIGHT;
+            default:
+                return this;
+        }
+    }
 }
 
 // End JoinRelType.java

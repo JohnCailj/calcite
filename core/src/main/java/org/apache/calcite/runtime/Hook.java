@@ -16,9 +16,8 @@
  */
 package org.apache.calcite.runtime;
 
-import org.apache.calcite.util.Holder;
-
 import com.google.common.base.Function;
+import org.apache.calcite.util.Holder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,163 +26,211 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Collection of hooks that can be set by observers and are executed at various
  * parts of the query preparation process.
- *
  * <p>For testing and debugging rather than for end-users.</p>
  */
 public enum Hook {
-  /** Called to get the current time. Use this to return a predictable time
-   * in tests. */
-  CURRENT_TIME,
+    /**
+     * Called to get the current time. Use this to return a predictable time
+     * in tests.
+     */
+    CURRENT_TIME,
 
-  /** Called to get stdin, stdout, stderr.
-   * Use this to re-assign streams in tests. */
-  STANDARD_STREAMS,
+    /**
+     * Called to get stdin, stdout, stderr.
+     * Use this to re-assign streams in tests.
+     */
+    STANDARD_STREAMS,
 
-  /** Returns a boolean value, whether RelBuilder should simplify expressions.
-   * Default true. */
-  REL_BUILDER_SIMPLIFY,
+    /**
+     * Returns a boolean value, whether RelBuilder should simplify expressions.
+     * Default true.
+     */
+    REL_BUILDER_SIMPLIFY,
 
-  /** Returns a boolean value, whether the return convention should be
-   * {@link org.apache.calcite.interpreter.BindableConvention}.
-   * Default false. */
-  ENABLE_BINDABLE,
+    /**
+     * Returns a boolean value, whether the return convention should be
+     * {@link org.apache.calcite.interpreter.BindableConvention}.
+     * Default false.
+     */
+    ENABLE_BINDABLE,
 
-  /** Called with the SQL string and parse tree, in an array. */
-  PARSE_TREE,
+    /**
+     * Called with the SQL string and parse tree, in an array.
+     */
+    PARSE_TREE,
 
-  /** Converts a SQL string to a
-   * {@link org.apache.calcite.jdbc.CalcitePrepare.Query} object. This hook is
-   * an opportunity to execute a {@link org.apache.calcite.rel.RelNode} query
-   * plan in the JDBC driver rather than the usual SQL string. */
-  STRING_TO_QUERY,
+    /**
+     * Converts a SQL string to a
+     * {@link org.apache.calcite.jdbc.CalcitePrepare.Query} object. This hook is
+     * an opportunity to execute a {@link org.apache.calcite.rel.RelNode} query
+     * plan in the JDBC driver rather than the usual SQL string.
+     */
+    STRING_TO_QUERY,
 
-  /** Called with the generated Java plan, just before it is compiled by
-   * Janino. */
-  JAVA_PLAN,
+    /**
+     * Called with the generated Java plan, just before it is compiled by
+     * Janino.
+     */
+    JAVA_PLAN,
 
-  /** Called with the output of sql-to-rel-converter. */
-  CONVERTED,
+    /**
+     * Called with the output of sql-to-rel-converter.
+     */
+    CONVERTED,
 
-  /** Called with the created planner. */
-  PLANNER,
+    /**
+     * Called with the created planner.
+     */
+    PLANNER,
 
-  /** Called after de-correlation and field trimming, but before
-   * optimization. */
-  TRIMMED,
+    /**
+     * Called after de-correlation and field trimming, but before
+     * optimization.
+     */
+    TRIMMED,
 
-  /** Called by the planner after substituting a materialization. */
-  SUB,
+    /**
+     * Called by the planner after substituting a materialization.
+     */
+    SUB,
 
-  /** Called when a constant expression is being reduced. */
-  EXPRESSION_REDUCER,
+    /**
+     * Called when a constant expression is being reduced.
+     */
+    EXPRESSION_REDUCER,
 
-  /** Called to create a Program to optimize the statement. */
-  PROGRAM,
+    /**
+     * Called to create a Program to optimize the statement.
+     */
+    PROGRAM,
 
-  /** Called when materialization is created. */
-  CREATE_MATERIALIZATION,
+    /**
+     * Called when materialization is created.
+     */
+    CREATE_MATERIALIZATION,
 
-  /** Called with a query that has been generated to send to a back-end system.
-   * The query might be a SQL string (for the JDBC adapter), a list of Mongo
-   * pipeline expressions (for the MongoDB adapter), et cetera. */
-  QUERY_PLAN;
+    /**
+     * Called with a query that has been generated to send to a back-end system.
+     * The query might be a SQL string (for the JDBC adapter), a list of Mongo
+     * pipeline expressions (for the MongoDB adapter), et cetera.
+     */
+    QUERY_PLAN;
 
-  private final List<Function<Object, Object>> handlers =
-      new CopyOnWriteArrayList<>();
+    private final List<Function<Object, Object>> handlers = new CopyOnWriteArrayList<>();
 
-  private final ThreadLocal<List<Function<Object, Object>>> threadHandlers =
-      new ThreadLocal<List<Function<Object, Object>>>() {
+    private final ThreadLocal<List<Function<Object, Object>>> threadHandlers = new ThreadLocal<List<Function<Object, Object>>>() {
+
         protected List<Function<Object, Object>> initialValue() {
-          return new ArrayList<>();
+            return new ArrayList<>();
         }
-      };
-
-  /** Adds a handler for this Hook.
-   *
-   * <p>Returns a {@link Hook.Closeable} so that you can use the following
-   * try-finally pattern to prevent leaks:</p>
-   *
-   * <blockquote><pre>
-   *     final Hook.Closeable closeable = Hook.FOO.add(HANDLER);
-   *     try {
-   *         ...
-   *     } finally {
-   *         closeable.close();
-   *     }</pre>
-   * </blockquote>
-   */
-  public <T, R> Closeable add(final Function<T, R> handler) {
-    //noinspection unchecked
-    handlers.add((Function<Object, Object>) handler);
-    return new Closeable() {
-      public void close() {
-        remove(handler);
-      }
     };
-  }
 
-  /** Removes a handler from this Hook. */
-  private boolean remove(Function handler) {
-    return handlers.remove(handler);
-  }
+    /**
+     * Adds a handler for this Hook.
+     * <p>Returns a {@link Hook.Closeable} so that you can use the following
+     * try-finally pattern to prevent leaks:</p>
+     * <blockquote><pre>
+     *     final Hook.Closeable closeable = Hook.FOO.add(HANDLER);
+     *     try {
+     *         ...
+     *     } finally {
+     *         closeable.close();
+     *     }</pre>
+     * </blockquote>
+     */
+    public <T, R> Closeable add(final Function<T, R> handler) {
+        //noinspection unchecked
+        handlers.add((Function<Object, Object>) handler);
+        return new Closeable() {
 
-  /** Adds a handler for this thread. */
-  public <T, R> Closeable addThread(final Function<T, R> handler) {
-    //noinspection unchecked
-    threadHandlers.get().add((Function<Object, Object>) handler);
-    return new Closeable() {
-      public void close() {
-        removeThread(handler);
-      }
-    };
-  }
-
-  /** Removes a thread handler from this Hook. */
-  private boolean removeThread(Function handler) {
-    return threadHandlers.get().remove(handler);
-  }
-
-  /** Returns a function that, when a hook is called, will "return" a given
-   * value. (Because of the way hooks work, it "returns" the value by writing
-   * into a {@link Holder}. */
-  public static <V> Function<Holder<V>, Void> property(final V v) {
-    return new Function<Holder<V>, Void>() {
-      public Void apply(Holder<V> holder) {
-        holder.set(v);
-        return null;
-      }
-    };
-  }
-
-  /** Runs all handlers registered for this Hook, with the given argument. */
-  public void run(Object arg) {
-    for (Function<Object, Object> handler : handlers) {
-      handler.apply(arg);
+            public void close() {
+                remove(handler);
+            }
+        };
     }
-    for (Function<Object, Object> handler : threadHandlers.get()) {
-      handler.apply(arg);
+
+    /**
+     * Removes a handler from this Hook.
+     */
+    private boolean remove(Function handler) {
+        return handlers.remove(handler);
     }
-  }
 
-  /** Returns the value of a property hook.
-   * (Property hooks take a {@link Holder} as an argument.) */
-  public <V> V get(V defaultValue) {
-    final Holder<V> holder = Holder.of(defaultValue);
-    run(holder);
-    return holder.get();
-  }
+    /**
+     * Adds a handler for this thread.
+     */
+    public <T, R> Closeable addThread(final Function<T, R> handler) {
+        //noinspection unchecked
+        threadHandlers.get().add((Function<Object, Object>) handler);
+        return new Closeable() {
 
-  /** Removes a Hook after use. */
-  public interface Closeable extends AutoCloseable {
-    /** Closeable that does nothing. */
-    Closeable EMPTY =
-        new Closeable() {
-          public void close() {}
+            public void close() {
+                removeThread(handler);
+            }
+        };
+    }
+
+    /**
+     * Removes a thread handler from this Hook.
+     */
+    private boolean removeThread(Function handler) {
+        return threadHandlers.get().remove(handler);
+    }
+
+    /**
+     * Returns a function that, when a hook is called, will "return" a given
+     * value. (Because of the way hooks work, it "returns" the value by writing
+     * into a {@link Holder}.
+     */
+    public static <V> Function<Holder<V>, Void> property(final V v) {
+        return new Function<Holder<V>, Void>() {
+
+            public Void apply(Holder<V> holder) {
+                holder.set(v);
+                return null;
+            }
+        };
+    }
+
+    /**
+     * Runs all handlers registered for this Hook, with the given argument.
+     */
+    public void run(Object arg) {
+        for (Function<Object, Object> handler : handlers) {
+            handler.apply(arg);
+        }
+        for (Function<Object, Object> handler : threadHandlers.get()) {
+            handler.apply(arg);
+        }
+    }
+
+    /**
+     * Returns the value of a property hook.
+     * (Property hooks take a {@link Holder} as an argument.)
+     */
+    public <V> V get(V defaultValue) {
+        final Holder<V> holder = Holder.of(defaultValue);
+        run(holder);
+        return holder.get();
+    }
+
+    /**
+     * Removes a Hook after use.
+     */
+    public interface Closeable extends AutoCloseable {
+
+        /**
+         * Closeable that does nothing.
+         */
+        Closeable EMPTY = new Closeable() {
+
+            public void close() {
+            }
         };
 
-    // override, removing "throws"
-    @Override void close();
-  }
+        // override, removing "throws"
+        @Override void close();
+    }
 }
 
 // End Hook.java

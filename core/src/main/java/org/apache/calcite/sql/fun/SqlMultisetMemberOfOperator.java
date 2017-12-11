@@ -35,57 +35,38 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * <code>false</code>.
  */
 public class SqlMultisetMemberOfOperator extends SqlBinaryOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlMultisetMemberOfOperator() {
-    // TODO check if precedence is correct
-    super(
-        "MEMBER OF",
-        SqlKind.OTHER,
-        30,
-        true,
-        ReturnTypes.BOOLEAN_NULLABLE,
-        null,
-        null);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public boolean checkOperandTypes(
-      SqlCallBinding callBinding,
-      boolean throwOnFailure) {
-    if (!OperandTypes.MULTISET.checkSingleOperandType(
-        callBinding,
-        callBinding.operand(1),
-        0,
-        throwOnFailure)) {
-      return false;
+    public SqlMultisetMemberOfOperator() {
+        // TODO check if precedence is correct
+        super("MEMBER OF", SqlKind.OTHER, 30, true, ReturnTypes.BOOLEAN_NULLABLE, null, null);
     }
 
-    MultisetSqlType mt =
-        (MultisetSqlType) callBinding.getValidator().deriveType(
-            callBinding.getScope(),
-            callBinding.operand(1));
+    //~ Methods ----------------------------------------------------------------
 
-    RelDataType t0 =
-        callBinding.getValidator().deriveType(
-            callBinding.getScope(),
-            callBinding.operand(0));
-    RelDataType t1 = mt.getComponentType();
+    public boolean checkOperandTypes(SqlCallBinding callBinding, boolean throwOnFailure) {
+        if (!OperandTypes.MULTISET.checkSingleOperandType(callBinding, callBinding.operand(1), 0, throwOnFailure)) {
+            return false;
+        }
 
-    if (t0.getFamily() != t1.getFamily()) {
-      if (throwOnFailure) {
-        throw callBinding.newValidationError(
-            RESOURCE.typeNotComparableNear(t0.toString(), t1.toString()));
-      }
-      return false;
+        MultisetSqlType mt = (MultisetSqlType) callBinding.getValidator().deriveType(callBinding.getScope(),
+                                                                                     callBinding.operand(1));
+
+        RelDataType t0 = callBinding.getValidator().deriveType(callBinding.getScope(), callBinding.operand(0));
+        RelDataType t1 = mt.getComponentType();
+
+        if (t0.getFamily() != t1.getFamily()) {
+            if (throwOnFailure) {
+                throw callBinding.newValidationError(RESOURCE.typeNotComparableNear(t0.toString(), t1.toString()));
+            }
+            return false;
+        }
+        return true;
     }
-    return true;
-  }
 
-  public SqlOperandCountRange getOperandCountRange() {
-    return SqlOperandCountRanges.of(2);
-  }
+    public SqlOperandCountRange getOperandCountRange() {
+        return SqlOperandCountRanges.of(2);
+    }
 }
 
 // End SqlMultisetMemberOfOperator.java

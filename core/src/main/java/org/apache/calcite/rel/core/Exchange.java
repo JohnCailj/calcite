@@ -16,21 +16,14 @@
  */
 package org.apache.calcite.rel.core;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelOptCost;
 import org.apache.calcite.plan.RelOptPlanner;
 import org.apache.calcite.plan.RelTraitSet;
-import org.apache.calcite.rel.RelDistribution;
-import org.apache.calcite.rel.RelDistributionTraitDef;
-import org.apache.calcite.rel.RelDistributions;
-import org.apache.calcite.rel.RelInput;
-import org.apache.calcite.rel.RelNode;
-import org.apache.calcite.rel.RelWriter;
-import org.apache.calcite.rel.SingleRel;
+import org.apache.calcite.rel.*;
 import org.apache.calcite.rel.metadata.RelMetadataQuery;
 import org.apache.calcite.util.Util;
-
-import com.google.common.base.Preconditions;
 
 import java.util.List;
 
@@ -41,68 +34,62 @@ import java.util.List;
  * @see org.apache.calcite.rel.core.SortExchange
  */
 public abstract class Exchange extends SingleRel {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  public final RelDistribution distribution;
+    public final RelDistribution distribution;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates an Exchange.
-   *
-   * @param cluster   Cluster this relational expression belongs to
-   * @param traitSet  Trait set
-   * @param input     Input relational expression
-   * @param distribution Distribution specification
-   */
-  protected Exchange(RelOptCluster cluster, RelTraitSet traitSet, RelNode input,
-      RelDistribution distribution) {
-    super(cluster, traitSet, input);
-    this.distribution = Preconditions.checkNotNull(distribution);
+    /**
+     * Creates an Exchange.
+     *
+     * @param cluster      Cluster this relational expression belongs to
+     * @param traitSet     Trait set
+     * @param input        Input relational expression
+     * @param distribution Distribution specification
+     */
+    protected Exchange(RelOptCluster cluster, RelTraitSet traitSet, RelNode input, RelDistribution distribution) {
+        super(cluster, traitSet, input);
+        this.distribution = Preconditions.checkNotNull(distribution);
 
-    assert traitSet.containsIfApplicable(distribution)
-        : "traits=" + traitSet + ", distribution" + distribution;
-    assert distribution != RelDistributions.ANY;
-  }
+        assert traitSet.containsIfApplicable(distribution) : "traits=" + traitSet + ", distribution" + distribution;
+        assert distribution != RelDistributions.ANY;
+    }
 
-  /**
-   * Creates a Exchange by parsing serialized output.
-   */
-  public Exchange(RelInput input) {
-    this(input.getCluster(), input.getTraitSet().plus(input.getCollation()),
-        input.getInput(),
-        RelDistributionTraitDef.INSTANCE.canonize(input.getDistribution()));
-  }
+    /**
+     * Creates a Exchange by parsing serialized output.
+     */
+    public Exchange(RelInput input) {
+        this(input.getCluster(), input.getTraitSet().plus(input.getCollation()), input.getInput(),
+             RelDistributionTraitDef.INSTANCE.canonize(input.getDistribution()));
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public final Exchange copy(RelTraitSet traitSet,
-      List<RelNode> inputs) {
-    return copy(traitSet, sole(inputs), distribution);
-  }
+    @Override public final Exchange copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        return copy(traitSet, sole(inputs), distribution);
+    }
 
-  public abstract Exchange copy(RelTraitSet traitSet, RelNode newInput,
-      RelDistribution newDistribution);
+    public abstract Exchange copy(RelTraitSet traitSet, RelNode newInput, RelDistribution newDistribution);
 
-  /** Returns the distribution of the rows returned by this Exchange. */
-  public RelDistribution getDistribution() {
-    return distribution;
-  }
+    /**
+     * Returns the distribution of the rows returned by this Exchange.
+     */
+    public RelDistribution getDistribution() {
+        return distribution;
+    }
 
-  @Override public RelOptCost computeSelfCost(RelOptPlanner planner,
-      RelMetadataQuery mq) {
-    // Higher cost if rows are wider discourages pushing a project through an
-    // exchange.
-    double rowCount = mq.getRowCount(this);
-    double bytesPerRow = getRowType().getFieldCount() * 4;
-    return planner.getCostFactory().makeCost(
-        Util.nLogN(rowCount) * bytesPerRow, rowCount, 0);
-  }
+    @Override public RelOptCost computeSelfCost(RelOptPlanner planner, RelMetadataQuery mq) {
+        // Higher cost if rows are wider discourages pushing a project through an
+        // exchange.
+        double rowCount = mq.getRowCount(this);
+        double bytesPerRow = getRowType().getFieldCount() * 4;
+        return planner.getCostFactory().makeCost(Util.nLogN(rowCount) * bytesPerRow, rowCount, 0);
+    }
 
-  public RelWriter explainTerms(RelWriter pw) {
-    return super.explainTerms(pw)
-        .item("distribution", distribution);
-  }
+    public RelWriter explainTerms(RelWriter pw) {
+        return super.explainTerms(pw).item("distribution", distribution);
+    }
 }
 
 // End Exchange.java

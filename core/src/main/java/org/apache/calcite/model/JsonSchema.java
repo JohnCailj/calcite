@@ -24,87 +24,76 @@ import java.util.List;
 
 /**
  * Schema schema element.
- *
  * <p>Occurs within {@link JsonRoot#schemas}.
  *
  * @see JsonRoot Description of schema elements
  */
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    property = "type",
-    defaultImpl = JsonMapSchema.class)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = JsonMapSchema.class, name = "map"),
-    @JsonSubTypes.Type(value = JsonJdbcSchema.class, name = "jdbc"),
-    @JsonSubTypes.Type(value = JsonCustomSchema.class, name = "custom") })
-public abstract class JsonSchema {
-  /** Name of the schema.
-   *
-   * <p>Required.
-   *
-   * @see JsonRoot#defaultSchema
-   */
-  public String name;
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", defaultImpl = JsonMapSchema.class) @JsonSubTypes({
+        @JsonSubTypes.Type(value = JsonMapSchema.class, name = "map"),
+        @JsonSubTypes.Type(value = JsonJdbcSchema.class, name = "jdbc"),
+        @JsonSubTypes.Type(value = JsonCustomSchema.class, name = "custom") }) public abstract class JsonSchema {
 
-  /** SQL path that is used to resolve functions used in this schema.
-   *
-   * <p>May be null, or a list, each element of which is a string or a
-   * string-list.
-   *
-   * <p>For example,
-   *
-   * <blockquote><pre>path: [ ['usr', 'lib'], 'lib' ]</pre></blockquote>
-   *
-   * <p>declares a path with two elements: the schema '/usr/lib' and the schema
-   * '/lib'. Most schemas are at the top level, and for these you can use a
-   * string.
-   */
-  public List<Object> path;
+    /**
+     * Name of the schema.
+     * <p>Required.
+     *
+     * @see JsonRoot#defaultSchema
+     */
+    public String name;
 
-  /**
-   * List of tables in this schema that are materializations of queries.
-   *
-   * <p>The list may be empty.
-   */
-  public final List<JsonMaterialization> materializations = new ArrayList<>();
+    /**
+     * SQL path that is used to resolve functions used in this schema.
+     * <p>May be null, or a list, each element of which is a string or a
+     * string-list.
+     * <p>For example,
+     * <blockquote><pre>path: [ ['usr', 'lib'], 'lib' ]</pre></blockquote>
+     * <p>declares a path with two elements: the schema '/usr/lib' and the schema
+     * '/lib'. Most schemas are at the top level, and for these you can use a
+     * string.
+     */
+    public List<Object> path;
 
-  public final List<JsonLattice> lattices = new ArrayList<>();
+    /**
+     * List of tables in this schema that are materializations of queries.
+     * <p>The list may be empty.
+     */
+    public final List<JsonMaterialization> materializations = new ArrayList<>();
 
-  /** Whether to cache metadata (tables, functions and sub-schemas) generated
-   * by this schema. Default value is {@code true}.
-   *
-   * <p>If {@code false}, Calcite will go back to the schema each time it needs
-   * metadata, for example, each time it needs a list of tables in order to
-   * validate a query against the schema.</p>
-   *
-   * <p>If {@code true}, Calcite will cache the metadata the first time it reads
-   * it. This can lead to better performance, especially if name-matching is
-   * case-insensitive
-   * (see {@link org.apache.calcite.config.Lex#caseSensitive}).</p>
-   *
-   * <p>Tables, functions and sub-schemas explicitly created in a schema are
-   * not affected by this caching mechanism. They always appear in the schema
-   * immediately, and are never flushed.</p>
-   */
-  public Boolean cache;
+    public final List<JsonLattice> lattices = new ArrayList<>();
 
-  public abstract void accept(ModelHandler handler);
+    /**
+     * Whether to cache metadata (tables, functions and sub-schemas) generated
+     * by this schema. Default value is {@code true}.
+     * <p>If {@code false}, Calcite will go back to the schema each time it needs
+     * metadata, for example, each time it needs a list of tables in order to
+     * validate a query against the schema.</p>
+     * <p>If {@code true}, Calcite will cache the metadata the first time it reads
+     * it. This can lead to better performance, especially if name-matching is
+     * case-insensitive
+     * (see {@link org.apache.calcite.config.Lex#caseSensitive}).</p>
+     * <p>Tables, functions and sub-schemas explicitly created in a schema are
+     * not affected by this caching mechanism. They always appear in the schema
+     * immediately, and are never flushed.</p>
+     */
+    public Boolean cache;
 
-  public void visitChildren(ModelHandler modelHandler) {
-    for (JsonLattice jsonLattice : lattices) {
-      jsonLattice.accept(modelHandler);
+    public abstract void accept(ModelHandler handler);
+
+    public void visitChildren(ModelHandler modelHandler) {
+        for (JsonLattice jsonLattice : lattices) {
+            jsonLattice.accept(modelHandler);
+        }
+        for (JsonMaterialization jsonMaterialization : materializations) {
+            jsonMaterialization.accept(modelHandler);
+        }
     }
-    for (JsonMaterialization jsonMaterialization : materializations) {
-      jsonMaterialization.accept(modelHandler);
-    }
-  }
 
-  /** Built-in schema types. */
-  public enum Type {
-    MAP,
-    JDBC,
-    CUSTOM
-  }
+    /**
+     * Built-in schema types.
+     */
+    public enum Type {
+        MAP, JDBC, CUSTOM
+    }
 }
 
 // End JsonSchema.java

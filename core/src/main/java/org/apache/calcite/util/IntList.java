@@ -28,43 +28,41 @@ import java.util.List;
  */
 @Deprecated // to be removed before 2.0
 public class IntList extends ArrayList<Integer> {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public int[] toIntArray() {
-    return Ints.toArray(this);
-  }
+    public int[] toIntArray() {
+        return Ints.toArray(this);
+    }
 
-  /**
-   * Converts a list of {@link Integer} objects to an array of primitive
-   * <code>int</code>s.
-   *
-   * @param integers List of Integer objects
-   * @return Array of primitive <code>int</code>s
-   *
-   * @deprecated Use {@link Ints#toArray(java.util.Collection)}
-   */
-  @Deprecated // to be removed before 2.0
-  public static int[] toArray(List<Integer> integers) {
-    return Ints.toArray(integers);
-  }
+    /**
+     * Converts a list of {@link Integer} objects to an array of primitive
+     * <code>int</code>s.
+     *
+     * @param integers List of Integer objects
+     * @return Array of primitive <code>int</code>s
+     * @deprecated Use {@link Ints#toArray(java.util.Collection)}
+     */
+    @Deprecated // to be removed before 2.0
+    public static int[] toArray(List<Integer> integers) {
+        return Ints.toArray(integers);
+    }
 
-  /**
-   * Returns a list backed by an array of primitive <code>int</code> values.
-   *
-   * <p>The behavior is analogous to {@link Arrays#asList(Object[])}. Changes
-   * to the list are reflected in the array. The list cannot be extended.
-   *
-   * @param args Array of primitive <code>int</code> values
-   * @return List backed by array
-   */
-  @Deprecated // to be removed before 2.0
-  public static List<Integer> asList(final int[] args) {
-    return Ints.asList(args);
-  }
+    /**
+     * Returns a list backed by an array of primitive <code>int</code> values.
+     * <p>The behavior is analogous to {@link Arrays#asList(Object[])}. Changes
+     * to the list are reflected in the array. The list cannot be extended.
+     *
+     * @param args Array of primitive <code>int</code> values
+     * @return List backed by array
+     */
+    @Deprecated // to be removed before 2.0
+    public static List<Integer> asList(final int[] args) {
+        return Ints.asList(args);
+    }
 
-  public ImmutableIntList asImmutable() {
-    return ImmutableIntList.copyOf(this);
-  }
+    public ImmutableIntList asImmutable() {
+        return ImmutableIntList.copyOf(this);
+    }
 }
 
 // End IntList.java

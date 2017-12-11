@@ -22,31 +22,32 @@ import org.apache.calcite.rel.type.RelDataType;
 import java.util.List;
 import java.util.Objects;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.SetOp}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.SetOp}.
+ */
 abstract class MutableSetOp extends MutableMultiRel {
-  protected final boolean all;
 
-  protected MutableSetOp(RelOptCluster cluster, RelDataType rowType,
-      MutableRelType type, List<MutableRel> inputs, boolean all) {
-    super(cluster, rowType, type, inputs);
-    this.all = all;
-  }
+    protected final boolean all;
 
-  public boolean isAll() {
-    return all;
-  }
+    protected MutableSetOp(RelOptCluster cluster, RelDataType rowType, MutableRelType type, List<MutableRel> inputs,
+                           boolean all) {
+        super(cluster, rowType, type, inputs);
+        this.all = all;
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableSetOp
-        && type == ((MutableSetOp) obj).type
-        && all == ((MutableSetOp) obj).all
-        && inputs.equals(((MutableSetOp) obj).getInputs());
-  }
+    public boolean isAll() {
+        return all;
+    }
 
-  @Override public int hashCode() {
-    return Objects.hash(type, inputs, all);
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this
+               || obj instanceof MutableSetOp && type == ((MutableSetOp) obj).type && all == ((MutableSetOp) obj).all
+                  && inputs.equals(((MutableSetOp) obj).getInputs());
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(type, inputs, all);
+    }
 }
 
 // End MutableSetOp.java

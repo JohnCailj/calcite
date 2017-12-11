@@ -21,18 +21,13 @@ import org.apache.calcite.plan.RelOptRule;
 import org.apache.calcite.plan.RelOptRuleCall;
 import org.apache.calcite.rel.logical.LogicalCalc;
 import org.apache.calcite.rel.logical.LogicalProject;
-import org.apache.calcite.rex.RexBuilder;
-import org.apache.calcite.rex.RexNode;
-import org.apache.calcite.rex.RexOver;
-import org.apache.calcite.rex.RexProgram;
-import org.apache.calcite.rex.RexProgramBuilder;
+import org.apache.calcite.rex.*;
 import org.apache.calcite.util.Pair;
 
 /**
  * Planner rule which merges a
  * {@link org.apache.calcite.rel.logical.LogicalProject} and a
  * {@link org.apache.calcite.rel.logical.LogicalCalc}.
- *
  * <p>The resulting {@link org.apache.calcite.rel.logical.LogicalCalc} has the
  * same project list as the original
  * {@link org.apache.calcite.rel.logical.LogicalProject}, but expressed in terms
@@ -41,67 +36,50 @@ import org.apache.calcite.util.Pair;
  * @see FilterCalcMergeRule
  */
 public class ProjectCalcMergeRule extends RelOptRule {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  public static final ProjectCalcMergeRule INSTANCE =
-      new ProjectCalcMergeRule();
+    public static final ProjectCalcMergeRule INSTANCE = new ProjectCalcMergeRule();
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  private ProjectCalcMergeRule() {
-    super(
-        operand(
-            LogicalProject.class,
-            operand(LogicalCalc.class, any())));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    final LogicalProject project = call.rel(0);
-    final LogicalCalc calc = call.rel(1);
-
-    // Don't merge a project which contains windowed aggregates onto a
-    // calc. That would effectively be pushing a windowed aggregate down
-    // through a filter. Transform the project into an identical calc,
-    // which we'll have chance to merge later, after the over is
-    // expanded.
-    final RelOptCluster cluster = project.getCluster();
-    RexProgram program =
-        RexProgram.create(
-            calc.getRowType(),
-            project.getProjects(),
-            null,
-            project.getRowType(),
-            cluster.getRexBuilder());
-    if (RexOver.containsOver(program)) {
-      LogicalCalc projectAsCalc = LogicalCalc.create(calc, program);
-      call.transformTo(projectAsCalc);
-      return;
+    private ProjectCalcMergeRule() {
+        super(operand(LogicalProject.class, operand(LogicalCalc.class, any())));
     }
 
-    // Create a program containing the project node's expressions.
-    final RexBuilder rexBuilder = cluster.getRexBuilder();
-    final RexProgramBuilder progBuilder =
-        new RexProgramBuilder(
-            calc.getRowType(),
-            rexBuilder);
-    for (Pair<RexNode, String> field : project.getNamedProjects()) {
-      progBuilder.addProject(field.left, field.right);
-    }
-    RexProgram topProgram = progBuilder.getProgram();
-    RexProgram bottomProgram = calc.getProgram();
+    //~ Methods ----------------------------------------------------------------
 
-    // Merge the programs together.
-    RexProgram mergedProgram =
-        RexProgramBuilder.mergePrograms(
-            topProgram,
-            bottomProgram,
-            rexBuilder);
-    final LogicalCalc newCalc =
-        LogicalCalc.create(calc.getInput(), mergedProgram);
-    call.transformTo(newCalc);
-  }
+    public void onMatch(RelOptRuleCall call) {
+        final LogicalProject project = call.rel(0);
+        final LogicalCalc calc = call.rel(1);
+
+        // Don't merge a project which contains windowed aggregates onto a
+        // calc. That would effectively be pushing a windowed aggregate down
+        // through a filter. Transform the project into an identical calc,
+        // which we'll have chance to merge later, after the over is
+        // expanded.
+        final RelOptCluster cluster = project.getCluster();
+        RexProgram program = RexProgram.create(calc.getRowType(), project.getProjects(), null, project.getRowType(),
+                                               cluster.getRexBuilder());
+        if (RexOver.containsOver(program)) {
+            LogicalCalc projectAsCalc = LogicalCalc.create(calc, program);
+            call.transformTo(projectAsCalc);
+            return;
+        }
+
+        // Create a program containing the project node's expressions.
+        final RexBuilder rexBuilder = cluster.getRexBuilder();
+        final RexProgramBuilder progBuilder = new RexProgramBuilder(calc.getRowType(), rexBuilder);
+        for (Pair<RexNode, String> field : project.getNamedProjects()) {
+            progBuilder.addProject(field.left, field.right);
+        }
+        RexProgram topProgram = progBuilder.getProgram();
+        RexProgram bottomProgram = calc.getProgram();
+
+        // Merge the programs together.
+        RexProgram mergedProgram = RexProgramBuilder.mergePrograms(topProgram, bottomProgram, rexBuilder);
+        final LogicalCalc newCalc = LogicalCalc.create(calc.getInput(), mergedProgram);
+        call.transformTo(newCalc);
+    }
 }
 
 // End ProjectCalcMergeRule.java

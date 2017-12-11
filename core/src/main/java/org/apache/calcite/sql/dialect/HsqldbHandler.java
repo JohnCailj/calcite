@@ -26,57 +26,55 @@ import org.apache.calcite.sql.fun.SqlFloorFunction;
 /**
  * Defines how a SQL parse tree should be unparsed to SQL
  * for execution against an HSQLDB database.
- *
  * <p>It reverts to the unparse method of the operator
  * if this database's implementation is standard.
  */
 public class HsqldbHandler extends SqlDialect.BaseHandler {
-  public static final HsqldbHandler INSTANCE = new HsqldbHandler();
 
-  @Override public void unparseCall(SqlWriter writer, SqlCall call,
-      int leftPrec, int rightPrec) {
-    switch (call.getKind()) {
-    case FLOOR:
-      if (call.operandCount() != 2) {
-        super.unparseCall(writer, call, leftPrec, rightPrec);
-        return;
-      }
+    public static final HsqldbHandler INSTANCE = new HsqldbHandler();
 
-      final SqlLiteral timeUnitNode = call.operand(1);
-      final TimeUnitRange timeUnit = timeUnitNode.getValueAs(TimeUnitRange.class);
+    @Override public void unparseCall(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        switch (call.getKind()) {
+            case FLOOR:
+                if (call.operandCount() != 2) {
+                    super.unparseCall(writer, call, leftPrec, rightPrec);
+                    return;
+                }
 
-      final String translatedLit = convertTimeUnit(timeUnit);
-      SqlCall call2 = SqlFloorFunction.replaceTimeUnitOperand(call, translatedLit,
-          timeUnitNode.getParserPosition());
-      SqlFloorFunction.unparseDatetimeFunction(writer, call2, "TRUNC", true);
-      break;
+                final SqlLiteral timeUnitNode = call.operand(1);
+                final TimeUnitRange timeUnit = timeUnitNode.getValueAs(TimeUnitRange.class);
 
-    default:
-      super.unparseCall(writer, call, leftPrec, rightPrec);
+                final String translatedLit = convertTimeUnit(timeUnit);
+                SqlCall call2 = SqlFloorFunction.replaceTimeUnitOperand(call, translatedLit,
+                                                                        timeUnitNode.getParserPosition());
+                SqlFloorFunction.unparseDatetimeFunction(writer, call2, "TRUNC", true);
+                break;
+
+            default:
+                super.unparseCall(writer, call, leftPrec, rightPrec);
+        }
     }
-  }
 
-  private static String convertTimeUnit(TimeUnitRange unit) {
-    switch (unit) {
-    case YEAR:
-      return "YYYY";
-    case MONTH:
-      return "MM";
-    case DAY:
-      return "DD";
-    case WEEK:
-      return "WW";
-    case HOUR:
-      return "HH24";
-    case MINUTE:
-      return "MI";
-    case SECOND:
-      return "SS";
-    default:
-      throw new AssertionError("could not convert time unit to HSQLDB equivalent: "
-          + unit);
+    private static String convertTimeUnit(TimeUnitRange unit) {
+        switch (unit) {
+            case YEAR:
+                return "YYYY";
+            case MONTH:
+                return "MM";
+            case DAY:
+                return "DD";
+            case WEEK:
+                return "WW";
+            case HOUR:
+                return "HH24";
+            case MINUTE:
+                return "MI";
+            case SECOND:
+                return "SS";
+            default:
+                throw new AssertionError("could not convert time unit to HSQLDB equivalent: " + unit);
+        }
     }
-  }
 }
 
 // End HsqldbHandler.java

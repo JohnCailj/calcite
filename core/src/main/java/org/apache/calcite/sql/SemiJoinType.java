@@ -27,90 +27,88 @@ import java.util.Locale;
  * relations.
  */
 public enum SemiJoinType {
-  /**
-   * Inner join
-   */
-  INNER,
+    /**
+     * Inner join
+     */
+    INNER,
 
-  /**
-   * Left-outer join
-   */
-  LEFT,
+    /**
+     * Left-outer join
+     */
+    LEFT,
 
-  /**
-   * Semi-join
-   * <p>Similar to from A ... where a in (select b from B ...)</p>
-   */
-  SEMI,
+    /**
+     * Semi-join
+     * <p>Similar to from A ... where a in (select b from B ...)</p>
+     */
+    SEMI,
 
-  /**
-   * Anti-join
-   * <p>Similar to from A ... where a NOT in (select b from B ...)</p>
-   * <p>Note: if B.b is nullable and B has nulls, no rows must be returned</p>
-   */
-  ANTI;
+    /**
+     * Anti-join
+     * <p>Similar to from A ... where a NOT in (select b from B ...)</p>
+     * <p>Note: if B.b is nullable and B has nulls, no rows must be returned</p>
+     */
+    ANTI;
 
-  /** Lower-case name. */
-  public final String lowerName = name().toLowerCase(Locale.ROOT);
+    /**
+     * Lower-case name.
+     */
+    public final String lowerName = name().toLowerCase(Locale.ROOT);
 
-  /**
-   * Creates a parse-tree node representing an occurrence of this
-   * condition type keyword at a particular position in the parsed
-   * text.
-   */
-  public SqlLiteral symbol(SqlParserPos pos) {
-    return SqlLiteral.createSymbol(this, pos);
-  }
-
-  public static SemiJoinType of(JoinRelType joinType) {
-    switch (joinType) {
-    case INNER:
-      return INNER;
-    case LEFT:
-      return LEFT;
+    /**
+     * Creates a parse-tree node representing an occurrence of this
+     * condition type keyword at a particular position in the parsed
+     * text.
+     */
+    public SqlLiteral symbol(SqlParserPos pos) {
+        return SqlLiteral.createSymbol(this, pos);
     }
-    throw new IllegalArgumentException(
-        "Unsupported join type for semi-join " + joinType);
-  }
 
-  public JoinRelType toJoinType() {
-    switch (this) {
-    case INNER:
-      return JoinRelType.INNER;
-    case LEFT:
-      return JoinRelType.LEFT;
+    public static SemiJoinType of(JoinRelType joinType) {
+        switch (joinType) {
+            case INNER:
+                return INNER;
+            case LEFT:
+                return LEFT;
+        }
+        throw new IllegalArgumentException("Unsupported join type for semi-join " + joinType);
     }
-    throw new IllegalStateException(
-        "Unable to convert " + this + " to JoinRelType");
-  }
 
-  public CorrelateJoinType toLinq4j() {
-    switch (this) {
-    case INNER:
-      return CorrelateJoinType.INNER;
-    case LEFT:
-      return CorrelateJoinType.LEFT;
-    case SEMI:
-      return CorrelateJoinType.SEMI;
-    case ANTI:
-      return CorrelateJoinType.ANTI;
+    public JoinRelType toJoinType() {
+        switch (this) {
+            case INNER:
+                return JoinRelType.INNER;
+            case LEFT:
+                return JoinRelType.LEFT;
+        }
+        throw new IllegalStateException("Unable to convert " + this + " to JoinRelType");
     }
-    throw new IllegalStateException(
-        "Unable to convert " + this + " to JoinRelType");
-  }
 
-  public boolean returnsJustFirstInput() {
-    switch (this) {
-    case INNER:
-    case LEFT:
-      return false;
-    case SEMI:
-    case ANTI:
-      return true;
+    public CorrelateJoinType toLinq4j() {
+        switch (this) {
+            case INNER:
+                return CorrelateJoinType.INNER;
+            case LEFT:
+                return CorrelateJoinType.LEFT;
+            case SEMI:
+                return CorrelateJoinType.SEMI;
+            case ANTI:
+                return CorrelateJoinType.ANTI;
+        }
+        throw new IllegalStateException("Unable to convert " + this + " to JoinRelType");
     }
-    throw new IllegalStateException(
-        "Unable to convert " + this + " to JoinRelType");
-  }
+
+    public boolean returnsJustFirstInput() {
+        switch (this) {
+            case INNER:
+            case LEFT:
+                return false;
+            case SEMI:
+            case ANTI:
+                return true;
+        }
+        throw new IllegalStateException("Unable to convert " + this + " to JoinRelType");
+    }
 }
 
 // End SemiJoinType.java

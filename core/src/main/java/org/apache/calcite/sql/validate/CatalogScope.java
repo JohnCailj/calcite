@@ -16,13 +16,12 @@
  */
 package org.apache.calcite.sql.validate;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import org.apache.calcite.linq4j.Linq4j;
 import org.apache.calcite.linq4j.function.Function1;
 import org.apache.calcite.linq4j.function.Predicate1;
 import org.apache.calcite.sql.SqlNode;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
 
 import java.util.List;
 import java.util.Set;
@@ -30,48 +29,44 @@ import java.util.Set;
 /**
  * Implementation of {@link SqlValidatorScope} that can see all schemas in the
  * current catalog.
- *
  * <p>Occurs near the root of the scope stack; its parent is typically
  * {@link EmptyScope}.
- *
  * <p>Helps resolve {@code schema.table.column} column references, such as
- *
  * <blockquote><pre>select sales.emp.empno from sales.emp</pre></blockquote>
  */
 class CatalogScope extends DelegatingScope {
-  /** Fully-qualified name of the catalog. Typically empty or ["CATALOG"]. */
-  final ImmutableList<String> names;
-  private final Set<List<String>> schemaNames;
 
-  //~ Constructors -----------------------------------------------------------
+    /**
+     * Fully-qualified name of the catalog. Typically empty or ["CATALOG"].
+     */
+    final         ImmutableList<String> names;
+    private final Set<List<String>>     schemaNames;
 
-  CatalogScope(SqlValidatorScope parent, List<String> names) {
-    super(parent);
-    this.names = ImmutableList.copyOf(names);
-    this.schemaNames =
-        Linq4j.asEnumerable(
-            validator.getCatalogReader()
-                .getAllSchemaObjectNames(ImmutableList.<String>of()))
-            .where(
+    //~ Constructors -----------------------------------------------------------
+
+    CatalogScope(SqlValidatorScope parent, List<String> names) {
+        super(parent);
+        this.names = ImmutableList.copyOf(names);
+        this.schemaNames = Linq4j.asEnumerable(
+                validator.getCatalogReader().getAllSchemaObjectNames(ImmutableList.<String>of())).where(
                 new Predicate1<SqlMoniker>() {
-                  public boolean apply(SqlMoniker input) {
-                    return input.getType() == SqlMonikerType.SCHEMA;
-                  }
-                })
-            .select(
-                new Function1<SqlMoniker, List<String>>() {
-                  public List<String> apply(SqlMoniker input) {
-                    return input.getFullyQualifiedNames();
-                  }
-                })
-            .into(Sets.<List<String>>newHashSet());
-  }
 
-  //~ Methods ----------------------------------------------------------------
+                    public boolean apply(SqlMoniker input) {
+                        return input.getType() == SqlMonikerType.SCHEMA;
+                    }
+                }).select(new Function1<SqlMoniker, List<String>>() {
 
-  public SqlNode getNode() {
-    throw new UnsupportedOperationException();
-  }
+            public List<String> apply(SqlMoniker input) {
+                return input.getFullyQualifiedNames();
+            }
+        }).into(Sets.<List<String>>newHashSet());
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    public SqlNode getNode() {
+        throw new UnsupportedOperationException();
+    }
 
 }
 

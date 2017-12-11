@@ -27,44 +27,49 @@ import java.util.Set;
  * @param <E> Edge type
  */
 public interface DirectedGraph<V, E> {
-  /** Adds a vertex to this graph.
-   *
-   * @param vertex Vertex
-   * @return Whether vertex was added
-   */
-  boolean addVertex(V vertex);
 
-  /** Adds an edge to this graph.
-   *
-   * @param vertex Source vertex
-   * @param targetVertex Target vertex
-   * @return New edge, if added, otherwise null
-   * @throws IllegalArgumentException if either vertex is not already in graph
-   */
-  E addEdge(V vertex, V targetVertex);
+    /**
+     * Adds a vertex to this graph.
+     *
+     * @param vertex Vertex
+     * @return Whether vertex was added
+     */
+    boolean addVertex(V vertex);
 
-  E getEdge(V source, V target);
+    /**
+     * Adds an edge to this graph.
+     *
+     * @param vertex       Source vertex
+     * @param targetVertex Target vertex
+     * @return New edge, if added, otherwise null
+     * @throws IllegalArgumentException if either vertex is not already in graph
+     */
+    E addEdge(V vertex, V targetVertex);
 
-  boolean removeEdge(V vertex, V targetVertex);
+    E getEdge(V source, V target);
 
-  Set<V> vertexSet();
+    boolean removeEdge(V vertex, V targetVertex);
 
-  void removeAllVertices(Collection<V> collection);
+    Set<V> vertexSet();
 
-  List<E> getOutwardEdges(V source);
+    void removeAllVertices(Collection<V> collection);
 
-  List<E> getInwardEdges(V vertex);
+    List<E> getOutwardEdges(V source);
 
-  Set<E> edgeSet();
+    List<E> getInwardEdges(V vertex);
 
-  /** Factory for edges.
-   *
-   * @param <V> Vertex type
-   * @param <E> Edge type
-   */
-  interface EdgeFactory<V, E> {
-    E createEdge(V v0, V v1);
-  }
+    Set<E> edgeSet();
+
+    /**
+     * Factory for edges.
+     *
+     * @param <V> Vertex type
+     * @param <E> Edge type
+     */
+    interface EdgeFactory<V, E> {
+
+        E createEdge(V v0, V v1);
+    }
 }
 
 // End DirectedGraph.java

@@ -16,12 +16,7 @@
  */
 package org.apache.calcite.sql.util;
 
-import org.apache.calcite.sql.SqlFunction;
-import org.apache.calcite.sql.SqlFunctionCategory;
-import org.apache.calcite.sql.SqlIdentifier;
-import org.apache.calcite.sql.SqlOperator;
-import org.apache.calcite.sql.SqlOperatorTable;
-import org.apache.calcite.sql.SqlSyntax;
+import org.apache.calcite.sql.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,58 +26,53 @@ import java.util.List;
  * {@link SqlOperator operators}.
  */
 public class ListSqlOperatorTable implements SqlOperatorTable {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final List<SqlOperator> operatorList;
+    private final List<SqlOperator> operatorList;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public ListSqlOperatorTable() {
-    this(new ArrayList<SqlOperator>());
-  }
-
-  public ListSqlOperatorTable(List<SqlOperator> operatorList) {
-    this.operatorList = operatorList;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void add(SqlOperator op) {
-    operatorList.add(op);
-  }
-
-  public void lookupOperatorOverloads(SqlIdentifier opName,
-      SqlFunctionCategory category,
-      SqlSyntax syntax,
-      List<SqlOperator> operatorList) {
-    for (SqlOperator operator : this.operatorList) {
-      if (operator.getSyntax() != syntax) {
-        continue;
-      }
-      if (!opName.isSimple()
-          || !operator.isName(opName.getSimple())) {
-        continue;
-      }
-      if (category != null
-          && category != category(operator)
-          && !category.isUserDefinedNotSpecificFunction()) {
-        continue;
-      }
-      operatorList.add(operator);
+    public ListSqlOperatorTable() {
+        this(new ArrayList<SqlOperator>());
     }
-  }
 
-  protected static SqlFunctionCategory category(SqlOperator operator) {
-    if (operator instanceof SqlFunction) {
-      return ((SqlFunction) operator).getFunctionType();
-    } else {
-      return SqlFunctionCategory.SYSTEM;
+    public ListSqlOperatorTable(List<SqlOperator> operatorList) {
+        this.operatorList = operatorList;
     }
-  }
 
-  public List<SqlOperator> getOperatorList() {
-    return operatorList;
-  }
+    //~ Methods ----------------------------------------------------------------
+
+    public void add(SqlOperator op) {
+        operatorList.add(op);
+    }
+
+    public void lookupOperatorOverloads(SqlIdentifier opName, SqlFunctionCategory category, SqlSyntax syntax,
+                                        List<SqlOperator> operatorList) {
+        for (SqlOperator operator : this.operatorList) {
+            if (operator.getSyntax() != syntax) {
+                continue;
+            }
+            if (!opName.isSimple() || !operator.isName(opName.getSimple())) {
+                continue;
+            }
+            if (category != null && category != category(operator) && !category.isUserDefinedNotSpecificFunction()) {
+                continue;
+            }
+            operatorList.add(operator);
+        }
+    }
+
+    protected static SqlFunctionCategory category(SqlOperator operator) {
+        if (operator instanceof SqlFunction) {
+            return ((SqlFunction) operator).getFunctionType();
+        } else {
+            return SqlFunctionCategory.SYSTEM;
+        }
+    }
+
+    public List<SqlOperator> getOperatorList() {
+        return operatorList;
+    }
 }
 
 // End ListSqlOperatorTable.java

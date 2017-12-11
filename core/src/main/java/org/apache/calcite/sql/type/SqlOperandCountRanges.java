@@ -16,54 +16,57 @@
  */
 package org.apache.calcite.sql.type;
 
-import org.apache.calcite.sql.SqlOperandCountRange;
-
 import com.google.common.base.Preconditions;
+import org.apache.calcite.sql.SqlOperandCountRange;
 
 /**
  * Helpers for {@link SqlOperandCountRange}.
  */
 public abstract class SqlOperandCountRanges {
-  public static SqlOperandCountRange of(int length) {
-    return new RangeImpl(length, length);
-  }
 
-  public static SqlOperandCountRange between(int min, int max) {
-    return new RangeImpl(min, max);
-  }
-
-  public static SqlOperandCountRange from(int min) {
-    return new RangeImpl(min, -1);
-  }
-
-  public static SqlOperandCountRange any() {
-    return new RangeImpl(0, -1);
-  }
-
-  /** Implementation of {@link SqlOperandCountRange}. */
-  private static class RangeImpl implements SqlOperandCountRange {
-    private final int min;
-    private final int max;
-
-    RangeImpl(int min, int max) {
-      this.min = min;
-      this.max = max;
-      Preconditions.checkArgument(min <= max || max == -1);
-      Preconditions.checkArgument(min >= 0);
+    public static SqlOperandCountRange of(int length) {
+        return new RangeImpl(length, length);
     }
 
-    public boolean isValidCount(int count) {
-      return count >= min && (max == -1 || count <= max);
+    public static SqlOperandCountRange between(int min, int max) {
+        return new RangeImpl(min, max);
     }
 
-    public int getMin() {
-      return min;
+    public static SqlOperandCountRange from(int min) {
+        return new RangeImpl(min, -1);
     }
 
-    public int getMax() {
-      return max;
+    public static SqlOperandCountRange any() {
+        return new RangeImpl(0, -1);
     }
-  }
+
+    /**
+     * Implementation of {@link SqlOperandCountRange}.
+     */
+    private static class RangeImpl implements SqlOperandCountRange {
+
+        private final int min;
+        private final int max;
+
+        RangeImpl(int min, int max) {
+            this.min = min;
+            this.max = max;
+            Preconditions.checkArgument(min <= max || max == -1);
+            Preconditions.checkArgument(min >= 0);
+        }
+
+        public boolean isValidCount(int count) {
+            return count >= min && (max == -1 || count <= max);
+        }
+
+        public int getMin() {
+            return min;
+        }
+
+        public int getMax() {
+            return max;
+        }
+    }
 }
 
 // End SqlOperandCountRanges.java

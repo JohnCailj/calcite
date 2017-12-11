@@ -25,15 +25,16 @@ import org.apache.calcite.linq4j.Enumerable;
  * @param <T> Element type of the resulting enumerable
  */
 public interface Bindable<T> {
-  /**
-   * Executes this statement and returns an enumerable which will yield rows.
-   * The {@code environment} parameter provides the values in the root of the
-   * environment (usually schemas).
-   *
-   * @param dataContext Environment that provides tables
-   * @return Enumerable over rows
-   */
-  Enumerable<T> bind(DataContext dataContext);
+
+    /**
+     * Executes this statement and returns an enumerable which will yield rows.
+     * The {@code environment} parameter provides the values in the root of the
+     * environment (usually schemas).
+     *
+     * @param dataContext Environment that provides tables
+     * @return Enumerable over rows
+     */
+    Enumerable<T> bind(DataContext dataContext);
 }
 
 // End Bindable.java

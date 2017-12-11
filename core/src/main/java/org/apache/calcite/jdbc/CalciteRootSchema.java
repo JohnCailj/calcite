@@ -23,10 +23,13 @@ import org.apache.calcite.schema.Schema;
  */
 @Deprecated // to be removed before 2.0
 public class CalciteRootSchema extends CachingCalciteSchema {
-  /** Creates a root schema. */
-  CalciteRootSchema(Schema schema) {
-    super(null, schema, "");
-  }
+
+    /**
+     * Creates a root schema.
+     */
+    CalciteRootSchema(Schema schema) {
+        super(null, schema, "");
+    }
 }
 
 // End CalciteRootSchema.java

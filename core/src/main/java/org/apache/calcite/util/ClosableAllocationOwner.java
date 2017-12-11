@@ -22,14 +22,14 @@ package org.apache.calcite.util;
  * its own closeAllocation() is called.
  */
 public interface ClosableAllocationOwner extends ClosableAllocation {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Assigns ownership of a ClosableAllocation to this owner.
-   *
-   * @param allocation the ClosableAllocation to take over
-   */
-  void addAllocation(ClosableAllocation allocation);
+    /**
+     * Assigns ownership of a ClosableAllocation to this owner.
+     *
+     * @param allocation the ClosableAllocation to take over
+     */
+    void addAllocation(ClosableAllocation allocation);
 }
 
 // End ClosableAllocationOwner.java

@@ -27,24 +27,23 @@ import org.apache.calcite.linq4j.Enumerator;
  * @param <E> Element type
  */
 public class RecordEnumeratorCursor<E> extends EnumeratorCursor<E> {
-  private final Class<E> clazz;
 
-  /**
-   * Creates a RecordEnumeratorCursor.
-   *
-   * @param enumerator Enumerator
-   * @param clazz Element type
-   */
-  public RecordEnumeratorCursor(
-      Enumerator<E> enumerator,
-      Class<E> clazz) {
-    super(enumerator);
-    this.clazz = clazz;
-  }
+    private final Class<E> clazz;
 
-  protected Getter createGetter(int ordinal) {
-    return new FieldGetter(clazz.getFields()[ordinal]);
-  }
+    /**
+     * Creates a RecordEnumeratorCursor.
+     *
+     * @param enumerator Enumerator
+     * @param clazz      Element type
+     */
+    public RecordEnumeratorCursor(Enumerator<E> enumerator, Class<E> clazz) {
+        super(enumerator);
+        this.clazz = clazz;
+    }
+
+    protected Getter createGetter(int ordinal) {
+        return new FieldGetter(clazz.getFields()[ordinal]);
+    }
 }
 
 // End RecordEnumeratorCursor.java

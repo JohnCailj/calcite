@@ -23,7 +23,6 @@ import org.apache.calcite.sql.SqlOperatorBinding;
 /**
  * Strategy interface to infer the type of an operator call from the type of the
  * operands.
- *
  * <p>This interface is an example of the
  * {@link org.apache.calcite.util.Glossary#STRATEGY_PATTERN strategy pattern}.
  * This makes
@@ -31,16 +30,15 @@ import org.apache.calcite.sql.SqlOperatorBinding;
  * as to take the type of the first operand.</p>
  */
 public interface SqlReturnTypeInference {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Infers the return type of a call to an {@link SqlOperator}.
-   *
-   * @param opBinding description of operator binding
-   * @return inferred type; may be null
-   */
-  RelDataType inferReturnType(
-      SqlOperatorBinding opBinding);
+    /**
+     * Infers the return type of a call to an {@link SqlOperator}.
+     *
+     * @param opBinding description of operator binding
+     * @return inferred type; may be null
+     */
+    RelDataType inferReturnType(SqlOperatorBinding opBinding);
 }
 
 // End SqlReturnTypeInference.java

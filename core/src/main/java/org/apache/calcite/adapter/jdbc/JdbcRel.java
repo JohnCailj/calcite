@@ -22,7 +22,8 @@ import org.apache.calcite.rel.RelNode;
  * Relational expression that uses JDBC calling convention.
  */
 public interface JdbcRel extends RelNode {
-  JdbcImplementor.Result implement(JdbcImplementor implementor);
+
+    JdbcImplementor.Result implement(JdbcImplementor implementor);
 }
 
 // End JdbcRel.java

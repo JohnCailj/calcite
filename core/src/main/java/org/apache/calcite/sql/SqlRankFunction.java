@@ -24,25 +24,22 @@ import org.apache.calcite.sql.type.SqlReturnTypeInference;
  * Operator which aggregates sets of values into a result.
  */
 public class SqlRankFunction extends SqlAggFunction {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  @Deprecated
-  public SqlRankFunction(boolean requiresOrder, SqlKind kind) {
-    this(kind, ReturnTypes.INTEGER, requiresOrder);
-  }
+    @Deprecated public SqlRankFunction(boolean requiresOrder, SqlKind kind) {
+        this(kind, ReturnTypes.INTEGER, requiresOrder);
+    }
 
-  public SqlRankFunction(SqlKind kind, SqlReturnTypeInference returnTypes,
-      boolean requiresOrder) {
-    super(kind.name(), null, kind, returnTypes, null,
-        OperandTypes.NILADIC, SqlFunctionCategory.NUMERIC, requiresOrder,
-        true);
-  }
+    public SqlRankFunction(SqlKind kind, SqlReturnTypeInference returnTypes, boolean requiresOrder) {
+        super(kind.name(), null, kind, returnTypes, null, OperandTypes.NILADIC, SqlFunctionCategory.NUMERIC,
+              requiresOrder, true);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public boolean allowsFraming() {
-    return false;
-  }
+    @Override public boolean allowsFraming() {
+        return false;
+    }
 
 }
 

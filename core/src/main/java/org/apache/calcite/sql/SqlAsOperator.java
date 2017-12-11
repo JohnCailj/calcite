@@ -17,12 +17,7 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.sql.type.InferTypes;
-import org.apache.calcite.sql.type.OperandTypes;
-import org.apache.calcite.sql.type.ReturnTypes;
-import org.apache.calcite.sql.type.SqlOperandTypeChecker;
-import org.apache.calcite.sql.type.SqlOperandTypeInference;
-import org.apache.calcite.sql.type.SqlReturnTypeInference;
+import org.apache.calcite.sql.type.*;
 import org.apache.calcite.sql.util.SqlBasicVisitor;
 import org.apache.calcite.sql.util.SqlVisitor;
 import org.apache.calcite.sql.validate.SqlMonotonicity;
@@ -38,106 +33,79 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * The <code>AS</code> operator associates an expression with an alias.
  */
 public class SqlAsOperator extends SqlSpecialOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates an AS operator.
-   */
-  public SqlAsOperator() {
-    this(
-        "AS",
-        SqlKind.AS,
-        20,
-        true,
-        ReturnTypes.ARG0,
-        InferTypes.RETURN_TYPE,
-        OperandTypes.ANY_ANY);
-  }
-
-  protected SqlAsOperator(String name, SqlKind kind, int prec,
-      boolean leftAssoc, SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker) {
-    super(name, kind, prec, leftAssoc, returnTypeInference,
-        operandTypeInference, operandTypeChecker);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void unparse(
-      SqlWriter writer,
-      SqlCall call,
-      int leftPrec,
-      int rightPrec) {
-    assert call.operandCount() >= 2;
-    final SqlWriter.Frame frame =
-        writer.startList(
-            SqlWriter.FrameTypeEnum.SIMPLE);
-    call.operand(0).unparse(writer, leftPrec, getLeftPrec());
-    final boolean needsSpace = true;
-    writer.setNeedWhitespace(needsSpace);
-    if (writer.getDialect().allowsAs()) {
-      writer.sep("AS");
-      writer.setNeedWhitespace(needsSpace);
+    /**
+     * Creates an AS operator.
+     */
+    public SqlAsOperator() {
+        this("AS", SqlKind.AS, 20, true, ReturnTypes.ARG0, InferTypes.RETURN_TYPE, OperandTypes.ANY_ANY);
     }
-    call.operand(1).unparse(writer, getRightPrec(), rightPrec);
-    if (call.operandCount() > 2) {
-      final SqlWriter.Frame frame1 =
-          writer.startList(SqlWriter.FrameTypeEnum.SIMPLE, "(", ")");
-      for (SqlNode operand : Util.skip(call.getOperandList(), 2)) {
-        writer.sep(",", false);
-        operand.unparse(writer, 0, 0);
-      }
-      writer.endList(frame1);
+
+    protected SqlAsOperator(String name, SqlKind kind, int prec, boolean leftAssoc,
+                            SqlReturnTypeInference returnTypeInference, SqlOperandTypeInference operandTypeInference,
+                            SqlOperandTypeChecker operandTypeChecker) {
+        super(name, kind, prec, leftAssoc, returnTypeInference, operandTypeInference, operandTypeChecker);
     }
-    writer.endList(frame);
-  }
 
-  public void validateCall(
-      SqlCall call,
-      SqlValidator validator,
-      SqlValidatorScope scope,
-      SqlValidatorScope operandScope) {
-    // The base method validates all operands. We override because
-    // we don't want to validate the identifier.
-    final List<SqlNode> operands = call.getOperandList();
-    assert operands.size() == 2;
-    assert operands.get(1) instanceof SqlIdentifier;
-    operands.get(0).validateExpr(validator, scope);
-    SqlIdentifier id = (SqlIdentifier) operands.get(1);
-    if (!id.isSimple()) {
-      throw validator.newValidationError(id,
-          RESOURCE.aliasMustBeSimpleIdentifier());
+    //~ Methods ----------------------------------------------------------------
+
+    public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        assert call.operandCount() >= 2;
+        final SqlWriter.Frame frame = writer.startList(SqlWriter.FrameTypeEnum.SIMPLE);
+        call.operand(0).unparse(writer, leftPrec, getLeftPrec());
+        final boolean needsSpace = true;
+        writer.setNeedWhitespace(needsSpace);
+        if (writer.getDialect().allowsAs()) {
+            writer.sep("AS");
+            writer.setNeedWhitespace(needsSpace);
+        }
+        call.operand(1).unparse(writer, getRightPrec(), rightPrec);
+        if (call.operandCount() > 2) {
+            final SqlWriter.Frame frame1 = writer.startList(SqlWriter.FrameTypeEnum.SIMPLE, "(", ")");
+            for (SqlNode operand : Util.skip(call.getOperandList(), 2)) {
+                writer.sep(",", false);
+                operand.unparse(writer, 0, 0);
+            }
+            writer.endList(frame1);
+        }
+        writer.endList(frame);
     }
-  }
 
-  public <R> void acceptCall(
-      SqlVisitor<R> visitor,
-      SqlCall call,
-      boolean onlyExpressions,
-      SqlBasicVisitor.ArgHandler<R> argHandler) {
-    if (onlyExpressions) {
-      // Do not visit operands[1] -- it is not an expression.
-      argHandler.visitChild(visitor, call, 0, call.operand(0));
-    } else {
-      super.acceptCall(visitor, call, onlyExpressions, argHandler);
+    public void validateCall(SqlCall call, SqlValidator validator, SqlValidatorScope scope,
+                             SqlValidatorScope operandScope) {
+        // The base method validates all operands. We override because
+        // we don't want to validate the identifier.
+        final List<SqlNode> operands = call.getOperandList();
+        assert operands.size() == 2;
+        assert operands.get(1) instanceof SqlIdentifier;
+        operands.get(0).validateExpr(validator, scope);
+        SqlIdentifier id = (SqlIdentifier) operands.get(1);
+        if (!id.isSimple()) {
+            throw validator.newValidationError(id, RESOURCE.aliasMustBeSimpleIdentifier());
+        }
     }
-  }
 
-  public RelDataType deriveType(
-      SqlValidator validator,
-      SqlValidatorScope scope,
-      SqlCall call) {
-    // special case for AS:  never try to derive type for alias
-    RelDataType nodeType =
-        validator.deriveType(scope, call.operand(0));
-    assert nodeType != null;
-    return validateOperands(validator, scope, call);
-  }
+    public <R> void acceptCall(SqlVisitor<R> visitor, SqlCall call, boolean onlyExpressions,
+                               SqlBasicVisitor.ArgHandler<R> argHandler) {
+        if (onlyExpressions) {
+            // Do not visit operands[1] -- it is not an expression.
+            argHandler.visitChild(visitor, call, 0, call.operand(0));
+        } else {
+            super.acceptCall(visitor, call, onlyExpressions, argHandler);
+        }
+    }
 
-  @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
-    return call.getOperandMonotonicity(0);
-  }
+    public RelDataType deriveType(SqlValidator validator, SqlValidatorScope scope, SqlCall call) {
+        // special case for AS:  never try to derive type for alias
+        RelDataType nodeType = validator.deriveType(scope, call.operand(0));
+        assert nodeType != null;
+        return validateOperands(validator, scope, call);
+    }
+
+    @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
+        return call.getOperandMonotonicity(0);
+    }
 }
 
 // End SqlAsOperator.java

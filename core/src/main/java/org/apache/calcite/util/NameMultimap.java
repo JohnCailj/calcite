@@ -18,86 +18,91 @@ package org.apache.calcite.util;
 
 import com.google.common.collect.ImmutableList;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import static org.apache.calcite.util.NameSet.COMPARATOR;
 
-/** Multimap whose keys are names and can be accessed with and without case
+/**
+ * Multimap whose keys are names and can be accessed with and without case
  * sensitivity.
  *
- * @param <V> Value type */
+ * @param <V> Value type
+ */
 public class NameMultimap<V> {
-  private final NavigableMap<String, List<V>> map;
 
-  /** Creates a NameMultimap based on an existing map. */
-  private NameMultimap(NavigableMap<String, List<V>> map) {
-    this.map = map;
-    assert this.map.comparator() == COMPARATOR;
-  }
+    private final NavigableMap<String, List<V>> map;
 
-  /** Creates a NameMultimap, initially empty. */
-  public NameMultimap() {
-    this(new TreeMap<String, List<V>>(COMPARATOR));
-  }
-
-  /** Adds an entry to this multimap. */
-  public void put(String name, V v) {
-    List<V> list = map.get(name);
-    if (list == null) {
-      list = new ArrayList<>();
-      map.put(name, list);
+    /**
+     * Creates a NameMultimap based on an existing map.
+     */
+    private NameMultimap(NavigableMap<String, List<V>> map) {
+        this.map = map;
+        assert this.map.comparator() == COMPARATOR;
     }
-    list.add(v);
-  }
 
-  /** Returns a map containing all the entries in this multimap that match the
-   * given name. */
-  public Collection<Map.Entry<String, V>> range(String name,
-      boolean caseSensitive) {
-    if (caseSensitive) {
-      final List<V> list = map.get(name);
-      if (list != null && !list.isEmpty()) {
-        final ImmutableList.Builder<Map.Entry<String, V>> builder =
-            ImmutableList.builder();
-        for (V v : list) {
-          builder.add(Pair.of(name, v));
-        }
-        return builder.build();
-      } else {
-        return ImmutableList.of();
-      }
-    } else {
-      final ImmutableList.Builder<Map.Entry<String, V>> builder =
-          ImmutableList.builder();
-      NavigableMap<String, List<V>> m =
-          map.subMap(name.toUpperCase(Locale.ROOT), true,
-              name.toLowerCase(Locale.ROOT), true);
-      for (Map.Entry<String, List<V>> entry : m.entrySet()) {
-        for (V v : entry.getValue()) {
-          builder.add(Pair.of(entry.getKey(), v));
-        }
-      }
-      return builder.build();
+    /**
+     * Creates a NameMultimap, initially empty.
+     */
+    public NameMultimap() {
+        this(new TreeMap<String, List<V>>(COMPARATOR));
     }
-  }
 
-  /** Returns whether this map contains a given key, with a given
-   * case-sensitivity. */
-  public boolean containsKey(String name, boolean caseSensitive) {
-    return !range(name, caseSensitive).isEmpty();
-  }
+    /**
+     * Adds an entry to this multimap.
+     */
+    public void put(String name, V v) {
+        List<V> list = map.get(name);
+        if (list == null) {
+            list = new ArrayList<>();
+            map.put(name, list);
+        }
+        list.add(v);
+    }
 
-  /** Returns the underlying map.
-   * Its size is the number of keys, not the number of values. */
-  public NavigableMap<String, List<V>> map() {
-    return map;
-  }
+    /**
+     * Returns a map containing all the entries in this multimap that match the
+     * given name.
+     */
+    public Collection<Map.Entry<String, V>> range(String name, boolean caseSensitive) {
+        if (caseSensitive) {
+            final List<V> list = map.get(name);
+            if (list != null && !list.isEmpty()) {
+                final ImmutableList.Builder<Map.Entry<String, V>> builder = ImmutableList.builder();
+                for (V v : list) {
+                    builder.add(Pair.of(name, v));
+                }
+                return builder.build();
+            } else {
+                return ImmutableList.of();
+            }
+        } else {
+            final ImmutableList.Builder<Map.Entry<String, V>> builder = ImmutableList.builder();
+            NavigableMap<String, List<V>> m = map.subMap(name.toUpperCase(Locale.ROOT), true,
+                                                         name.toLowerCase(Locale.ROOT), true);
+            for (Map.Entry<String, List<V>> entry : m.entrySet()) {
+                for (V v : entry.getValue()) {
+                    builder.add(Pair.of(entry.getKey(), v));
+                }
+            }
+            return builder.build();
+        }
+    }
+
+    /**
+     * Returns whether this map contains a given key, with a given
+     * case-sensitivity.
+     */
+    public boolean containsKey(String name, boolean caseSensitive) {
+        return !range(name, caseSensitive).isEmpty();
+    }
+
+    /**
+     * Returns the underlying map.
+     * Its size is the number of keys, not the number of values.
+     */
+    public NavigableMap<String, List<V>> map() {
+        return map;
+    }
 }
 
 // End NameMultimap.java

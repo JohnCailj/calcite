@@ -24,37 +24,34 @@ import java.util.List;
 
 /**
  * Table schema element.
- *
  * <p>Occurs within {@link JsonMapSchema#tables}.
  *
  * @see JsonRoot Description of schema elements
  */
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    property = "type",
-    defaultImpl = JsonCustomTable.class)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = JsonCustomTable.class, name = "custom"),
-    @JsonSubTypes.Type(value = JsonView.class, name = "view") })
-public abstract class JsonTable {
-  /** Name of this table.
-   *
-   * <p>Required. Must be unique within the schema.
-   */
-  public String name;
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", defaultImpl = JsonCustomTable.class) @JsonSubTypes({
+        @JsonSubTypes.Type(value = JsonCustomTable.class, name = "custom"),
+        @JsonSubTypes.Type(value = JsonView.class, name = "view") }) public abstract class JsonTable {
 
-  /** Definition of the columns of this table.
-   *
-   * <p>Required for some kinds of type,
-   * optional for others (such as {@link JsonView}).
-   */
-  public final List<JsonColumn> columns = new ArrayList<>();
+    /**
+     * Name of this table.
+     * <p>Required. Must be unique within the schema.
+     */
+    public String name;
 
-  /** Information about whether the table can be streamed, and if so, whether
-   * the history of the table is also available. */
-  public JsonStream stream;
+    /**
+     * Definition of the columns of this table.
+     * <p>Required for some kinds of type,
+     * optional for others (such as {@link JsonView}).
+     */
+    public final List<JsonColumn> columns = new ArrayList<>();
 
-  public abstract void accept(ModelHandler handler);
+    /**
+     * Information about whether the table can be streamed, and if so, whether
+     * the history of the table is also available.
+     */
+    public JsonStream stream;
+
+    public abstract void accept(ModelHandler handler);
 }
 
 // End JsonTable.java

@@ -24,29 +24,31 @@ import org.apache.calcite.rex.RexBuilder;
 import org.apache.calcite.rex.RexProgram;
 import org.apache.calcite.rex.RexProgramBuilder;
 
-/** Variant of {@link org.apache.calcite.rel.rules.FilterToCalcRule} for
- * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}. */
+/**
+ * Variant of {@link org.apache.calcite.rel.rules.FilterToCalcRule} for
+ * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}.
+ */
 public class EnumerableFilterToCalcRule extends RelOptRule {
-  EnumerableFilterToCalcRule() {
-    super(operand(EnumerableFilter.class, any()));
-  }
 
-  public void onMatch(RelOptRuleCall call) {
-    final EnumerableFilter filter = call.rel(0);
-    final RelNode input = filter.getInput();
+    EnumerableFilterToCalcRule() {
+        super(operand(EnumerableFilter.class, any()));
+    }
 
-    // Create a program containing a filter.
-    final RexBuilder rexBuilder = filter.getCluster().getRexBuilder();
-    final RelDataType inputRowType = input.getRowType();
-    final RexProgramBuilder programBuilder =
-        new RexProgramBuilder(inputRowType, rexBuilder);
-    programBuilder.addIdentity();
-    programBuilder.addCondition(filter.getCondition());
-    final RexProgram program = programBuilder.getProgram();
+    public void onMatch(RelOptRuleCall call) {
+        final EnumerableFilter filter = call.rel(0);
+        final RelNode input = filter.getInput();
 
-    final EnumerableCalc calc = EnumerableCalc.create(input, program);
-    call.transformTo(calc);
-  }
+        // Create a program containing a filter.
+        final RexBuilder rexBuilder = filter.getCluster().getRexBuilder();
+        final RelDataType inputRowType = input.getRowType();
+        final RexProgramBuilder programBuilder = new RexProgramBuilder(inputRowType, rexBuilder);
+        programBuilder.addIdentity();
+        programBuilder.addCondition(filter.getCondition());
+        final RexProgram program = programBuilder.getProgram();
+
+        final EnumerableCalc calc = EnumerableCalc.create(input, program);
+        call.transformTo(calc);
+    }
 }
 
 // End EnumerableFilterToCalcRule.java

@@ -16,16 +16,11 @@
  */
 package org.apache.calcite.sql.type;
 
-import org.apache.calcite.linq4j.Ord;
-import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.sql.SqlCallBinding;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlOperandCountRange;
-import org.apache.calcite.sql.SqlOperator;
-import org.apache.calcite.sql.SqlUtil;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import org.apache.calcite.linq4j.Ord;
+import org.apache.calcite.rel.type.RelDataType;
+import org.apache.calcite.sql.*;
 
 import java.util.List;
 
@@ -36,103 +31,89 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * families.
  */
 public class FamilyOperandTypeChecker implements SqlSingleOperandTypeChecker {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  protected final ImmutableList<SqlTypeFamily> families;
-  protected final Predicate<Integer> optional;
+    protected final ImmutableList<SqlTypeFamily> families;
+    protected final Predicate<Integer>           optional;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Package private. Create using {@link OperandTypes#family}.
-   */
-  FamilyOperandTypeChecker(List<SqlTypeFamily> families,
-      Predicate<Integer> optional) {
-    this.families = ImmutableList.copyOf(families);
-    this.optional = optional;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public boolean isOptional(int i) {
-    return optional.apply(i);
-  }
-
-  public boolean checkSingleOperandType(
-      SqlCallBinding callBinding,
-      SqlNode node,
-      int iFormalOperand,
-      boolean throwOnFailure) {
-    SqlTypeFamily family = families.get(iFormalOperand);
-    if (family == SqlTypeFamily.ANY) {
-      // no need to check
-      return true;
-    }
-    if (SqlUtil.isNullLiteral(node, false)) {
-      if (throwOnFailure) {
-        throw callBinding.getValidator().newValidationError(node,
-            RESOURCE.nullIllegal());
-      } else {
-        return false;
-      }
-    }
-    RelDataType type =
-        callBinding.getValidator().deriveType(
-            callBinding.getScope(),
-            node);
-    SqlTypeName typeName = type.getSqlTypeName();
-
-    // Pass type checking for operators if it's of type 'ANY'.
-    if (typeName.getFamily() == SqlTypeFamily.ANY) {
-      return true;
+    /**
+     * Package private. Create using {@link OperandTypes#family}.
+     */
+    FamilyOperandTypeChecker(List<SqlTypeFamily> families, Predicate<Integer> optional) {
+        this.families = ImmutableList.copyOf(families);
+        this.optional = optional;
     }
 
-    if (!family.getTypeNames().contains(typeName)) {
-      if (throwOnFailure) {
-        throw callBinding.newValidationSignatureError();
-      }
-      return false;
-    }
-    return true;
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  public boolean checkOperandTypes(
-      SqlCallBinding callBinding,
-      boolean throwOnFailure) {
-    if (families.size() != callBinding.getOperandCount()) {
-      // assume this is an inapplicable sub-rule of a composite rule;
-      // don't throw
-      return false;
+    public boolean isOptional(int i) {
+        return optional.apply(i);
     }
 
-    for (Ord<SqlNode> op : Ord.zip(callBinding.operands())) {
-      if (!checkSingleOperandType(
-          callBinding,
-          op.e,
-          op.i,
-          throwOnFailure)) {
-        return false;
-      }
+    public boolean checkSingleOperandType(SqlCallBinding callBinding, SqlNode node, int iFormalOperand,
+                                          boolean throwOnFailure) {
+        SqlTypeFamily family = families.get(iFormalOperand);
+        if (family == SqlTypeFamily.ANY) {
+            // no need to check
+            return true;
+        }
+        if (SqlUtil.isNullLiteral(node, false)) {
+            if (throwOnFailure) {
+                throw callBinding.getValidator().newValidationError(node, RESOURCE.nullIllegal());
+            } else {
+                return false;
+            }
+        }
+        RelDataType type = callBinding.getValidator().deriveType(callBinding.getScope(), node);
+        SqlTypeName typeName = type.getSqlTypeName();
+
+        // Pass type checking for operators if it's of type 'ANY'.
+        if (typeName.getFamily() == SqlTypeFamily.ANY) {
+            return true;
+        }
+
+        if (!family.getTypeNames().contains(typeName)) {
+            if (throwOnFailure) {
+                throw callBinding.newValidationSignatureError();
+            }
+            return false;
+        }
+        return true;
     }
-    return true;
-  }
 
-  public SqlOperandCountRange getOperandCountRange() {
-    final int max = families.size();
-    int min = max;
-    while (min > 0 && optional.apply(min - 1)) {
-      --min;
+    public boolean checkOperandTypes(SqlCallBinding callBinding, boolean throwOnFailure) {
+        if (families.size() != callBinding.getOperandCount()) {
+            // assume this is an inapplicable sub-rule of a composite rule;
+            // don't throw
+            return false;
+        }
+
+        for (Ord<SqlNode> op : Ord.zip(callBinding.operands())) {
+            if (!checkSingleOperandType(callBinding, op.e, op.i, throwOnFailure)) {
+                return false;
+            }
+        }
+        return true;
     }
-    return SqlOperandCountRanges.between(min, max);
-  }
 
-  public String getAllowedSignatures(SqlOperator op, String opName) {
-    return SqlUtil.getAliasedSignature(op, opName, families);
-  }
+    public SqlOperandCountRange getOperandCountRange() {
+        final int max = families.size();
+        int min = max;
+        while (min > 0 && optional.apply(min - 1)) {
+            --min;
+        }
+        return SqlOperandCountRanges.between(min, max);
+    }
 
-  public Consistency getConsistency() {
-    return Consistency.NONE;
-  }
+    public String getAllowedSignatures(SqlOperator op, String opName) {
+        return SqlUtil.getAliasedSignature(op, opName, families);
+    }
+
+    public Consistency getConsistency() {
+        return Consistency.NONE;
+    }
 }
 
 // End FamilyOperandTypeChecker.java

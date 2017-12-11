@@ -16,11 +16,10 @@
  */
 package org.apache.calcite.interpreter;
 
+import com.google.common.collect.Maps;
 import org.apache.calcite.DataContext;
 import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.rel.RelNode;
-
-import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;
@@ -29,27 +28,31 @@ import java.util.Map;
  * Relational expression that can implement itself using an interpreter.
  */
 public interface InterpretableRel extends RelNode {
-  /** Creates an interpreter node to implement this relational expression. */
-  Node implement(InterpreterImplementor implementor);
 
-  /** Context when a {@link RelNode} is being converted to an interpreter
-   * {@link Node}. */
-  class InterpreterImplementor {
-    public final Interpreter interpreter;
-    public final Map<String, Object> internalParameters =
-        Maps.newLinkedHashMap();
-    public final CalcitePrepare.SparkHandler spark;
-    public final DataContext dataContext;
-    public final Map<RelNode, List<Sink>> relSinks = Maps.newHashMap();
+    /**
+     * Creates an interpreter node to implement this relational expression.
+     */
+    Node implement(InterpreterImplementor implementor);
 
-    public InterpreterImplementor(Interpreter interpreter,
-        CalcitePrepare.SparkHandler spark,
-        DataContext dataContext) {
-      this.interpreter = interpreter;
-      this.spark = spark;
-      this.dataContext = dataContext;
+    /**
+     * Context when a {@link RelNode} is being converted to an interpreter
+     * {@link Node}.
+     */
+    class InterpreterImplementor {
+
+        public final Interpreter interpreter;
+        public final Map<String, Object> internalParameters = Maps.newLinkedHashMap();
+        public final CalcitePrepare.SparkHandler spark;
+        public final DataContext                 dataContext;
+        public final Map<RelNode, List<Sink>> relSinks = Maps.newHashMap();
+
+        public InterpreterImplementor(Interpreter interpreter, CalcitePrepare.SparkHandler spark,
+                                      DataContext dataContext) {
+            this.interpreter = interpreter;
+            this.spark = spark;
+            this.dataContext = dataContext;
+        }
     }
-  }
 }
 
 // End InterpretableRel.java

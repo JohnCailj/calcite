@@ -16,13 +16,12 @@
  */
 package org.apache.calcite.rel.externalize;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.RelWriter;
 import org.apache.calcite.sql.SqlExplainLevel;
 import org.apache.calcite.util.JsonBuilder;
 import org.apache.calcite.util.Pair;
-
-import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -35,124 +34,123 @@ import java.util.Map;
  * @see RelJsonReader
  */
 public class RelJsonWriter implements RelWriter {
-  //~ Instance fields ----------------------------------------------------------
+    //~ Instance fields ----------------------------------------------------------
 
-  private final JsonBuilder jsonBuilder;
-  private final RelJson relJson;
-  private final Map<RelNode, String> relIdMap = new IdentityHashMap<>();
-  private final List<Object> relList;
-  private final List<Pair<String, Object>> values = new ArrayList<>();
-  private String previousId;
+    private final JsonBuilder jsonBuilder;
+    private final RelJson     relJson;
+    private final Map<RelNode, String> relIdMap = new IdentityHashMap<>();
+    private final List<Object> relList;
+    private final List<Pair<String, Object>> values = new ArrayList<>();
+    private String previousId;
 
-  //~ Constructors -------------------------------------------------------------
+    //~ Constructors -------------------------------------------------------------
 
-  public RelJsonWriter() {
-    jsonBuilder = new JsonBuilder();
-    relList = jsonBuilder.list();
-    relJson = new RelJson(jsonBuilder);
-  }
-
-  //~ Methods ------------------------------------------------------------------
-
-  protected void explain_(RelNode rel, List<Pair<String, Object>> values) {
-    final Map<String, Object> map = jsonBuilder.map();
-
-    map.put("id", null); // ensure that id is the first attribute
-    map.put("relOp", relJson.classToTypeName(rel.getClass()));
-    for (Pair<String, Object> value : values) {
-      if (value.right instanceof RelNode) {
-        continue;
-      }
-      put(map, value.left, value.right);
-    }
-    // omit 'inputs: ["3"]' if "3" is the preceding rel
-    final List<Object> list = explainInputs(rel.getInputs());
-    if (list.size() != 1 || !list.get(0).equals(previousId)) {
-      map.put("inputs", list);
+    public RelJsonWriter() {
+        jsonBuilder = new JsonBuilder();
+        relList = jsonBuilder.list();
+        relJson = new RelJson(jsonBuilder);
     }
 
-    final String id = Integer.toString(relIdMap.size());
-    relIdMap.put(rel, id);
-    map.put("id", id);
+    //~ Methods ------------------------------------------------------------------
 
-    relList.add(map);
-    previousId = id;
-  }
+    protected void explain_(RelNode rel, List<Pair<String, Object>> values) {
+        final Map<String, Object> map = jsonBuilder.map();
 
-  private void put(Map<String, Object> map, String name, Object value) {
-    map.put(name, relJson.toJson(value));
-  }
+        map.put("id", null); // ensure that id is the first attribute
+        map.put("relOp", relJson.classToTypeName(rel.getClass()));
+        for (Pair<String, Object> value : values) {
+            if (value.right instanceof RelNode) {
+                continue;
+            }
+            put(map, value.left, value.right);
+        }
+        // omit 'inputs: ["3"]' if "3" is the preceding rel
+        final List<Object> list = explainInputs(rel.getInputs());
+        if (list.size() != 1 || !list.get(0).equals(previousId)) {
+            map.put("inputs", list);
+        }
 
-  private List<Object> explainInputs(List<RelNode> inputs) {
-    final List<Object> list = jsonBuilder.list();
-    for (RelNode input : inputs) {
-      String id = relIdMap.get(input);
-      if (id == null) {
-        input.explain(this);
-        id = previousId;
-      }
-      list.add(id);
+        final String id = Integer.toString(relIdMap.size());
+        relIdMap.put(rel, id);
+        map.put("id", id);
+
+        relList.add(map);
+        previousId = id;
     }
-    return list;
-  }
 
-  public final void explain(RelNode rel, List<Pair<String, Object>> valueList) {
-    explain_(rel, valueList);
-  }
-
-  public SqlExplainLevel getDetailLevel() {
-    return SqlExplainLevel.ALL_ATTRIBUTES;
-  }
-
-  public RelWriter input(String term, RelNode input) {
-    return this;
-  }
-
-  public RelWriter item(String term, Object value) {
-    values.add(Pair.of(term, value));
-    return this;
-  }
-
-  private List<Object> getList(List<Pair<String, Object>> values, String tag) {
-    for (Pair<String, Object> value : values) {
-      if (value.left.equals(tag)) {
-        //noinspection unchecked
-        return (List<Object>) value.right;
-      }
+    private void put(Map<String, Object> map, String name, Object value) {
+        map.put(name, relJson.toJson(value));
     }
-    final List<Object> list = new ArrayList<>();
-    values.add(Pair.of(tag, (Object) list));
-    return list;
-  }
 
-  public RelWriter itemIf(String term, Object value, boolean condition) {
-    if (condition) {
-      item(term, value);
+    private List<Object> explainInputs(List<RelNode> inputs) {
+        final List<Object> list = jsonBuilder.list();
+        for (RelNode input : inputs) {
+            String id = relIdMap.get(input);
+            if (id == null) {
+                input.explain(this);
+                id = previousId;
+            }
+            list.add(id);
+        }
+        return list;
     }
-    return this;
-  }
 
-  public RelWriter done(RelNode node) {
-    final List<Pair<String, Object>> valuesCopy =
-        ImmutableList.copyOf(values);
-    values.clear();
-    explain_(node, valuesCopy);
-    return this;
-  }
+    public final void explain(RelNode rel, List<Pair<String, Object>> valueList) {
+        explain_(rel, valueList);
+    }
 
-  public boolean nest() {
-    return true;
-  }
+    public SqlExplainLevel getDetailLevel() {
+        return SqlExplainLevel.ALL_ATTRIBUTES;
+    }
 
-  /**
-   * Returns a JSON string describing the relational expressions that were just
-   * explained.
-   */
-  public String asString() {
-    final Map<String, Object> map = jsonBuilder.map();
-    map.put("rels", relList);
-    return jsonBuilder.toJsonString(map);
-  }
+    public RelWriter input(String term, RelNode input) {
+        return this;
+    }
+
+    public RelWriter item(String term, Object value) {
+        values.add(Pair.of(term, value));
+        return this;
+    }
+
+    private List<Object> getList(List<Pair<String, Object>> values, String tag) {
+        for (Pair<String, Object> value : values) {
+            if (value.left.equals(tag)) {
+                //noinspection unchecked
+                return (List<Object>) value.right;
+            }
+        }
+        final List<Object> list = new ArrayList<>();
+        values.add(Pair.of(tag, (Object) list));
+        return list;
+    }
+
+    public RelWriter itemIf(String term, Object value, boolean condition) {
+        if (condition) {
+            item(term, value);
+        }
+        return this;
+    }
+
+    public RelWriter done(RelNode node) {
+        final List<Pair<String, Object>> valuesCopy = ImmutableList.copyOf(values);
+        values.clear();
+        explain_(node, valuesCopy);
+        return this;
+    }
+
+    public boolean nest() {
+        return true;
+    }
+
+    /**
+     * Returns a JSON string describing the relational expressions that were just
+     * explained.
+     */
+    public String asString() {
+        final Map<String, Object> map = jsonBuilder.map();
+        map.put("rels", relList);
+        return jsonBuilder.toJsonString(map);
+    }
 }
 
 // End RelJsonWriter.java

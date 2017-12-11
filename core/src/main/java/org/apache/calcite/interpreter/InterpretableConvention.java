@@ -17,52 +17,46 @@
 package org.apache.calcite.interpreter;
 
 import org.apache.calcite.adapter.enumerable.EnumerableRel;
-import org.apache.calcite.plan.Convention;
-import org.apache.calcite.plan.ConventionTraitDef;
-import org.apache.calcite.plan.RelOptPlanner;
-import org.apache.calcite.plan.RelTrait;
-import org.apache.calcite.plan.RelTraitDef;
-import org.apache.calcite.plan.RelTraitSet;
+import org.apache.calcite.plan.*;
 
 /**
  * Calling convention that returns results as an
  * {@link org.apache.calcite.linq4j.Enumerable} of object arrays.
- *
  * <p>Unlike enumerable convention, no code generation is required.
  */
 public enum InterpretableConvention implements Convention {
-  INSTANCE;
+    INSTANCE;
 
-  @Override public String toString() {
-    return getName();
-  }
+    @Override public String toString() {
+        return getName();
+    }
 
-  public Class getInterface() {
-    return EnumerableRel.class;
-  }
+    public Class getInterface() {
+        return EnumerableRel.class;
+    }
 
-  public String getName() {
-    return "INTERPRETABLE";
-  }
+    public String getName() {
+        return "INTERPRETABLE";
+    }
 
-  public RelTraitDef getTraitDef() {
-    return ConventionTraitDef.INSTANCE;
-  }
+    public RelTraitDef getTraitDef() {
+        return ConventionTraitDef.INSTANCE;
+    }
 
-  public boolean satisfies(RelTrait trait) {
-    return this == trait;
-  }
+    public boolean satisfies(RelTrait trait) {
+        return this == trait;
+    }
 
-  public void register(RelOptPlanner planner) {}
+    public void register(RelOptPlanner planner) {
+    }
 
-  public boolean canConvertConvention(Convention toConvention) {
-    return false;
-  }
+    public boolean canConvertConvention(Convention toConvention) {
+        return false;
+    }
 
-  public boolean useAbstractConvertersForConversion(RelTraitSet fromTraits,
-      RelTraitSet toTraits) {
-    return false;
-  }
+    public boolean useAbstractConvertersForConversion(RelTraitSet fromTraits, RelTraitSet toTraits) {
+        return false;
+    }
 }
 
 // End InterpretableConvention.java

@@ -31,101 +31,97 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <code>select</code> statement.
  */
 public class RelOptQuery {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  /**
-   * Prefix to the name of correlating variables.
-   */
-  public static final String CORREL_PREFIX = CorrelationId.CORREL_PREFIX;
+    /**
+     * Prefix to the name of correlating variables.
+     */
+    public static final String CORREL_PREFIX = CorrelationId.CORREL_PREFIX;
 
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  /**
-   * Maps name of correlating variable (e.g. "$cor3") to the {@link RelNode}
-   * which implements it.
-   */
-  final Map<String, RelNode> mapCorrelToRel;
+    /**
+     * Maps name of correlating variable (e.g. "$cor3") to the {@link RelNode}
+     * which implements it.
+     */
+    final Map<String, RelNode> mapCorrelToRel;
 
-  private final RelOptPlanner planner;
-  final AtomicInteger nextCorrel;
+    private final RelOptPlanner planner;
+    final         AtomicInteger nextCorrel;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a query.
-   *
-   * @param planner Planner
-   */
-  @Deprecated // to be removed before 2.0
-  public RelOptQuery(RelOptPlanner planner) {
-    this(planner, new AtomicInteger(0), new HashMap<String, RelNode>());
-  }
+    /**
+     * Creates a query.
+     *
+     * @param planner Planner
+     */
+    @Deprecated // to be removed before 2.0
+    public RelOptQuery(RelOptPlanner planner) {
+        this(planner, new AtomicInteger(0), new HashMap<String, RelNode>());
+    }
 
-  /** For use by RelOptCluster only. */
-  RelOptQuery(RelOptPlanner planner, AtomicInteger nextCorrel,
-      Map<String, RelNode> mapCorrelToRel) {
-    this.planner = planner;
-    this.nextCorrel = nextCorrel;
-    this.mapCorrelToRel = mapCorrelToRel;
-  }
+    /**
+     * For use by RelOptCluster only.
+     */
+    RelOptQuery(RelOptPlanner planner, AtomicInteger nextCorrel, Map<String, RelNode> mapCorrelToRel) {
+        this.planner = planner;
+        this.nextCorrel = nextCorrel;
+        this.mapCorrelToRel = mapCorrelToRel;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Converts a correlating variable name into an ordinal, unique within the
-   * query.
-   *
-   * @param correlName Name of correlating variable
-   * @return Correlating variable ordinal
-   */
-  @Deprecated // to be removed before 2.0
-  public static int getCorrelOrdinal(String correlName) {
-    assert correlName.startsWith(CORREL_PREFIX);
-    return Integer.parseInt(correlName.substring(CORREL_PREFIX.length()));
-  }
+    /**
+     * Converts a correlating variable name into an ordinal, unique within the
+     * query.
+     *
+     * @param correlName Name of correlating variable
+     * @return Correlating variable ordinal
+     */
+    @Deprecated // to be removed before 2.0
+    public static int getCorrelOrdinal(String correlName) {
+        assert correlName.startsWith(CORREL_PREFIX);
+        return Integer.parseInt(correlName.substring(CORREL_PREFIX.length()));
+    }
 
-  /**
-   * Creates a cluster.
-   *
-   * @param typeFactory Type factory
-   * @param rexBuilder  Expression builder
-   * @return New cluster
-   */
-  @Deprecated // to be removed before 2.0
-  public RelOptCluster createCluster(
-      RelDataTypeFactory typeFactory,
-      RexBuilder rexBuilder) {
-    return new RelOptCluster(planner, typeFactory, rexBuilder, nextCorrel,
-        mapCorrelToRel);
-  }
+    /**
+     * Creates a cluster.
+     *
+     * @param typeFactory Type factory
+     * @param rexBuilder  Expression builder
+     * @return New cluster
+     */
+    @Deprecated // to be removed before 2.0
+    public RelOptCluster createCluster(RelDataTypeFactory typeFactory, RexBuilder rexBuilder) {
+        return new RelOptCluster(planner, typeFactory, rexBuilder, nextCorrel, mapCorrelToRel);
+    }
 
-  /**
-   * Constructs a new name for a correlating variable. It is unique within the
-   * whole query.
-   *
-   * @deprecated Use {@link RelOptCluster#createCorrel()}
-   */
-  @Deprecated // to be removed before 2.0
-  public String createCorrel() {
-    int n = nextCorrel.getAndIncrement();
-    return CORREL_PREFIX + n;
-  }
+    /**
+     * Constructs a new name for a correlating variable. It is unique within the
+     * whole query.
+     *
+     * @deprecated Use {@link RelOptCluster#createCorrel()}
+     */
+    @Deprecated // to be removed before 2.0
+    public String createCorrel() {
+        int n = nextCorrel.getAndIncrement();
+        return CORREL_PREFIX + n;
+    }
 
-  /**
-   * Returns the relational expression which populates a correlating variable.
-   */
-  public RelNode lookupCorrel(String name) {
-    return mapCorrelToRel.get(name);
-  }
+    /**
+     * Returns the relational expression which populates a correlating variable.
+     */
+    public RelNode lookupCorrel(String name) {
+        return mapCorrelToRel.get(name);
+    }
 
-  /**
-   * Maps a correlating variable to a {@link RelNode}.
-   */
-  public void mapCorrel(
-      String name,
-      RelNode rel) {
-    mapCorrelToRel.put(name, rel);
-  }
+    /**
+     * Maps a correlating variable to a {@link RelNode}.
+     */
+    public void mapCorrel(String name, RelNode rel) {
+        mapCorrelToRel.put(name, rel);
+    }
 }
 
 // End RelOptQuery.java

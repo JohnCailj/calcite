@@ -23,6 +23,7 @@ package org.apache.calcite.util;
  * dependency on it from client-side code.
  */
 public interface CalciteParserException {
+
 }
 
 // End CalciteParserException.java

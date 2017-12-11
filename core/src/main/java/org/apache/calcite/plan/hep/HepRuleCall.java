@@ -32,36 +32,32 @@ import java.util.Map;
  * any) should replace the original expression.
  */
 public class HepRuleCall extends RelOptRuleCall {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private List<RelNode> results;
+    private List<RelNode> results;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  HepRuleCall(
-      RelOptPlanner planner,
-      RelOptRuleOperand operand,
-      RelNode[] rels,
-      Map<RelNode, List<RelNode>> nodeChildren,
-      List<RelNode> parents) {
-    super(planner, operand, rels, nodeChildren, parents);
+    HepRuleCall(RelOptPlanner planner, RelOptRuleOperand operand, RelNode[] rels,
+                Map<RelNode, List<RelNode>> nodeChildren, List<RelNode> parents) {
+        super(planner, operand, rels, nodeChildren, parents);
 
-    results = new ArrayList<RelNode>();
-  }
+        results = new ArrayList<RelNode>();
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  // implement RelOptRuleCall
-  public void transformTo(RelNode rel, Map<RelNode, RelNode> equiv) {
-    final RelNode rel0 = rels[0];
-    RelOptUtil.verifyTypeEquivalence(rel0, rel, rel0);
-    results.add(rel);
-    rel(0).getCluster().invalidateMetadataQuery();
-  }
+    // implement RelOptRuleCall
+    public void transformTo(RelNode rel, Map<RelNode, RelNode> equiv) {
+        final RelNode rel0 = rels[0];
+        RelOptUtil.verifyTypeEquivalence(rel0, rel, rel0);
+        results.add(rel);
+        rel(0).getCluster().invalidateMetadataQuery();
+    }
 
-  List<RelNode> getResults() {
-    return results;
-  }
+    List<RelNode> getResults() {
+        return results;
+    }
 }
 
 // End HepRuleCall.java

@@ -16,11 +16,10 @@
  */
 package org.apache.calcite.rex;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.calcite.rel.RelFieldCollation;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.util.Pair;
-
-import com.google.common.collect.ImmutableSet;
 
 import java.util.Set;
 
@@ -28,43 +27,40 @@ import java.util.Set;
  * Expression combined with sort flags (DESCENDING, NULLS LAST).
  */
 public class RexFieldCollation extends Pair<RexNode, ImmutableSet<SqlKind>> {
-  public RexFieldCollation(RexNode left, Set<SqlKind> right) {
-    super(left, ImmutableSet.copyOf(right));
-  }
 
-  @Override public String toString() {
-    String s = left.toString();
-    for (SqlKind operator : right) {
-      switch (operator) {
-      case DESCENDING:
-        s += " DESC";
-        break;
-      case NULLS_FIRST:
-        s += " NULLS FIRST";
-        break;
-      case NULLS_LAST:
-        s += " NULLS LAST";
-        break;
-      default:
-        throw new AssertionError(operator);
-      }
+    public RexFieldCollation(RexNode left, Set<SqlKind> right) {
+        super(left, ImmutableSet.copyOf(right));
     }
-    return s;
-  }
 
-  public RelFieldCollation.Direction getDirection() {
-    return right.contains(SqlKind.DESCENDING)
-        ? RelFieldCollation.Direction.DESCENDING
-        : RelFieldCollation.Direction.ASCENDING;
-  }
+    @Override public String toString() {
+        String s = left.toString();
+        for (SqlKind operator : right) {
+            switch (operator) {
+                case DESCENDING:
+                    s += " DESC";
+                    break;
+                case NULLS_FIRST:
+                    s += " NULLS FIRST";
+                    break;
+                case NULLS_LAST:
+                    s += " NULLS LAST";
+                    break;
+                default:
+                    throw new AssertionError(operator);
+            }
+        }
+        return s;
+    }
 
-  public RelFieldCollation.NullDirection getNullDirection() {
-    return right.contains(SqlKind.NULLS_LAST)
-        ? RelFieldCollation.NullDirection.LAST
-        : right.contains(SqlKind.NULLS_FIRST)
-            ? RelFieldCollation.NullDirection.FIRST
-            : getDirection().defaultNullDirection();
-  }
+    public RelFieldCollation.Direction getDirection() {
+        return right.contains(
+                SqlKind.DESCENDING) ? RelFieldCollation.Direction.DESCENDING : RelFieldCollation.Direction.ASCENDING;
+    }
+
+    public RelFieldCollation.NullDirection getNullDirection() {
+        return right.contains(SqlKind.NULLS_LAST) ? RelFieldCollation.NullDirection.LAST : right.contains(
+                SqlKind.NULLS_FIRST) ? RelFieldCollation.NullDirection.FIRST : getDirection().defaultNullDirection();
+    }
 }
 
 // End RexFieldCollation.java

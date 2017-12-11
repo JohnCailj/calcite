@@ -29,32 +29,30 @@ import java.util.Map;
  * @see ParameterNamespace
  */
 public class ParameterScope extends EmptyScope {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  /**
-   * Map from the simple names of the parameters to types of the parameters
-   * ({@link RelDataType}).
-   */
-  private final Map<String, RelDataType> nameToTypeMap;
+    /**
+     * Map from the simple names of the parameters to types of the parameters
+     * ({@link RelDataType}).
+     */
+    private final Map<String, RelDataType> nameToTypeMap;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public ParameterScope(
-      SqlValidatorImpl validator,
-      Map<String, RelDataType> nameToTypeMap) {
-    super(validator);
-    this.nameToTypeMap = nameToTypeMap;
-  }
+    public ParameterScope(SqlValidatorImpl validator, Map<String, RelDataType> nameToTypeMap) {
+        super(validator);
+        this.nameToTypeMap = nameToTypeMap;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public SqlQualified fullyQualify(SqlIdentifier identifier) {
-    return SqlQualified.create(this, 1, null, identifier);
-  }
+    public SqlQualified fullyQualify(SqlIdentifier identifier) {
+        return SqlQualified.create(this, 1, null, identifier);
+    }
 
-  public SqlValidatorScope getOperandScope(SqlCall call) {
-    return this;
-  }
+    public SqlValidatorScope getOperandScope(SqlCall call) {
+        return this;
+    }
 
 }
 

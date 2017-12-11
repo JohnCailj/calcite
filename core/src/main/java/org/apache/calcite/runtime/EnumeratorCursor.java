@@ -32,27 +32,29 @@ import org.apache.calcite.linq4j.Enumerator;
  * @param <T> Element type
  */
 public abstract class EnumeratorCursor<T> extends PositionedCursor<T> {
-  private final Enumerator<T> enumerator;
 
-  /**
-   * Creates a {@code EnumeratorCursor}
-   * @param enumerator input enumerator
-   */
-  protected EnumeratorCursor(Enumerator<T> enumerator) {
-    this.enumerator = enumerator;
-  }
+    private final Enumerator<T> enumerator;
 
-  protected T current() {
-    return enumerator.current();
-  }
+    /**
+     * Creates a {@code EnumeratorCursor}
+     *
+     * @param enumerator input enumerator
+     */
+    protected EnumeratorCursor(Enumerator<T> enumerator) {
+        this.enumerator = enumerator;
+    }
 
-  public boolean next() {
-    return enumerator.moveNext();
-  }
+    protected T current() {
+        return enumerator.current();
+    }
 
-  public void close() {
-    enumerator.close();
-  }
+    public boolean next() {
+        return enumerator.moveNext();
+    }
+
+    public void close() {
+        enumerator.close();
+    }
 }
 
 // End EnumeratorCursor.java

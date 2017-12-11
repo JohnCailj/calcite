@@ -25,21 +25,23 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public abstract class SqlCreate extends SqlCall {
 
-  /** Whether "OR REPLACE" was specified. */
-  boolean replace;
+    /**
+     * Whether "OR REPLACE" was specified.
+     */
+    boolean replace;
 
-  public SqlCreate(SqlParserPos pos, boolean replace) {
-    super(pos);
-    this.replace = replace;
-  }
+    public SqlCreate(SqlParserPos pos, boolean replace) {
+        super(pos);
+        this.replace = replace;
+    }
 
-  public boolean getReplace() {
-    return replace;
-  }
+    public boolean getReplace() {
+        return replace;
+    }
 
-  public void setReplace(boolean replace) {
-    this.replace = replace;
-  }
+    public void setReplace(boolean replace) {
+        this.replace = replace;
+    }
 
 }
 

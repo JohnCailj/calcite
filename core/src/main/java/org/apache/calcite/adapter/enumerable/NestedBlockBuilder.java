@@ -28,50 +28,56 @@ import java.util.Map;
  * @see org.apache.calcite.adapter.enumerable.StrictAggImplementor#implementAdd(AggContext, AggAddContext)
  */
 public interface NestedBlockBuilder {
-  /**
-   * Starts nested code block. The resulting block can optimize expressions
-   * and reuse already calculated values from the parent blocks.
-   * @return new code block that can optimize expressions and reuse already
-   * calculated values from the parent blocks.
-   */
-  BlockBuilder nestBlock();
 
-  /**
-   * Uses given block as the new code context.
-   * The current block will be restored after {@link #exitBlock()} call.
-   * @param block new code block
-   * @see #exitBlock()
-   */
-  void nestBlock(BlockBuilder block);
+    /**
+     * Starts nested code block. The resulting block can optimize expressions
+     * and reuse already calculated values from the parent blocks.
+     *
+     * @return new code block that can optimize expressions and reuse already
+     * calculated values from the parent blocks.
+     */
+    BlockBuilder nestBlock();
 
-  /**
-   * Uses given block as the new code context and the map of nullability.
-   * The current block will be restored after {@link #exitBlock()} call.
-   * @param block new code block
-   * @param nullables map of expression to its nullability state
-   * @see #exitBlock()
-   */
-  void nestBlock(BlockBuilder block,
-      Map<RexNode, Boolean> nullables);
+    /**
+     * Uses given block as the new code context.
+     * The current block will be restored after {@link #exitBlock()} call.
+     *
+     * @param block new code block
+     * @see #exitBlock()
+     */
+    void nestBlock(BlockBuilder block);
 
-  /**
-   * Returns the current code block
-   * @return current code block
-   */
-  BlockBuilder currentBlock();
+    /**
+     * Uses given block as the new code context and the map of nullability.
+     * The current block will be restored after {@link #exitBlock()} call.
+     *
+     * @param block     new code block
+     * @param nullables map of expression to its nullability state
+     * @see #exitBlock()
+     */
+    void nestBlock(BlockBuilder block, Map<RexNode, Boolean> nullables);
 
-  /**
-   * Returns the current nullability state of rex nodes.
-   * The resulting value is the summary of all the maps in the block hierarchy.
-   * @return current nullability state of rex nodes
-   */
-  Map<RexNode, Boolean> currentNullables();
+    /**
+     * Returns the current code block
+     *
+     * @return current code block
+     */
+    BlockBuilder currentBlock();
 
-  /**
-   * Leaves the current code block.
-   * @see #nestBlock()
-   */
-  void exitBlock();
+    /**
+     * Returns the current nullability state of rex nodes.
+     * The resulting value is the summary of all the maps in the block hierarchy.
+     *
+     * @return current nullability state of rex nodes
+     */
+    Map<RexNode, Boolean> currentNullables();
+
+    /**
+     * Leaves the current code block.
+     *
+     * @see #nestBlock()
+     */
+    void exitBlock();
 }
 
 // End NestedBlockBuilder.java

@@ -16,13 +16,12 @@
  */
 package org.apache.calcite.sql.type;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlCallBinding;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlOperandCountRange;
 import org.apache.calcite.sql.SqlOperator;
-
-import com.google.common.collect.ImmutableList;
 
 import static org.apache.calcite.util.Static.RESOURCE;
 
@@ -33,68 +32,51 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * @see MultisetSqlType#getComponentType
  */
 public class MultisetOperandTypeChecker implements SqlOperandTypeChecker {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public boolean isOptional(int i) {
-    return false;
-  }
-
-  public boolean checkOperandTypes(
-      SqlCallBinding callBinding,
-      boolean throwOnFailure) {
-    final SqlNode op0 = callBinding.operand(0);
-    if (!OperandTypes.MULTISET.checkSingleOperandType(
-        callBinding,
-        op0,
-        0,
-        throwOnFailure)) {
-      return false;
+    public boolean isOptional(int i) {
+        return false;
     }
 
-    final SqlNode op1 = callBinding.operand(1);
-    if (!OperandTypes.MULTISET.checkSingleOperandType(
-        callBinding,
-        op1,
-        0,
-        throwOnFailure)) {
-      return false;
+    public boolean checkOperandTypes(SqlCallBinding callBinding, boolean throwOnFailure) {
+        final SqlNode op0 = callBinding.operand(0);
+        if (!OperandTypes.MULTISET.checkSingleOperandType(callBinding, op0, 0, throwOnFailure)) {
+            return false;
+        }
+
+        final SqlNode op1 = callBinding.operand(1);
+        if (!OperandTypes.MULTISET.checkSingleOperandType(callBinding, op1, 0, throwOnFailure)) {
+            return false;
+        }
+
+        // TODO: this won't work if element types are of ROW types and there is
+        // a mismatch.
+        RelDataType biggest = callBinding.getTypeFactory().leastRestrictive(
+                ImmutableList.of(callBinding.getValidator().deriveType(callBinding.getScope(), op0).getComponentType(),
+                                 callBinding.getValidator().deriveType(callBinding.getScope(),
+                                                                       op1).getComponentType()));
+        if (null == biggest) {
+            if (throwOnFailure) {
+                throw callBinding.newError(RESOURCE.typeNotComparable(op0.getParserPosition().toString(),
+                                                                      op1.getParserPosition().toString()));
+            }
+
+            return false;
+        }
+        return true;
     }
 
-    // TODO: this won't work if element types are of ROW types and there is
-    // a mismatch.
-    RelDataType biggest =
-        callBinding.getTypeFactory().leastRestrictive(
-            ImmutableList.of(
-                callBinding.getValidator()
-                    .deriveType(callBinding.getScope(), op0)
-                    .getComponentType(),
-                callBinding.getValidator()
-                    .deriveType(callBinding.getScope(), op1)
-                    .getComponentType()));
-    if (null == biggest) {
-      if (throwOnFailure) {
-        throw callBinding.newError(
-            RESOURCE.typeNotComparable(
-                op0.getParserPosition().toString(),
-                op1.getParserPosition().toString()));
-      }
-
-      return false;
+    public SqlOperandCountRange getOperandCountRange() {
+        return SqlOperandCountRanges.of(2);
     }
-    return true;
-  }
 
-  public SqlOperandCountRange getOperandCountRange() {
-    return SqlOperandCountRanges.of(2);
-  }
+    public String getAllowedSignatures(SqlOperator op, String opName) {
+        return "<MULTISET> " + opName + " <MULTISET>";
+    }
 
-  public String getAllowedSignatures(SqlOperator op, String opName) {
-    return "<MULTISET> " + opName + " <MULTISET>";
-  }
-
-  public Consistency getConsistency() {
-    return Consistency.NONE;
-  }
+    public Consistency getConsistency() {
+        return Consistency.NONE;
+    }
 }
 
 // End MultisetOperandTypeChecker.java

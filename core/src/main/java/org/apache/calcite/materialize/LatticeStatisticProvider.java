@@ -20,8 +20,11 @@ package org.apache.calcite.materialize;
  * Estimates row counts for a lattice and its attributes.
  */
 public interface LatticeStatisticProvider {
-  /** Returns an estimate of the number of distinct values in a column. */
-  int cardinality(Lattice lattice, Lattice.Column column);
+
+    /**
+     * Returns an estimate of the number of distinct values in a column.
+     */
+    int cardinality(Lattice lattice, Lattice.Column column);
 }
 
 // End LatticeStatisticProvider.java

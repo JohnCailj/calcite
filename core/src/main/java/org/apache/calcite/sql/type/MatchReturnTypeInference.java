@@ -16,11 +16,10 @@
  */
 package org.apache.calcite.sql.type;
 
-import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.sql.SqlOperatorBinding;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import org.apache.calcite.rel.type.RelDataType;
+import org.apache.calcite.sql.SqlOperatorBinding;
 
 import java.util.List;
 
@@ -29,46 +28,45 @@ import java.util.List;
  * no match could be found, null is returned.
  */
 public class MatchReturnTypeInference implements SqlReturnTypeInference {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final int start;
-  private final List<SqlTypeName> typeNames;
+    private final int               start;
+    private final List<SqlTypeName> typeNames;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Returns the first type of typeName at or after position start (zero
-   * based).
-   *
-   * @see #MatchReturnTypeInference(int, SqlTypeName[])
-   */
-  public MatchReturnTypeInference(int start, SqlTypeName... typeNames) {
-    this(start, ImmutableList.copyOf(typeNames));
-  }
-
-  /**
-   * Returns the first type matching any type in typeNames at or after
-   * position start (zero based).
-   */
-  public MatchReturnTypeInference(int start, Iterable<SqlTypeName> typeNames) {
-    Preconditions.checkArgument(start >= 0);
-    this.start = start;
-    this.typeNames = ImmutableList.copyOf(typeNames);
-    Preconditions.checkArgument(!this.typeNames.isEmpty());
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public RelDataType inferReturnType(
-      SqlOperatorBinding opBinding) {
-    for (int i = start; i < opBinding.getOperandCount(); i++) {
-      RelDataType argType = opBinding.getOperandType(i);
-      if (SqlTypeUtil.isOfSameTypeName(typeNames, argType)) {
-        return argType;
-      }
+    /**
+     * Returns the first type of typeName at or after position start (zero
+     * based).
+     *
+     * @see #MatchReturnTypeInference(int, SqlTypeName[])
+     */
+    public MatchReturnTypeInference(int start, SqlTypeName... typeNames) {
+        this(start, ImmutableList.copyOf(typeNames));
     }
-    return null;
-  }
+
+    /**
+     * Returns the first type matching any type in typeNames at or after
+     * position start (zero based).
+     */
+    public MatchReturnTypeInference(int start, Iterable<SqlTypeName> typeNames) {
+        Preconditions.checkArgument(start >= 0);
+        this.start = start;
+        this.typeNames = ImmutableList.copyOf(typeNames);
+        Preconditions.checkArgument(!this.typeNames.isEmpty());
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+        for (int i = start; i < opBinding.getOperandCount(); i++) {
+            RelDataType argType = opBinding.getOperandType(i);
+            if (SqlTypeUtil.isOfSameTypeName(typeNames, argType)) {
+                return argType;
+            }
+        }
+        return null;
+    }
 }
 
 // End MatchReturnTypeInference.java

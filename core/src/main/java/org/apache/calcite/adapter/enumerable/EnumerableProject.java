@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.adapter.enumerable;
 
+import com.google.common.base.Supplier;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelTraitSet;
 import org.apache.calcite.rel.RelCollation;
@@ -28,69 +29,63 @@ import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rex.RexNode;
 import org.apache.calcite.util.Util;
 
-import com.google.common.base.Supplier;
-
 import java.util.List;
 
-/** Implementation of {@link org.apache.calcite.rel.core.Project} in
- * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}. */
+/**
+ * Implementation of {@link org.apache.calcite.rel.core.Project} in
+ * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}.
+ */
 public class EnumerableProject extends Project implements EnumerableRel {
-  /**
-   * Creates an EnumerableProject.
-   *
-   * <p>Use {@link #create} unless you know what you're doing.
-   *
-   * @param cluster  Cluster this relational expression belongs to
-   * @param traitSet Traits of this relational expression
-   * @param input    Input relational expression
-   * @param projects List of expressions for the input columns
-   * @param rowType  Output row type
-   */
-  public EnumerableProject(
-      RelOptCluster cluster,
-      RelTraitSet traitSet,
-      RelNode input,
-      List<? extends RexNode> projects,
-      RelDataType rowType) {
-    super(cluster, traitSet, input, projects, rowType);
-    assert getConvention() instanceof EnumerableConvention;
-  }
 
-  @Deprecated // to be removed before 2.0
-  public EnumerableProject(RelOptCluster cluster, RelTraitSet traitSet,
-      RelNode input, List<? extends RexNode> projects, RelDataType rowType,
-      int flags) {
-    this(cluster, traitSet, input, projects, rowType);
-    Util.discard(flags);
-  }
+    /**
+     * Creates an EnumerableProject.
+     * <p>Use {@link #create} unless you know what you're doing.
+     *
+     * @param cluster  Cluster this relational expression belongs to
+     * @param traitSet Traits of this relational expression
+     * @param input    Input relational expression
+     * @param projects List of expressions for the input columns
+     * @param rowType  Output row type
+     */
+    public EnumerableProject(RelOptCluster cluster, RelTraitSet traitSet, RelNode input,
+                             List<? extends RexNode> projects, RelDataType rowType) {
+        super(cluster, traitSet, input, projects, rowType);
+        assert getConvention() instanceof EnumerableConvention;
+    }
 
-  /** Creates an EnumerableProject, specifying row type rather than field
-   * names. */
-  public static EnumerableProject create(final RelNode input,
-      final List<? extends RexNode> projects, RelDataType rowType) {
-    final RelOptCluster cluster = input.getCluster();
-    final RelMetadataQuery mq = cluster.getMetadataQuery();
-    final RelTraitSet traitSet =
-        cluster.traitSet().replace(EnumerableConvention.INSTANCE)
-            .replaceIfs(RelCollationTraitDef.INSTANCE,
-                new Supplier<List<RelCollation>>() {
-                  public List<RelCollation> get() {
-                    return RelMdCollation.project(mq, input, projects);
-                  }
+    @Deprecated // to be removed before 2.0
+    public EnumerableProject(RelOptCluster cluster, RelTraitSet traitSet, RelNode input,
+                             List<? extends RexNode> projects, RelDataType rowType, int flags) {
+        this(cluster, traitSet, input, projects, rowType);
+        Util.discard(flags);
+    }
+
+    /**
+     * Creates an EnumerableProject, specifying row type rather than field
+     * names.
+     */
+    public static EnumerableProject create(final RelNode input, final List<? extends RexNode> projects,
+                                           RelDataType rowType) {
+        final RelOptCluster cluster = input.getCluster();
+        final RelMetadataQuery mq = cluster.getMetadataQuery();
+        final RelTraitSet traitSet = cluster.traitSet().replace(EnumerableConvention.INSTANCE).replaceIfs(
+                RelCollationTraitDef.INSTANCE, new Supplier<List<RelCollation>>() {
+
+                    public List<RelCollation> get() {
+                        return RelMdCollation.project(mq, input, projects);
+                    }
                 });
-    return new EnumerableProject(cluster, traitSet, input, projects, rowType);
-  }
+        return new EnumerableProject(cluster, traitSet, input, projects, rowType);
+    }
 
-  public EnumerableProject copy(RelTraitSet traitSet, RelNode input,
-      List<RexNode> projects, RelDataType rowType) {
-    return new EnumerableProject(getCluster(), traitSet, input,
-        projects, rowType);
-  }
+    public EnumerableProject copy(RelTraitSet traitSet, RelNode input, List<RexNode> projects, RelDataType rowType) {
+        return new EnumerableProject(getCluster(), traitSet, input, projects, rowType);
+    }
 
-  public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
-    // EnumerableCalcRel is always better
-    throw new UnsupportedOperationException();
-  }
+    public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
+        // EnumerableCalcRel is always better
+        throw new UnsupportedOperationException();
+    }
 }
 
 // End EnumerableProject.java

@@ -20,27 +20,22 @@ package org.apache.calcite.sql;
  * The <code>VALUES</code> operator.
  */
 public class SqlValuesOperator extends SqlSpecialOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlValuesOperator() {
-    super("VALUES", SqlKind.VALUES);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void unparse(
-      SqlWriter writer,
-      SqlCall call,
-      int leftPrec,
-      int rightPrec) {
-    final SqlWriter.Frame frame =
-        writer.startList(SqlWriter.FrameTypeEnum.VALUES, "VALUES", "");
-    for (SqlNode operand : call.getOperandList()) {
-      writer.sep(",");
-      operand.unparse(writer, 0, 0);
+    public SqlValuesOperator() {
+        super("VALUES", SqlKind.VALUES);
     }
-    writer.endList(frame);
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        final SqlWriter.Frame frame = writer.startList(SqlWriter.FrameTypeEnum.VALUES, "VALUES", "");
+        for (SqlNode operand : call.getOperandList()) {
+            writer.sep(",");
+            operand.unparse(writer, 0, 0);
+        }
+        writer.endList(frame);
+    }
 }
 
 // End SqlValuesOperator.java

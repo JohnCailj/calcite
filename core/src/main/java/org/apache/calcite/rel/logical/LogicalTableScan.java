@@ -16,6 +16,8 @@
  */
 package org.apache.calcite.rel.logical;
 
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.plan.Convention;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelOptTable;
@@ -27,88 +29,77 @@ import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.core.TableScan;
 import org.apache.calcite.schema.Table;
 
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 
 /**
  * A <code>LogicalTableScan</code> reads all the rows from a
  * {@link RelOptTable}.
- *
  * <p>If the table is a <code>net.sf.saffron.ext.JdbcTable</code>, then this is
  * literally possible. But for other kinds of tables, there may be many ways to
  * read the data from the table. For some kinds of table, it may not even be
  * possible to read all of the rows unless some narrowing constraint is applied.
- *
  * <p>In the example of the <code>net.sf.saffron.ext.ReflectSchema</code>
  * schema,</p>
- *
  * <blockquote>
  * <pre>select from fields</pre>
  * </blockquote>
- *
  * <p>cannot be implemented, but</p>
- *
  * <blockquote>
  * <pre>select from fields as f
  * where f.getClass().getName().equals("java.lang.String")</pre>
  * </blockquote>
- *
  * <p>can. It is the optimizer's responsibility to find these ways, by applying
  * transformation rules.</p>
  */
 public final class LogicalTableScan extends TableScan {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a LogicalTableScan.
-   *
-   * <p>Use {@link #create} unless you know what you're doing.
-   */
-  public LogicalTableScan(RelOptCluster cluster, RelTraitSet traitSet,
-      RelOptTable table) {
-    super(cluster, traitSet, table);
-  }
+    /**
+     * Creates a LogicalTableScan.
+     * <p>Use {@link #create} unless you know what you're doing.
+     */
+    public LogicalTableScan(RelOptCluster cluster, RelTraitSet traitSet, RelOptTable table) {
+        super(cluster, traitSet, table);
+    }
 
-  @Deprecated // to be removed before 2.0
-  public LogicalTableScan(RelOptCluster cluster, RelOptTable table) {
-    this(cluster, cluster.traitSetOf(Convention.NONE), table);
-  }
+    @Deprecated // to be removed before 2.0
+    public LogicalTableScan(RelOptCluster cluster, RelOptTable table) {
+        this(cluster, cluster.traitSetOf(Convention.NONE), table);
+    }
 
-  /**
-   * Creates a LogicalTableScan by parsing serialized output.
-   */
-  public LogicalTableScan(RelInput input) {
-    super(input);
-  }
+    /**
+     * Creates a LogicalTableScan by parsing serialized output.
+     */
+    public LogicalTableScan(RelInput input) {
+        super(input);
+    }
 
-  @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-    assert traitSet.containsIfApplicable(Convention.NONE);
-    assert inputs.isEmpty();
-    return this;
-  }
+    @Override public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        assert traitSet.containsIfApplicable(Convention.NONE);
+        assert inputs.isEmpty();
+        return this;
+    }
 
-  /** Creates a LogicalTableScan.
-   *  @param cluster Cluster
-   * @param relOptTable Table
-   */
-  public static LogicalTableScan create(RelOptCluster cluster,
-      final RelOptTable relOptTable) {
-    final Table table = relOptTable.unwrap(Table.class);
-    final RelTraitSet traitSet =
-        cluster.traitSetOf(Convention.NONE)
-            .replaceIfs(RelCollationTraitDef.INSTANCE,
-                new Supplier<List<RelCollation>>() {
-                  public List<RelCollation> get() {
-                    if (table != null) {
-                      return table.getStatistic().getCollations();
-                    }
-                    return ImmutableList.of();
-                  }
-                });
-    return new LogicalTableScan(cluster, traitSet, relOptTable);
-  }
+    /**
+     * Creates a LogicalTableScan.
+     *
+     * @param cluster     Cluster
+     * @param relOptTable Table
+     */
+    public static LogicalTableScan create(RelOptCluster cluster, final RelOptTable relOptTable) {
+        final Table table = relOptTable.unwrap(Table.class);
+        final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE).replaceIfs(RelCollationTraitDef.INSTANCE,
+                                                                                    new Supplier<List<RelCollation>>() {
+
+                                                                                        public List<RelCollation> get() {
+                                                                                            if (table != null) {
+                                                                                                return table.getStatistic().getCollations();
+                                                                                            }
+                                                                                            return ImmutableList.of();
+                                                                                        }
+                                                                                    });
+        return new LogicalTableScan(cluster, traitSet, relOptTable);
+    }
 }
 
 // End LogicalTableScan.java

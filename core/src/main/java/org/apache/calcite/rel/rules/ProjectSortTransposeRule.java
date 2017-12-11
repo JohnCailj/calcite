@@ -16,14 +16,13 @@
  */
 package org.apache.calcite.rel.rules;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.plan.RelOptRule;
 import org.apache.calcite.plan.RelOptRuleCall;
 import org.apache.calcite.plan.RelOptRuleOperand;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.core.Project;
 import org.apache.calcite.rel.core.Sort;
-
-import com.google.common.collect.ImmutableList;
 
 /**
  * Planner rule that pushes
@@ -33,44 +32,34 @@ import com.google.common.collect.ImmutableList;
  * @see org.apache.calcite.rel.rules.SortProjectTransposeRule
  */
 public class ProjectSortTransposeRule extends RelOptRule {
-  public static final ProjectSortTransposeRule INSTANCE =
-      new ProjectSortTransposeRule();
 
-  //~ Constructors -----------------------------------------------------------
+    public static final ProjectSortTransposeRule INSTANCE = new ProjectSortTransposeRule();
 
-  /**
-   * Creates a ProjectSortTransposeRule.
-   */
-  private ProjectSortTransposeRule() {
-    super(
-        operand(Project.class,
-            operand(Sort.class, any())));
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  protected ProjectSortTransposeRule(RelOptRuleOperand operand) {
-    super(operand);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    final Project project = call.rel(0);
-    final Sort sort = call.rel(1);
-    if (sort.getClass() != Sort.class) {
-      return;
+    /**
+     * Creates a ProjectSortTransposeRule.
+     */
+    private ProjectSortTransposeRule() {
+        super(operand(Project.class, operand(Sort.class, any())));
     }
-    RelNode newProject =
-        project.copy(
-            project.getTraitSet(), ImmutableList.of(sort.getInput()));
-    final Sort newSort =
-        sort.copy(
-            sort.getTraitSet(),
-            newProject,
-            sort.getCollation(),
-            sort.offset,
-            sort.fetch);
-    call.transformTo(newSort);
-  }
+
+    protected ProjectSortTransposeRule(RelOptRuleOperand operand) {
+        super(operand);
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    public void onMatch(RelOptRuleCall call) {
+        final Project project = call.rel(0);
+        final Sort sort = call.rel(1);
+        if (sort.getClass() != Sort.class) {
+            return;
+        }
+        RelNode newProject = project.copy(project.getTraitSet(), ImmutableList.of(sort.getInput()));
+        final Sort newSort = sort.copy(sort.getTraitSet(), newProject, sort.getCollation(), sort.offset, sort.fetch);
+        call.transformTo(newSort);
+    }
 }
 
 // End ProjectSortTransposeRule.java

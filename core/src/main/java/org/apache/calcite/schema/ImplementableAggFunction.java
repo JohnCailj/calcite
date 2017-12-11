@@ -27,13 +27,14 @@ import org.apache.calcite.adapter.enumerable.AggImplementor;
  * @see org.apache.calcite.adapter.enumerable.StrictWinAggImplementor
  */
 public interface ImplementableAggFunction extends AggregateFunction {
-  /**
-   * Returns implementor that translates the function to linq4j expression.
-   *
-   * @param windowContext true when aggregate is used in window context
-   * @return implementor that translates the function to linq4j expression.
-   */
-  AggImplementor getImplementor(boolean windowContext);
+
+    /**
+     * Returns implementor that translates the function to linq4j expression.
+     *
+     * @param windowContext true when aggregate is used in window context
+     * @return implementor that translates the function to linq4j expression.
+     */
+    AggImplementor getImplementor(boolean windowContext);
 }
 
 // End ImplementableAggFunction.java

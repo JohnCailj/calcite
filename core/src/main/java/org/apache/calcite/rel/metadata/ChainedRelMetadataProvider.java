@@ -16,13 +16,12 @@
  */
 package org.apache.calcite.rel.metadata;
 
-import org.apache.calcite.rel.RelNode;
-import org.apache.calcite.util.Util;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import org.apache.calcite.rel.RelNode;
+import org.apache.calcite.util.Util;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -35,118 +34,115 @@ import java.util.List;
  * Implementation of the {@link RelMetadataProvider}
  * interface via the
  * {@link org.apache.calcite.util.Glossary#CHAIN_OF_RESPONSIBILITY_PATTERN}.
- *
  * <p>When a consumer calls the {@link #apply} method to ask for a provider
  * for a particular type of {@link RelNode} and {@link Metadata}, scans the list
  * of underlying providers.</p>
  */
 public class ChainedRelMetadataProvider implements RelMetadataProvider {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final ImmutableList<RelMetadataProvider> providers;
+    private final ImmutableList<RelMetadataProvider> providers;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a chain.
-   */
-  protected ChainedRelMetadataProvider(
-      ImmutableList<RelMetadataProvider> providers) {
-    this.providers = providers;
-    assert !providers.contains(this);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof ChainedRelMetadataProvider
-        && providers.equals(((ChainedRelMetadataProvider) obj).providers);
-  }
-
-  @Override public int hashCode() {
-    return providers.hashCode();
-  }
-
-  public <M extends Metadata> UnboundMetadata<M> apply(
-      Class<? extends RelNode> relClass,
-      final Class<? extends M> metadataClass) {
-    final List<UnboundMetadata<M>> functions = new ArrayList<>();
-    for (RelMetadataProvider provider : providers) {
-      final UnboundMetadata<M> function =
-          provider.apply(relClass, metadataClass);
-      if (function == null) {
-        continue;
-      }
-      functions.add(function);
+    /**
+     * Creates a chain.
+     */
+    protected ChainedRelMetadataProvider(ImmutableList<RelMetadataProvider> providers) {
+        this.providers = providers;
+        assert !providers.contains(this);
     }
-    switch (functions.size()) {
-    case 0:
-      return null;
-    case 1:
-      return functions.get(0);
-    default:
-      return new UnboundMetadata<M>() {
-        public M bind(RelNode rel, RelMetadataQuery mq) {
-          final List<Metadata> metadataList = Lists.newArrayList();
-          for (UnboundMetadata<M> function : functions) {
-            final Metadata metadata = function.bind(rel, mq);
-            if (metadata != null) {
-              metadataList.add(metadata);
+
+    //~ Methods ----------------------------------------------------------------
+
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof ChainedRelMetadataProvider && providers.equals(
+                ((ChainedRelMetadataProvider) obj).providers);
+    }
+
+    @Override public int hashCode() {
+        return providers.hashCode();
+    }
+
+    public <M extends Metadata> UnboundMetadata<M> apply(Class<? extends RelNode> relClass,
+                                                         final Class<? extends M> metadataClass) {
+        final List<UnboundMetadata<M>> functions = new ArrayList<>();
+        for (RelMetadataProvider provider : providers) {
+            final UnboundMetadata<M> function = provider.apply(relClass, metadataClass);
+            if (function == null) {
+                continue;
             }
-          }
-          return metadataClass.cast(
-              Proxy.newProxyInstance(metadataClass.getClassLoader(),
-                  new Class[]{metadataClass},
-                  new ChainedInvocationHandler(metadataList)));
+            functions.add(function);
         }
-      };
-    }
-  }
+        switch (functions.size()) {
+            case 0:
+                return null;
+            case 1:
+                return functions.get(0);
+            default:
+                return new UnboundMetadata<M>() {
 
-  public <M extends Metadata> Multimap<Method, MetadataHandler<M>> handlers(
-      MetadataDef<M> def) {
-    final ImmutableMultimap.Builder<Method, MetadataHandler<M>> builder =
-        ImmutableMultimap.builder();
-    for (RelMetadataProvider provider : providers.reverse()) {
-      builder.putAll(provider.handlers(def));
-    }
-    return builder.build();
-  }
-
-  /** Creates a chain. */
-  public static RelMetadataProvider of(List<RelMetadataProvider> list) {
-    return new ChainedRelMetadataProvider(ImmutableList.copyOf(list));
-  }
-
-  /** Invocation handler that calls a list of {@link Metadata} objects,
-   * returning the first non-null value. */
-  private static class ChainedInvocationHandler implements InvocationHandler {
-    private final List<Metadata> metadataList;
-
-    ChainedInvocationHandler(List<Metadata> metadataList) {
-      this.metadataList = ImmutableList.copyOf(metadataList);
-    }
-
-    public Object invoke(Object proxy, Method method, Object[] args)
-        throws Throwable {
-      for (Metadata metadata : metadataList) {
-        try {
-          final Object o = method.invoke(metadata, args);
-          if (o != null) {
-            return o;
-          }
-        } catch (InvocationTargetException e) {
-          if (e.getCause() instanceof CyclicMetadataException) {
-            continue;
-          }
-          Util.throwIfUnchecked(e.getCause());
-          throw new RuntimeException(e.getCause());
+                    public M bind(RelNode rel, RelMetadataQuery mq) {
+                        final List<Metadata> metadataList = Lists.newArrayList();
+                        for (UnboundMetadata<M> function : functions) {
+                            final Metadata metadata = function.bind(rel, mq);
+                            if (metadata != null) {
+                                metadataList.add(metadata);
+                            }
+                        }
+                        return metadataClass.cast(
+                                Proxy.newProxyInstance(metadataClass.getClassLoader(), new Class[] { metadataClass },
+                                                       new ChainedInvocationHandler(metadataList)));
+                    }
+                };
         }
-      }
-      return null;
     }
-  }
+
+    public <M extends Metadata> Multimap<Method, MetadataHandler<M>> handlers(MetadataDef<M> def) {
+        final ImmutableMultimap.Builder<Method, MetadataHandler<M>> builder = ImmutableMultimap.builder();
+        for (RelMetadataProvider provider : providers.reverse()) {
+            builder.putAll(provider.handlers(def));
+        }
+        return builder.build();
+    }
+
+    /**
+     * Creates a chain.
+     */
+    public static RelMetadataProvider of(List<RelMetadataProvider> list) {
+        return new ChainedRelMetadataProvider(ImmutableList.copyOf(list));
+    }
+
+    /**
+     * Invocation handler that calls a list of {@link Metadata} objects,
+     * returning the first non-null value.
+     */
+    private static class ChainedInvocationHandler implements InvocationHandler {
+
+        private final List<Metadata> metadataList;
+
+        ChainedInvocationHandler(List<Metadata> metadataList) {
+            this.metadataList = ImmutableList.copyOf(metadataList);
+        }
+
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            for (Metadata metadata : metadataList) {
+                try {
+                    final Object o = method.invoke(metadata, args);
+                    if (o != null) {
+                        return o;
+                    }
+                } catch (InvocationTargetException e) {
+                    if (e.getCause() instanceof CyclicMetadataException) {
+                        continue;
+                    }
+                    Util.throwIfUnchecked(e.getCause());
+                    throw new RuntimeException(e.getCause());
+                }
+            }
+            return null;
+        }
+    }
 }
 
 // End ChainedRelMetadataProvider.java

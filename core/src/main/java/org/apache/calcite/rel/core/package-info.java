@@ -17,18 +17,14 @@
 
 /**
  * Defines core relational expressions.
- *
  * <h2>Related packages and classes</h2>
  * <ul>
- *
  * <li>Package <code>
  * <a href="../logical/package-summary.html">org.apache.calcite.rel.logical</a></code>
  * contains logical relational expressions
- *
  * <li>Package <code>
  * <a href="../package-summary.html">org.apache.calcite.rex</a></code>
  * defines the relational expression API
- *
  * </ul>
  */
 @PackageMarker

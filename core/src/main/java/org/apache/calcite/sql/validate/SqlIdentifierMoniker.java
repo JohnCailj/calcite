@@ -16,9 +16,8 @@
  */
 package org.apache.calcite.sql.validate;
 
-import org.apache.calcite.sql.SqlIdentifier;
-
 import com.google.common.base.Preconditions;
+import org.apache.calcite.sql.SqlIdentifier;
 
 import java.util.List;
 
@@ -27,40 +26,40 @@ import java.util.List;
  * information of a {@link SqlIdentifier}.
  */
 public class SqlIdentifierMoniker implements SqlMoniker {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlIdentifier id;
+    private final SqlIdentifier id;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates an SqlIdentifierMoniker.
-   */
-  public SqlIdentifierMoniker(SqlIdentifier id) {
-    this.id = Preconditions.checkNotNull(id);
-  }
+    /**
+     * Creates an SqlIdentifierMoniker.
+     */
+    public SqlIdentifierMoniker(SqlIdentifier id) {
+        this.id = Preconditions.checkNotNull(id);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public SqlMonikerType getType() {
-    return SqlMonikerType.COLUMN;
-  }
+    public SqlMonikerType getType() {
+        return SqlMonikerType.COLUMN;
+    }
 
-  public List<String> getFullyQualifiedNames() {
-    return id.names;
-  }
+    public List<String> getFullyQualifiedNames() {
+        return id.names;
+    }
 
-  public SqlIdentifier toIdentifier() {
-    return id;
-  }
+    public SqlIdentifier toIdentifier() {
+        return id;
+    }
 
-  public String toString() {
-    return id.toString();
-  }
+    public String toString() {
+        return id.toString();
+    }
 
-  public String id() {
-    return id.toString();
-  }
+    public String id() {
+        return id.toString();
+    }
 }
 
 // End SqlIdentifierMoniker.java

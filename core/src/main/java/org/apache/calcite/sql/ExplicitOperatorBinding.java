@@ -30,67 +30,54 @@ import java.util.List;
  * via an underlying array of known operand types.
  */
 public class ExplicitOperatorBinding extends SqlOperatorBinding {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final List<RelDataType> types;
-  private final SqlOperatorBinding delegate;
+    private final List<RelDataType>  types;
+    private final SqlOperatorBinding delegate;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public ExplicitOperatorBinding(
-      SqlOperatorBinding delegate,
-      List<RelDataType> types) {
-    this(
-        delegate,
-        delegate.getTypeFactory(),
-        delegate.getOperator(),
-        types);
-  }
-
-  public ExplicitOperatorBinding(
-      RelDataTypeFactory typeFactory,
-      SqlOperator operator,
-      List<RelDataType> types) {
-    this(null, typeFactory, operator, types);
-  }
-
-  private ExplicitOperatorBinding(
-      SqlOperatorBinding delegate,
-      RelDataTypeFactory typeFactory,
-      SqlOperator operator,
-      List<RelDataType> types) {
-    super(typeFactory, operator);
-    this.types = types;
-    this.delegate = delegate;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  // implement SqlOperatorBinding
-  public int getOperandCount() {
-    return types.size();
-  }
-
-  // implement SqlOperatorBinding
-  public RelDataType getOperandType(int ordinal) {
-    return types.get(ordinal);
-  }
-
-  public CalciteException newError(
-      Resources.ExInst<SqlValidatorException> e) {
-    if (delegate != null) {
-      return delegate.newError(e);
-    } else {
-      return SqlUtil.newContextException(SqlParserPos.ZERO, e);
+    public ExplicitOperatorBinding(SqlOperatorBinding delegate, List<RelDataType> types) {
+        this(delegate, delegate.getTypeFactory(), delegate.getOperator(), types);
     }
-  }
 
-  public boolean isOperandNull(int ordinal, boolean allowCast) {
-    // NOTE jvs 1-May-2006:  This call is only relevant
-    // for SQL validation, so anywhere else, just say
-    // everything's OK.
-    return false;
-  }
+    public ExplicitOperatorBinding(RelDataTypeFactory typeFactory, SqlOperator operator, List<RelDataType> types) {
+        this(null, typeFactory, operator, types);
+    }
+
+    private ExplicitOperatorBinding(SqlOperatorBinding delegate, RelDataTypeFactory typeFactory, SqlOperator operator,
+                                    List<RelDataType> types) {
+        super(typeFactory, operator);
+        this.types = types;
+        this.delegate = delegate;
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    // implement SqlOperatorBinding
+    public int getOperandCount() {
+        return types.size();
+    }
+
+    // implement SqlOperatorBinding
+    public RelDataType getOperandType(int ordinal) {
+        return types.get(ordinal);
+    }
+
+    public CalciteException newError(Resources.ExInst<SqlValidatorException> e) {
+        if (delegate != null) {
+            return delegate.newError(e);
+        } else {
+            return SqlUtil.newContextException(SqlParserPos.ZERO, e);
+        }
+    }
+
+    public boolean isOperandNull(int ordinal, boolean allowCast) {
+        // NOTE jvs 1-May-2006:  This call is only relevant
+        // for SQL validation, so anywhere else, just say
+        // everything's OK.
+        return false;
+    }
 }
 
 // End ExplicitOperatorBinding.java

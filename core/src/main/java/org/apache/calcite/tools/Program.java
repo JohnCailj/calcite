@@ -27,17 +27,15 @@ import java.util.List;
 /**
  * Program that transforms a relational expression into another relational
  * expression.
- *
  * <p>A planner is a sequence of programs, each of which is sometimes called
  * a "phase".
  * The most typical program is an invocation of the volcano planner with a
  * particular {@link org.apache.calcite.tools.RuleSet}.</p>
  */
 public interface Program {
-  RelNode run(RelOptPlanner planner, RelNode rel,
-      RelTraitSet requiredOutputTraits,
-      List<RelOptMaterialization> materializations,
-      List<RelOptLattice> lattices);
+
+    RelNode run(RelOptPlanner planner, RelNode rel, RelTraitSet requiredOutputTraits,
+                List<RelOptMaterialization> materializations, List<RelOptLattice> lattices);
 }
 
 // End Program.java

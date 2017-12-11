@@ -28,54 +28,46 @@ import org.apache.calcite.util.BuiltInMethod;
 
 import java.util.List;
 
-/** Implementation of {@link org.apache.calcite.rel.core.Union} in
- * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}. */
+/**
+ * Implementation of {@link org.apache.calcite.rel.core.Union} in
+ * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}.
+ */
 public class EnumerableUnion extends Union implements EnumerableRel {
-  public EnumerableUnion(RelOptCluster cluster, RelTraitSet traitSet,
-      List<RelNode> inputs, boolean all) {
-    super(cluster, traitSet, inputs, all);
-  }
 
-  public EnumerableUnion copy(RelTraitSet traitSet, List<RelNode> inputs,
-      boolean all) {
-    return new EnumerableUnion(getCluster(), traitSet, inputs, all);
-  }
-
-  public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
-    final BlockBuilder builder = new BlockBuilder();
-    Expression unionExp = null;
-    for (Ord<RelNode> ord : Ord.zip(inputs)) {
-      EnumerableRel input = (EnumerableRel) ord.e;
-      final Result result = implementor.visitChild(this, ord.i, input, pref);
-      Expression childExp =
-          builder.append(
-              "child" + ord.i,
-              result.block);
-
-      if (unionExp == null) {
-        unionExp = childExp;
-      } else {
-        unionExp = all
-            ? Expressions.call(unionExp, BuiltInMethod.CONCAT.method, childExp)
-            : Expressions.call(unionExp,
-                BuiltInMethod.UNION.method,
-                Expressions.list(childExp)
-                    .appendIfNotNull(result.physType.comparer()));
-      }
-
-      // Once the first input has chosen its format, ask for the same for
-      // other inputs.
-      pref = pref.of(result.format);
+    public EnumerableUnion(RelOptCluster cluster, RelTraitSet traitSet, List<RelNode> inputs, boolean all) {
+        super(cluster, traitSet, inputs, all);
     }
 
-    builder.add(unionExp);
-    final PhysType physType =
-        PhysTypeImpl.of(
-            implementor.getTypeFactory(),
-            getRowType(),
-            pref.prefer(JavaRowFormat.CUSTOM));
-    return implementor.result(physType, builder.toBlock());
-  }
+    public EnumerableUnion copy(RelTraitSet traitSet, List<RelNode> inputs, boolean all) {
+        return new EnumerableUnion(getCluster(), traitSet, inputs, all);
+    }
+
+    public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
+        final BlockBuilder builder = new BlockBuilder();
+        Expression unionExp = null;
+        for (Ord<RelNode> ord : Ord.zip(inputs)) {
+            EnumerableRel input = (EnumerableRel) ord.e;
+            final Result result = implementor.visitChild(this, ord.i, input, pref);
+            Expression childExp = builder.append("child" + ord.i, result.block);
+
+            if (unionExp == null) {
+                unionExp = childExp;
+            } else {
+                unionExp = all ? Expressions.call(unionExp, BuiltInMethod.CONCAT.method, childExp) : Expressions.call(
+                        unionExp, BuiltInMethod.UNION.method,
+                        Expressions.list(childExp).appendIfNotNull(result.physType.comparer()));
+            }
+
+            // Once the first input has chosen its format, ask for the same for
+            // other inputs.
+            pref = pref.of(result.format);
+        }
+
+        builder.add(unionExp);
+        final PhysType physType = PhysTypeImpl.of(implementor.getTypeFactory(), getRowType(),
+                                                  pref.prefer(JavaRowFormat.CUSTOM));
+        return implementor.result(physType, builder.toBlock());
+    }
 }
 
 // End EnumerableUnion.java

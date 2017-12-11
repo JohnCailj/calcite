@@ -16,59 +16,55 @@
  */
 package org.apache.calcite.interpreter;
 
-import org.apache.calcite.plan.Convention;
-import org.apache.calcite.plan.ConventionTraitDef;
-import org.apache.calcite.plan.RelOptPlanner;
-import org.apache.calcite.plan.RelTrait;
-import org.apache.calcite.plan.RelTraitDef;
-import org.apache.calcite.plan.RelTraitSet;
+import org.apache.calcite.plan.*;
 
 /**
  * Calling convention that returns results as an
  * {@link org.apache.calcite.linq4j.Enumerable} of object arrays.
- *
  * <p>The relational expression needs to implement
  * {@link org.apache.calcite.runtime.ArrayBindable}.
  * Unlike {@link org.apache.calcite.adapter.enumerable.EnumerableConvention},
  * no code generation is required.
  */
 public enum BindableConvention implements Convention {
-  INSTANCE;
+    INSTANCE;
 
-  /** Cost of a bindable node versus implementing an equivalent node in a
-   * "typical" calling convention. */
-  public static final double COST_MULTIPLIER = 2.0d;
+    /**
+     * Cost of a bindable node versus implementing an equivalent node in a
+     * "typical" calling convention.
+     */
+    public static final double COST_MULTIPLIER = 2.0d;
 
-  @Override public String toString() {
-    return getName();
-  }
+    @Override public String toString() {
+        return getName();
+    }
 
-  public Class getInterface() {
-    return BindableRel.class;
-  }
+    public Class getInterface() {
+        return BindableRel.class;
+    }
 
-  public String getName() {
-    return "BINDABLE";
-  }
+    public String getName() {
+        return "BINDABLE";
+    }
 
-  public RelTraitDef getTraitDef() {
-    return ConventionTraitDef.INSTANCE;
-  }
+    public RelTraitDef getTraitDef() {
+        return ConventionTraitDef.INSTANCE;
+    }
 
-  public boolean satisfies(RelTrait trait) {
-    return this == trait;
-  }
+    public boolean satisfies(RelTrait trait) {
+        return this == trait;
+    }
 
-  public void register(RelOptPlanner planner) {}
+    public void register(RelOptPlanner planner) {
+    }
 
-  public boolean canConvertConvention(Convention toConvention) {
-    return false;
-  }
+    public boolean canConvertConvention(Convention toConvention) {
+        return false;
+    }
 
-  public boolean useAbstractConvertersForConversion(RelTraitSet fromTraits,
-      RelTraitSet toTraits) {
-    return false;
-  }
+    public boolean useAbstractConvertersForConversion(RelTraitSet fromTraits, RelTraitSet toTraits) {
+        return false;
+    }
 }
 
 // End BindableConvention.java

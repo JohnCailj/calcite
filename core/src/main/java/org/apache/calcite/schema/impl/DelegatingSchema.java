@@ -17,11 +17,7 @@
 package org.apache.calcite.schema.impl;
 
 import org.apache.calcite.linq4j.tree.Expression;
-import org.apache.calcite.schema.Function;
-import org.apache.calcite.schema.Schema;
-import org.apache.calcite.schema.SchemaPlus;
-import org.apache.calcite.schema.SchemaVersion;
-import org.apache.calcite.schema.Table;
+import org.apache.calcite.schema.*;
 
 import java.util.Collection;
 import java.util.Set;
@@ -31,56 +27,57 @@ import java.util.Set;
  * an underlying schema.
  */
 public class DelegatingSchema implements Schema {
-  protected final Schema schema;
 
-  /**
-   * Creates a DelegatingSchema.
-   *
-   * @param schema Underlying schema
-   */
-  public DelegatingSchema(Schema schema) {
-    this.schema = schema;
-  }
+    protected final Schema schema;
 
-  @Override public String toString() {
-    return "DelegatingSchema(delegate=" + schema + ")";
-  }
+    /**
+     * Creates a DelegatingSchema.
+     *
+     * @param schema Underlying schema
+     */
+    public DelegatingSchema(Schema schema) {
+        this.schema = schema;
+    }
 
-  public boolean isMutable() {
-    return schema.isMutable();
-  }
+    @Override public String toString() {
+        return "DelegatingSchema(delegate=" + schema + ")";
+    }
 
-  public Schema snapshot(SchemaVersion version) {
-    return schema.snapshot(version);
-  }
+    public boolean isMutable() {
+        return schema.isMutable();
+    }
 
-  public Expression getExpression(SchemaPlus parentSchema, String name) {
-    return schema.getExpression(parentSchema, name);
-  }
+    public Schema snapshot(SchemaVersion version) {
+        return schema.snapshot(version);
+    }
 
-  public Table getTable(String name) {
-    return schema.getTable(name);
-  }
+    public Expression getExpression(SchemaPlus parentSchema, String name) {
+        return schema.getExpression(parentSchema, name);
+    }
 
-  public Set<String> getTableNames() {
-    return schema.getTableNames();
-  }
+    public Table getTable(String name) {
+        return schema.getTable(name);
+    }
 
-  public Collection<Function> getFunctions(String name) {
-    return schema.getFunctions(name);
-  }
+    public Set<String> getTableNames() {
+        return schema.getTableNames();
+    }
 
-  public Set<String> getFunctionNames() {
-    return schema.getFunctionNames();
-  }
+    public Collection<Function> getFunctions(String name) {
+        return schema.getFunctions(name);
+    }
 
-  public Schema getSubSchema(String name) {
-    return schema.getSubSchema(name);
-  }
+    public Set<String> getFunctionNames() {
+        return schema.getFunctionNames();
+    }
 
-  public Set<String> getSubSchemaNames() {
-    return schema.getSubSchemaNames();
-  }
+    public Schema getSubSchema(String name) {
+        return schema.getSubSchema(name);
+    }
+
+    public Set<String> getSubSchemaNames() {
+        return schema.getSubSchemaNames();
+    }
 }
 
 // End DelegatingSchema.java

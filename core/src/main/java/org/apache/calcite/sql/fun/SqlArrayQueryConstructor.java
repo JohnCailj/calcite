@@ -23,11 +23,11 @@ import org.apache.calcite.sql.SqlKind;
  * ARRAY (&lt;query&gt;)</code>.
  */
 public class SqlArrayQueryConstructor extends SqlMultisetQueryConstructor {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlArrayQueryConstructor() {
-    super("ARRAY", SqlKind.ARRAY_QUERY_CONSTRUCTOR);
-  }
+    public SqlArrayQueryConstructor() {
+        super("ARRAY", SqlKind.ARRAY_QUERY_CONSTRUCTOR);
+    }
 }
 
 // End SqlArrayQueryConstructor.java

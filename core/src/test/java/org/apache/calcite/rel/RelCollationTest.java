@@ -17,7 +17,6 @@
 package org.apache.calcite.rel;
 
 import com.google.common.collect.Lists;
-
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -31,44 +30,44 @@ import static org.junit.Assert.assertThat;
  * Tests for {@link RelCollation} and {@link RelFieldCollation}.
  */
 public class RelCollationTest {
-  /** Unit test for {@link RelCollations#contains}. */
-  @Test public void testCollationContains() {
-    final RelCollation collation =
-        RelCollations.of(
-            new RelFieldCollation(2, RelFieldCollation.Direction.ASCENDING),
-            new RelFieldCollation(1, RelFieldCollation.Direction.DESCENDING));
-    assertThat(RelCollations.contains(collation, Arrays.asList(2)), is(true));
-    assertThat(RelCollations.contains(collation, Arrays.asList(1)), is(false));
-    assertThat(RelCollations.contains(collation, Arrays.asList(0)), is(false));
-    assertThat(RelCollations.contains(collation, Arrays.asList(2, 1)),
-        is(true));
-    assertThat(RelCollations.contains(collation, Arrays.asList(2, 0)),
-        is(false));
-    assertThat(RelCollations.contains(collation, Arrays.asList(2, 1, 3)),
-        is(false));
-    assertThat(RelCollations.contains(collation, Arrays.<Integer>asList()),
-        is(true));
-  }
 
-  /** Unit test for
-   *  {@link org.apache.calcite.rel.RelCollationImpl#compareTo}. */
-  @Test public void testCollationCompare() {
-    assertThat(collation(1, 2).compareTo(collation(1, 2)), equalTo(0));
-    assertThat(collation(1, 2).compareTo(collation(1)), equalTo(1));
-    assertThat(collation(1).compareTo(collation(1, 2)), equalTo(-1));
-    assertThat(collation(1, 3).compareTo(collation(1, 2)), equalTo(1));
-    assertThat(collation(0, 3).compareTo(collation(1, 2)), equalTo(-1));
-    assertThat(collation().compareTo(collation(0)), equalTo(-1));
-    assertThat(collation(1).compareTo(collation()), equalTo(1));
-  }
-
-  private static RelCollation collation(int... ordinals) {
-    final List<RelFieldCollation> list = Lists.newArrayList();
-    for (int ordinal : ordinals) {
-      list.add(new RelFieldCollation(ordinal));
+    /**
+     * Unit test for {@link RelCollations#contains}.
+     */
+    @Test public void testCollationContains() {
+        final RelCollation collation = RelCollations.of(new RelFieldCollation(2, RelFieldCollation.Direction.ASCENDING),
+                                                        new RelFieldCollation(1,
+                                                                              RelFieldCollation.Direction.DESCENDING));
+        assertThat(RelCollations.contains(collation, Arrays.asList(2)), is(true));
+        assertThat(RelCollations.contains(collation, Arrays.asList(1)), is(false));
+        assertThat(RelCollations.contains(collation, Arrays.asList(0)), is(false));
+        assertThat(RelCollations.contains(collation, Arrays.asList(2, 1)), is(true));
+        assertThat(RelCollations.contains(collation, Arrays.asList(2, 0)), is(false));
+        assertThat(RelCollations.contains(collation, Arrays.asList(2, 1, 3)), is(false));
+        assertThat(RelCollations.contains(collation, Arrays.<Integer>asList()), is(true));
     }
-    return RelCollations.of(list);
-  }
+
+    /**
+     * Unit test for
+     * {@link org.apache.calcite.rel.RelCollationImpl#compareTo}.
+     */
+    @Test public void testCollationCompare() {
+        assertThat(collation(1, 2).compareTo(collation(1, 2)), equalTo(0));
+        assertThat(collation(1, 2).compareTo(collation(1)), equalTo(1));
+        assertThat(collation(1).compareTo(collation(1, 2)), equalTo(-1));
+        assertThat(collation(1, 3).compareTo(collation(1, 2)), equalTo(1));
+        assertThat(collation(0, 3).compareTo(collation(1, 2)), equalTo(-1));
+        assertThat(collation().compareTo(collation(0)), equalTo(-1));
+        assertThat(collation(1).compareTo(collation()), equalTo(1));
+    }
+
+    private static RelCollation collation(int... ordinals) {
+        final List<RelFieldCollation> list = Lists.newArrayList();
+        for (int ordinal : ordinals) {
+            list.add(new RelFieldCollation(ordinal));
+        }
+        return RelCollations.of(list);
+    }
 }
 
 // End RelCollationTest.java

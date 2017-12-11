@@ -17,11 +17,7 @@
 package org.apache.calcite.sql.dialect;
 
 import org.apache.calcite.avatica.util.TimeUnitRange;
-import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlDialect;
-import org.apache.calcite.sql.SqlLiteral;
-import org.apache.calcite.sql.SqlUtil;
-import org.apache.calcite.sql.SqlWriter;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.fun.OracleSqlOperatorTable;
 import org.apache.calcite.sql.fun.SqlFloorFunction;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
@@ -29,39 +25,38 @@ import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 /**
  * Defines how a SQL parse tree should be unparsed to SQL
  * for execution against an Oracle database.
- *
  * <p>It reverts to the unparse method of the operator
  * if this database's implementation is standard.
  */
 public class OracleHandler extends SqlDialect.BaseHandler {
-  public static final OracleHandler INSTANCE = new OracleHandler();
 
-  @Override public void unparseCall(SqlWriter writer, SqlCall call,
-      int leftPrec, int rightPrec) {
-    if (call.getOperator() == SqlStdOperatorTable.SUBSTRING) {
-      SqlUtil.unparseFunctionSyntax(OracleSqlOperatorTable.SUBSTR, writer, call);
+    public static final OracleHandler INSTANCE = new OracleHandler();
 
-    } else {
-      switch (call.getKind()) {
-      case FLOOR:
-        if (call.operandCount() != 2) {
-          super.unparseCall(writer, call, leftPrec, rightPrec);
-          return;
+    @Override public void unparseCall(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        if (call.getOperator() == SqlStdOperatorTable.SUBSTRING) {
+            SqlUtil.unparseFunctionSyntax(OracleSqlOperatorTable.SUBSTR, writer, call);
+
+        } else {
+            switch (call.getKind()) {
+                case FLOOR:
+                    if (call.operandCount() != 2) {
+                        super.unparseCall(writer, call, leftPrec, rightPrec);
+                        return;
+                    }
+
+                    final SqlLiteral timeUnitNode = call.operand(1);
+                    final TimeUnitRange timeUnit = timeUnitNode.getValueAs(TimeUnitRange.class);
+
+                    SqlCall call2 = SqlFloorFunction.replaceTimeUnitOperand(call, timeUnit.name(),
+                                                                            timeUnitNode.getParserPosition());
+                    SqlFloorFunction.unparseDatetimeFunction(writer, call2, "TRUNC", true);
+                    break;
+
+                default:
+                    super.unparseCall(writer, call, leftPrec, rightPrec);
+            }
         }
-
-        final SqlLiteral timeUnitNode = call.operand(1);
-        final TimeUnitRange timeUnit = timeUnitNode.getValueAs(TimeUnitRange.class);
-
-        SqlCall call2 = SqlFloorFunction.replaceTimeUnitOperand(call, timeUnit.name(),
-            timeUnitNode.getParserPosition());
-        SqlFloorFunction.unparseDatetimeFunction(writer, call2, "TRUNC", true);
-        break;
-
-      default:
-        super.unparseCall(writer, call, leftPrec, rightPrec);
-      }
     }
-  }
 }
 
 // End OracleHandler.java

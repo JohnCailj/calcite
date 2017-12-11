@@ -29,68 +29,60 @@ import org.apache.calcite.rel.logical.LogicalJoin;
  * {@link org.apache.calcite.rel.logical.LogicalJoin inner join} to a
  * {@link org.apache.calcite.rel.logical.LogicalFilter filter} on top of a
  * {@link org.apache.calcite.rel.logical.LogicalJoin cartesian inner join}.
- *
  * <p>One benefit of this transformation is that after it, the join condition
  * can be combined with conditions and expressions above the join. It also makes
  * the <code>FennelCartesianJoinRule</code> applicable.
- *
  * <p>The constructor is parameterized to allow any sub-class of
  * {@link org.apache.calcite.rel.core.Join}, not just
  * {@link org.apache.calcite.rel.logical.LogicalJoin}.</p>
  */
 public final class JoinExtractFilterRule extends RelOptRule {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  /** The singleton. */
-  public static final JoinExtractFilterRule INSTANCE =
-      new JoinExtractFilterRule(LogicalJoin.class);
+    /**
+     * The singleton.
+     */
+    public static final JoinExtractFilterRule INSTANCE = new JoinExtractFilterRule(LogicalJoin.class);
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates an JoinExtractFilterRule.
-   */
-  public JoinExtractFilterRule(Class<? extends Join> clazz) {
-    super(operand(clazz, any()));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    final Join join = call.rel(0);
-
-    if (join.getJoinType() != JoinRelType.INNER) {
-      return;
+    /**
+     * Creates an JoinExtractFilterRule.
+     */
+    public JoinExtractFilterRule(Class<? extends Join> clazz) {
+        super(operand(clazz, any()));
     }
 
-    if (join.getCondition().isAlwaysTrue()) {
-      return;
+    //~ Methods ----------------------------------------------------------------
+
+    public void onMatch(RelOptRuleCall call) {
+        final Join join = call.rel(0);
+
+        if (join.getJoinType() != JoinRelType.INNER) {
+            return;
+        }
+
+        if (join.getCondition().isAlwaysTrue()) {
+            return;
+        }
+
+        if (!join.getSystemFieldList().isEmpty()) {
+            // FIXME Enable this rule for joins with system fields
+            return;
+        }
+
+        // NOTE jvs 14-Mar-2006:  See JoinCommuteRule for why we
+        // preserve attribute semiJoinDone here.
+
+        RelNode cartesianJoinRel = join.copy(join.getTraitSet(), join.getCluster().getRexBuilder().makeLiteral(true),
+                                             join.getLeft(), join.getRight(), join.getJoinType(),
+                                             join.isSemiJoinDone());
+
+        final RelFactories.FilterFactory factory = RelFactories.DEFAULT_FILTER_FACTORY;
+        RelNode filterRel = factory.createFilter(cartesianJoinRel, join.getCondition());
+
+        call.transformTo(filterRel);
     }
-
-    if (!join.getSystemFieldList().isEmpty()) {
-      // FIXME Enable this rule for joins with system fields
-      return;
-    }
-
-    // NOTE jvs 14-Mar-2006:  See JoinCommuteRule for why we
-    // preserve attribute semiJoinDone here.
-
-    RelNode cartesianJoinRel =
-        join.copy(
-            join.getTraitSet(),
-            join.getCluster().getRexBuilder().makeLiteral(true),
-            join.getLeft(),
-            join.getRight(),
-            join.getJoinType(),
-            join.isSemiJoinDone());
-
-    final RelFactories.FilterFactory factory =
-        RelFactories.DEFAULT_FILTER_FACTORY;
-    RelNode filterRel =
-        factory.createFilter(cartesianJoinRel, join.getCondition());
-
-    call.transformTo(filterRel);
-  }
 }
 
 // End JoinExtractFilterRule.java

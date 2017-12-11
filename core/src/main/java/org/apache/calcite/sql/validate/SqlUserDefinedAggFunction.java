@@ -16,6 +16,8 @@
  */
 package org.apache.calcite.sql.validate;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import org.apache.calcite.jdbc.JavaTypeFactoryImpl;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
@@ -32,78 +34,70 @@ import org.apache.calcite.sql.type.SqlReturnTypeInference;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.util.Util;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * User-defined aggregate function.
- *
  * <p>Created by the validator, after resolving a function call to a function
  * defined in a Calcite schema.</p>
  */
 public class SqlUserDefinedAggFunction extends SqlAggFunction {
-  public final AggregateFunction function;
-  public final RelDataTypeFactory typeFactory;
 
-  /** Creates a SqlUserDefinedAggFunction. */
-  public SqlUserDefinedAggFunction(SqlIdentifier opName,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker, AggregateFunction function,
-      boolean requiresOrder, boolean requiresOver, RelDataTypeFactory typeFactory) {
-    super(Util.last(opName.names), opName, SqlKind.OTHER_FUNCTION,
-        returnTypeInference, operandTypeInference, operandTypeChecker,
-        SqlFunctionCategory.USER_DEFINED_FUNCTION, requiresOrder, requiresOver);
-    this.function = function;
-    this.typeFactory = typeFactory;
-  }
+    public final AggregateFunction  function;
+    public final RelDataTypeFactory typeFactory;
 
-  @Override public List<RelDataType> getParamTypes() {
-    List<RelDataType> argTypes = new ArrayList<>();
-    for (FunctionParameter o : function.getParameters()) {
-      final RelDataType type = o.getType(typeFactory);
-      argTypes.add(type);
+    /**
+     * Creates a SqlUserDefinedAggFunction.
+     */
+    public SqlUserDefinedAggFunction(SqlIdentifier opName, SqlReturnTypeInference returnTypeInference,
+                                     SqlOperandTypeInference operandTypeInference,
+                                     SqlOperandTypeChecker operandTypeChecker, AggregateFunction function,
+                                     boolean requiresOrder, boolean requiresOver, RelDataTypeFactory typeFactory) {
+        super(Util.last(opName.names), opName, SqlKind.OTHER_FUNCTION, returnTypeInference, operandTypeInference,
+              operandTypeChecker, SqlFunctionCategory.USER_DEFINED_FUNCTION, requiresOrder, requiresOver);
+        this.function = function;
+        this.typeFactory = typeFactory;
     }
-    return toSql(argTypes);
-  }
 
-  private List<RelDataType> toSql(List<RelDataType> types) {
-    return Lists.transform(types,
-        new com.google.common.base.Function<RelDataType, RelDataType>() {
-          public RelDataType apply(RelDataType type) {
-            return toSql(type);
-          }
-        });
-  }
-
-  private RelDataType toSql(RelDataType type) {
-    if (type instanceof RelDataTypeFactoryImpl.JavaType
-        && ((RelDataTypeFactoryImpl.JavaType) type).getJavaClass()
-        == Object.class) {
-      return typeFactory.createTypeWithNullability(
-          typeFactory.createSqlType(SqlTypeName.ANY), true);
+    @Override public List<RelDataType> getParamTypes() {
+        List<RelDataType> argTypes = new ArrayList<>();
+        for (FunctionParameter o : function.getParameters()) {
+            final RelDataType type = o.getType(typeFactory);
+            argTypes.add(type);
+        }
+        return toSql(argTypes);
     }
-    return JavaTypeFactoryImpl.toSql(typeFactory, type);
-  }
 
-  @SuppressWarnings("deprecation")
-  public List<RelDataType> getParameterTypes(
-      final RelDataTypeFactory typeFactory) {
-    return Lists.transform(function.getParameters(),
-        new Function<FunctionParameter, RelDataType>() {
-          public RelDataType apply(FunctionParameter input) {
-            return input.getType(typeFactory);
-          }
+    private List<RelDataType> toSql(List<RelDataType> types) {
+        return Lists.transform(types, new com.google.common.base.Function<RelDataType, RelDataType>() {
+
+            public RelDataType apply(RelDataType type) {
+                return toSql(type);
+            }
         });
-  }
+    }
 
-  @SuppressWarnings("deprecation")
-  public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
-    return function.getReturnType(typeFactory);
-  }
+    private RelDataType toSql(RelDataType type) {
+        if (type instanceof RelDataTypeFactoryImpl.JavaType
+            && ((RelDataTypeFactoryImpl.JavaType) type).getJavaClass() == Object.class) {
+            return typeFactory.createTypeWithNullability(typeFactory.createSqlType(SqlTypeName.ANY), true);
+        }
+        return JavaTypeFactoryImpl.toSql(typeFactory, type);
+    }
+
+    @SuppressWarnings("deprecation") public List<RelDataType> getParameterTypes(final RelDataTypeFactory typeFactory) {
+        return Lists.transform(function.getParameters(), new Function<FunctionParameter, RelDataType>() {
+
+            public RelDataType apply(FunctionParameter input) {
+                return input.getType(typeFactory);
+            }
+        });
+    }
+
+    @SuppressWarnings("deprecation") public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
+        return function.getReturnType(typeFactory);
+    }
 }
 
 // End SqlUserDefinedAggFunction.java

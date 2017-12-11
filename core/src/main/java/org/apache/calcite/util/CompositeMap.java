@@ -24,7 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-/** Unmodifiable view onto multiple backing maps. An element occurs in the map
+/**
+ * Unmodifiable view onto multiple backing maps. An element occurs in the map
  * if it occurs in any of the backing maps; the value is the value that occurs
  * in the first map that contains the key.
  *
@@ -32,119 +33,120 @@ import java.util.Set;
  * @param <V> Value type
  */
 public class CompositeMap<K, V> implements Map<K, V> {
-  private final ImmutableList<Map<K, V>> maps;
 
-  public CompositeMap(ImmutableList<Map<K, V>> maps) {
-    this.maps = maps;
-  }
+    private final ImmutableList<Map<K, V>> maps;
 
-  /** Creates a CompositeMap. */
-  // Would like to use '@SafeVarargs' but JDK 1.6 doesn't support it.
-  @SuppressWarnings("varargs")
-  public static <K, V> CompositeMap<K, V> of(Map<K, V> map0,
-      Map<K, V>... maps) {
-    return new CompositeMap<K, V>(list(map0, maps));
-  }
-
-  private static <E> ImmutableList<E> list(E e, E[] es) {
-    ImmutableList.Builder<E> builder = ImmutableList.builder();
-    builder.add(e);
-    for (E map : es) {
-      builder.add(map);
+    public CompositeMap(ImmutableList<Map<K, V>> maps) {
+        this.maps = maps;
     }
-    return builder.build();
-  }
 
-  public int size() {
-    return keySet().size();
-  }
-
-  public boolean isEmpty() {
-    // Empty iff all maps are empty.
-    for (Map<K, V> map : maps) {
-      if (!map.isEmpty()) {
-        return false;
-      }
+    /**
+     * Creates a CompositeMap.
+     */
+    // Would like to use '@SafeVarargs' but JDK 1.6 doesn't support it.
+    @SuppressWarnings("varargs") public static <K, V> CompositeMap<K, V> of(Map<K, V> map0, Map<K, V>... maps) {
+        return new CompositeMap<K, V>(list(map0, maps));
     }
-    return true;
-  }
 
-  public boolean containsKey(Object key) {
-    for (Map<K, V> map : maps) {
-      if (map.containsKey(key)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public boolean containsValue(Object value) {
-    for (Map<K, V> map : maps) {
-      if (map.containsValue(value)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public V get(Object key) {
-    for (Map<K, V> map : maps) {
-      //noinspection SuspiciousMethodCalls
-      if (map.containsKey(key)) {
-        return map.get(key);
-      }
-    }
-    return null;
-  }
-
-  public V put(K key, V value) {
-    // we are an unmodifiable view on the maps
-    throw new UnsupportedOperationException();
-  }
-
-  public V remove(Object key) {
-    // we are an unmodifiable view on the maps
-    throw new UnsupportedOperationException();
-  }
-
-  public void putAll(Map<? extends K, ? extends V> m) {
-    // we are an unmodifiable view on the maps
-    throw new UnsupportedOperationException();
-  }
-
-  public void clear() {
-    // we are an unmodifiable view on the maps
-    throw new UnsupportedOperationException();
-  }
-
-  public Set<K> keySet() {
-    final Set<K> keys = new LinkedHashSet<K>();
-    for (Map<K, V> map : maps) {
-      keys.addAll(map.keySet());
-    }
-    return keys;
-  }
-
-  private Map<K, V> combinedMap() {
-    ImmutableMap.Builder<K, V> builder = ImmutableMap.builder();
-    final Set<K> keys = new LinkedHashSet<K>();
-    for (Map<K, V> map : maps) {
-      for (Entry<K, V> entry : map.entrySet()) {
-        if (keys.add(entry.getKey())) {
-          builder.put(entry);
+    private static <E> ImmutableList<E> list(E e, E[] es) {
+        ImmutableList.Builder<E> builder = ImmutableList.builder();
+        builder.add(e);
+        for (E map : es) {
+            builder.add(map);
         }
-      }
+        return builder.build();
     }
-    return builder.build();
-  }
 
-  public Collection<V> values() {
-    return combinedMap().values();
-  }
+    public int size() {
+        return keySet().size();
+    }
 
-  public Set<Entry<K, V>> entrySet() {
-    return combinedMap().entrySet();
-  }
+    public boolean isEmpty() {
+        // Empty iff all maps are empty.
+        for (Map<K, V> map : maps) {
+            if (!map.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean containsKey(Object key) {
+        for (Map<K, V> map : maps) {
+            if (map.containsKey(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsValue(Object value) {
+        for (Map<K, V> map : maps) {
+            if (map.containsValue(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public V get(Object key) {
+        for (Map<K, V> map : maps) {
+            //noinspection SuspiciousMethodCalls
+            if (map.containsKey(key)) {
+                return map.get(key);
+            }
+        }
+        return null;
+    }
+
+    public V put(K key, V value) {
+        // we are an unmodifiable view on the maps
+        throw new UnsupportedOperationException();
+    }
+
+    public V remove(Object key) {
+        // we are an unmodifiable view on the maps
+        throw new UnsupportedOperationException();
+    }
+
+    public void putAll(Map<? extends K, ? extends V> m) {
+        // we are an unmodifiable view on the maps
+        throw new UnsupportedOperationException();
+    }
+
+    public void clear() {
+        // we are an unmodifiable view on the maps
+        throw new UnsupportedOperationException();
+    }
+
+    public Set<K> keySet() {
+        final Set<K> keys = new LinkedHashSet<K>();
+        for (Map<K, V> map : maps) {
+            keys.addAll(map.keySet());
+        }
+        return keys;
+    }
+
+    private Map<K, V> combinedMap() {
+        ImmutableMap.Builder<K, V> builder = ImmutableMap.builder();
+        final Set<K> keys = new LinkedHashSet<K>();
+        for (Map<K, V> map : maps) {
+            for (Entry<K, V> entry : map.entrySet()) {
+                if (keys.add(entry.getKey())) {
+                    builder.put(entry);
+                }
+            }
+        }
+        return builder.build();
+    }
+
+    public Collection<V> values() {
+        return combinedMap().values();
+    }
+
+    public Set<Entry<K, V>> entrySet() {
+        return combinedMap().entrySet();
+    }
 }
 
 // End CompositeMap.java

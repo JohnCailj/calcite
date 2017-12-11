@@ -16,11 +16,7 @@
  */
 package org.apache.calcite.sql.type;
 
-import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.rel.type.RelDataTypeFamily;
-import org.apache.calcite.rel.type.RelDataTypeField;
-import org.apache.calcite.rel.type.RelDataTypeImpl;
-import org.apache.calcite.rel.type.RelDataTypePrecedenceList;
+import org.apache.calcite.rel.type.*;
 
 import java.io.Serializable;
 import java.util.List;
@@ -28,58 +24,52 @@ import java.util.List;
 /**
  * Abstract base class for SQL implementations of {@link RelDataType}.
  */
-public abstract class AbstractSqlType
-    extends RelDataTypeImpl
-    implements Cloneable, Serializable {
-  //~ Instance fields --------------------------------------------------------
+public abstract class AbstractSqlType extends RelDataTypeImpl implements Cloneable, Serializable {
+    //~ Instance fields --------------------------------------------------------
 
-  protected final SqlTypeName typeName;
-  protected boolean isNullable;
+    protected final SqlTypeName typeName;
+    protected       boolean     isNullable;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates an AbstractSqlType.
-   *
-   * @param typeName   Type name
-   * @param isNullable Whether nullable
-   * @param fields     Fields of type, or null if not a record type
-   */
-  protected AbstractSqlType(
-      SqlTypeName typeName,
-      boolean isNullable,
-      List<? extends RelDataTypeField> fields) {
-    super(fields);
-    this.typeName = typeName;
-    this.isNullable = isNullable || (typeName == SqlTypeName.NULL);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  // implement RelDataType
-  public SqlTypeName getSqlTypeName() {
-    return typeName;
-  }
-
-  // implement RelDataType
-  public boolean isNullable() {
-    return isNullable;
-  }
-
-  // implement RelDataType
-  public RelDataTypeFamily getFamily() {
-    return typeName.getFamily();
-  }
-
-  // implement RelDataType
-  public RelDataTypePrecedenceList getPrecedenceList() {
-    RelDataTypePrecedenceList list =
-        SqlTypeExplicitPrecedenceList.getListForType(this);
-    if (list != null) {
-      return list;
+    /**
+     * Creates an AbstractSqlType.
+     *
+     * @param typeName   Type name
+     * @param isNullable Whether nullable
+     * @param fields     Fields of type, or null if not a record type
+     */
+    protected AbstractSqlType(SqlTypeName typeName, boolean isNullable, List<? extends RelDataTypeField> fields) {
+        super(fields);
+        this.typeName = typeName;
+        this.isNullable = isNullable || (typeName == SqlTypeName.NULL);
     }
-    return super.getPrecedenceList();
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    // implement RelDataType
+    public SqlTypeName getSqlTypeName() {
+        return typeName;
+    }
+
+    // implement RelDataType
+    public boolean isNullable() {
+        return isNullable;
+    }
+
+    // implement RelDataType
+    public RelDataTypeFamily getFamily() {
+        return typeName.getFamily();
+    }
+
+    // implement RelDataType
+    public RelDataTypePrecedenceList getPrecedenceList() {
+        RelDataTypePrecedenceList list = SqlTypeExplicitPrecedenceList.getListForType(this);
+        if (list != null) {
+            return list;
+        }
+        return super.getPrecedenceList();
+    }
 }
 
 // End AbstractSqlType.java

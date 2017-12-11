@@ -16,6 +16,8 @@
  */
 package org.apache.calcite.sql.fun;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.sql.SqlAggFunction;
@@ -25,9 +27,6 @@ import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
 import org.apache.calcite.sql.type.SqlTypeName;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 
 /**
@@ -36,42 +35,29 @@ import java.util.List;
  * function.
  */
 public class SqlFirstLastValueAggFunction extends SqlAggFunction {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlFirstLastValueAggFunction(SqlKind kind) {
-    super(
-        kind.name(),
-        null,
-        kind,
-        ReturnTypes.ARG0_NULLABLE_IF_EMPTY,
-        null,
-        OperandTypes.ANY,
-        SqlFunctionCategory.NUMERIC,
-        false,
-        true);
-    Preconditions.checkArgument(kind == SqlKind.FIRST_VALUE
-        || kind == SqlKind.LAST_VALUE);
-  }
+    public SqlFirstLastValueAggFunction(SqlKind kind) {
+        super(kind.name(), null, kind, ReturnTypes.ARG0_NULLABLE_IF_EMPTY, null, OperandTypes.ANY,
+              SqlFunctionCategory.NUMERIC, false, true);
+        Preconditions.checkArgument(kind == SqlKind.FIRST_VALUE || kind == SqlKind.LAST_VALUE);
+    }
 
-  @Deprecated // to be removed before 2.0
-  public SqlFirstLastValueAggFunction(boolean firstFlag) {
-    this(firstFlag ? SqlKind.FIRST_VALUE : SqlKind.LAST_VALUE);
-  }
+    @Deprecated // to be removed before 2.0
+    public SqlFirstLastValueAggFunction(boolean firstFlag) {
+        this(firstFlag ? SqlKind.FIRST_VALUE : SqlKind.LAST_VALUE);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @SuppressWarnings("deprecation")
-  public List<RelDataType> getParameterTypes(RelDataTypeFactory typeFactory) {
-    return ImmutableList.of(
-        typeFactory.createTypeWithNullability(
-            typeFactory.createSqlType(SqlTypeName.ANY), true));
-  }
+    @SuppressWarnings("deprecation") public List<RelDataType> getParameterTypes(RelDataTypeFactory typeFactory) {
+        return ImmutableList.of(
+                typeFactory.createTypeWithNullability(typeFactory.createSqlType(SqlTypeName.ANY), true));
+    }
 
-  @SuppressWarnings("deprecation")
-  public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
-    return typeFactory.createTypeWithNullability(
-        typeFactory.createSqlType(SqlTypeName.ANY), true);
-  }
+    @SuppressWarnings("deprecation") public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
+        return typeFactory.createTypeWithNullability(typeFactory.createSqlType(SqlTypeName.ANY), true);
+    }
 }
 
 // End SqlFirstLastValueAggFunction.java

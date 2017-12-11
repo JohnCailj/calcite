@@ -26,34 +26,33 @@ import org.apache.calcite.sql.SqlNode;
 
 /**
  * Abstract base class for implementing {@link Table}.
- *
  * <p>Sub-classes should override {@link #isRolledUp} and
  * {@link Table#rolledUpColumnValidInsideAgg(String, SqlCall, SqlNode, CalciteConnectionConfig)}
  * if their table can potentially contain rolled up values. This information is
  * used by the validator to check for illegal uses of these columns.
  */
 public abstract class AbstractTable implements Table {
-  protected AbstractTable() {
-  }
 
-  // Default implementation. Override if you have statistics.
-  public Statistic getStatistic() {
-    return Statistics.UNKNOWN;
-  }
+    protected AbstractTable() {
+    }
 
-  public Schema.TableType getJdbcTableType() {
-    return Schema.TableType.TABLE;
-  }
+    // Default implementation. Override if you have statistics.
+    public Statistic getStatistic() {
+        return Statistics.UNKNOWN;
+    }
 
-  @Override public boolean isRolledUp(String column) {
-    return false;
-  }
+    public Schema.TableType getJdbcTableType() {
+        return Schema.TableType.TABLE;
+    }
 
-  @Override public boolean rolledUpColumnValidInsideAgg(String column, SqlCall call,
-                                                        SqlNode parent,
-                                                        CalciteConnectionConfig config) {
-    return true;
-  }
+    @Override public boolean isRolledUp(String column) {
+        return false;
+    }
+
+    @Override public boolean rolledUpColumnValidInsideAgg(String column, SqlCall call, SqlNode parent,
+                                                          CalciteConnectionConfig config) {
+        return true;
+    }
 }
 
 // End AbstractTable.java

@@ -16,11 +16,7 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.sql.type.OperandTypes;
-import org.apache.calcite.sql.type.ReturnTypes;
-import org.apache.calcite.sql.type.SqlOperandTypeChecker;
-import org.apache.calcite.sql.type.SqlOperandTypeInference;
-import org.apache.calcite.sql.type.SqlReturnTypeInference;
+import org.apache.calcite.sql.type.*;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 
@@ -31,64 +27,37 @@ import org.apache.calcite.sql.validate.SqlValidatorScope;
  * duplicates).
  */
 public class SqlSetOperator extends SqlBinaryOperator {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final boolean all;
+    private final boolean all;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlSetOperator(
-      String name,
-      SqlKind kind,
-      int prec,
-      boolean all) {
-    super(
-        name,
-        kind,
-        prec,
-        true,
-        ReturnTypes.LEAST_RESTRICTIVE,
-        null,
-        OperandTypes.SET_OP);
-    this.all = all;
-  }
+    public SqlSetOperator(String name, SqlKind kind, int prec, boolean all) {
+        super(name, kind, prec, true, ReturnTypes.LEAST_RESTRICTIVE, null, OperandTypes.SET_OP);
+        this.all = all;
+    }
 
-  public SqlSetOperator(
-      String name,
-      SqlKind kind,
-      int prec,
-      boolean all,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker) {
-    super(
-        name,
-        kind,
-        prec,
-        true,
-        returnTypeInference,
-        operandTypeInference,
-        operandTypeChecker);
-    this.all = all;
-  }
+    public SqlSetOperator(String name, SqlKind kind, int prec, boolean all, SqlReturnTypeInference returnTypeInference,
+                          SqlOperandTypeInference operandTypeInference, SqlOperandTypeChecker operandTypeChecker) {
+        super(name, kind, prec, true, returnTypeInference, operandTypeInference, operandTypeChecker);
+        this.all = all;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public boolean isAll() {
-    return all;
-  }
+    public boolean isAll() {
+        return all;
+    }
 
-  public boolean isDistinct() {
-    return !all;
-  }
+    public boolean isDistinct() {
+        return !all;
+    }
 
-  public void validateCall(
-      SqlCall call,
-      SqlValidator validator,
-      SqlValidatorScope scope,
-      SqlValidatorScope operandScope) {
-    validator.validateQuery(call, operandScope, validator.getUnknownType());
-  }
+    public void validateCall(SqlCall call, SqlValidator validator, SqlValidatorScope scope,
+                             SqlValidatorScope operandScope) {
+        validator.validateQuery(call, operandScope, validator.getUnknownType());
+    }
 }
 
 // End SqlSetOperator.java

@@ -29,62 +29,56 @@ import java.util.List;
 
 /**
  * Relational expression that returns a sample of the rows from its input.
- *
  * <p>In SQL, a sample is expressed using the {@code TABLESAMPLE BERNOULLI} or
  * {@code SYSTEM} keyword applied to a table, view or sub-query.
  */
 public class Sample extends SingleRel {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final RelOptSamplingParameters params;
+    private final RelOptSamplingParameters params;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public Sample(RelOptCluster cluster, RelNode child,
-      RelOptSamplingParameters params) {
-    super(cluster, cluster.traitSetOf(Convention.NONE), child);
-    this.params = params;
-  }
+    public Sample(RelOptCluster cluster, RelNode child, RelOptSamplingParameters params) {
+        super(cluster, cluster.traitSetOf(Convention.NONE), child);
+        this.params = params;
+    }
 
-  /**
-   * Creates a Sample by parsing serialized output.
-   */
-  public Sample(RelInput input) {
-    this(input.getCluster(), input.getInput(), getSamplingParameters(input));
-  }
+    /**
+     * Creates a Sample by parsing serialized output.
+     */
+    public Sample(RelInput input) {
+        this(input.getCluster(), input.getInput(), getSamplingParameters(input));
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  private static RelOptSamplingParameters getSamplingParameters(
-      RelInput input) {
-    String mode = input.getString("mode");
-    float percentage = input.getFloat("rate");
-    Object repeatableSeed = input.get("repeatableSeed");
-    boolean repeatable = repeatableSeed instanceof Number;
-    return new RelOptSamplingParameters(
-        mode.equals("bernoulli"), percentage, repeatable,
-        repeatable ? ((Number) repeatableSeed).intValue() : 0);
-  }
+    private static RelOptSamplingParameters getSamplingParameters(RelInput input) {
+        String mode = input.getString("mode");
+        float percentage = input.getFloat("rate");
+        Object repeatableSeed = input.get("repeatableSeed");
+        boolean repeatable = repeatableSeed instanceof Number;
+        return new RelOptSamplingParameters(mode.equals("bernoulli"), percentage, repeatable,
+                                            repeatable ? ((Number) repeatableSeed).intValue() : 0);
+    }
 
-  public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
-    assert traitSet.containsIfApplicable(Convention.NONE);
-    return new Sample(getCluster(), sole(inputs), params);
-  }
+    public RelNode copy(RelTraitSet traitSet, List<RelNode> inputs) {
+        assert traitSet.containsIfApplicable(Convention.NONE);
+        return new Sample(getCluster(), sole(inputs), params);
+    }
 
-  /**
-   * Retrieve the sampling parameters for this Sample.
-   */
-  public RelOptSamplingParameters getSamplingParameters() {
-    return params;
-  }
+    /**
+     * Retrieve the sampling parameters for this Sample.
+     */
+    public RelOptSamplingParameters getSamplingParameters() {
+        return params;
+    }
 
-  @Override public RelWriter explainTerms(RelWriter pw) {
-    return super.explainTerms(pw)
-        .item("mode", params.isBernoulli() ? "bernoulli" : "system")
-        .item("rate", params.getSamplingPercentage())
-        .item("repeatableSeed",
-            params.isRepeatable() ? params.getRepeatableSeed() : "-");
-  }
+    @Override public RelWriter explainTerms(RelWriter pw) {
+        return super.explainTerms(pw).item("mode", params.isBernoulli() ? "bernoulli" : "system").item("rate",
+                                                                                                       params.getSamplingPercentage()).item(
+                "repeatableSeed", params.isRepeatable() ? params.getRepeatableSeed() : "-");
+    }
 }
 
 // End Sample.java

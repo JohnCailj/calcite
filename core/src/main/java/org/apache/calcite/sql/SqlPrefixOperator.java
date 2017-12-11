@@ -30,79 +30,59 @@ import org.apache.calcite.util.Util;
  * A unary operator.
  */
 public class SqlPrefixOperator extends SqlOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlPrefixOperator(
-      String name,
-      SqlKind kind,
-      int prec,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker) {
-    super(
-        name,
-        kind,
-        leftPrec(prec, true),
-        rightPrec(prec, true),
-        returnTypeInference,
-        operandTypeInference,
-        operandTypeChecker);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public SqlSyntax getSyntax() {
-    return SqlSyntax.PREFIX;
-  }
-
-  public String getSignatureTemplate(final int operandsCount) {
-    Util.discard(operandsCount);
-    return "{0}{1}";
-  }
-
-  protected RelDataType adjustType(
-      SqlValidator validator,
-      SqlCall call,
-      RelDataType type) {
-    if (SqlTypeUtil.inCharFamily(type)) {
-      // Determine coercibility and resulting collation name of
-      // unary operator if needed.
-      RelDataType operandType =
-          validator.getValidatedNodeType(call.operand(0));
-      if (null == operandType) {
-        throw new AssertionError("operand's type should have been derived");
-      }
-      if (SqlTypeUtil.inCharFamily(operandType)) {
-        SqlCollation collation = operandType.getCollation();
-        assert null != collation
-            : "An implicit or explicit collation should have been set";
-        type =
-            validator.getTypeFactory()
-                .createTypeWithCharsetAndCollation(
-                    type,
-                    type.getCharset(),
-                    new SqlCollation(
-                        collation.getCollationName(),
-                        collation.getCoercibility()));
-      }
-    }
-    return type;
-  }
-
-  @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
-    if (getName().equals("-")) {
-      return call.getOperandMonotonicity(0).reverse();
+    public SqlPrefixOperator(String name, SqlKind kind, int prec, SqlReturnTypeInference returnTypeInference,
+                             SqlOperandTypeInference operandTypeInference, SqlOperandTypeChecker operandTypeChecker) {
+        super(name, kind, leftPrec(prec, true), rightPrec(prec, true), returnTypeInference, operandTypeInference,
+              operandTypeChecker);
     }
 
-    return super.getMonotonicity(call);
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public boolean validRexOperands(int count, Litmus litmus) {
-    if (count != 1) {
-      return litmus.fail("wrong operand count {} for {}", count, this);
+    public SqlSyntax getSyntax() {
+        return SqlSyntax.PREFIX;
     }
-    return litmus.succeed();
-  }
+
+    public String getSignatureTemplate(final int operandsCount) {
+        Util.discard(operandsCount);
+        return "{0}{1}";
+    }
+
+    protected RelDataType adjustType(SqlValidator validator, SqlCall call, RelDataType type) {
+        if (SqlTypeUtil.inCharFamily(type)) {
+            // Determine coercibility and resulting collation name of
+            // unary operator if needed.
+            RelDataType operandType = validator.getValidatedNodeType(call.operand(0));
+            if (null == operandType) {
+                throw new AssertionError("operand's type should have been derived");
+            }
+            if (SqlTypeUtil.inCharFamily(operandType)) {
+                SqlCollation collation = operandType.getCollation();
+                assert null != collation : "An implicit or explicit collation should have been set";
+                type = validator.getTypeFactory().createTypeWithCharsetAndCollation(type, type.getCharset(),
+                                                                                    new SqlCollation(
+                                                                                            collation.getCollationName(),
+                                                                                            collation.getCoercibility()));
+            }
+        }
+        return type;
+    }
+
+    @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
+        if (getName().equals("-")) {
+            return call.getOperandMonotonicity(0).reverse();
+        }
+
+        return super.getMonotonicity(call);
+    }
+
+    @Override public boolean validRexOperands(int count, Litmus litmus) {
+        if (count != 1) {
+            return litmus.fail("wrong operand count {} for {}", count, this);
+        }
+        return litmus.succeed();
+    }
 }
 
 // End SqlPrefixOperator.java

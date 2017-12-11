@@ -23,27 +23,27 @@ import org.apache.calcite.rel.core.Project;
  * {@link org.apache.calcite.rel.core.Project}.
  */
 public class ProjectNode extends AbstractSingleNode<Project> {
-  private final Scalar scalar;
-  private final Context context;
-  private final int projectCount;
 
-  public ProjectNode(Interpreter interpreter, Project rel) {
-    super(interpreter, rel);
-    this.projectCount = rel.getProjects().size();
-    this.scalar = interpreter.compile(rel.getProjects(),
-        rel.getInput().getRowType());
-    this.context = interpreter.createContext();
-  }
+    private final Scalar  scalar;
+    private final Context context;
+    private final int     projectCount;
 
-  public void run() throws InterruptedException {
-    Row row;
-    while ((row = source.receive()) != null) {
-      context.values = row.getValues();
-      Object[] values = new Object[projectCount];
-      scalar.execute(context, values);
-      sink.send(new Row(values));
+    public ProjectNode(Interpreter interpreter, Project rel) {
+        super(interpreter, rel);
+        this.projectCount = rel.getProjects().size();
+        this.scalar = interpreter.compile(rel.getProjects(), rel.getInput().getRowType());
+        this.context = interpreter.createContext();
     }
-  }
+
+    public void run() throws InterruptedException {
+        Row row;
+        while ((row = source.receive()) != null) {
+            context.values = row.getValues();
+            Object[] values = new Object[projectCount];
+            scalar.execute(context, values);
+            sink.send(new Row(values));
+        }
+    }
 }
 
 // End ProjectNode.java

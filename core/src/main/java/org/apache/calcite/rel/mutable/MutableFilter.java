@@ -20,45 +20,45 @@ import org.apache.calcite.rex.RexNode;
 
 import java.util.Objects;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Filter}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Filter}.
+ */
 public class MutableFilter extends MutableSingleRel {
-  public final RexNode condition;
 
-  private MutableFilter(MutableRel input, RexNode condition) {
-    super(MutableRelType.FILTER, input.rowType, input);
-    this.condition = condition;
-  }
+    public final RexNode condition;
 
-  /**
-   * Creates a MutableFilter.
-   *
-   * @param input     Input relational expression
-   * @param condition Boolean expression which determines whether a row is
-   *                  allowed to pass
-   */
-  public static MutableFilter of(MutableRel input, RexNode condition) {
-    return new MutableFilter(input, condition);
-  }
+    private MutableFilter(MutableRel input, RexNode condition) {
+        super(MutableRelType.FILTER, input.rowType, input);
+        this.condition = condition;
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableFilter
-        && condition.toString().equals(
-            ((MutableFilter) obj).condition.toString())
-        && input.equals(((MutableFilter) obj).input);
-  }
+    /**
+     * Creates a MutableFilter.
+     *
+     * @param input     Input relational expression
+     * @param condition Boolean expression which determines whether a row is
+     *                  allowed to pass
+     */
+    public static MutableFilter of(MutableRel input, RexNode condition) {
+        return new MutableFilter(input, condition);
+    }
 
-  @Override public int hashCode() {
-    return Objects.hash(input, condition.toString());
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof MutableFilter && condition.toString().equals(
+                ((MutableFilter) obj).condition.toString()) && input.equals(((MutableFilter) obj).input);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Filter(condition: ").append(condition).append(")");
-  }
+    @Override public int hashCode() {
+        return Objects.hash(input, condition.toString());
+    }
 
-  @Override public MutableRel clone() {
-    return MutableFilter.of(input.clone(), condition);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Filter(condition: ").append(condition).append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableFilter.of(input.clone(), condition);
+    }
 }
 
 // End MutableFilter.java

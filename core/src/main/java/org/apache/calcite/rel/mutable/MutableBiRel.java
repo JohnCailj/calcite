@@ -16,62 +16,64 @@
  */
 package org.apache.calcite.rel.mutable;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.rel.type.RelDataType;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.BiRel}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.BiRel}.
+ */
 abstract class MutableBiRel extends MutableRel {
-  protected MutableRel left;
-  protected MutableRel right;
 
-  protected MutableBiRel(MutableRelType type, RelOptCluster cluster,
-      RelDataType rowType, MutableRel left, MutableRel right) {
-    super(cluster, rowType, type);
-    this.left = left;
-    left.parent = this;
-    left.ordinalInParent = 0;
+    protected MutableRel left;
+    protected MutableRel right;
 
-    this.right = right;
-    right.parent = this;
-    right.ordinalInParent = 1;
-  }
+    protected MutableBiRel(MutableRelType type, RelOptCluster cluster, RelDataType rowType, MutableRel left,
+                           MutableRel right) {
+        super(cluster, rowType, type);
+        this.left = left;
+        left.parent = this;
+        left.ordinalInParent = 0;
 
-  public void setInput(int ordinalInParent, MutableRel input) {
-    if (ordinalInParent > 1) {
-      throw new IllegalArgumentException();
+        this.right = right;
+        right.parent = this;
+        right.ordinalInParent = 1;
     }
-    if (ordinalInParent == 0) {
-      this.left = input;
-    } else {
-      this.right = input;
+
+    public void setInput(int ordinalInParent, MutableRel input) {
+        if (ordinalInParent > 1) {
+            throw new IllegalArgumentException();
+        }
+        if (ordinalInParent == 0) {
+            this.left = input;
+        } else {
+            this.right = input;
+        }
+        if (input != null) {
+            input.parent = this;
+            input.ordinalInParent = ordinalInParent;
+        }
     }
-    if (input != null) {
-      input.parent = this;
-      input.ordinalInParent = ordinalInParent;
+
+    public List<MutableRel> getInputs() {
+        return ImmutableList.of(left, right);
     }
-  }
 
-  public List<MutableRel> getInputs() {
-    return ImmutableList.of(left, right);
-  }
+    public MutableRel getLeft() {
+        return left;
+    }
 
-  public MutableRel getLeft() {
-    return left;
-  }
+    public MutableRel getRight() {
+        return right;
+    }
 
-  public MutableRel getRight() {
-    return right;
-  }
+    public void childrenAccept(MutableRelVisitor visitor) {
 
-  public void childrenAccept(MutableRelVisitor visitor) {
-
-    visitor.visit(left);
-    visitor.visit(right);
-  }
+        visitor.visit(left);
+        visitor.visit(right);
+    }
 }
 
 // End MutableBiRel.java

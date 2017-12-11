@@ -26,25 +26,20 @@ import org.apache.calcite.rel.core.Sort;
  * {@link EnumerableSort}.
  */
 class EnumerableSortRule extends ConverterRule {
-  EnumerableSortRule() {
-    super(Sort.class, Convention.NONE, EnumerableConvention.INSTANCE,
-        "EnumerableSortRule");
-  }
 
-  public RelNode convert(RelNode rel) {
-    final Sort sort = (Sort) rel;
-    if (sort.offset != null || sort.fetch != null) {
-      return null;
+    EnumerableSortRule() {
+        super(Sort.class, Convention.NONE, EnumerableConvention.INSTANCE, "EnumerableSortRule");
     }
-    final RelNode input = sort.getInput();
-    return EnumerableSort.create(
-        convert(
-            input,
-            input.getTraitSet().replace(EnumerableConvention.INSTANCE)),
-        sort.getCollation(),
-        null,
-        null);
-  }
+
+    public RelNode convert(RelNode rel) {
+        final Sort sort = (Sort) rel;
+        if (sort.offset != null || sort.fetch != null) {
+            return null;
+        }
+        final RelNode input = sort.getInput();
+        return EnumerableSort.create(convert(input, input.getTraitSet().replace(EnumerableConvention.INSTANCE)),
+                                     sort.getCollation(), null, null);
+    }
 }
 
 // End EnumerableSortRule.java

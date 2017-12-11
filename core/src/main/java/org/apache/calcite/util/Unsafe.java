@@ -22,33 +22,42 @@ import java.io.StringWriter;
  * Contains methods that call JDK methods that the
  * <a href="https://github.com/policeman-tools/forbidden-apis">forbidden
  * APIs checker</a> does not approve of.
- *
  * <p>This class is excluded from the check, so methods called via this class
  * will not fail the build.
  */
 public class Unsafe {
-  private Unsafe() {}
 
-  /** Calls {@link System#exit}. */
-  public static void systemExit(int status) {
-    System.exit(status);
-  }
+    private Unsafe() {
+    }
 
-  /** Calls {@link Object#notifyAll()}. */
-  public static void notifyAll(Object o) {
-    o.notifyAll();
-  }
+    /**
+     * Calls {@link System#exit}.
+     */
+    public static void systemExit(int status) {
+        System.exit(status);
+    }
 
-  /** Calls {@link Object#wait()}. */
-  public static void wait(Object o) throws InterruptedException {
-    o.wait();
-  }
+    /**
+     * Calls {@link Object#notifyAll()}.
+     */
+    public static void notifyAll(Object o) {
+        o.notifyAll();
+    }
 
-  /** Clears the contents of a {@link StringWriter}. */
-  public static void clear(StringWriter sw) {
-    // Included in this class because StringBuffer is banned.
-    sw.getBuffer().setLength(0);
-  }
+    /**
+     * Calls {@link Object#wait()}.
+     */
+    public static void wait(Object o) throws InterruptedException {
+        o.wait();
+    }
+
+    /**
+     * Clears the contents of a {@link StringWriter}.
+     */
+    public static void clear(StringWriter sw) {
+        // Included in this class because StringBuffer is banned.
+        sw.getBuffer().setLength(0);
+    }
 }
 
 // End Unsafe.java

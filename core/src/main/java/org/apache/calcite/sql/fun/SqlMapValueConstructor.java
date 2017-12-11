@@ -32,61 +32,48 @@ import static org.apache.calcite.util.Static.RESOURCE;
 /**
  * Definition of the MAP constructor,
  * <code>MAP [&lt;key&gt;, &lt;value&gt;, ...]</code>.
- *
  * <p>This is an extension to standard SQL.</p>
  */
 public class SqlMapValueConstructor extends SqlMultisetValueConstructor {
-  public SqlMapValueConstructor() {
-    super("MAP", SqlKind.MAP_VALUE_CONSTRUCTOR);
-  }
 
-  @Override public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
-    Pair<RelDataType, RelDataType> type =
-        getComponentTypes(
-            opBinding.getTypeFactory(), opBinding.collectOperandTypes());
-    if (null == type) {
-      return null;
+    public SqlMapValueConstructor() {
+        super("MAP", SqlKind.MAP_VALUE_CONSTRUCTOR);
     }
-    return SqlTypeUtil.createMapType(
-        opBinding.getTypeFactory(),
-        type.left,
-        type.right,
-        false);
-  }
 
-  public boolean checkOperandTypes(
-      SqlCallBinding callBinding,
-      boolean throwOnFailure) {
-    final List<RelDataType> argTypes =
-        SqlTypeUtil.deriveAndCollectTypes(
-            callBinding.getValidator(),
-            callBinding.getScope(),
-            callBinding.operands());
-    if (argTypes.size() == 0) {
-      throw callBinding.newValidationError(RESOURCE.mapRequiresTwoOrMoreArgs());
+    @Override public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+        Pair<RelDataType, RelDataType> type = getComponentTypes(opBinding.getTypeFactory(),
+                                                                opBinding.collectOperandTypes());
+        if (null == type) {
+            return null;
+        }
+        return SqlTypeUtil.createMapType(opBinding.getTypeFactory(), type.left, type.right, false);
     }
-    if (argTypes.size() % 2 > 0) {
-      throw callBinding.newValidationError(RESOURCE.mapRequiresEvenArgCount());
-    }
-    final Pair<RelDataType, RelDataType> componentType =
-        getComponentTypes(
-            callBinding.getTypeFactory(), argTypes);
-    if (null == componentType.left || null == componentType.right) {
-      if (throwOnFailure) {
-        throw callBinding.newValidationError(RESOURCE.needSameTypeParameter());
-      }
-      return false;
-    }
-    return true;
-  }
 
-  private Pair<RelDataType, RelDataType> getComponentTypes(
-      RelDataTypeFactory typeFactory,
-      List<RelDataType> argTypes) {
-    return Pair.of(
-        typeFactory.leastRestrictive(Util.quotientList(argTypes, 2, 0)),
-        typeFactory.leastRestrictive(Util.quotientList(argTypes, 2, 1)));
-  }
+    public boolean checkOperandTypes(SqlCallBinding callBinding, boolean throwOnFailure) {
+        final List<RelDataType> argTypes = SqlTypeUtil.deriveAndCollectTypes(callBinding.getValidator(),
+                                                                             callBinding.getScope(),
+                                                                             callBinding.operands());
+        if (argTypes.size() == 0) {
+            throw callBinding.newValidationError(RESOURCE.mapRequiresTwoOrMoreArgs());
+        }
+        if (argTypes.size() % 2 > 0) {
+            throw callBinding.newValidationError(RESOURCE.mapRequiresEvenArgCount());
+        }
+        final Pair<RelDataType, RelDataType> componentType = getComponentTypes(callBinding.getTypeFactory(), argTypes);
+        if (null == componentType.left || null == componentType.right) {
+            if (throwOnFailure) {
+                throw callBinding.newValidationError(RESOURCE.needSameTypeParameter());
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private Pair<RelDataType, RelDataType> getComponentTypes(RelDataTypeFactory typeFactory,
+                                                             List<RelDataType> argTypes) {
+        return Pair.of(typeFactory.leastRestrictive(Util.quotientList(argTypes, 2, 0)),
+                       typeFactory.leastRestrictive(Util.quotientList(argTypes, 2, 1)));
+    }
 }
 
 // End SqlMapValueConstructor.java

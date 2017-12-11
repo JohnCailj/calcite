@@ -27,18 +27,17 @@ import org.apache.calcite.rel.logical.LogicalUnion;
  * {@link EnumerableUnion}.
  */
 class EnumerableUnionRule extends ConverterRule {
-  EnumerableUnionRule() {
-    super(LogicalUnion.class, Convention.NONE, EnumerableConvention.INSTANCE,
-        "EnumerableUnionRule");
-  }
 
-  public RelNode convert(RelNode rel) {
-    final LogicalUnion union = (LogicalUnion) rel;
-    final EnumerableConvention out = EnumerableConvention.INSTANCE;
-    final RelTraitSet traitSet = union.getTraitSet().replace(out);
-    return new EnumerableUnion(rel.getCluster(), traitSet,
-        convertList(union.getInputs(), out), union.all);
-  }
+    EnumerableUnionRule() {
+        super(LogicalUnion.class, Convention.NONE, EnumerableConvention.INSTANCE, "EnumerableUnionRule");
+    }
+
+    public RelNode convert(RelNode rel) {
+        final LogicalUnion union = (LogicalUnion) rel;
+        final EnumerableConvention out = EnumerableConvention.INSTANCE;
+        final RelTraitSet traitSet = union.getTraitSet().replace(out);
+        return new EnumerableUnion(rel.getCluster(), traitSet, convertList(union.getInputs(), out), union.all);
+    }
 }
 
 // End EnumerableUnionRule.java

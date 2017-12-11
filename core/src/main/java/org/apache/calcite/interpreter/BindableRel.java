@@ -26,6 +26,7 @@ import org.apache.calcite.runtime.ArrayBindable;
  * @see org.apache.calcite.interpreter.BindableConvention
  */
 public interface BindableRel extends RelNode, ArrayBindable, InterpretableRel {
+
 }
 
 // End BindableRel.java

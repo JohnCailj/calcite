@@ -18,38 +18,44 @@ package org.apache.calcite.util;
 
 /**
  * A mutable slot that can contain one object.
- *
  * <p>A holder is useful for implementing OUT or IN-OUT parameters.</p>
- *
  * <p>It is possible to sub-class to receive events on get or set.</p>
  *
  * @param <E> Element type
  */
 public class Holder<E> {
-  private E e;
 
-  /** Creates a Holder containing a given value.
-   *
-   * <p>Call this method from a derived constructor or via the {@link #of}
-   * method. */
-  protected Holder(E e) {
-    this.e = e;
-  }
+    private E e;
 
-  /** Sets the value. */
-  public void set(E e) {
-    this.e = e;
-  }
+    /**
+     * Creates a Holder containing a given value.
+     * <p>Call this method from a derived constructor or via the {@link #of}
+     * method.
+     */
+    protected Holder(E e) {
+        this.e = e;
+    }
 
-  /** Gets the value. */
-  public E get() {
-    return e;
-  }
+    /**
+     * Sets the value.
+     */
+    public void set(E e) {
+        this.e = e;
+    }
 
-  /** Creates a holder containing a given value. */
-  public static <E> Holder<E> of(E e) {
-    return new Holder<E>(e);
-  }
+    /**
+     * Gets the value.
+     */
+    public E get() {
+        return e;
+    }
+
+    /**
+     * Creates a holder containing a given value.
+     */
+    public static <E> Holder<E> of(E e) {
+        return new Holder<E>(e);
+    }
 }
 
 // End Holder.java

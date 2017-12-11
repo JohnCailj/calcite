@@ -21,9 +21,9 @@ package org.apache.calcite.rex;
  * It yields a {@link RexNode} by substituting the matching tokens.
  */
 public interface RexAction {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  void onMatch(RexNode[] tokens);
+    void onMatch(RexNode[] tokens);
 }
 
 // End RexAction.java

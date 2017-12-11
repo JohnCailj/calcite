@@ -20,17 +20,18 @@ import org.apache.calcite.linq4j.Enumerable;
 
 /**
  * Sink to which to send rows.
- *
  * <p>Corresponds to an output of a relational expression.
  */
 public interface Sink {
-  void send(Row row) throws InterruptedException;
 
-  void end() throws InterruptedException;
+    void send(Row row) throws InterruptedException;
 
-  /** This method is temporary. It will be removed without notice. */
-  @Deprecated
-  void setSourceEnumerable(Enumerable<Row> enumerable) throws InterruptedException;
+    void end() throws InterruptedException;
+
+    /**
+     * This method is temporary. It will be removed without notice.
+     */
+    @Deprecated void setSourceEnumerable(Enumerable<Row> enumerable) throws InterruptedException;
 }
 
 // End Sink.java

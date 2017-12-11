@@ -26,17 +26,14 @@ import org.apache.calcite.sql.type.SqlTypeFamily;
 /**
  * The <code>TIMESTAMPDIFF</code> function, which calculates the difference
  * between two timestamps.
- *
  * <p>The SQL syntax is
- *
  * <blockquote>
  * <code>TIMESTAMPDIFF(<i>timestamp interval</i>, <i>timestamp</i>,
  * <i>timestamp</i>)</code>
  * </blockquote>
- *
  * <p>The interval time unit can one of the following literals:<ul>
  * <li>MICROSECOND (and synonyms SQL_TSI_MICROSECOND, FRAC_SECOND,
- *     SQL_TSI_FRAC_SECOND)
+ * SQL_TSI_FRAC_SECOND)
  * <li>SECOND (and synonym SQL_TSI_SECOND)
  * <li>MINUTE (and synonym  SQL_TSI_MINUTE)
  * <li>HOUR (and synonym  SQL_TSI_HOUR)
@@ -46,19 +43,19 @@ import org.apache.calcite.sql.type.SqlTypeFamily;
  * <li>QUARTER (and synonym SQL_TSI_QUARTER)
  * <li>YEAR (and synonym  SQL_TSI_YEAR)
  * </ul>
- *
  * <p>Returns difference between two timestamps in indicated timestamp
  * interval.
  */
 class SqlTimestampDiffFunction extends SqlFunction {
-  /** Creates a SqlTimestampDiffFunction. */
-  SqlTimestampDiffFunction() {
-    super("TIMESTAMPDIFF", SqlKind.TIMESTAMP_DIFF,
-        ReturnTypes.INTEGER_NULLABLE, null,
-        OperandTypes.family(SqlTypeFamily.ANY, SqlTypeFamily.DATETIME,
-            SqlTypeFamily.DATETIME),
-        SqlFunctionCategory.TIMEDATE);
-  }
+
+    /**
+     * Creates a SqlTimestampDiffFunction.
+     */
+    SqlTimestampDiffFunction() {
+        super("TIMESTAMPDIFF", SqlKind.TIMESTAMP_DIFF, ReturnTypes.INTEGER_NULLABLE, null,
+              OperandTypes.family(SqlTypeFamily.ANY, SqlTypeFamily.DATETIME, SqlTypeFamily.DATETIME),
+              SqlFunctionCategory.TIMEDATE);
+    }
 }
 
 // End SqlTimestampDiffFunction.java

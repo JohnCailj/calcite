@@ -16,18 +16,13 @@
  */
 package org.apache.calcite.adapter.enumerable;
 
+import com.google.common.base.Supplier;
 import org.apache.calcite.linq4j.tree.BlockBuilder;
 import org.apache.calcite.linq4j.tree.Expression;
 import org.apache.calcite.linq4j.tree.Expressions;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelTraitSet;
-import org.apache.calcite.rel.RelCollation;
-import org.apache.calcite.rel.RelCollationTraitDef;
-import org.apache.calcite.rel.RelDistribution;
-import org.apache.calcite.rel.RelDistributionTraitDef;
-import org.apache.calcite.rel.RelNode;
-import org.apache.calcite.rel.RelWriter;
-import org.apache.calcite.rel.SingleRel;
+import org.apache.calcite.rel.*;
 import org.apache.calcite.rel.metadata.RelMdCollation;
 import org.apache.calcite.rel.metadata.RelMdDistribution;
 import org.apache.calcite.rel.metadata.RelMetadataQuery;
@@ -35,105 +30,76 @@ import org.apache.calcite.rex.RexLiteral;
 import org.apache.calcite.rex.RexNode;
 import org.apache.calcite.util.BuiltInMethod;
 
-import com.google.common.base.Supplier;
-
 import java.util.List;
 
-/** Relational expression that applies a limit and/or offset to its input. */
+/**
+ * Relational expression that applies a limit and/or offset to its input.
+ */
 public class EnumerableLimit extends SingleRel implements EnumerableRel {
-  public final RexNode offset;
-  public final RexNode fetch;
 
-  /** Creates an EnumerableLimit.
-   *
-   * <p>Use {@link #create} unless you know what you're doing. */
-  public EnumerableLimit(
-      RelOptCluster cluster,
-      RelTraitSet traitSet,
-      RelNode input,
-      RexNode offset,
-      RexNode fetch) {
-    super(cluster, traitSet, input);
-    this.offset = offset;
-    this.fetch = fetch;
-    assert getConvention() instanceof EnumerableConvention;
-    assert getConvention() == input.getConvention();
-  }
+    public final RexNode offset;
+    public final RexNode fetch;
 
-  /** Creates an EnumerableLimit. */
-  public static EnumerableLimit create(final RelNode input, RexNode offset,
-      RexNode fetch) {
-    final RelOptCluster cluster = input.getCluster();
-    final RelMetadataQuery mq = cluster.getMetadataQuery();
-    final RelTraitSet traitSet =
-        cluster.traitSetOf(EnumerableConvention.INSTANCE)
-            .replaceIfs(
-                RelCollationTraitDef.INSTANCE,
-                new Supplier<List<RelCollation>>() {
-                  public List<RelCollation> get() {
-                    return RelMdCollation.limit(mq, input);
-                  }
-                })
-            .replaceIf(RelDistributionTraitDef.INSTANCE,
-                new Supplier<RelDistribution>() {
-                  public RelDistribution get() {
-                    return RelMdDistribution.limit(mq, input);
-                  }
-                });
-    return new EnumerableLimit(cluster, traitSet, input, offset, fetch);
-  }
-
-  @Override public EnumerableLimit copy(
-      RelTraitSet traitSet,
-      List<RelNode> newInputs) {
-    return new EnumerableLimit(
-        getCluster(),
-        traitSet,
-        sole(newInputs),
-        offset,
-        fetch);
-  }
-
-  @Override public RelWriter explainTerms(RelWriter pw) {
-    return super.explainTerms(pw)
-        .itemIf("offset", offset, offset != null)
-        .itemIf("fetch", fetch, fetch != null);
-  }
-
-  public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
-    final BlockBuilder builder = new BlockBuilder();
-    final EnumerableRel child = (EnumerableRel) getInput();
-    final Result result = implementor.visitChild(this, 0, child, pref);
-    final PhysType physType =
-        PhysTypeImpl.of(
-            implementor.getTypeFactory(),
-            getRowType(),
-            result.format);
-
-    Expression v = builder.append("child", result.block);
-    if (offset != null) {
-      v = builder.append(
-          "offset",
-          Expressions.call(
-              v,
-              BuiltInMethod.SKIP.method,
-              Expressions.constant(RexLiteral.intValue(offset))));
-    }
-    if (fetch != null) {
-      v = builder.append(
-          "fetch",
-          Expressions.call(
-              v,
-              BuiltInMethod.TAKE.method,
-              Expressions.constant(RexLiteral.intValue(fetch))));
+    /**
+     * Creates an EnumerableLimit.
+     * <p>Use {@link #create} unless you know what you're doing.
+     */
+    public EnumerableLimit(RelOptCluster cluster, RelTraitSet traitSet, RelNode input, RexNode offset, RexNode fetch) {
+        super(cluster, traitSet, input);
+        this.offset = offset;
+        this.fetch = fetch;
+        assert getConvention() instanceof EnumerableConvention;
+        assert getConvention() == input.getConvention();
     }
 
-    builder.add(
-        Expressions.return_(
-            null,
-            v));
-    return implementor.result(physType, builder.toBlock());
-  }
+    /**
+     * Creates an EnumerableLimit.
+     */
+    public static EnumerableLimit create(final RelNode input, RexNode offset, RexNode fetch) {
+        final RelOptCluster cluster = input.getCluster();
+        final RelMetadataQuery mq = cluster.getMetadataQuery();
+        final RelTraitSet traitSet = cluster.traitSetOf(EnumerableConvention.INSTANCE).replaceIfs(
+                RelCollationTraitDef.INSTANCE, new Supplier<List<RelCollation>>() {
+
+                    public List<RelCollation> get() {
+                        return RelMdCollation.limit(mq, input);
+                    }
+                }).replaceIf(RelDistributionTraitDef.INSTANCE, new Supplier<RelDistribution>() {
+
+            public RelDistribution get() {
+                return RelMdDistribution.limit(mq, input);
+            }
+        });
+        return new EnumerableLimit(cluster, traitSet, input, offset, fetch);
+    }
+
+    @Override public EnumerableLimit copy(RelTraitSet traitSet, List<RelNode> newInputs) {
+        return new EnumerableLimit(getCluster(), traitSet, sole(newInputs), offset, fetch);
+    }
+
+    @Override public RelWriter explainTerms(RelWriter pw) {
+        return super.explainTerms(pw).itemIf("offset", offset, offset != null).itemIf("fetch", fetch, fetch != null);
+    }
+
+    public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
+        final BlockBuilder builder = new BlockBuilder();
+        final EnumerableRel child = (EnumerableRel) getInput();
+        final Result result = implementor.visitChild(this, 0, child, pref);
+        final PhysType physType = PhysTypeImpl.of(implementor.getTypeFactory(), getRowType(), result.format);
+
+        Expression v = builder.append("child", result.block);
+        if (offset != null) {
+            v = builder.append("offset", Expressions.call(v, BuiltInMethod.SKIP.method,
+                                                          Expressions.constant(RexLiteral.intValue(offset))));
+        }
+        if (fetch != null) {
+            v = builder.append("fetch", Expressions.call(v, BuiltInMethod.TAKE.method,
+                                                         Expressions.constant(RexLiteral.intValue(fetch))));
+        }
+
+        builder.add(Expressions.return_(null, v));
+        return implementor.result(physType, builder.toBlock());
+    }
 }
 
 // End EnumerableLimit.java

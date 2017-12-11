@@ -31,35 +31,37 @@ package org.apache.calcite.adapter.enumerable;
  * @see org.apache.calcite.adapter.enumerable.RexImpTable.RowNumberImplementor
  */
 public interface WinAggImplementor extends AggImplementor {
-  /**
-   * Allows to access rows in window partition relative to first/last and
-   * current row.
-   */
-  enum SeekType {
-    /**
-     * Start of window.
-     * @see WinAggFrameContext#startIndex()
-     */
-    START,
-    /**
-     * Row position in the frame.
-     * @see WinAggFrameContext#index()
-     */
-    SET,
-    /**
-     * The index of row that is aggregated.
-     * Valid only in {@link WinAggAddContext}.
-     * @see WinAggAddContext#currentPosition()
-     */
-    AGG_INDEX,
-    /**
-     * End of window.
-     * @see WinAggFrameContext#endIndex()
-     */
-    END
-  }
 
-  boolean needCacheWhenFrameIntact();
+    /**
+     * Allows to access rows in window partition relative to first/last and
+     * current row.
+     */
+    enum SeekType {
+        /**
+         * Start of window.
+         *
+         * @see WinAggFrameContext#startIndex()
+         */
+        START, /**
+         * Row position in the frame.
+         *
+         * @see WinAggFrameContext#index()
+         */
+        SET, /**
+         * The index of row that is aggregated.
+         * Valid only in {@link WinAggAddContext}.
+         *
+         * @see WinAggAddContext#currentPosition()
+         */
+        AGG_INDEX, /**
+         * End of window.
+         *
+         * @see WinAggFrameContext#endIndex()
+         */
+        END
+    }
+
+    boolean needCacheWhenFrameIntact();
 }
 
 // End WinAggImplementor.java

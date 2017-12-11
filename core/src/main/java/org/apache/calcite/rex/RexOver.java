@@ -16,13 +16,12 @@
  */
 package org.apache.calcite.rex;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlAggFunction;
 import org.apache.calcite.sql.SqlWindow;
 import org.apache.calcite.util.ControlFlowException;
 import org.apache.calcite.util.Util;
-
-import com.google.common.base.Preconditions;
 
 import java.util.List;
 
@@ -30,161 +29,156 @@ import java.util.List;
  * Call to an aggregate function over a window.
  */
 public class RexOver extends RexCall {
-  private static final Finder FINDER = new Finder();
 
-  //~ Instance fields --------------------------------------------------------
+    private static final Finder FINDER = new Finder();
 
-  private final RexWindow window;
-  private final boolean distinct;
+    //~ Instance fields --------------------------------------------------------
 
-  //~ Constructors -----------------------------------------------------------
+    private final RexWindow window;
+    private final boolean   distinct;
 
-  /**
-   * Creates a RexOver.
-   *
-   * <p>For example, "SUM(DISTINCT x) OVER (ROWS 3 PRECEDING)" is represented
-   * as:
-   *
-   * <ul>
-   * <li>type = Integer,
-   * <li>op = {@link org.apache.calcite.sql.fun.SqlStdOperatorTable#SUM},
-   * <li>operands = { {@link RexFieldAccess}("x") }
-   * <li>window = {@link SqlWindow}(ROWS 3 PRECEDING)
-   * </ul>
-   *
-   * @param type     Result type
-   * @param op       Aggregate operator
-   * @param operands Operands list
-   * @param window   Window specification
-   * @param distinct Aggregate operator is applied on distinct elements
-   */
-  RexOver(
-      RelDataType type,
-      SqlAggFunction op,
-      List<RexNode> operands,
-      RexWindow window,
-      boolean distinct) {
-    super(type, op, operands);
-    Preconditions.checkArgument(op.isAggregator());
-    this.window = Preconditions.checkNotNull(window);
-    this.distinct = distinct;
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
-
-  /**
-   * Returns the aggregate operator for this expression.
-   */
-  public SqlAggFunction getAggOperator() {
-    return (SqlAggFunction) getOperator();
-  }
-
-  public RexWindow getWindow() {
-    return window;
-  }
-
-  public boolean isDistinct() {
-    return distinct;
-  }
-
-  @Override protected String computeDigest(boolean withType) {
-    final StringBuilder sb = new StringBuilder(op.getName());
-    sb.append("(");
-    if (distinct) {
-      sb.append("DISTINCT ");
-    }
-    for (int i = 0; i < operands.size(); i++) {
-      if (i > 0) {
-        sb.append(", ");
-      }
-      RexNode operand = operands.get(i);
-      sb.append(operand.toString());
-    }
-    sb.append(")");
-    if (withType) {
-      sb.append(":");
-      sb.append(type.getFullTypeString());
-    }
-    sb.append(" OVER (")
-        .append(window)
-        .append(")");
-    return sb.toString();
-  }
-
-  public <R> R accept(RexVisitor<R> visitor) {
-    return visitor.visitOver(this);
-  }
-
-  public <R, P> R accept(RexBiVisitor<R, P> visitor, P arg) {
-    return visitor.visitOver(this, arg);
-  }
-
-  /**
-   * Returns whether an expression contains an OVER clause.
-   */
-  public static boolean containsOver(RexNode expr) {
-    try {
-      expr.accept(FINDER);
-      return false;
-    } catch (OverFound e) {
-      Util.swallow(e, null);
-      return true;
-    }
-  }
-
-  /**
-   * Returns whether a program contains an OVER clause.
-   */
-  public static boolean containsOver(RexProgram program) {
-    try {
-      RexUtil.apply(FINDER, program.getExprList(), null);
-      return false;
-    } catch (OverFound e) {
-      Util.swallow(e, null);
-      return true;
-    }
-  }
-
-  /**
-   * Returns whether an expression list contains an OVER clause.
-   */
-  public static boolean containsOver(List<RexNode> exprs, RexNode condition) {
-    try {
-      RexUtil.apply(FINDER, exprs, condition);
-      return false;
-    } catch (OverFound e) {
-      Util.swallow(e, null);
-      return true;
-    }
-  }
-
-  @Override public RexCall clone(RelDataType type, List<RexNode> operands) {
-    throw new UnsupportedOperationException();
-  }
-
-  //~ Inner Classes ----------------------------------------------------------
-
-  /** Exception thrown when an OVER is found. */
-  private static class OverFound extends ControlFlowException {
-    public static final OverFound INSTANCE = new OverFound();
-  }
-
-  /**
-   * Visitor which detects a {@link RexOver} inside a {@link RexNode}
-   * expression.
-   *
-   * <p>It is re-entrant (two threads can use an instance at the same time)
-   * and it can be re-used for multiple visits.
-   */
-  private static class Finder extends RexVisitorImpl<Void> {
-    Finder() {
-      super(true);
+    /**
+     * Creates a RexOver.
+     * <p>For example, "SUM(DISTINCT x) OVER (ROWS 3 PRECEDING)" is represented
+     * as:
+     * <ul>
+     * <li>type = Integer,
+     * <li>op = {@link org.apache.calcite.sql.fun.SqlStdOperatorTable#SUM},
+     * <li>operands = { {@link RexFieldAccess}("x") }
+     * <li>window = {@link SqlWindow}(ROWS 3 PRECEDING)
+     * </ul>
+     *
+     * @param type     Result type
+     * @param op       Aggregate operator
+     * @param operands Operands list
+     * @param window   Window specification
+     * @param distinct Aggregate operator is applied on distinct elements
+     */
+    RexOver(RelDataType type, SqlAggFunction op, List<RexNode> operands, RexWindow window, boolean distinct) {
+        super(type, op, operands);
+        Preconditions.checkArgument(op.isAggregator());
+        this.window = Preconditions.checkNotNull(window);
+        this.distinct = distinct;
     }
 
-    public Void visitOver(RexOver over) {
-      throw OverFound.INSTANCE;
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * Returns the aggregate operator for this expression.
+     */
+    public SqlAggFunction getAggOperator() {
+        return (SqlAggFunction) getOperator();
     }
-  }
+
+    public RexWindow getWindow() {
+        return window;
+    }
+
+    public boolean isDistinct() {
+        return distinct;
+    }
+
+    @Override protected String computeDigest(boolean withType) {
+        final StringBuilder sb = new StringBuilder(op.getName());
+        sb.append("(");
+        if (distinct) {
+            sb.append("DISTINCT ");
+        }
+        for (int i = 0; i < operands.size(); i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            RexNode operand = operands.get(i);
+            sb.append(operand.toString());
+        }
+        sb.append(")");
+        if (withType) {
+            sb.append(":");
+            sb.append(type.getFullTypeString());
+        }
+        sb.append(" OVER (").append(window).append(")");
+        return sb.toString();
+    }
+
+    public <R> R accept(RexVisitor<R> visitor) {
+        return visitor.visitOver(this);
+    }
+
+    public <R, P> R accept(RexBiVisitor<R, P> visitor, P arg) {
+        return visitor.visitOver(this, arg);
+    }
+
+    /**
+     * Returns whether an expression contains an OVER clause.
+     */
+    public static boolean containsOver(RexNode expr) {
+        try {
+            expr.accept(FINDER);
+            return false;
+        } catch (OverFound e) {
+            Util.swallow(e, null);
+            return true;
+        }
+    }
+
+    /**
+     * Returns whether a program contains an OVER clause.
+     */
+    public static boolean containsOver(RexProgram program) {
+        try {
+            RexUtil.apply(FINDER, program.getExprList(), null);
+            return false;
+        } catch (OverFound e) {
+            Util.swallow(e, null);
+            return true;
+        }
+    }
+
+    /**
+     * Returns whether an expression list contains an OVER clause.
+     */
+    public static boolean containsOver(List<RexNode> exprs, RexNode condition) {
+        try {
+            RexUtil.apply(FINDER, exprs, condition);
+            return false;
+        } catch (OverFound e) {
+            Util.swallow(e, null);
+            return true;
+        }
+    }
+
+    @Override public RexCall clone(RelDataType type, List<RexNode> operands) {
+        throw new UnsupportedOperationException();
+    }
+
+    //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * Exception thrown when an OVER is found.
+     */
+    private static class OverFound extends ControlFlowException {
+
+        public static final OverFound INSTANCE = new OverFound();
+    }
+
+    /**
+     * Visitor which detects a {@link RexOver} inside a {@link RexNode}
+     * expression.
+     * <p>It is re-entrant (two threads can use an instance at the same time)
+     * and it can be re-used for multiple visits.
+     */
+    private static class Finder extends RexVisitorImpl<Void> {
+
+        Finder() {
+            super(true);
+        }
+
+        public Void visitOver(RexOver over) {
+            throw OverFound.INSTANCE;
+        }
+    }
 }
 
 // End RexOver.java

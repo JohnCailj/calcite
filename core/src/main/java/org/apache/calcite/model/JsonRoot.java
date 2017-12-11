@@ -21,13 +21,10 @@ import java.util.List;
 
 /**
  * Root schema element.
- *
  * <p>A POJO with fields of {@link Boolean}, {@link String}, {@link ArrayList},
  * {@link java.util.LinkedHashMap LinkedHashMap}, per Jackson simple data
  * binding.</p>
- *
  * <p>Schema structure is as follows:</p>
- *
  * <!-- CHECKSTYLE: OFF -->
  * <pre>{@code Root}
  *   {@link JsonSchema} (in collection {@link JsonRoot#schemas schemas})
@@ -43,27 +40,29 @@ import java.util.List;
  *     {@link JsonMaterialization} (in collection {@link JsonSchema#materializations materializations})
  * </pre>
  * <!-- CHECKSTYLE: ON -->
- *
  * <p>See the <a href="http://calcite.apache.org/docs/model.html">JSON
  * model reference</a>.
  */
 public class JsonRoot {
-  /** Schema model version number. Required, must have value "1.0". */
-  public String version;
 
-  /** Name of the schema that will become the default schema for connections
-   * to Calcite that use this model.
-   *
-   * <p>Optional, case-sensitive. If specified, there must be a schema in this
-   * model with this name.
-   */
-  public String defaultSchema;
+    /**
+     * Schema model version number. Required, must have value "1.0".
+     */
+    public String version;
 
-  /** List of schema elements.
-   *
-   * <p>The list may be empty.
-   */
-  public final List<JsonSchema> schemas = new ArrayList<>();
+    /**
+     * Name of the schema that will become the default schema for connections
+     * to Calcite that use this model.
+     * <p>Optional, case-sensitive. If specified, there must be a schema in this
+     * model with this name.
+     */
+    public String defaultSchema;
+
+    /**
+     * List of schema elements.
+     * <p>The list may be empty.
+     */
+    public final List<JsonSchema> schemas = new ArrayList<>();
 }
 
 // End JsonRoot.java

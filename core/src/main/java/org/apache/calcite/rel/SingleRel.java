@@ -16,77 +16,69 @@
  */
 package org.apache.calcite.rel;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelTraitSet;
 import org.apache.calcite.rel.metadata.RelMetadataQuery;
 import org.apache.calcite.rel.type.RelDataType;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 
 /**
  * Abstract base class for relational expressions with a single input.
- *
  * <p>It is not required that single-input relational expressions use this
  * class as a base class. However, default implementations of methods make life
  * easier.
  */
 public abstract class SingleRel extends AbstractRelNode {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  protected RelNode input;
+    protected RelNode input;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a <code>SingleRel</code>.
-   *
-   * @param cluster Cluster this relational expression belongs to
-   * @param input   Input relational expression
-   */
-  protected SingleRel(
-      RelOptCluster cluster,
-      RelTraitSet traits,
-      RelNode input) {
-    super(cluster, traits);
-    this.input = input;
-  }
+    /**
+     * Creates a <code>SingleRel</code>.
+     *
+     * @param cluster Cluster this relational expression belongs to
+     * @param input   Input relational expression
+     */
+    protected SingleRel(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
+        super(cluster, traits);
+        this.input = input;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public RelNode getInput() {
-    return input;
-  }
+    public RelNode getInput() {
+        return input;
+    }
 
-  @Override public List<RelNode> getInputs() {
-    return ImmutableList.of(input);
-  }
+    @Override public List<RelNode> getInputs() {
+        return ImmutableList.of(input);
+    }
 
-  @Override public double estimateRowCount(RelMetadataQuery mq) {
-    // Not necessarily correct, but a better default than AbstractRelNode's 1.0
-    return mq.getRowCount(input);
-  }
+    @Override public double estimateRowCount(RelMetadataQuery mq) {
+        // Not necessarily correct, but a better default than AbstractRelNode's 1.0
+        return mq.getRowCount(input);
+    }
 
-  @Override public void childrenAccept(RelVisitor visitor) {
-    visitor.visit(input, 0, this);
-  }
+    @Override public void childrenAccept(RelVisitor visitor) {
+        visitor.visit(input, 0, this);
+    }
 
-  public RelWriter explainTerms(RelWriter pw) {
-    return super.explainTerms(pw)
-        .input("input", getInput());
-  }
+    public RelWriter explainTerms(RelWriter pw) {
+        return super.explainTerms(pw).input("input", getInput());
+    }
 
-  @Override public void replaceInput(
-      int ordinalInParent,
-      RelNode rel) {
-    assert ordinalInParent == 0;
-    this.input = rel;
-  }
+    @Override public void replaceInput(int ordinalInParent, RelNode rel) {
+        assert ordinalInParent == 0;
+        this.input = rel;
+    }
 
-  protected RelDataType deriveRowType() {
-    return input.getRowType();
-  }
+    protected RelDataType deriveRowType() {
+        return input.getRowType();
+    }
 }
 
 // End SingleRel.java

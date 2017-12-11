@@ -18,39 +18,39 @@ package org.apache.calcite.rel.mutable;
 
 import org.apache.calcite.rel.core.Values;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Values}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Values}.
+ */
 public class MutableValues extends MutableLeafRel {
-  private MutableValues(Values rel) {
-    super(MutableRelType.VALUES, rel);
-  }
 
-  /**
-   * Creates a MutableValue.
-   *
-   * @param values  The underlying Values object
-   */
-  public static MutableValues of(Values values) {
-    return new MutableValues(values);
-  }
+    private MutableValues(Values rel) {
+        super(MutableRelType.VALUES, rel);
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableValues
-        && rel == ((MutableValues) obj).rel;
-  }
+    /**
+     * Creates a MutableValue.
+     *
+     * @param values The underlying Values object
+     */
+    public static MutableValues of(Values values) {
+        return new MutableValues(values);
+    }
 
-  @Override public int hashCode() {
-    return rel.hashCode();
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof MutableValues && rel == ((MutableValues) obj).rel;
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Values(tuples: ")
-        .append(((Values) rel).getTuples()).append(")");
-  }
+    @Override public int hashCode() {
+        return rel.hashCode();
+    }
 
-  @Override public MutableRel clone() {
-    return MutableValues.of((Values) rel);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Values(tuples: ").append(((Values) rel).getTuples()).append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableValues.of((Values) rel);
+    }
 }
 
 // End MutableValues.java

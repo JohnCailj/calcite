@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql.fun;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.sql.SqlAggFunction;
@@ -23,8 +24,6 @@ import org.apache.calcite.sql.SqlFunctionCategory;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
-
-import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
@@ -36,43 +35,33 @@ import java.util.List;
  * retrieved using (<code>HistogramMin</code>) and (<code>HistogramMax</code>).
  */
 public class SqlHistogramAggFunction extends SqlAggFunction {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  @Deprecated // to be removed before 2.0
-  private final RelDataType type;
+    @Deprecated // to be removed before 2.0
+    private final RelDataType type;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlHistogramAggFunction(RelDataType type) {
-    super(
-        "$HISTOGRAM",
-        null,
-        SqlKind.OTHER_FUNCTION,
-        ReturnTypes.HISTOGRAM,
-        null,
-        OperandTypes.NUMERIC_OR_STRING,
-        SqlFunctionCategory.NUMERIC,
-        false,
-        false);
-    this.type = type;
-  }
+    public SqlHistogramAggFunction(RelDataType type) {
+        super("$HISTOGRAM", null, SqlKind.OTHER_FUNCTION, ReturnTypes.HISTOGRAM, null, OperandTypes.NUMERIC_OR_STRING,
+              SqlFunctionCategory.NUMERIC, false, false);
+        this.type = type;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @SuppressWarnings("deprecation")
-  public List<RelDataType> getParameterTypes(RelDataTypeFactory typeFactory) {
-    return ImmutableList.of(type);
-  }
+    @SuppressWarnings("deprecation") public List<RelDataType> getParameterTypes(RelDataTypeFactory typeFactory) {
+        return ImmutableList.of(type);
+    }
 
-  @Deprecated // to be removed before 2.0
-  public RelDataType getType() {
-    return type;
-  }
+    @Deprecated // to be removed before 2.0
+    public RelDataType getType() {
+        return type;
+    }
 
-  @SuppressWarnings("deprecation")
-  public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
-    return type;
-  }
+    @SuppressWarnings("deprecation") public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
+        return type;
+    }
 }
 
 // End SqlHistogramAggFunction.java

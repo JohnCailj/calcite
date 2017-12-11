@@ -26,39 +26,38 @@ import java.util.List;
  * {@link org.apache.calcite.sql.validate.SqlValidatorCatalogReader} that passes
  * all calls to a parent catalog reader.
  */
-public abstract class DelegatingSqlValidatorCatalogReader
-    implements SqlValidatorCatalogReader {
-  protected final SqlValidatorCatalogReader catalogReader;
+public abstract class DelegatingSqlValidatorCatalogReader implements SqlValidatorCatalogReader {
 
-  /**
-   * Creates a DelegatingSqlValidatorCatalogReader.
-   *
-   * @param catalogReader Parent catalog reader
-   */
-  public DelegatingSqlValidatorCatalogReader(
-      SqlValidatorCatalogReader catalogReader) {
-    this.catalogReader = catalogReader;
-  }
+    protected final SqlValidatorCatalogReader catalogReader;
 
-  public SqlValidatorTable getTable(List<String> names) {
-    return catalogReader.getTable(names);
-  }
+    /**
+     * Creates a DelegatingSqlValidatorCatalogReader.
+     *
+     * @param catalogReader Parent catalog reader
+     */
+    public DelegatingSqlValidatorCatalogReader(SqlValidatorCatalogReader catalogReader) {
+        this.catalogReader = catalogReader;
+    }
 
-  public RelDataType getNamedType(SqlIdentifier typeName) {
-    return catalogReader.getNamedType(typeName);
-  }
+    public SqlValidatorTable getTable(List<String> names) {
+        return catalogReader.getTable(names);
+    }
 
-  public List<SqlMoniker> getAllSchemaObjectNames(List<String> names) {
-    return catalogReader.getAllSchemaObjectNames(names);
-  }
+    public RelDataType getNamedType(SqlIdentifier typeName) {
+        return catalogReader.getNamedType(typeName);
+    }
 
-  public List<List<String>> getSchemaPaths() {
-    return catalogReader.getSchemaPaths();
-  }
+    public List<SqlMoniker> getAllSchemaObjectNames(List<String> names) {
+        return catalogReader.getAllSchemaObjectNames(names);
+    }
 
-  @Override public <C> C unwrap(Class<C> aClass) {
-    return catalogReader.unwrap(aClass);
-  }
+    public List<List<String>> getSchemaPaths() {
+        return catalogReader.getSchemaPaths();
+    }
+
+    @Override public <C> C unwrap(Class<C> aClass) {
+        return catalogReader.unwrap(aClass);
+    }
 }
 
 // End DelegatingSqlValidatorCatalogReader.java

@@ -28,29 +28,29 @@ import java.util.List;
  * Implementation of
  * {@link org.apache.calcite.adapter.enumerable.AggResetContext}
  */
-public abstract class AggResetContextImpl extends NestedBlockBuilderImpl
-    implements AggResetContext {
-  private final List<Expression> accumulator;
+public abstract class AggResetContextImpl extends NestedBlockBuilderImpl implements AggResetContext {
 
-  /**
-   * Creates aggregate reset context.
-   *
-   * @param block Code block that will contain the added initialization
-   * @param accumulator Accumulator variables that store the intermediate
-   *                    aggregate state
-   */
-  public AggResetContextImpl(BlockBuilder block, List<Expression> accumulator) {
-    super(block);
-    this.accumulator = accumulator;
-  }
+    private final List<Expression> accumulator;
 
-  public List<Expression> accumulator() {
-    return accumulator;
-  }
+    /**
+     * Creates aggregate reset context.
+     *
+     * @param block       Code block that will contain the added initialization
+     * @param accumulator Accumulator variables that store the intermediate
+     *                    aggregate state
+     */
+    public AggResetContextImpl(BlockBuilder block, List<Expression> accumulator) {
+        super(block);
+        this.accumulator = accumulator;
+    }
 
-  public AggregateCall call() {
-    throw new UnsupportedOperationException();
-  }
+    public List<Expression> accumulator() {
+        return accumulator;
+    }
+
+    public AggregateCall call() {
+        throw new UnsupportedOperationException();
+    }
 }
 
 // End AggResetContextImpl.java

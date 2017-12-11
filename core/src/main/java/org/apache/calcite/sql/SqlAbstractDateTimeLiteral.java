@@ -24,9 +24,7 @@ import org.apache.calcite.util.TimestampString;
 
 /**
  * A SQL literal representing a DATE, TIME or TIMESTAMP value.
- *
  * <p>Examples:
- *
  * <ul>
  * <li>DATE '2004-10-22'</li>
  * <li>TIME '14:33:44.567'</li>
@@ -34,56 +32,52 @@ import org.apache.calcite.util.TimestampString;
  * </ul>
  */
 abstract class SqlAbstractDateTimeLiteral extends SqlLiteral {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  protected final boolean hasTimeZone;
-  protected final int precision;
+    protected final boolean hasTimeZone;
+    protected final int     precision;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Constructs a datetime literal.
-   */
-  protected SqlAbstractDateTimeLiteral(Object d, boolean tz,
-      SqlTypeName typeName, int precision, SqlParserPos pos) {
-    super(d, typeName, pos);
-    this.hasTimeZone = tz;
-    this.precision = precision;
-  }
+    /**
+     * Constructs a datetime literal.
+     */
+    protected SqlAbstractDateTimeLiteral(Object d, boolean tz, SqlTypeName typeName, int precision, SqlParserPos pos) {
+        super(d, typeName, pos);
+        this.hasTimeZone = tz;
+        this.precision = precision;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /** Converts this literal to a {@link TimestampString}. */
-  protected TimestampString getTimestamp() {
-    return (TimestampString) value;
-  }
+    /**
+     * Converts this literal to a {@link TimestampString}.
+     */
+    protected TimestampString getTimestamp() {
+        return (TimestampString) value;
+    }
 
-  public int getPrec() {
-    return precision;
-  }
+    public int getPrec() {
+        return precision;
+    }
 
-  /**
-   * Returns e.g. <code>DATE '1969-07-21'</code>.
-   */
-  public abstract String toString();
+    /**
+     * Returns e.g. <code>DATE '1969-07-21'</code>.
+     */
+    public abstract String toString();
 
-  /**
-   * Returns e.g. <code>1969-07-21</code>.
-   */
-  public abstract String toFormattedString();
+    /**
+     * Returns e.g. <code>1969-07-21</code>.
+     */
+    public abstract String toFormattedString();
 
-  public RelDataType createSqlType(RelDataTypeFactory typeFactory) {
-    return typeFactory.createSqlType(
-        getTypeName(),
-        getPrec());
-  }
+    public RelDataType createSqlType(RelDataTypeFactory typeFactory) {
+        return typeFactory.createSqlType(getTypeName(), getPrec());
+    }
 
-  public void unparse(
-      SqlWriter writer,
-      int leftPrec,
-      int rightPrec) {
-    writer.literal(this.toString());
-  }
+    public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+        writer.literal(this.toString());
+    }
 }
 
 // End SqlAbstractDateTimeLiteral.java

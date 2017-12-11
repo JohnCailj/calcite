@@ -22,15 +22,15 @@ package org.apache.calcite.util.javac;
  * same arguments as Sun's javac.
  */
 public interface JavaCompiler {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  void compile();
+    void compile();
 
-  JavaCompilerArgs getArgs();
+    JavaCompilerArgs getArgs();
 
-  ClassLoader getClassLoader();
+    ClassLoader getClassLoader();
 
-  int getTotalByteCodeSize();
+    int getTotalByteCodeSize();
 }
 
 // End JavaCompiler.java

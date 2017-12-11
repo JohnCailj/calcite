@@ -24,29 +24,29 @@ import org.apache.calcite.rel.core.SemiJoin;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Planner rule that converts a
+/**
+ * Planner rule that converts a
  * {@link org.apache.calcite.rel.core.SemiJoin} relational expression
- * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}. */
+ * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}.
+ */
 class EnumerableSemiJoinRule extends ConverterRule {
-  EnumerableSemiJoinRule() {
-    super(SemiJoin.class, Convention.NONE, EnumerableConvention.INSTANCE,
-        "EnumerableSemiJoinRule");
-  }
 
-  @Override public RelNode convert(RelNode rel) {
-    final SemiJoin semiJoin = (SemiJoin) rel;
-    final List<RelNode> newInputs = new ArrayList<>();
-    for (RelNode input : semiJoin.getInputs()) {
-      if (!(input.getConvention() instanceof EnumerableConvention)) {
-        input =
-            convert(input,
-                input.getTraitSet().replace(EnumerableConvention.INSTANCE));
-      }
-      newInputs.add(input);
+    EnumerableSemiJoinRule() {
+        super(SemiJoin.class, Convention.NONE, EnumerableConvention.INSTANCE, "EnumerableSemiJoinRule");
     }
-    return EnumerableSemiJoin.create(newInputs.get(0), newInputs.get(1),
-        semiJoin.getCondition(), semiJoin.leftKeys, semiJoin.rightKeys);
-  }
+
+    @Override public RelNode convert(RelNode rel) {
+        final SemiJoin semiJoin = (SemiJoin) rel;
+        final List<RelNode> newInputs = new ArrayList<>();
+        for (RelNode input : semiJoin.getInputs()) {
+            if (!(input.getConvention() instanceof EnumerableConvention)) {
+                input = convert(input, input.getTraitSet().replace(EnumerableConvention.INSTANCE));
+            }
+            newInputs.add(input);
+        }
+        return EnumerableSemiJoin.create(newInputs.get(0), newInputs.get(1), semiJoin.getCondition(), semiJoin.leftKeys,
+                                         semiJoin.rightKeys);
+    }
 }
 
 // End EnumerableSemiJoinRule.java

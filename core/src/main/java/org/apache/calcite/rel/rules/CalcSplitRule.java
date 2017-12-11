@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.rel.rules;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.plan.RelOptRule;
 import org.apache.calcite.plan.RelOptRuleCall;
 import org.apache.calcite.rel.core.Calc;
@@ -26,36 +27,32 @@ import org.apache.calcite.tools.RelBuilder;
 import org.apache.calcite.tools.RelBuilderFactory;
 import org.apache.calcite.util.Pair;
 
-import com.google.common.collect.ImmutableList;
-
 /**
  * Planner rule that converts a {@link Calc}
  * to a {@link org.apache.calcite.rel.core.Project}
  * and {@link Filter}.
- *
  * <p>Not enabled by default, as it works against the usual flow, which is to
  * convert {@code Project} and {@code Filter} to {@code Calc}. But useful for
  * specific tasks, such as optimizing before calling an
  * {@link org.apache.calcite.interpreter.Interpreter}.
  */
 public class CalcSplitRule extends RelOptRule {
-  public static final CalcSplitRule INSTANCE =
-      new CalcSplitRule(RelFactories.LOGICAL_BUILDER);
 
-  private CalcSplitRule(RelBuilderFactory relBuilderFactory) {
-    super(operand(Calc.class, any()), relBuilderFactory, null);
-  }
+    public static final CalcSplitRule INSTANCE = new CalcSplitRule(RelFactories.LOGICAL_BUILDER);
 
-  @Override public void onMatch(RelOptRuleCall call) {
-    final Calc calc = call.rel(0);
-    final Pair<ImmutableList<RexNode>, ImmutableList<RexNode>> projectFilter =
-        calc.getProgram().split();
-    final RelBuilder relBuilder = call.builder();
-    relBuilder.push(calc.getInput());
-    relBuilder.filter(projectFilter.right);
-    relBuilder.project(projectFilter.left, calc.getRowType().getFieldNames());
-    call.transformTo(relBuilder.build());
-  }
+    private CalcSplitRule(RelBuilderFactory relBuilderFactory) {
+        super(operand(Calc.class, any()), relBuilderFactory, null);
+    }
+
+    @Override public void onMatch(RelOptRuleCall call) {
+        final Calc calc = call.rel(0);
+        final Pair<ImmutableList<RexNode>, ImmutableList<RexNode>> projectFilter = calc.getProgram().split();
+        final RelBuilder relBuilder = call.builder();
+        relBuilder.push(calc.getInput());
+        relBuilder.filter(projectFilter.right);
+        relBuilder.project(projectFilter.left, calc.getRowType().getFieldNames());
+        call.transformTo(relBuilder.build());
+    }
 }
 
 // End CalcSplitRule.java

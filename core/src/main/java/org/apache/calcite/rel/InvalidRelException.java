@@ -19,13 +19,11 @@ package org.apache.calcite.rel;
 /**
  * Exception that indicates that a relational expression would be invalid
  * with given parameters.
- *
  * <p>This exception is thrown by the constructor of a subclass of
  * {@link RelNode} when given parameters it cannot accept. For example,
  * {@code EnumerableJoinRel} can only implement equi-joins, so its constructor
  * throws {@code InvalidRelException} when given the condition
  * {@code input0.x - input1.y = 2}.</p>
- *
  * <p>Because the exception is checked (i.e. extends {@link Exception} but not
  * {@link RuntimeException}), constructors that throw this exception will
  * declare this exception in their {@code throws} clause, and rules that create
@@ -33,25 +31,25 @@ package org.apache.calcite.rel;
  * not take the exception personally, and will fail to match. The burden of
  * checking is removed from the rule, which means less code for the author of
  * the rule to maintain.</p>
- *
  * <p>The caller that receives an {@code InvalidRelException} (typically a rule
  * attempting to create a relational expression) should log it at
  * the DEBUG level.</p>
  */
 public class InvalidRelException extends Exception {
-  /**
-   * Creates an InvalidRelException.
-   */
-  public InvalidRelException(String message) {
-    super(message);
-  }
 
-  /**
-   * Creates an InvalidRelException with a cause.
-   */
-  public InvalidRelException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    /**
+     * Creates an InvalidRelException.
+     */
+    public InvalidRelException(String message) {
+        super(message);
+    }
+
+    /**
+     * Creates an InvalidRelException with a cause.
+     */
+    public InvalidRelException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
 
 // End InvalidRelException.java

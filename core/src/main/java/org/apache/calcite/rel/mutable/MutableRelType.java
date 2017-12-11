@@ -16,29 +16,11 @@
  */
 package org.apache.calcite.rel.mutable;
 
-/** Type of {@code MutableRel}. */
+/**
+ * Type of {@code MutableRel}.
+ */
 enum MutableRelType {
-  AGGREGATE,
-  CALC,
-  COLLECT,
-  CORRELATE,
-  EXCHANGE,
-  FILTER,
-  INTERSECT,
-  JOIN,
-  MINUS,
-  PROJECT,
-  SAMPLE,
-  SEMIJOIN,
-  SORT,
-  TABLE_FUNCTION_SCAN,
-  TABLE_MODIFY,
-  TABLE_SCAN,
-  UNCOLLECT,
-  UNION,
-  VALUES,
-  WINDOW,
-  HOLDER
+    AGGREGATE, CALC, COLLECT, CORRELATE, EXCHANGE, FILTER, INTERSECT, JOIN, MINUS, PROJECT, SAMPLE, SEMIJOIN, SORT, TABLE_FUNCTION_SCAN, TABLE_MODIFY, TABLE_SCAN, UNCOLLECT, UNION, VALUES, WINDOW, HOLDER
 }
 
 // End MutableRelType.java

@@ -21,24 +21,26 @@ import org.apache.calcite.linq4j.tree.Expression;
 /**
  * Information for a call to
  * {@link AggImplementor#implementAdd(AggContext, AggAddContext)}.
- *
  * <p>{@link WinAggAddContext} is used when implementing windowed aggregate.
  * Typically, the aggregation implementation will use {@link #arguments()}
  * or {@link #rexArguments()} to update aggregate value.
+ *
  * @see AggAddContext
  */
 public interface WinAggAddContext extends AggAddContext, WinAggResultContext {
-  /**
-   * Returns current position inside for-loop of window aggregate.
-   * Note, the position is relative to {@link WinAggFrameContext#startIndex()}.
-   * This is NOT current row as in "rows between current row".
-   * If you need to know the relative index of the current row in the partition,
-   * use {@link WinAggFrameContext#index()}.
-   * @return current position inside for-loop of window aggregate.
-   * @see WinAggFrameContext#index()
-   * @see WinAggFrameContext#startIndex()
-   */
-  Expression currentPosition();
+
+    /**
+     * Returns current position inside for-loop of window aggregate.
+     * Note, the position is relative to {@link WinAggFrameContext#startIndex()}.
+     * This is NOT current row as in "rows between current row".
+     * If you need to know the relative index of the current row in the partition,
+     * use {@link WinAggFrameContext#index()}.
+     *
+     * @return current position inside for-loop of window aggregate.
+     * @see WinAggFrameContext#index()
+     * @see WinAggFrameContext#startIndex()
+     */
+    Expression currentPosition();
 }
 
 // End WinAggAddContext.java

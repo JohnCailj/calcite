@@ -16,36 +16,34 @@
  */
 package org.apache.calcite.interpreter;
 
-import org.apache.calcite.rel.core.Filter;
-
 import com.google.common.collect.ImmutableList;
+import org.apache.calcite.rel.core.Filter;
 
 /**
  * Interpreter node that implements a
  * {@link org.apache.calcite.rel.core.Filter}.
  */
 public class FilterNode extends AbstractSingleNode<Filter> {
-  private final Scalar condition;
-  private final Context context;
 
-  public FilterNode(Interpreter interpreter, Filter rel) {
-    super(interpreter, rel);
-    this.condition =
-        interpreter.compile(ImmutableList.of(rel.getCondition()),
-            rel.getRowType());
-    this.context = interpreter.createContext();
-  }
+    private final Scalar  condition;
+    private final Context context;
 
-  public void run() throws InterruptedException {
-    Row row;
-    while ((row = source.receive()) != null) {
-      context.values = row.getValues();
-      Boolean b = (Boolean) condition.execute(context);
-      if (b != null && b) {
-        sink.send(row);
-      }
+    public FilterNode(Interpreter interpreter, Filter rel) {
+        super(interpreter, rel);
+        this.condition = interpreter.compile(ImmutableList.of(rel.getCondition()), rel.getRowType());
+        this.context = interpreter.createContext();
     }
-  }
+
+    public void run() throws InterruptedException {
+        Row row;
+        while ((row = source.receive()) != null) {
+            context.values = row.getValues();
+            Boolean b = (Boolean) condition.execute(context);
+            if (b != null && b) {
+                sink.send(row);
+            }
+        }
+    }
 }
 
 // End FilterNode.java

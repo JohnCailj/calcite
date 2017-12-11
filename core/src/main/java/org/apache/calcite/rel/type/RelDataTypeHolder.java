@@ -27,56 +27,56 @@ import java.util.List;
  * Holding the expandable list of fields for dynamic table.
  */
 class RelDataTypeHolder {
-  private final List<RelDataTypeField> fields = new ArrayList<>();
-  private final RelDataTypeFactory typeFactory;
 
-  RelDataTypeHolder(RelDataTypeFactory typeFactory) {
-    this.typeFactory = typeFactory;
-  }
+    private final List<RelDataTypeField> fields = new ArrayList<>();
+    private final RelDataTypeFactory typeFactory;
 
-  public List<RelDataTypeField> getFieldList() {
-    return fields;
-  }
-
-  public int getFieldCount() {
-    return fields.size();
-  }
-
-  /**
-   * Get field if exists, otherwise inserts a new field. The new field by default will have "any"
-   * type, except for the dynamic star field.
-   *
-   * @param fieldName Request field name
-   * @param caseSensitive Case Sensitive
-   * @return A pair of RelDataTypeField and Boolean. Boolean indicates whether a new field is added
-   * to this holder.
-   */
-  Pair<RelDataTypeField, Boolean> getFieldOrInsert(String fieldName, boolean caseSensitive) {
-    // First check if this field name exists in our field list
-    for (RelDataTypeField f : fields) {
-      if (Util.matches(caseSensitive, f.getName(), fieldName)) {
-        return Pair.of(f, false);
-      }
+    RelDataTypeHolder(RelDataTypeFactory typeFactory) {
+        this.typeFactory = typeFactory;
     }
 
-    final SqlTypeName typeName = DynamicRecordType.isDynamicStarColName(fieldName)
-        ? SqlTypeName.DYNAMIC_STAR : SqlTypeName.ANY;
+    public List<RelDataTypeField> getFieldList() {
+        return fields;
+    }
 
-    // This field does not exist in our field list add it
-    RelDataTypeField newField = new RelDataTypeFieldImpl(
-        fieldName,
-        fields.size(),
-        typeFactory.createTypeWithNullability(typeFactory.createSqlType(typeName), true));
+    public int getFieldCount() {
+        return fields.size();
+    }
 
-    // Add the name to our list of field names
-    fields.add(newField);
+    /**
+     * Get field if exists, otherwise inserts a new field. The new field by default will have "any"
+     * type, except for the dynamic star field.
+     *
+     * @param fieldName     Request field name
+     * @param caseSensitive Case Sensitive
+     * @return A pair of RelDataTypeField and Boolean. Boolean indicates whether a new field is added
+     * to this holder.
+     */
+    Pair<RelDataTypeField, Boolean> getFieldOrInsert(String fieldName, boolean caseSensitive) {
+        // First check if this field name exists in our field list
+        for (RelDataTypeField f : fields) {
+            if (Util.matches(caseSensitive, f.getName(), fieldName)) {
+                return Pair.of(f, false);
+            }
+        }
 
-    return Pair.of(newField, true);
-  }
+        final SqlTypeName typeName = DynamicRecordType.isDynamicStarColName(
+                fieldName) ? SqlTypeName.DYNAMIC_STAR : SqlTypeName.ANY;
 
-  public List<String> getFieldNames() {
-    return Pair.left(fields);
-  }
+        // This field does not exist in our field list add it
+        RelDataTypeField newField = new RelDataTypeFieldImpl(fieldName, fields.size(),
+                                                             typeFactory.createTypeWithNullability(
+                                                                     typeFactory.createSqlType(typeName), true));
+
+        // Add the name to our list of field names
+        fields.add(newField);
+
+        return Pair.of(newField, true);
+    }
+
+    public List<String> getFieldNames() {
+        return Pair.left(fields);
+    }
 
 }
 

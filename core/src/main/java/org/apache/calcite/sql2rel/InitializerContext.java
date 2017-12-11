@@ -22,7 +22,8 @@ import org.apache.calcite.rex.RexBuilder;
  * Provides context for {@link InitializerExpressionFactory} methods.
  */
 public interface InitializerContext {
-  RexBuilder getRexBuilder();
+
+    RexBuilder getRexBuilder();
 }
 
 // End InitializerContext.java

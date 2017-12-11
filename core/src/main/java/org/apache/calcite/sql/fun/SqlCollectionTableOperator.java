@@ -26,26 +26,25 @@ import org.apache.calcite.sql.validate.SqlModality;
  * SqlCollectionTableOperator is the "table function derived table" operator. It
  * converts a table-valued function into a relation, e.g. "<code>SELECT * FROM
  * TABLE(ramp(5))</code>".
- *
  * <p>This operator has function syntax (with one argument), whereas
  * {@link SqlStdOperatorTable#EXPLICIT_TABLE} is a prefix operator.
  */
 public class SqlCollectionTableOperator extends SqlFunctionalOperator {
-  private final SqlModality modality;
 
-  //~ Constructors -----------------------------------------------------------
+    private final SqlModality modality;
 
-  public SqlCollectionTableOperator(String name, SqlModality modality) {
-    super(name, SqlKind.COLLECTION_TABLE, 200, true, ReturnTypes.ARG0, null,
-        OperandTypes.ANY);
-    this.modality = modality;
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
+    public SqlCollectionTableOperator(String name, SqlModality modality) {
+        super(name, SqlKind.COLLECTION_TABLE, 200, true, ReturnTypes.ARG0, null, OperandTypes.ANY);
+        this.modality = modality;
+    }
 
-  public SqlModality getModality() {
-    return modality;
-  }
+    //~ Methods ----------------------------------------------------------------
+
+    public SqlModality getModality() {
+        return modality;
+    }
 }
 
 // End SqlCollectionTableOperator.java

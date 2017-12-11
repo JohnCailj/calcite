@@ -16,33 +16,33 @@
  */
 package org.apache.calcite.materialize;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.apache.calcite.schema.ScannableTable;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.util.ImmutableBitSet;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 
 /**
  * Implementation of {@link LatticeStatisticProvider} that gets statistics by
  * executing "SELECT COUNT(DISTINCT ...) ..." SQL queries.
  */
 class SqlLatticeStatisticProvider implements LatticeStatisticProvider {
-  static final SqlLatticeStatisticProvider INSTANCE =
-      new SqlLatticeStatisticProvider();
 
-  /** Creates an SqlLatticeStatisticProvider. */
-  private SqlLatticeStatisticProvider() {}
+    static final SqlLatticeStatisticProvider INSTANCE = new SqlLatticeStatisticProvider();
 
-  @Override public int cardinality(Lattice lattice, Lattice.Column column) {
-    final String sql = lattice.countSql(ImmutableBitSet.of(column.ordinal));
-    final Table table =
-        new MaterializationService.DefaultTableFactory()
-            .createTable(lattice.rootSchema, sql, ImmutableList.<String>of());
-    final Object[] values =
-        Iterables.getOnlyElement(((ScannableTable) table).scan(null));
-    return ((Number) values[0]).intValue();
-  }
+    /**
+     * Creates an SqlLatticeStatisticProvider.
+     */
+    private SqlLatticeStatisticProvider() {
+    }
+
+    @Override public int cardinality(Lattice lattice, Lattice.Column column) {
+        final String sql = lattice.countSql(ImmutableBitSet.of(column.ordinal));
+        final Table table = new MaterializationService.DefaultTableFactory().createTable(lattice.rootSchema, sql,
+                                                                                         ImmutableList.<String>of());
+        final Object[] values = Iterables.getOnlyElement(((ScannableTable) table).scan(null));
+        return ((Number) values[0]).intValue();
+    }
 }
 
 // End SqlLatticeStatisticProvider.java

@@ -31,50 +31,46 @@ import java.util.List;
  * not targeted at any particular engine or calling convention.
  */
 public final class LogicalIntersect extends Intersect {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a LogicalIntersect.
-   *
-   * <p>Use {@link #create} unless you know what you're doing.
-   */
-  public LogicalIntersect(
-      RelOptCluster cluster,
-      RelTraitSet traitSet,
-      List<RelNode> inputs,
-      boolean all) {
-    super(cluster, traitSet, inputs, all);
-  }
+    /**
+     * Creates a LogicalIntersect.
+     * <p>Use {@link #create} unless you know what you're doing.
+     */
+    public LogicalIntersect(RelOptCluster cluster, RelTraitSet traitSet, List<RelNode> inputs, boolean all) {
+        super(cluster, traitSet, inputs, all);
+    }
 
-  @Deprecated // to be removed before 2.0
-  public LogicalIntersect(RelOptCluster cluster, List<RelNode> inputs,
-      boolean all) {
-    this(cluster, cluster.traitSetOf(Convention.NONE), inputs, all);
-  }
+    @Deprecated // to be removed before 2.0
+    public LogicalIntersect(RelOptCluster cluster, List<RelNode> inputs, boolean all) {
+        this(cluster, cluster.traitSetOf(Convention.NONE), inputs, all);
+    }
 
+    /**
+     * Creates a LogicalIntersect by parsing serialized output.
+     */
+    public LogicalIntersect(RelInput input) {
+        super(input);
+    }
 
-  /** Creates a LogicalIntersect by parsing serialized output. */
-  public LogicalIntersect(RelInput input) {
-    super(input);
-  }
+    /**
+     * Creates a LogicalIntersect.
+     */
+    public static LogicalIntersect create(List<RelNode> inputs, boolean all) {
+        final RelOptCluster cluster = inputs.get(0).getCluster();
+        final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
+        return new LogicalIntersect(cluster, traitSet, inputs, all);
+    }
 
-  /** Creates a LogicalIntersect. */
-  public static LogicalIntersect create(List<RelNode> inputs, boolean all) {
-    final RelOptCluster cluster = inputs.get(0).getCluster();
-    final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
-    return new LogicalIntersect(cluster, traitSet, inputs, all);
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  //~ Methods ----------------------------------------------------------------
+    @Override public LogicalIntersect copy(RelTraitSet traitSet, List<RelNode> inputs, boolean all) {
+        return new LogicalIntersect(getCluster(), traitSet, inputs, all);
+    }
 
-  @Override public LogicalIntersect copy(RelTraitSet traitSet,
-      List<RelNode> inputs, boolean all) {
-    return new LogicalIntersect(getCluster(), traitSet, inputs, all);
-  }
-
-  @Override public RelNode accept(RelShuttle shuttle) {
-    return shuttle.visit(this);
-  }
+    @Override public RelNode accept(RelShuttle shuttle) {
+        return shuttle.visit(this);
+    }
 }
 
 // End LogicalIntersect.java

@@ -27,18 +27,11 @@ import org.apache.calcite.sql.type.ReturnTypes;
  * return the value of given expression evaluated at given offset.
  */
 public class SqlNtileAggFunction extends SqlAggFunction {
-  public SqlNtileAggFunction() {
-    super(
-        "NTILE",
-        null,
-        SqlKind.NTILE,
-        ReturnTypes.RANK,
-        null,
-        OperandTypes.POSITIVE_INTEGER_LITERAL,
-        SqlFunctionCategory.NUMERIC,
-        false,
-        true);
-  }
+
+    public SqlNtileAggFunction() {
+        super("NTILE", null, SqlKind.NTILE, ReturnTypes.RANK, null, OperandTypes.POSITIVE_INTEGER_LITERAL,
+              SqlFunctionCategory.NUMERIC, false, true);
+    }
 
 }
 

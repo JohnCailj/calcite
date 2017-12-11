@@ -16,52 +16,51 @@
  */
 package org.apache.calcite.rel;
 
-import org.apache.calcite.util.mapping.IntPair;
-
 import com.google.common.collect.ImmutableList;
+import org.apache.calcite.util.mapping.IntPair;
 
 import java.util.List;
 
-/** RelOptReferentialConstraint base implementation. */
+/**
+ * RelOptReferentialConstraint base implementation.
+ */
 public class RelReferentialConstraintImpl implements RelReferentialConstraint {
 
-  private final List<String> sourceQualifiedName;
-  private final List<String> targetQualifiedName;
-  private final List<IntPair> columnPairs;
+    private final List<String>  sourceQualifiedName;
+    private final List<String>  targetQualifiedName;
+    private final List<IntPair> columnPairs;
 
-  private RelReferentialConstraintImpl(List<String> sourceQualifiedName,
-      List<String> targetQualifiedName, List<IntPair> columnPairs) {
-    this.sourceQualifiedName = ImmutableList.copyOf(sourceQualifiedName);
-    this.targetQualifiedName = ImmutableList.copyOf(targetQualifiedName);
-    this.columnPairs = ImmutableList.copyOf(columnPairs);
-  }
+    private RelReferentialConstraintImpl(List<String> sourceQualifiedName, List<String> targetQualifiedName,
+                                         List<IntPair> columnPairs) {
+        this.sourceQualifiedName = ImmutableList.copyOf(sourceQualifiedName);
+        this.targetQualifiedName = ImmutableList.copyOf(targetQualifiedName);
+        this.columnPairs = ImmutableList.copyOf(columnPairs);
+    }
 
-  @Override public List<String> getSourceQualifiedName() {
-    return sourceQualifiedName;
-  }
+    @Override public List<String> getSourceQualifiedName() {
+        return sourceQualifiedName;
+    }
 
-  @Override public List<String> getTargetQualifiedName() {
-    return targetQualifiedName;
-  }
+    @Override public List<String> getTargetQualifiedName() {
+        return targetQualifiedName;
+    }
 
-  @Override public List<IntPair> getColumnPairs() {
-    return columnPairs;
-  }
+    @Override public List<IntPair> getColumnPairs() {
+        return columnPairs;
+    }
 
-  @Override public int getNumColumns() {
-    return columnPairs.size();
-  }
+    @Override public int getNumColumns() {
+        return columnPairs.size();
+    }
 
-  public static RelReferentialConstraintImpl of(List<String> sourceQualifiedName,
-      List<String> targetQualifiedName, List<IntPair> columnPairs) {
-    return new RelReferentialConstraintImpl(
-        sourceQualifiedName, targetQualifiedName, columnPairs);
-  }
+    public static RelReferentialConstraintImpl of(List<String> sourceQualifiedName, List<String> targetQualifiedName,
+                                                  List<IntPair> columnPairs) {
+        return new RelReferentialConstraintImpl(sourceQualifiedName, targetQualifiedName, columnPairs);
+    }
 
-  @Override public String toString() {
-    return "{ " + sourceQualifiedName + ", " + targetQualifiedName + ", "
-        + columnPairs + " }";
-  }
+    @Override public String toString() {
+        return "{ " + sourceQualifiedName + ", " + targetQualifiedName + ", " + columnPairs + " }";
+    }
 
 }
 

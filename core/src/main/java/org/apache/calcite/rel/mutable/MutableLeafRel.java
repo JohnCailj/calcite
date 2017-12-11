@@ -16,33 +16,35 @@
  */
 package org.apache.calcite.rel.mutable;
 
-import org.apache.calcite.rel.RelNode;
-
 import com.google.common.collect.ImmutableList;
+import org.apache.calcite.rel.RelNode;
 
 import java.util.List;
 
-/** Abstract base class for implementations of {@link MutableRel} that have
- * no inputs. */
+/**
+ * Abstract base class for implementations of {@link MutableRel} that have
+ * no inputs.
+ */
 abstract class MutableLeafRel extends MutableRel {
-  protected final RelNode rel;
 
-  protected MutableLeafRel(MutableRelType type, RelNode rel) {
-    super(rel.getCluster(), rel.getRowType(), type);
-    this.rel = rel;
-  }
+    protected final RelNode rel;
 
-  public void setInput(int ordinalInParent, MutableRel input) {
-    throw new IllegalArgumentException();
-  }
+    protected MutableLeafRel(MutableRelType type, RelNode rel) {
+        super(rel.getCluster(), rel.getRowType(), type);
+        this.rel = rel;
+    }
 
-  public List<MutableRel> getInputs() {
-    return ImmutableList.of();
-  }
+    public void setInput(int ordinalInParent, MutableRel input) {
+        throw new IllegalArgumentException();
+    }
 
-  public void childrenAccept(MutableRelVisitor visitor) {
-    // no children - nothing to do
-  }
+    public List<MutableRel> getInputs() {
+        return ImmutableList.of();
+    }
+
+    public void childrenAccept(MutableRelVisitor visitor) {
+        // no children - nothing to do
+    }
 }
 
 // End MutableLeafRel.java

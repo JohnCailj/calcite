@@ -25,17 +25,22 @@ import static java.lang.annotation.ElementType.FIELD;
 /**
  * Annotation that indicates that a field is an array type.
  */
-@Target({FIELD })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Array {
-  /** Component type. */
-  Class component();
+@Target({ FIELD }) @Retention(RetentionPolicy.RUNTIME) public @interface Array {
 
-  /** Whether components may be null. */
-  boolean componentIsNullable() default false;
+    /**
+     * Component type.
+     */
+    Class component();
 
-  /** Maximum number of elements in the array. -1 means no maximum. */
-  long maximumCardinality() default -1L;
+    /**
+     * Whether components may be null.
+     */
+    boolean componentIsNullable() default false;
+
+    /**
+     * Maximum number of elements in the array. -1 means no maximum.
+     */
+    long maximumCardinality() default -1L;
 }
 
 // End Array.java

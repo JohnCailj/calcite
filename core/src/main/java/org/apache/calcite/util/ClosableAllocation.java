@@ -21,12 +21,12 @@ package org.apache.calcite.util;
  * release resources early rather than waiting for finalization.
  */
 public interface ClosableAllocation {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Closes this object.
-   */
-  void closeAllocation();
+    /**
+     * Closes this object.
+     */
+    void closeAllocation();
 }
 
 // End ClosableAllocation.java

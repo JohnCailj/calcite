@@ -16,13 +16,12 @@
  */
 package org.apache.calcite.materialize;
 
-import org.apache.calcite.util.Pair;
-import org.apache.calcite.util.Util;
-
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.UncheckedExecutionException;
+import org.apache.calcite.util.Pair;
+import org.apache.calcite.util.Util;
 
 import java.util.concurrent.ExecutionException;
 
@@ -31,29 +30,30 @@ import java.util.concurrent.ExecutionException;
  * executing "SELECT COUNT(DISTINCT ...) ..." SQL queries.
  */
 class CachingLatticeStatisticProvider implements LatticeStatisticProvider {
-  private final LoadingCache<Pair<Lattice, Lattice.Column>, Integer> cache;
 
-  /** Creates a CachingStatisticProvider. */
-  CachingLatticeStatisticProvider(
-      final LatticeStatisticProvider provider) {
-    cache = CacheBuilder.<Pair<Lattice, Lattice.Column>>newBuilder()
-        .build(
-            new CacheLoader<Pair<Lattice, Lattice.Column>, Integer>() {
-              public Integer load(Pair<Lattice, Lattice.Column> key)
-                  throws Exception {
-                return provider.cardinality(key.left, key.right);
-              }
-            });
-  }
+    private final LoadingCache<Pair<Lattice, Lattice.Column>, Integer> cache;
 
-  public int cardinality(Lattice lattice, Lattice.Column column) {
-    try {
-      return cache.get(Pair.of(lattice, column));
-    } catch (UncheckedExecutionException | ExecutionException e) {
-      Util.throwIfUnchecked(e.getCause());
-      throw new RuntimeException(e.getCause());
+    /**
+     * Creates a CachingStatisticProvider.
+     */
+    CachingLatticeStatisticProvider(final LatticeStatisticProvider provider) {
+        cache = CacheBuilder.<Pair<Lattice, Lattice.Column>>newBuilder().build(
+                new CacheLoader<Pair<Lattice, Lattice.Column>, Integer>() {
+
+                    public Integer load(Pair<Lattice, Lattice.Column> key) throws Exception {
+                        return provider.cardinality(key.left, key.right);
+                    }
+                });
     }
-  }
+
+    public int cardinality(Lattice lattice, Lattice.Column column) {
+        try {
+            return cache.get(Pair.of(lattice, column));
+        } catch (UncheckedExecutionException | ExecutionException e) {
+            Util.throwIfUnchecked(e.getCause());
+            throw new RuntimeException(e.getCause());
+        }
+    }
 }
 
 // End CachingLatticeStatisticProvider.java

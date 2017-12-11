@@ -30,41 +30,41 @@ import java.util.Iterator;
 /**
  * Abstract implementation of {@link org.apache.calcite.linq4j.Queryable} for
  * {@link QueryableTable}.
- *
  * <p>Not to be confused with
  * {@link org.apache.calcite.adapter.java.AbstractQueryableTable}.</p>
  *
  * @param <T> element type
  */
 public abstract class AbstractTableQueryable<T> extends AbstractQueryable<T> {
-  public final QueryProvider queryProvider;
-  public final SchemaPlus schema;
-  public final QueryableTable table;
-  public final String tableName;
 
-  public AbstractTableQueryable(QueryProvider queryProvider,
-      SchemaPlus schema, QueryableTable table, String tableName) {
-    this.queryProvider = queryProvider;
-    this.schema = schema;
-    this.table = table;
-    this.tableName = tableName;
-  }
+    public final QueryProvider  queryProvider;
+    public final SchemaPlus     schema;
+    public final QueryableTable table;
+    public final String         tableName;
 
-  public Expression getExpression() {
-    return table.getExpression(schema, tableName, Queryable.class);
-  }
+    public AbstractTableQueryable(QueryProvider queryProvider, SchemaPlus schema, QueryableTable table,
+                                  String tableName) {
+        this.queryProvider = queryProvider;
+        this.schema = schema;
+        this.table = table;
+        this.tableName = tableName;
+    }
 
-  public QueryProvider getProvider() {
-    return queryProvider;
-  }
+    public Expression getExpression() {
+        return table.getExpression(schema, tableName, Queryable.class);
+    }
 
-  public Type getElementType() {
-    return table.getElementType();
-  }
+    public QueryProvider getProvider() {
+        return queryProvider;
+    }
 
-  public Iterator<T> iterator() {
-    return Linq4j.enumeratorIterator(enumerator());
-  }
+    public Type getElementType() {
+        return table.getElementType();
+    }
+
+    public Iterator<T> iterator() {
+        return Linq4j.enumeratorIterator(enumerator());
+    }
 }
 
 // End AbstractTableQueryable.java

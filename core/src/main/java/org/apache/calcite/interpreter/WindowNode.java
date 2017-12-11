@@ -23,17 +23,18 @@ import org.apache.calcite.rel.core.Window;
  * {@link org.apache.calcite.rel.core.Window}.
  */
 public class WindowNode extends AbstractSingleNode<Window> {
-  WindowNode(Interpreter interpreter, Window rel) {
-    super(interpreter, rel);
-  }
 
-  public void run() throws InterruptedException {
-    Row row;
-    while ((row = source.receive()) != null) {
-      sink.send(row);
+    WindowNode(Interpreter interpreter, Window rel) {
+        super(interpreter, rel);
     }
-    sink.end();
-  }
+
+    public void run() throws InterruptedException {
+        Row row;
+        while ((row = source.receive()) != null) {
+            sink.send(row);
+        }
+        sink.end();
+    }
 }
 
 // End WindowNode.java

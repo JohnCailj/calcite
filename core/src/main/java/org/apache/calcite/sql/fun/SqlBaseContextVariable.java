@@ -16,11 +16,7 @@
  */
 package org.apache.calcite.sql.fun;
 
-import org.apache.calcite.sql.SqlFunction;
-import org.apache.calcite.sql.SqlFunctionCategory;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlOperatorBinding;
-import org.apache.calcite.sql.SqlSyntax;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.SqlReturnTypeInference;
 import org.apache.calcite.sql.validate.SqlMonotonicity;
@@ -30,30 +26,30 @@ import org.apache.calcite.sql.validate.SqlMonotonicity;
  * "CURRENT_PATH".
  */
 public class SqlBaseContextVariable extends SqlFunction {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /** Creates a SqlBaseContextVariable. */
-  protected SqlBaseContextVariable(String name,
-      SqlReturnTypeInference returnType, SqlFunctionCategory category) {
-    super(name, SqlKind.OTHER_FUNCTION, returnType, null, OperandTypes.NILADIC,
-        category);
-  }
+    /**
+     * Creates a SqlBaseContextVariable.
+     */
+    protected SqlBaseContextVariable(String name, SqlReturnTypeInference returnType, SqlFunctionCategory category) {
+        super(name, SqlKind.OTHER_FUNCTION, returnType, null, OperandTypes.NILADIC, category);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public SqlSyntax getSyntax() {
-    return SqlSyntax.FUNCTION_ID;
-  }
+    public SqlSyntax getSyntax() {
+        return SqlSyntax.FUNCTION_ID;
+    }
 
-  // All of the string constants are monotonic.
-  @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
-    return SqlMonotonicity.CONSTANT;
-  }
+    // All of the string constants are monotonic.
+    @Override public SqlMonotonicity getMonotonicity(SqlOperatorBinding call) {
+        return SqlMonotonicity.CONSTANT;
+    }
 
-  // Plans referencing context variables should never be cached
-  public boolean isDynamicFunction() {
-    return true;
-  }
+    // Plans referencing context variables should never be cached
+    public boolean isDynamicFunction() {
+        return true;
+    }
 }
 
 // End SqlBaseContextVariable.java

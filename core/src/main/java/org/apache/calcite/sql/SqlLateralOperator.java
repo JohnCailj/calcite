@@ -23,26 +23,23 @@ import org.apache.calcite.sql.type.ReturnTypes;
  * An operator describing a LATERAL specification.
  */
 public class SqlLateralOperator extends SqlSpecialOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlLateralOperator(SqlKind kind) {
-    super(kind.name(), kind, 200, true, ReturnTypes.ARG0, null,
-        OperandTypes.ANY);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec,
-      int rightPrec) {
-    if (call.operandCount() == 1
-        && call.getOperandList().get(0).getKind() == SqlKind.COLLECTION_TABLE) {
-      // do not create ( ) around the following TABLE clause
-      writer.keyword(getName());
-      call.operand(0).unparse(writer, 0, 0);
-    } else {
-      SqlUtil.unparseFunctionSyntax(this, writer, call);
+    public SqlLateralOperator(SqlKind kind) {
+        super(kind.name(), kind, 200, true, ReturnTypes.ARG0, null, OperandTypes.ANY);
     }
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        if (call.operandCount() == 1 && call.getOperandList().get(0).getKind() == SqlKind.COLLECTION_TABLE) {
+            // do not create ( ) around the following TABLE clause
+            writer.keyword(getName());
+            call.operand(0).unparse(writer, 0, 0);
+        } else {
+            SqlUtil.unparseFunctionSyntax(this, writer, call);
+        }
+    }
 }
 
 // End SqlLateralOperator.java

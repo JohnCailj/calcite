@@ -23,124 +23,126 @@ import java.util.List;
  * Element that describes a star schema and provides a framework for defining,
  * recognizing, and recommending materialized views at various levels of
  * aggregation.
- *
  * <p>Occurs within {@link JsonSchema#lattices}.
  *
  * @see JsonRoot Description of schema elements
  */
 public class JsonLattice {
-  /** The name of this lattice.
-   *
-   * <p>Required.
-   */
-  public String name;
 
-  /** SQL query that defines the lattice.
-   *
-   * <p>Must be a string or a list of strings (which are concatenated into a
-   * multi-line SQL string, separated by newlines).
-   *
-   * <p>The structure of the SQL statement, and in particular the order of
-   * items in the FROM clause, defines the fact table, dimension tables, and
-   * join paths for this lattice.
-   */
-  public Object sql;
+    /**
+     * The name of this lattice.
+     * <p>Required.
+     */
+    public String name;
 
-  /** Whether to materialize tiles on demand as queries are executed.
-   *
-   * <p>Optional; default is true.
-   */
-  public boolean auto = true;
+    /**
+     * SQL query that defines the lattice.
+     * <p>Must be a string or a list of strings (which are concatenated into a
+     * multi-line SQL string, separated by newlines).
+     * <p>The structure of the SQL statement, and in particular the order of
+     * items in the FROM clause, defines the fact table, dimension tables, and
+     * join paths for this lattice.
+     */
+    public Object sql;
 
-  /** Whether to use an optimization algorithm to suggest and populate an
-   * initial set of tiles.
-   *
-   * <p>Optional; default is false.
-   */
-  public boolean algorithm = false;
+    /**
+     * Whether to materialize tiles on demand as queries are executed.
+     * <p>Optional; default is true.
+     */
+    public boolean auto = true;
 
-  /** Maximum time (in milliseconds) to run the algorithm.
-   *
-   * <p>Optional; default is -1, meaning no timeout.
-   *
-   * <p>When the timeout is reached, Calcite uses the best result that has
-   * been obtained so far.
-   */
-  public long algorithmMaxMillis = -1;
+    /**
+     * Whether to use an optimization algorithm to suggest and populate an
+     * initial set of tiles.
+     * <p>Optional; default is false.
+     */
+    public boolean algorithm = false;
 
-  /** Estimated number of rows.
-   *
-   * <p>If null, Calcite will a query to find the real value. */
-  public Double rowCountEstimate;
+    /**
+     * Maximum time (in milliseconds) to run the algorithm.
+     * <p>Optional; default is -1, meaning no timeout.
+     * <p>When the timeout is reached, Calcite uses the best result that has
+     * been obtained so far.
+     */
+    public long algorithmMaxMillis = -1;
 
-  /** Name of a class that provides estimates of the number of distinct values
-   * in each column.
-   *
-   * <p>The class must implement the
-   * {@link org.apache.calcite.materialize.LatticeStatisticProvider} interface.
-   *
-   * <p>Or, you can use a class name plus a static field, for example
-   * "org.apache.calcite.materialize.Lattices#CACHING_SQL_STATISTIC_PROVIDER".
-   *
-   * <p>If not set, Calcite will generate and execute a SQL query to find the
-   * real value, and cache the results. */
-  public String statisticProvider;
+    /**
+     * Estimated number of rows.
+     * <p>If null, Calcite will a query to find the real value.
+     */
+    public Double rowCountEstimate;
 
-  /** List of materialized aggregates to create up front. */
-  public final List<JsonTile> tiles = new ArrayList<>();
+    /**
+     * Name of a class that provides estimates of the number of distinct values
+     * in each column.
+     * <p>The class must implement the
+     * {@link org.apache.calcite.materialize.LatticeStatisticProvider} interface.
+     * <p>Or, you can use a class name plus a static field, for example
+     * "org.apache.calcite.materialize.Lattices#CACHING_SQL_STATISTIC_PROVIDER".
+     * <p>If not set, Calcite will generate and execute a SQL query to find the
+     * real value, and cache the results.
+     */
+    public String statisticProvider;
 
-  /** List of measures that a tile should have by default.
-   *
-   * <p>A tile can define its own measures, including measures not in this list.
-   *
-   * <p>Optional. The default list is just "count(*)".
-   */
-  public List<JsonMeasure> defaultMeasures;
+    /**
+     * List of materialized aggregates to create up front.
+     */
+    public final List<JsonTile> tiles = new ArrayList<>();
 
-  public void accept(ModelHandler handler) {
-    handler.visit(this);
-  }
+    /**
+     * List of measures that a tile should have by default.
+     * <p>A tile can define its own measures, including measures not in this list.
+     * <p>Optional. The default list is just "count(*)".
+     */
+    public List<JsonMeasure> defaultMeasures;
 
-  @Override public String toString() {
-    return "JsonLattice(name=" + name + ", sql=" + getSql() + ")";
-  }
-
-  /** Returns the SQL query as a string, concatenating a list of lines if
-   * necessary. */
-  public String getSql() {
-    return toString(sql);
-  }
-
-  /** Converts a string or a list of strings to a string. The list notation
-   * is a convenient way of writing long multi-line strings in JSON. */
-  static String toString(Object o) {
-    return o == null ? null
-        : o instanceof String ? (String) o
-        : concatenate((List) o);
-  }
-
-  /** Converts a list of strings into a multi-line string. */
-  private static String concatenate(List list) {
-    final StringBuilder buf = new StringBuilder();
-    for (Object o : list) {
-      if (!(o instanceof String)) {
-        throw new RuntimeException(
-            "each element of a string list must be a string; found: " + o);
-      }
-      buf.append((String) o);
-      buf.append("\n");
+    public void accept(ModelHandler handler) {
+        handler.visit(this);
     }
-    return buf.toString();
-  }
 
-  public void visitChildren(ModelHandler modelHandler) {
-    for (JsonMeasure jsonMeasure : defaultMeasures) {
-      jsonMeasure.accept(modelHandler);
+    @Override public String toString() {
+        return "JsonLattice(name=" + name + ", sql=" + getSql() + ")";
     }
-    for (JsonTile jsonTile : tiles) {
-      jsonTile.accept(modelHandler);
+
+    /**
+     * Returns the SQL query as a string, concatenating a list of lines if
+     * necessary.
+     */
+    public String getSql() {
+        return toString(sql);
     }
-  }
+
+    /**
+     * Converts a string or a list of strings to a string. The list notation
+     * is a convenient way of writing long multi-line strings in JSON.
+     */
+    static String toString(Object o) {
+        return o == null ? null : o instanceof String ? (String) o : concatenate((List) o);
+    }
+
+    /**
+     * Converts a list of strings into a multi-line string.
+     */
+    private static String concatenate(List list) {
+        final StringBuilder buf = new StringBuilder();
+        for (Object o : list) {
+            if (!(o instanceof String)) {
+                throw new RuntimeException("each element of a string list must be a string; found: " + o);
+            }
+            buf.append((String) o);
+            buf.append("\n");
+        }
+        return buf.toString();
+    }
+
+    public void visitChildren(ModelHandler modelHandler) {
+        for (JsonMeasure jsonMeasure : defaultMeasures) {
+            jsonMeasure.accept(modelHandler);
+        }
+        for (JsonTile jsonTile : tiles) {
+            jsonTile.accept(modelHandler);
+        }
+    }
 }
 
 // End JsonLattice.java

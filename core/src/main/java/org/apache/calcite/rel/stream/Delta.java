@@ -25,25 +25,26 @@ import org.apache.calcite.rel.core.TableScan;
 
 /**
  * Relational operator that converts a relation to a stream.
- *
  * <p>For example, if {@code Orders} is a table, and {@link TableScan}(Orders)
  * is a relational operator that returns the current contents of the table,
  * then {@link Delta}(TableScan(Orders)) is a relational operator that returns
  * all inserts into the table.
- *
  * <p>If unrestricted, Delta returns all previous inserts into the table (from
  * time -&infin; to now) and all future inserts into the table (from now
  * to +&infin;) and never terminates.
  */
 public abstract class Delta extends SingleRel {
-  protected Delta(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
-    super(cluster, traits, input);
-  }
 
-  /** Creates a Delta by parsing serialized output. */
-  protected Delta(RelInput input) {
-    this(input.getCluster(), input.getTraitSet(), input.getInput());
-  }
+    protected Delta(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
+        super(cluster, traits, input);
+    }
+
+    /**
+     * Creates a Delta by parsing serialized output.
+     */
+    protected Delta(RelInput input) {
+        this(input.getCluster(), input.getTraitSet(), input.getInput());
+    }
 }
 
 // End Delta.java

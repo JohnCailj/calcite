@@ -28,21 +28,19 @@ import org.apache.calcite.sql.type.SqlTypeName;
 /**
  * Operator that indicates that an argument to a function call is to take its
  * default value.
- *
  * <p>Not an expression; just a holder to represent syntax until the validator
  * has chance to resolve arguments.
  */
 class SqlDefaultOperator extends SqlSpecialOperator {
-  SqlDefaultOperator() {
-    super("DEFAULT", SqlKind.DEFAULT, 100, true,
-        ReturnTypes.explicit(SqlTypeName.ANY), InferTypes.RETURN_TYPE,
-        OperandTypes.NILADIC);
-  }
 
-  @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec,
-      int rightPrec) {
-    writer.keyword(getName());
-  }
+    SqlDefaultOperator() {
+        super("DEFAULT", SqlKind.DEFAULT, 100, true, ReturnTypes.explicit(SqlTypeName.ANY), InferTypes.RETURN_TYPE,
+              OperandTypes.NILADIC);
+    }
+
+    @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+        writer.keyword(getName());
+    }
 }
 
 // End SqlDefaultOperator.java

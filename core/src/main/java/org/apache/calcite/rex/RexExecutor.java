@@ -18,20 +18,22 @@ package org.apache.calcite.rex;
 
 import java.util.List;
 
-/** Can reduce expressions, writing a literal for each into a list. */
+/**
+ * Can reduce expressions, writing a literal for each into a list.
+ */
 public interface RexExecutor {
 
-  /** Reduces expressions, and writes their results into {@code reducedValues}.
-   *
-   * <p>If an expression cannot be reduced, writes the original expression.
-   * For example, {@code CAST('abc' AS INTEGER)} gives an error when executed, so the executor
-   * ignores the error and writes the original expression.
-   *
-   * @param rexBuilder Rex builder
-   * @param constExps Expressions to be reduced
-   * @param reducedValues List to which reduced expressions are appended
-   */
-  void reduce(RexBuilder rexBuilder, List<RexNode> constExps, List<RexNode> reducedValues);
+    /**
+     * Reduces expressions, and writes their results into {@code reducedValues}.
+     * <p>If an expression cannot be reduced, writes the original expression.
+     * For example, {@code CAST('abc' AS INTEGER)} gives an error when executed, so the executor
+     * ignores the error and writes the original expression.
+     *
+     * @param rexBuilder    Rex builder
+     * @param constExps     Expressions to be reduced
+     * @param reducedValues List to which reduced expressions are appended
+     */
+    void reduce(RexBuilder rexBuilder, List<RexNode> constExps, List<RexNode> reducedValues);
 }
 
 // End RexExecutor.java

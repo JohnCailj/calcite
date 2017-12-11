@@ -37,91 +37,85 @@ import java.util.List;
  * provided the projects aren't projecting identical sets of input references.
  */
 public class ProjectMergeRule extends RelOptRule {
-  public static final ProjectMergeRule INSTANCE =
-      new ProjectMergeRule(true, RelFactories.LOGICAL_BUILDER);
 
-  //~ Instance fields --------------------------------------------------------
+    public static final ProjectMergeRule INSTANCE = new ProjectMergeRule(true, RelFactories.LOGICAL_BUILDER);
 
-  /** Whether to always merge projects. */
-  private final boolean force;
+    //~ Instance fields --------------------------------------------------------
 
-  //~ Constructors -----------------------------------------------------------
+    /**
+     * Whether to always merge projects.
+     */
+    private final boolean force;
 
-  /**
-   * Creates a ProjectMergeRule, specifying whether to always merge projects.
-   *
-   * @param force Whether to always merge projects
-   */
-  public ProjectMergeRule(boolean force, RelBuilderFactory relBuilderFactory) {
-    super(
-        operand(Project.class,
-            operand(Project.class, any())),
-        relBuilderFactory,
-        "ProjectMergeRule" + (force ? ":force_mode" : ""));
-    this.force = force;
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  @Deprecated // to be removed before 2.0
-  public ProjectMergeRule(boolean force, ProjectFactory projectFactory) {
-    this(force, RelBuilder.proto(projectFactory));
-  }
+    /**
+     * Creates a ProjectMergeRule, specifying whether to always merge projects.
+     *
+     * @param force Whether to always merge projects
+     */
+    public ProjectMergeRule(boolean force, RelBuilderFactory relBuilderFactory) {
+        super(operand(Project.class, operand(Project.class, any())), relBuilderFactory,
+              "ProjectMergeRule" + (force ? ":force_mode" : ""));
+        this.force = force;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    @Deprecated // to be removed before 2.0
+    public ProjectMergeRule(boolean force, ProjectFactory projectFactory) {
+        this(force, RelBuilder.proto(projectFactory));
+    }
 
-  public void onMatch(RelOptRuleCall call) {
-    final Project topProject = call.rel(0);
-    final Project bottomProject = call.rel(1);
-    final RelBuilder relBuilder = call.builder();
+    //~ Methods ----------------------------------------------------------------
 
-    // If one or both projects are permutations, short-circuit the complex logic
-    // of building a RexProgram.
-    final Permutation topPermutation = topProject.getPermutation();
-    if (topPermutation != null) {
-      if (topPermutation.isIdentity()) {
-        // Let ProjectRemoveRule handle this.
-        return;
-      }
-      final Permutation bottomPermutation = bottomProject.getPermutation();
-      if (bottomPermutation != null) {
-        if (bottomPermutation.isIdentity()) {
-          // Let ProjectRemoveRule handle this.
-          return;
+    public void onMatch(RelOptRuleCall call) {
+        final Project topProject = call.rel(0);
+        final Project bottomProject = call.rel(1);
+        final RelBuilder relBuilder = call.builder();
+
+        // If one or both projects are permutations, short-circuit the complex logic
+        // of building a RexProgram.
+        final Permutation topPermutation = topProject.getPermutation();
+        if (topPermutation != null) {
+            if (topPermutation.isIdentity()) {
+                // Let ProjectRemoveRule handle this.
+                return;
+            }
+            final Permutation bottomPermutation = bottomProject.getPermutation();
+            if (bottomPermutation != null) {
+                if (bottomPermutation.isIdentity()) {
+                    // Let ProjectRemoveRule handle this.
+                    return;
+                }
+                final Permutation product = topPermutation.product(bottomPermutation);
+                relBuilder.push(bottomProject.getInput());
+                relBuilder.project(relBuilder.fields(product), topProject.getRowType().getFieldNames());
+                call.transformTo(relBuilder.build());
+                return;
+            }
         }
-        final Permutation product = topPermutation.product(bottomPermutation);
+
+        // If we're not in force mode and the two projects reference identical
+        // inputs, then return and let ProjectRemoveRule replace the projects.
+        if (!force) {
+            if (RexUtil.isIdentity(topProject.getProjects(), topProject.getInput().getRowType())) {
+                return;
+            }
+        }
+
+        final List<RexNode> newProjects = RelOptUtil.pushPastProject(topProject.getProjects(), bottomProject);
+        final RelNode input = bottomProject.getInput();
+        if (RexUtil.isIdentity(newProjects, input.getRowType())) {
+            if (force || input.getRowType().getFieldNames().equals(topProject.getRowType().getFieldNames())) {
+                call.transformTo(input);
+                return;
+            }
+        }
+
+        // replace the two projects with a combined projection
         relBuilder.push(bottomProject.getInput());
-        relBuilder.project(relBuilder.fields(product),
-            topProject.getRowType().getFieldNames());
+        relBuilder.project(newProjects, topProject.getRowType().getFieldNames());
         call.transformTo(relBuilder.build());
-        return;
-      }
     }
-
-    // If we're not in force mode and the two projects reference identical
-    // inputs, then return and let ProjectRemoveRule replace the projects.
-    if (!force) {
-      if (RexUtil.isIdentity(topProject.getProjects(),
-          topProject.getInput().getRowType())) {
-        return;
-      }
-    }
-
-    final List<RexNode> newProjects =
-        RelOptUtil.pushPastProject(topProject.getProjects(), bottomProject);
-    final RelNode input = bottomProject.getInput();
-    if (RexUtil.isIdentity(newProjects, input.getRowType())) {
-      if (force
-          || input.getRowType().getFieldNames()
-              .equals(topProject.getRowType().getFieldNames())) {
-        call.transformTo(input);
-        return;
-      }
-    }
-
-    // replace the two projects with a combined projection
-    relBuilder.push(bottomProject.getInput());
-    relBuilder.project(newProjects, topProject.getRowType().getFieldNames());
-    call.transformTo(relBuilder.build());
-  }
 }
 
 // End ProjectMergeRule.java

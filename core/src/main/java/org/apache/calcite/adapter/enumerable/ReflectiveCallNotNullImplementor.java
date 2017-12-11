@@ -28,35 +28,33 @@ import java.util.List;
  * Implementation of
  * {@link org.apache.calcite.adapter.enumerable.NotNullImplementor}
  * that calls a given {@link java.lang.reflect.Method}.
- *
  * <p>When method is not static, a new instance of the required class is
  * created.
  */
 public class ReflectiveCallNotNullImplementor implements NotNullImplementor {
-  protected final Method method;
 
-  /**
-   * Constructor of {@link ReflectiveCallNotNullImplementor}
-   * @param method method that is used to implement the call
-   */
-  public ReflectiveCallNotNullImplementor(Method method) {
-    this.method = method;
-  }
+    protected final Method method;
 
-  public Expression implement(RexToLixTranslator translator,
-      RexCall call, List<Expression> translatedOperands) {
-    translatedOperands =
-        EnumUtils.fromInternal(method.getParameterTypes(), translatedOperands);
-    if ((method.getModifiers() & Modifier.STATIC) != 0) {
-      return Expressions.call(method, translatedOperands);
-    } else {
-      // The UDF class must have a public zero-args constructor.
-      // Assume that the validator checked already.
-      final Expression target =
-          Expressions.new_(method.getDeclaringClass());
-      return Expressions.call(target, method, translatedOperands);
+    /**
+     * Constructor of {@link ReflectiveCallNotNullImplementor}
+     *
+     * @param method method that is used to implement the call
+     */
+    public ReflectiveCallNotNullImplementor(Method method) {
+        this.method = method;
     }
-  }
+
+    public Expression implement(RexToLixTranslator translator, RexCall call, List<Expression> translatedOperands) {
+        translatedOperands = EnumUtils.fromInternal(method.getParameterTypes(), translatedOperands);
+        if ((method.getModifiers() & Modifier.STATIC) != 0) {
+            return Expressions.call(method, translatedOperands);
+        } else {
+            // The UDF class must have a public zero-args constructor.
+            // Assume that the validator checked already.
+            final Expression target = Expressions.new_(method.getDeclaringClass());
+            return Expressions.call(target, method, translatedOperands);
+        }
+    }
 
 }
 

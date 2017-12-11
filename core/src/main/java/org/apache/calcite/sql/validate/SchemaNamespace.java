@@ -16,45 +16,47 @@
  */
 package org.apache.calcite.sql.validate;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.util.Util;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 
-/** Namespace based on a schema.
- *
+/**
+ * Namespace based on a schema.
  * <p>The visible names are tables and sub-schemas.
  */
 class SchemaNamespace extends AbstractNamespace {
-  /** The path of this schema. */
-  private final ImmutableList<String> names;
 
-  /** Creates a SchemaNamespace. */
-  SchemaNamespace(SqlValidatorImpl validator, ImmutableList<String> names) {
-    super(validator, null);
-    this.names = Preconditions.checkNotNull(names);
-  }
+    /**
+     * The path of this schema.
+     */
+    private final ImmutableList<String> names;
 
-  protected RelDataType validateImpl(RelDataType targetRowType) {
-    final RelDataTypeFactory.Builder builder =
-        validator.getTypeFactory().builder();
-    for (SqlMoniker moniker
-        : validator.catalogReader.getAllSchemaObjectNames(names)) {
-      final List<String> names1 = moniker.getFullyQualifiedNames();
-      final SqlValidatorTable table = validator.catalogReader.getTable(names1);
-      builder.add(Util.last(names1), table.getRowType());
+    /**
+     * Creates a SchemaNamespace.
+     */
+    SchemaNamespace(SqlValidatorImpl validator, ImmutableList<String> names) {
+        super(validator, null);
+        this.names = Preconditions.checkNotNull(names);
     }
-    return builder.build();
-  }
 
-  public SqlNode getNode() {
-    return null;
-  }
+    protected RelDataType validateImpl(RelDataType targetRowType) {
+        final RelDataTypeFactory.Builder builder = validator.getTypeFactory().builder();
+        for (SqlMoniker moniker : validator.catalogReader.getAllSchemaObjectNames(names)) {
+            final List<String> names1 = moniker.getFullyQualifiedNames();
+            final SqlValidatorTable table = validator.catalogReader.getTable(names1);
+            builder.add(Util.last(names1), table.getRowType());
+        }
+        return builder.build();
+    }
+
+    public SqlNode getNode() {
+        return null;
+    }
 }
 
 // End SchemaNamespace.java

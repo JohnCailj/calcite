@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.adapter.enumerable.impl;
 
+import com.google.common.base.Function;
 import org.apache.calcite.adapter.enumerable.RexToLixTranslator;
 import org.apache.calcite.adapter.enumerable.WinAggFrameResultContext;
 import org.apache.calcite.adapter.enumerable.WinAggImplementor;
@@ -23,85 +24,80 @@ import org.apache.calcite.adapter.enumerable.WinAggResultContext;
 import org.apache.calcite.linq4j.tree.BlockBuilder;
 import org.apache.calcite.linq4j.tree.Expression;
 
-import com.google.common.base.Function;
-
 import java.util.List;
 
 /**
  * Implementation of
  * {@link org.apache.calcite.adapter.enumerable.WinAggResultContext}.
  */
-public abstract class WinAggResultContextImpl extends AggResultContextImpl
-    implements WinAggResultContext {
+public abstract class WinAggResultContextImpl extends AggResultContextImpl implements WinAggResultContext {
 
-  private final Function<BlockBuilder, WinAggFrameResultContext> frame;
+    private final Function<BlockBuilder, WinAggFrameResultContext> frame;
 
-  /**
-   * Creates window aggregate result context.
-   * @param block code block that will contain the added initialization
-   * @param accumulator accumulator variables that store the intermediate
-   *                    aggregate state
-   */
-  public WinAggResultContextImpl(BlockBuilder block,
-      List<Expression> accumulator,
-      Function<BlockBuilder, WinAggFrameResultContext> frameContextBuilder) {
-    super(block, null, accumulator, null, null);
-    this.frame = frameContextBuilder;
-  }
+    /**
+     * Creates window aggregate result context.
+     *
+     * @param block       code block that will contain the added initialization
+     * @param accumulator accumulator variables that store the intermediate
+     *                    aggregate state
+     */
+    public WinAggResultContextImpl(BlockBuilder block, List<Expression> accumulator,
+                                   Function<BlockBuilder, WinAggFrameResultContext> frameContextBuilder) {
+        super(block, null, accumulator, null, null);
+        this.frame = frameContextBuilder;
+    }
 
-  private WinAggFrameResultContext getFrame() {
-    return frame.apply(currentBlock());
-  }
+    private WinAggFrameResultContext getFrame() {
+        return frame.apply(currentBlock());
+    }
 
-  public final List<Expression> arguments(Expression rowIndex) {
-    return rowTranslator(rowIndex).translateList(rexArguments());
-  }
+    public final List<Expression> arguments(Expression rowIndex) {
+        return rowTranslator(rowIndex).translateList(rexArguments());
+    }
 
-  public Expression computeIndex(Expression offset,
-      WinAggImplementor.SeekType seekType) {
-    return getFrame().computeIndex(offset, seekType);
-  }
+    public Expression computeIndex(Expression offset, WinAggImplementor.SeekType seekType) {
+        return getFrame().computeIndex(offset, seekType);
+    }
 
-  public Expression rowInFrame(Expression rowIndex) {
-    return getFrame().rowInFrame(rowIndex);
-  }
+    public Expression rowInFrame(Expression rowIndex) {
+        return getFrame().rowInFrame(rowIndex);
+    }
 
-  public Expression rowInPartition(Expression rowIndex) {
-    return getFrame().rowInPartition(rowIndex);
-  }
+    public Expression rowInPartition(Expression rowIndex) {
+        return getFrame().rowInPartition(rowIndex);
+    }
 
-  public RexToLixTranslator rowTranslator(Expression rowIndex) {
-    return getFrame().rowTranslator(rowIndex)
-        .setNullable(currentNullables());
-  }
+    public RexToLixTranslator rowTranslator(Expression rowIndex) {
+        return getFrame().rowTranslator(rowIndex).setNullable(currentNullables());
+    }
 
-  public Expression compareRows(Expression a, Expression b) {
-    return getFrame().compareRows(a, b);
-  }
+    public Expression compareRows(Expression a, Expression b) {
+        return getFrame().compareRows(a, b);
+    }
 
-  public Expression index() {
-    return getFrame().index();
-  }
+    public Expression index() {
+        return getFrame().index();
+    }
 
-  public Expression startIndex() {
-    return getFrame().startIndex();
-  }
+    public Expression startIndex() {
+        return getFrame().startIndex();
+    }
 
-  public Expression endIndex() {
-    return getFrame().endIndex();
-  }
+    public Expression endIndex() {
+        return getFrame().endIndex();
+    }
 
-  public Expression hasRows() {
-    return getFrame().hasRows();
-  }
+    public Expression hasRows() {
+        return getFrame().hasRows();
+    }
 
-  public Expression getFrameRowCount() {
-    return getFrame().getFrameRowCount();
-  }
+    public Expression getFrameRowCount() {
+        return getFrame().getFrameRowCount();
+    }
 
-  public Expression getPartitionRowCount() {
-    return getFrame().getPartitionRowCount();
-  }
+    public Expression getPartitionRowCount() {
+        return getFrame().getPartitionRowCount();
+    }
 }
 
 // End WinAggResultContextImpl.java

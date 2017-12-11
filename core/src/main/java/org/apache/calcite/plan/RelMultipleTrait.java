@@ -18,15 +18,16 @@ package org.apache.calcite.plan;
 
 /**
  * Trait for which a given relational expression can have multiple values.
- *
  * <p>The most common example is sorted-ness (collation). The TIME dimension
  * table might be sorted by [year, month, date] and also by [time_id].
  */
-public interface RelMultipleTrait
-    extends RelTrait, Comparable<RelMultipleTrait> {
-  /** Returns whether this trait is satisfied by every instance of the trait
-   * (including itself). */
-  boolean isTop();
+public interface RelMultipleTrait extends RelTrait, Comparable<RelMultipleTrait> {
+
+    /**
+     * Returns whether this trait is satisfied by every instance of the trait
+     * (including itself).
+     */
+    boolean isTop();
 }
 
 // End RelMultipleTrait.java

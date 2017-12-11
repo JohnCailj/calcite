@@ -22,13 +22,13 @@ import java.sql.SQLException;
  * Indicates that an operation timed out. This is not an error; you can
  * retry the operation.
  */
-public class SqlTimeoutException
-    extends SQLException {
-  SqlTimeoutException() {
-    // SQLException(reason, SQLState, vendorCode)
-    // REVIEW mb 19-Jul-05 Is there a standard SQLState?
-    super("timeout", null, 0);
-  }
+public class SqlTimeoutException extends SQLException {
+
+    SqlTimeoutException() {
+        // SQLException(reason, SQLState, vendorCode)
+        // REVIEW mb 19-Jul-05 Is there a standard SQLState?
+        super("timeout", null, 0);
+    }
 }
 
 // End SqlTimeoutException.java

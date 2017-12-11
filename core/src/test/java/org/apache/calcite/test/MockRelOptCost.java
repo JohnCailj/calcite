@@ -23,69 +23,67 @@ import org.apache.calcite.plan.RelOptCost;
  * TODO: constructors for various scenarios
  */
 public class MockRelOptCost implements RelOptCost {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public boolean equals(Object obj) {
-    return this == obj
-        || obj instanceof MockRelOptCost
-        && equals((MockRelOptCost) obj);
-  }
+    @Override public boolean equals(Object obj) {
+        return this == obj || obj instanceof MockRelOptCost && equals((MockRelOptCost) obj);
+    }
 
-  @Override public int hashCode() {
-    return 1;
-  }
+    @Override public int hashCode() {
+        return 1;
+    }
 
-  public double getCpu() {
-    return 0;
-  }
+    public double getCpu() {
+        return 0;
+    }
 
-  public boolean isInfinite() {
-    return false;
-  }
+    public boolean isInfinite() {
+        return false;
+    }
 
-  public double getIo() {
-    return 0;
-  }
+    public double getIo() {
+        return 0;
+    }
 
-  public boolean isLe(RelOptCost cost) {
-    return true;
-  }
+    public boolean isLe(RelOptCost cost) {
+        return true;
+    }
 
-  public boolean isLt(RelOptCost cost) {
-    return false;
-  }
+    public boolean isLt(RelOptCost cost) {
+        return false;
+    }
 
-  public double getRows() {
-    return 0;
-  }
+    public double getRows() {
+        return 0;
+    }
 
-  public boolean equals(RelOptCost cost) {
-    return true;
-  }
+    public boolean equals(RelOptCost cost) {
+        return true;
+    }
 
-  public boolean isEqWithEpsilon(RelOptCost cost) {
-    return true;
-  }
+    public boolean isEqWithEpsilon(RelOptCost cost) {
+        return true;
+    }
 
-  public RelOptCost minus(RelOptCost cost) {
-    return this;
-  }
+    public RelOptCost minus(RelOptCost cost) {
+        return this;
+    }
 
-  public RelOptCost multiplyBy(double factor) {
-    return this;
-  }
+    public RelOptCost multiplyBy(double factor) {
+        return this;
+    }
 
-  public double divideBy(RelOptCost cost) {
-    return 1;
-  }
+    public double divideBy(RelOptCost cost) {
+        return 1;
+    }
 
-  public RelOptCost plus(RelOptCost cost) {
-    return this;
-  }
+    public RelOptCost plus(RelOptCost cost) {
+        return this;
+    }
 
-  public String toString() {
-    return "MockRelOptCost(0)";
-  }
+    public String toString() {
+        return "MockRelOptCost(0)";
+    }
 }
 
 // End MockRelOptCost.java

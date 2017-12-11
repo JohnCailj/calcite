@@ -25,30 +25,30 @@ import org.apache.calcite.sql.SqlNode;
  * @see ParameterScope
  */
 class ParameterNamespace extends AbstractNamespace {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final RelDataType type;
+    private final RelDataType type;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  ParameterNamespace(SqlValidatorImpl validator, RelDataType type) {
-    super(validator, null);
-    this.type = type;
-  }
+    ParameterNamespace(SqlValidatorImpl validator, RelDataType type) {
+        super(validator, null);
+        this.type = type;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public SqlNode getNode() {
-    return null;
-  }
+    public SqlNode getNode() {
+        return null;
+    }
 
-  public RelDataType validateImpl(RelDataType targetRowType) {
-    return type;
-  }
+    public RelDataType validateImpl(RelDataType targetRowType) {
+        return type;
+    }
 
-  public RelDataType getRowType() {
-    return type;
-  }
+    public RelDataType getRowType() {
+        return type;
+    }
 }
 
 // End ParameterNamespace.java

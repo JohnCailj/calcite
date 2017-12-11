@@ -25,21 +25,27 @@ import java.util.List;
  * between two tables.
  */
 public interface RelReferentialConstraint {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Returns the number of columns in the keys.
-   */
-  int getNumColumns();
+    /**
+     * Returns the number of columns in the keys.
+     */
+    int getNumColumns();
 
-  /**The qualified name of the referencing table, e.g. DEPT. */
-  List<String> getSourceQualifiedName();
+    /**
+     * The qualified name of the referencing table, e.g. DEPT.
+     */
+    List<String> getSourceQualifiedName();
 
-  /** The qualified name of the referenced table, e.g. EMP. */
-  List<String> getTargetQualifiedName();
+    /**
+     * The qualified name of the referenced table, e.g. EMP.
+     */
+    List<String> getTargetQualifiedName();
 
-  /** The (source, target) column ordinals. */
-  List<IntPair> getColumnPairs();
+    /**
+     * The (source, target) column ordinals.
+     */
+    List<IntPair> getColumnPairs();
 
 }
 

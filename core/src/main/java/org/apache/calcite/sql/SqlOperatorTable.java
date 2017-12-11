@@ -23,31 +23,29 @@ import java.util.List;
  * SQL operators and functions.
  */
 public interface SqlOperatorTable {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Retrieves a list of operators with a given name and syntax. For example,
-   * by passing SqlSyntax.Function, the returned list is narrowed to only
-   * matching SqlFunction objects.
-   *
-   * @param opName   name of operator
-   * @param category function category to look up, or null for any matching
-   *                 operator
-   * @param syntax   syntax type of operator
-   * @param operatorList mutable list to which to append matches
-   */
-  void lookupOperatorOverloads(SqlIdentifier opName,
-      SqlFunctionCategory category,
-      SqlSyntax syntax,
-      List<SqlOperator> operatorList);
+    /**
+     * Retrieves a list of operators with a given name and syntax. For example,
+     * by passing SqlSyntax.Function, the returned list is narrowed to only
+     * matching SqlFunction objects.
+     *
+     * @param opName       name of operator
+     * @param category     function category to look up, or null for any matching
+     *                     operator
+     * @param syntax       syntax type of operator
+     * @param operatorList mutable list to which to append matches
+     */
+    void lookupOperatorOverloads(SqlIdentifier opName, SqlFunctionCategory category, SqlSyntax syntax,
+                                 List<SqlOperator> operatorList);
 
-  /**
-   * Retrieves a list of all functions and operators in this table. Used for
-   * automated testing.
-   *
-   * @return list of SqlOperator objects
-   */
-  List<SqlOperator> getOperatorList();
+    /**
+     * Retrieves a list of all functions and operators in this table. Used for
+     * automated testing.
+     *
+     * @return list of SqlOperator objects
+     */
+    List<SqlOperator> getOperatorList();
 }
 
 // End SqlOperatorTable.java

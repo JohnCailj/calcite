@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql.fun;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.sql.SqlAggFunction;
@@ -26,8 +27,6 @@ import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
 import org.apache.calcite.sql.type.SqlTypeName;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 
 /**
@@ -37,41 +36,30 @@ import java.util.List;
  * Count</code> to implement <code>Sum</code>.
  */
 public class SqlSumEmptyIsZeroAggFunction extends SqlAggFunction {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlSumEmptyIsZeroAggFunction() {
-    super("$SUM0",
-        null,
-        SqlKind.SUM0,
-        ReturnTypes.AGG_SUM_EMPTY_IS_ZERO,
-        null,
-        OperandTypes.NUMERIC,
-        SqlFunctionCategory.NUMERIC,
-        false,
-        false);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  @SuppressWarnings("deprecation")
-  public List<RelDataType> getParameterTypes(RelDataTypeFactory typeFactory) {
-    return ImmutableList.of(
-        typeFactory.createTypeWithNullability(
-            typeFactory.createSqlType(SqlTypeName.ANY), true));
-  }
-
-  @SuppressWarnings("deprecation")
-  public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
-    return typeFactory.createTypeWithNullability(
-        typeFactory.createSqlType(SqlTypeName.ANY), true);
-  }
-
-  @Override public <T> T unwrap(Class<T> clazz) {
-    if (clazz == SqlSplittableAggFunction.class) {
-      return clazz.cast(SqlSplittableAggFunction.SumSplitter.INSTANCE);
+    public SqlSumEmptyIsZeroAggFunction() {
+        super("$SUM0", null, SqlKind.SUM0, ReturnTypes.AGG_SUM_EMPTY_IS_ZERO, null, OperandTypes.NUMERIC,
+              SqlFunctionCategory.NUMERIC, false, false);
     }
-    return super.unwrap(clazz);
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    @SuppressWarnings("deprecation") public List<RelDataType> getParameterTypes(RelDataTypeFactory typeFactory) {
+        return ImmutableList.of(
+                typeFactory.createTypeWithNullability(typeFactory.createSqlType(SqlTypeName.ANY), true));
+    }
+
+    @SuppressWarnings("deprecation") public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
+        return typeFactory.createTypeWithNullability(typeFactory.createSqlType(SqlTypeName.ANY), true);
+    }
+
+    @Override public <T> T unwrap(Class<T> clazz) {
+        if (clazz == SqlSplittableAggFunction.class) {
+            return clazz.cast(SqlSplittableAggFunction.SumSplitter.INSTANCE);
+        }
+        return super.unwrap(clazz);
+    }
 }
 
 // End SqlSumEmptyIsZeroAggFunction.java

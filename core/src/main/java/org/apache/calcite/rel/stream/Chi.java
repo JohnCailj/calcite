@@ -23,16 +23,15 @@ import org.apache.calcite.rel.SingleRel;
 
 /**
  * Relational operator that converts a stream to a relation.
- *
  * <p>Chi is named for the Greek letter &chi; and pronounced 'kai'.
- *
  * <p>Chi is the inverse of {@link Delta}. For any relation {@code R},
  * Chi(Delta(R)) == R.
  */
 public class Chi extends SingleRel {
-  protected Chi(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
-    super(cluster, traits, input);
-  }
+
+    protected Chi(RelOptCluster cluster, RelTraitSet traits, RelNode input) {
+        super(cluster, traits, input);
+    }
 }
 
 // End Chi.java

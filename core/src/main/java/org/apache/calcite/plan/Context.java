@@ -22,11 +22,11 @@ import org.apache.calcite.schema.Wrapper;
  * Provides library users a way to store data within the planner session and
  * access it within rules. Frameworks can implement their own implementation
  * of Context and pass that as part of the FrameworkConfig.
- *
  * <p>Simply implement the {@link #unwrap} method to return any sub-objects
  * that you wish to provide.
  */
 public interface Context extends Wrapper {
+
 }
 
 // End Context.java

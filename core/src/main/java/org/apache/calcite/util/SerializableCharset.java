@@ -24,73 +24,70 @@ import java.nio.charset.Charset;
 
 /**
  * Serializable wrapper around a {@link Charset}.
- *
  * <p>It serializes itself by writing out the name of the character set, for
  * example "ISO-8859-1". On the other side, it deserializes itself by looking
  * for a charset with the same name.
- *
  * <p>A SerializableCharset is immutable.
  */
 public class SerializableCharset implements Serializable {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private Charset charset;
-  private String charsetName;
+    private Charset charset;
+    private String  charsetName;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a SerializableCharset. External users should call
-   * {@link #forCharset(Charset)}.
-   *
-   * @param charset Character set; must not be null
-   */
-  private SerializableCharset(Charset charset) {
-    assert charset != null;
-    this.charset = charset;
-    this.charsetName = charset.name();
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  /**
-   * Per {@link Serializable}.
-   */
-  private void writeObject(ObjectOutputStream out) throws IOException {
-    out.writeObject(charset.name());
-  }
-
-  /**
-   * Per {@link Serializable}.
-   */
-  private void readObject(ObjectInputStream in)
-      throws IOException, ClassNotFoundException {
-    charsetName = (String) in.readObject();
-    charset = Charset.availableCharsets().get(this.charsetName);
-  }
-
-  /**
-   * Returns the wrapped {@link Charset}.
-   *
-   * @return the wrapped Charset
-   */
-  public Charset getCharset() {
-    return charset;
-  }
-
-  /**
-   * Returns a SerializableCharset wrapping the given Charset, or null if the
-   * {@code charset} is null.
-   *
-   * @param charset Character set to wrap, or null
-   * @return Wrapped charset
-   */
-  public static SerializableCharset forCharset(Charset charset) {
-    if (charset == null) {
-      return null;
+    /**
+     * Creates a SerializableCharset. External users should call
+     * {@link #forCharset(Charset)}.
+     *
+     * @param charset Character set; must not be null
+     */
+    private SerializableCharset(Charset charset) {
+        assert charset != null;
+        this.charset = charset;
+        this.charsetName = charset.name();
     }
-    return new SerializableCharset(charset);
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * Per {@link Serializable}.
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.writeObject(charset.name());
+    }
+
+    /**
+     * Per {@link Serializable}.
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        charsetName = (String) in.readObject();
+        charset = Charset.availableCharsets().get(this.charsetName);
+    }
+
+    /**
+     * Returns the wrapped {@link Charset}.
+     *
+     * @return the wrapped Charset
+     */
+    public Charset getCharset() {
+        return charset;
+    }
+
+    /**
+     * Returns a SerializableCharset wrapping the given Charset, or null if the
+     * {@code charset} is null.
+     *
+     * @param charset Character set to wrap, or null
+     * @return Wrapped charset
+     */
+    public static SerializableCharset forCharset(Charset charset) {
+        if (charset == null) {
+            return null;
+        }
+        return new SerializableCharset(charset);
+    }
 }
 
 // End SerializableCharset.java

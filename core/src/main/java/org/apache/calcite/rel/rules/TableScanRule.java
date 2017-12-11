@@ -29,25 +29,23 @@ import org.apache.calcite.rel.logical.LogicalTableScan;
  * of calling {@link RelOptTable#toRel}.
  */
 public class TableScanRule extends RelOptRule {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  public static final TableScanRule INSTANCE = new TableScanRule();
+    public static final TableScanRule INSTANCE = new TableScanRule();
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  private TableScanRule() {
-    super(operand(LogicalTableScan.class, any()));
-  }
+    private TableScanRule() {
+        super(operand(LogicalTableScan.class, any()));
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public void onMatch(RelOptRuleCall call) {
-    final LogicalTableScan oldRel = call.rel(0);
-    RelNode newRel =
-        oldRel.getTable().toRel(
-            RelOptUtil.getContext(oldRel.getCluster()));
-    call.transformTo(newRel);
-  }
+    public void onMatch(RelOptRuleCall call) {
+        final LogicalTableScan oldRel = call.rel(0);
+        RelNode newRel = oldRel.getTable().toRel(RelOptUtil.getContext(oldRel.getCluster()));
+        call.transformTo(newRel);
+    }
 }
 
 // End TableScanRule.java

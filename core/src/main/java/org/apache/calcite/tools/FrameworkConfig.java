@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.tools;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.plan.Context;
 import org.apache.calcite.plan.RelOptCostFactory;
 import org.apache.calcite.plan.RelTraitDef;
@@ -27,8 +28,6 @@ import org.apache.calcite.sql.parser.SqlParser;
 import org.apache.calcite.sql2rel.SqlRexConvertletTable;
 import org.apache.calcite.sql2rel.SqlToRelConverter;
 
-import com.google.common.collect.ImmutableList;
-
 /**
  * Interface that describes how to configure planning sessions generated
  * using the Frameworks tools.
@@ -36,88 +35,84 @@ import com.google.common.collect.ImmutableList;
  * @see Frameworks#newConfigBuilder()
  */
 public interface FrameworkConfig {
-  /**
-   * The configuration of SQL parser.
-   */
-  SqlParser.Config getParserConfig();
 
-  /**
-   * The configuration of {@link SqlToRelConverter}.
-   */
-  SqlToRelConverter.Config getSqlToRelConverterConfig();
+    /**
+     * The configuration of SQL parser.
+     */
+    SqlParser.Config getParserConfig();
 
-  /**
-   * Returns the default schema that should be checked before looking at the
-   * root schema.  Returns null to only consult the root schema.
-   */
-  SchemaPlus getDefaultSchema();
+    /**
+     * The configuration of {@link SqlToRelConverter}.
+     */
+    SqlToRelConverter.Config getSqlToRelConverterConfig();
 
-  /**
-   * Returns the executor used to evaluate constant expressions.
-   */
-  RexExecutor getExecutor();
+    /**
+     * Returns the default schema that should be checked before looking at the
+     * root schema.  Returns null to only consult the root schema.
+     */
+    SchemaPlus getDefaultSchema();
 
-  /**
-   * Returns a list of one or more programs used during the course of query
-   * evaluation.
-   *
-   * <p>The common use case is when there is a single program
-   * created using {@link Programs#of(RuleSet)}
-   * and {@link org.apache.calcite.tools.Planner#transform}
-   * will only be called once.
-   *
-   * <p>However, consumers may also create programs
-   * not based on rule sets, register multiple programs,
-   * and do multiple repetitions
-   * of {@link Planner#transform} planning cycles using different indices.
-   *
-   * <p>The order of programs provided here determines the zero-based indices
-   * of programs elsewhere in this class.
-   */
-  ImmutableList<Program> getPrograms();
+    /**
+     * Returns the executor used to evaluate constant expressions.
+     */
+    RexExecutor getExecutor();
 
-  /**
-   * Returns operator table that should be used to
-   * resolve functions and operators during query validation.
-   */
-  SqlOperatorTable getOperatorTable();
+    /**
+     * Returns a list of one or more programs used during the course of query
+     * evaluation.
+     * <p>The common use case is when there is a single program
+     * created using {@link Programs#of(RuleSet)}
+     * and {@link org.apache.calcite.tools.Planner#transform}
+     * will only be called once.
+     * <p>However, consumers may also create programs
+     * not based on rule sets, register multiple programs,
+     * and do multiple repetitions
+     * of {@link Planner#transform} planning cycles using different indices.
+     * <p>The order of programs provided here determines the zero-based indices
+     * of programs elsewhere in this class.
+     */
+    ImmutableList<Program> getPrograms();
 
-  /**
-   * Returns the cost factory that should be used when creating the planner.
-   * If null, use the default cost factory for that planner.
-   */
-  RelOptCostFactory getCostFactory();
+    /**
+     * Returns operator table that should be used to
+     * resolve functions and operators during query validation.
+     */
+    SqlOperatorTable getOperatorTable();
 
-  /**
-   * Returns a list of trait definitions.
-   *
-   * <p>If the list is not null, the planner first de-registers any
-   * existing {@link RelTraitDef}s, then registers the {@code RelTraitDef}s in
-   * this list.</p>
-   *
-   * <p>The order of {@code RelTraitDef}s in the list matters if the
-   * planner is VolcanoPlanner. The planner calls {@link RelTraitDef#convert} in
-   * the order of this list. The most important trait comes first in the list,
-   * followed by the second most important one, etc.</p>
-   */
-  ImmutableList<RelTraitDef> getTraitDefs();
+    /**
+     * Returns the cost factory that should be used when creating the planner.
+     * If null, use the default cost factory for that planner.
+     */
+    RelOptCostFactory getCostFactory();
 
-  /**
-   * Returns the convertlet table that should be used when converting from SQL
-   * to row expressions
-   */
-  SqlRexConvertletTable getConvertletTable();
+    /**
+     * Returns a list of trait definitions.
+     * <p>If the list is not null, the planner first de-registers any
+     * existing {@link RelTraitDef}s, then registers the {@code RelTraitDef}s in
+     * this list.</p>
+     * <p>The order of {@code RelTraitDef}s in the list matters if the
+     * planner is VolcanoPlanner. The planner calls {@link RelTraitDef#convert} in
+     * the order of this list. The most important trait comes first in the list,
+     * followed by the second most important one, etc.</p>
+     */
+    ImmutableList<RelTraitDef> getTraitDefs();
 
-  /**
-   * Returns the PlannerContext that should be made available during planning by
-   * calling {@link org.apache.calcite.plan.RelOptPlanner#getContext()}.
-   */
-  Context getContext();
+    /**
+     * Returns the convertlet table that should be used when converting from SQL
+     * to row expressions
+     */
+    SqlRexConvertletTable getConvertletTable();
 
-  /**
-   * Returns the type system.
-   */
-  RelDataTypeSystem getTypeSystem();
+    /**
+     * Returns the PlannerContext that should be made available during planning by
+     * calling {@link org.apache.calcite.plan.RelOptPlanner#getContext()}.
+     */
+    Context getContext();
+
+    /**
+     * Returns the type system.
+     */
+    RelDataTypeSystem getTypeSystem();
 }
 
 // End FrameworkConfig.java

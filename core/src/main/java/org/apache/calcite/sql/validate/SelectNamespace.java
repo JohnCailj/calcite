@@ -28,51 +28,46 @@ import org.apache.calcite.sql.type.SqlTypeUtil;
  * @see SetopNamespace
  */
 public class SelectNamespace extends AbstractNamespace {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlSelect select;
+    private final SqlSelect select;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a SelectNamespace.
-   *
-   * @param validator     Validate
-   * @param select        Select node
-   * @param enclosingNode Enclosing node
-   */
-  public SelectNamespace(
-      SqlValidatorImpl validator,
-      SqlSelect select,
-      SqlNode enclosingNode) {
-    super(validator, enclosingNode);
-    this.select = select;
-  }
+    /**
+     * Creates a SelectNamespace.
+     *
+     * @param validator     Validate
+     * @param select        Select node
+     * @param enclosingNode Enclosing node
+     */
+    public SelectNamespace(SqlValidatorImpl validator, SqlSelect select, SqlNode enclosingNode) {
+        super(validator, enclosingNode);
+        this.select = select;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  // implement SqlValidatorNamespace, overriding return type
-  @Override public SqlSelect getNode() {
-    return select;
-  }
+    // implement SqlValidatorNamespace, overriding return type
+    @Override public SqlSelect getNode() {
+        return select;
+    }
 
-  public RelDataType validateImpl(RelDataType targetRowType) {
-    validator.validateSelect(select, targetRowType);
-    return rowType;
-  }
+    public RelDataType validateImpl(RelDataType targetRowType) {
+        validator.validateSelect(select, targetRowType);
+        return rowType;
+    }
 
-  @Override public boolean supportsModality(SqlModality modality) {
-    return validator.validateModality(select, modality, false);
-  }
+    @Override public boolean supportsModality(SqlModality modality) {
+        return validator.validateModality(select, modality, false);
+    }
 
-  public SqlMonotonicity getMonotonicity(String columnName) {
-    final RelDataType rowType = this.getRowTypeSansSystemColumns();
-    final int field = SqlTypeUtil.findField(rowType, columnName);
-    final SqlNode selectItem =
-        validator.getRawSelectScope(select)
-            .getExpandedSelectList().get(field);
-    return validator.getSelectScope(select).getMonotonicity(selectItem);
-  }
+    public SqlMonotonicity getMonotonicity(String columnName) {
+        final RelDataType rowType = this.getRowTypeSansSystemColumns();
+        final int field = SqlTypeUtil.findField(rowType, columnName);
+        final SqlNode selectItem = validator.getRawSelectScope(select).getExpandedSelectList().get(field);
+        return validator.getSelectScope(select).getMonotonicity(selectItem);
+    }
 }
 
 // End SelectNamespace.java

@@ -16,48 +16,47 @@
  */
 package org.apache.calcite.sql;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.util.TimeString;
 
-import com.google.common.base.Preconditions;
-
 /**
  * A SQL literal representing a TIME value, for example <code>TIME
  * '14:33:44.567'</code>.
- *
  * <p>Create values using {@link SqlLiteral#createTime}.
  */
 public class SqlTimeLiteral extends SqlAbstractDateTimeLiteral {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  SqlTimeLiteral(TimeString t, int precision, boolean hasTimeZone,
-      SqlParserPos pos) {
-    super(t, hasTimeZone, SqlTypeName.TIME, precision, pos);
-    Preconditions.checkArgument(this.precision >= 0);
-  }
+    SqlTimeLiteral(TimeString t, int precision, boolean hasTimeZone, SqlParserPos pos) {
+        super(t, hasTimeZone, SqlTypeName.TIME, precision, pos);
+        Preconditions.checkArgument(this.precision >= 0);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /** Converts this literal to a {@link TimeString}. */
-  protected TimeString getTime() {
-    return (TimeString) value;
-  }
+    /**
+     * Converts this literal to a {@link TimeString}.
+     */
+    protected TimeString getTime() {
+        return (TimeString) value;
+    }
 
-  public SqlNode clone(SqlParserPos pos) {
-    return new SqlTimeLiteral((TimeString) value, precision, hasTimeZone, pos);
-  }
+    public SqlNode clone(SqlParserPos pos) {
+        return new SqlTimeLiteral((TimeString) value, precision, hasTimeZone, pos);
+    }
 
-  public String toString() {
-    return "TIME '" + toFormattedString() + "'";
-  }
+    public String toString() {
+        return "TIME '" + toFormattedString() + "'";
+    }
 
-  /**
-   * Returns e.g. '03:05:67.456'.
-   */
-  public String toFormattedString() {
-    return getTime().toString(precision);
-  }
+    /**
+     * Returns e.g. '03:05:67.456'.
+     */
+    public String toFormattedString() {
+        return getTime().toString(precision);
+    }
 }
 
 // End SqlTimeLiteral.java

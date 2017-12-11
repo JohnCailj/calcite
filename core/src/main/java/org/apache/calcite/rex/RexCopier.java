@@ -20,81 +20,75 @@ import org.apache.calcite.rel.type.RelDataType;
 
 /**
  * Shuttle which creates a deep copy of a Rex expression.
- *
  * <p>This is useful when copying objects from one type factory or builder to
  * another.
- *
  * <p>Due to the laziness of the author, not all Rex types are supported at
  * present.
  *
  * @see RexBuilder#copy(RexNode)
  */
 class RexCopier extends RexShuttle {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final RexBuilder builder;
+    private final RexBuilder builder;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a RexCopier.
-   *
-   * @param builder Builder
-   */
-  RexCopier(RexBuilder builder) {
-    this.builder = builder;
-  }
+    /**
+     * Creates a RexCopier.
+     *
+     * @param builder Builder
+     */
+    RexCopier(RexBuilder builder) {
+        this.builder = builder;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  private RelDataType copy(RelDataType type) {
-    return builder.getTypeFactory().copyType(type);
-  }
+    private RelDataType copy(RelDataType type) {
+        return builder.getTypeFactory().copyType(type);
+    }
 
-  public RexNode visitOver(RexOver over) {
-    throw new UnsupportedOperationException();
-  }
+    public RexNode visitOver(RexOver over) {
+        throw new UnsupportedOperationException();
+    }
 
-  public RexWindow visitWindow(RexWindow window) {
-    throw new UnsupportedOperationException();
-  }
+    public RexWindow visitWindow(RexWindow window) {
+        throw new UnsupportedOperationException();
+    }
 
-  public RexNode visitCall(final RexCall call) {
-    final boolean[] update = null;
-    return builder.makeCall(copy(call.getType()),
-        call.getOperator(),
-        visitList(call.getOperands(), update));
-  }
+    public RexNode visitCall(final RexCall call) {
+        final boolean[] update = null;
+        return builder.makeCall(copy(call.getType()), call.getOperator(), visitList(call.getOperands(), update));
+    }
 
-  public RexNode visitCorrelVariable(RexCorrelVariable variable) {
-    throw new UnsupportedOperationException();
-  }
+    public RexNode visitCorrelVariable(RexCorrelVariable variable) {
+        throw new UnsupportedOperationException();
+    }
 
-  public RexNode visitFieldAccess(RexFieldAccess fieldAccess) {
-    return builder.makeFieldAccess(fieldAccess.getReferenceExpr().accept(this),
-        fieldAccess.getField().getIndex());
-  }
+    public RexNode visitFieldAccess(RexFieldAccess fieldAccess) {
+        return builder.makeFieldAccess(fieldAccess.getReferenceExpr().accept(this), fieldAccess.getField().getIndex());
+    }
 
-  public RexNode visitInputRef(RexInputRef inputRef) {
-    return builder.makeInputRef(copy(inputRef.getType()), inputRef.getIndex());
-  }
+    public RexNode visitInputRef(RexInputRef inputRef) {
+        return builder.makeInputRef(copy(inputRef.getType()), inputRef.getIndex());
+    }
 
-  public RexNode visitLocalRef(RexLocalRef localRef) {
-    throw new UnsupportedOperationException();
-  }
+    public RexNode visitLocalRef(RexLocalRef localRef) {
+        throw new UnsupportedOperationException();
+    }
 
-  public RexNode visitLiteral(RexLiteral literal) {
-    return new RexLiteral(literal.getValue(), copy(literal.getType()),
-        literal.getTypeName());
-  }
+    public RexNode visitLiteral(RexLiteral literal) {
+        return new RexLiteral(literal.getValue(), copy(literal.getType()), literal.getTypeName());
+    }
 
-  public RexNode visitDynamicParam(RexDynamicParam dynamicParam) {
-    throw new UnsupportedOperationException();
-  }
+    public RexNode visitDynamicParam(RexDynamicParam dynamicParam) {
+        throw new UnsupportedOperationException();
+    }
 
-  public RexNode visitRangeRef(RexRangeRef rangeRef) {
-    throw new UnsupportedOperationException();
-  }
+    public RexNode visitRangeRef(RexRangeRef rangeRef) {
+        throw new UnsupportedOperationException();
+    }
 }
 
 // End RexCopier.java

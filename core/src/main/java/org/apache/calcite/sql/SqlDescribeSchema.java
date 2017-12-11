@@ -27,49 +27,51 @@ import java.util.List;
  */
 public class SqlDescribeSchema extends SqlCall {
 
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("DESCRIBE_SCHEMA", SqlKind.DESCRIBE_SCHEMA) {
-        @Override public SqlCall createCall(SqlLiteral functionQualifier,
-            SqlParserPos pos, SqlNode... operands) {
-          return new SqlDescribeSchema(pos, (SqlIdentifier) operands[0]);
+    public static final SqlSpecialOperator OPERATOR = new SqlSpecialOperator("DESCRIBE_SCHEMA",
+                                                                             SqlKind.DESCRIBE_SCHEMA) {
+
+        @Override public SqlCall createCall(SqlLiteral functionQualifier, SqlParserPos pos, SqlNode... operands) {
+            return new SqlDescribeSchema(pos, (SqlIdentifier) operands[0]);
         }
-      };
+    };
 
-  SqlIdentifier schema;
+    SqlIdentifier schema;
 
-  /** Creates a SqlDescribeSchema. */
-  public SqlDescribeSchema(SqlParserPos pos, SqlIdentifier schema) {
-    super(pos);
-    this.schema = schema;
-  }
-
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("DESCRIBE");
-    writer.keyword("SCHEMA");
-    schema.unparse(writer, leftPrec, rightPrec);
-  }
-
-  @Override public void setOperand(int i, SqlNode operand) {
-    switch (i) {
-    case 0:
-      schema = (SqlIdentifier) operand;
-      break;
-    default:
-      throw new AssertionError(i);
+    /**
+     * Creates a SqlDescribeSchema.
+     */
+    public SqlDescribeSchema(SqlParserPos pos, SqlIdentifier schema) {
+        super(pos);
+        this.schema = schema;
     }
-  }
 
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
-  }
+    @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+        writer.keyword("DESCRIBE");
+        writer.keyword("SCHEMA");
+        schema.unparse(writer, leftPrec, rightPrec);
+    }
 
-  @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.<SqlNode>of(schema);
-  }
+    @Override public void setOperand(int i, SqlNode operand) {
+        switch (i) {
+            case 0:
+                schema = (SqlIdentifier) operand;
+                break;
+            default:
+                throw new AssertionError(i);
+        }
+    }
 
-  public SqlIdentifier getSchema() {
-    return schema;
-  }
+    @Override public SqlOperator getOperator() {
+        return OPERATOR;
+    }
+
+    @Override public List<SqlNode> getOperandList() {
+        return ImmutableNullableList.<SqlNode>of(schema);
+    }
+
+    public SqlIdentifier getSchema() {
+        return schema;
+    }
 }
 
 // End SqlDescribeSchema.java

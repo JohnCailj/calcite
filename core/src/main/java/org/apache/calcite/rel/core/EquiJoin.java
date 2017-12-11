@@ -16,13 +16,12 @@
  */
 package org.apache.calcite.rel.core;
 
+import com.google.common.base.Preconditions;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelTraitSet;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rex.RexNode;
 import org.apache.calcite.util.ImmutableIntList;
-
-import com.google.common.base.Preconditions;
 
 import java.util.Set;
 
@@ -30,39 +29,40 @@ import java.util.Set;
  * Base class for any join whose condition is based on column equality.
  */
 public abstract class EquiJoin extends Join {
-  public final ImmutableIntList leftKeys;
-  public final ImmutableIntList rightKeys;
 
-  /** Creates an EquiJoin. */
-  public EquiJoin(RelOptCluster cluster, RelTraitSet traits, RelNode left,
-      RelNode right, RexNode condition, ImmutableIntList leftKeys,
-      ImmutableIntList rightKeys, Set<CorrelationId> variablesSet,
-      JoinRelType joinType) {
-    super(cluster, traits, left, right, condition, variablesSet, joinType);
-    this.leftKeys = Preconditions.checkNotNull(leftKeys);
-    this.rightKeys = Preconditions.checkNotNull(rightKeys);
-  }
+    public final ImmutableIntList leftKeys;
+    public final ImmutableIntList rightKeys;
 
-  @Deprecated // to be removed before 2.0
-  public EquiJoin(RelOptCluster cluster, RelTraitSet traits, RelNode left,
-      RelNode right, RexNode condition, ImmutableIntList leftKeys,
-      ImmutableIntList rightKeys, JoinRelType joinType,
-      Set<String> variablesStopped) {
-    this(cluster, traits, left, right, condition, leftKeys, rightKeys,
-        CorrelationId.setOf(variablesStopped), joinType);
-  }
+    /**
+     * Creates an EquiJoin.
+     */
+    public EquiJoin(RelOptCluster cluster, RelTraitSet traits, RelNode left, RelNode right, RexNode condition,
+                    ImmutableIntList leftKeys, ImmutableIntList rightKeys, Set<CorrelationId> variablesSet,
+                    JoinRelType joinType) {
+        super(cluster, traits, left, right, condition, variablesSet, joinType);
+        this.leftKeys = Preconditions.checkNotNull(leftKeys);
+        this.rightKeys = Preconditions.checkNotNull(rightKeys);
+    }
 
-  public ImmutableIntList getLeftKeys() {
-    return leftKeys;
-  }
+    @Deprecated // to be removed before 2.0
+    public EquiJoin(RelOptCluster cluster, RelTraitSet traits, RelNode left, RelNode right, RexNode condition,
+                    ImmutableIntList leftKeys, ImmutableIntList rightKeys, JoinRelType joinType,
+                    Set<String> variablesStopped) {
+        this(cluster, traits, left, right, condition, leftKeys, rightKeys, CorrelationId.setOf(variablesStopped),
+             joinType);
+    }
 
-  public ImmutableIntList getRightKeys() {
-    return rightKeys;
-  }
+    public ImmutableIntList getLeftKeys() {
+        return leftKeys;
+    }
 
-  @Override public JoinInfo analyzeCondition() {
-    return JoinInfo.of(leftKeys, rightKeys);
-  }
+    public ImmutableIntList getRightKeys() {
+        return rightKeys;
+    }
+
+    @Override public JoinInfo analyzeCondition() {
+        return JoinInfo.of(leftKeys, rightKeys);
+    }
 }
 
 // End EquiJoin.java

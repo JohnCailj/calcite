@@ -18,13 +18,13 @@ package org.apache.calcite.runtime;
 
 /**
  * Extension to {@link Bindable} that returns rows that are arrays of objects.
- *
  * <p>It also implements {@link Typed}; the {@link #getElementType()} method
  * must return {@code Object[].class}.
  */
 public interface ArrayBindable extends Bindable<Object[]>, Typed {
-  // override
-  Class<Object[]> getElementType();
+
+    // override
+    Class<Object[]> getElementType();
 }
 
 // End ArrayBindable.java

@@ -29,71 +29,51 @@ import org.apache.calcite.util.Util;
  * A postfix unary operator.
  */
 public class SqlPostfixOperator extends SqlOperator {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlPostfixOperator(
-      String name,
-      SqlKind kind,
-      int prec,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker) {
-    super(
-        name,
-        kind,
-        leftPrec(prec, true),
-        rightPrec(prec, true),
-        returnTypeInference,
-        operandTypeInference,
-        operandTypeChecker);
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public SqlSyntax getSyntax() {
-    return SqlSyntax.POSTFIX;
-  }
-
-  public String getSignatureTemplate(final int operandsCount) {
-    Util.discard(operandsCount);
-    return "{1} {0}";
-  }
-
-  protected RelDataType adjustType(
-      SqlValidator validator,
-      SqlCall call,
-      RelDataType type) {
-    if (SqlTypeUtil.inCharFamily(type)) {
-      // Determine coercibility and resulting collation name of
-      // unary operator if needed.
-      RelDataType operandType =
-          validator.getValidatedNodeType(call.operand(0));
-      if (null == operandType) {
-        throw new AssertionError("operand's type should have been derived");
-      }
-      if (SqlTypeUtil.inCharFamily(operandType)) {
-        SqlCollation collation = operandType.getCollation();
-        assert null != collation
-            : "An implicit or explicit collation should have been set";
-        type =
-            validator.getTypeFactory()
-                .createTypeWithCharsetAndCollation(
-                    type,
-                    type.getCharset(),
-                    new SqlCollation(
-                        collation.getCollationName(),
-                        collation.getCoercibility()));
-      }
+    public SqlPostfixOperator(String name, SqlKind kind, int prec, SqlReturnTypeInference returnTypeInference,
+                              SqlOperandTypeInference operandTypeInference, SqlOperandTypeChecker operandTypeChecker) {
+        super(name, kind, leftPrec(prec, true), rightPrec(prec, true), returnTypeInference, operandTypeInference,
+              operandTypeChecker);
     }
-    return type;
-  }
 
-  @Override public boolean validRexOperands(int count, Litmus litmus) {
-    if (count != 1) {
-      return litmus.fail("wrong operand count {} for {}", count, this);
+    //~ Methods ----------------------------------------------------------------
+
+    public SqlSyntax getSyntax() {
+        return SqlSyntax.POSTFIX;
     }
-    return litmus.succeed();
-  }
+
+    public String getSignatureTemplate(final int operandsCount) {
+        Util.discard(operandsCount);
+        return "{1} {0}";
+    }
+
+    protected RelDataType adjustType(SqlValidator validator, SqlCall call, RelDataType type) {
+        if (SqlTypeUtil.inCharFamily(type)) {
+            // Determine coercibility and resulting collation name of
+            // unary operator if needed.
+            RelDataType operandType = validator.getValidatedNodeType(call.operand(0));
+            if (null == operandType) {
+                throw new AssertionError("operand's type should have been derived");
+            }
+            if (SqlTypeUtil.inCharFamily(operandType)) {
+                SqlCollation collation = operandType.getCollation();
+                assert null != collation : "An implicit or explicit collation should have been set";
+                type = validator.getTypeFactory().createTypeWithCharsetAndCollation(type, type.getCharset(),
+                                                                                    new SqlCollation(
+                                                                                            collation.getCollationName(),
+                                                                                            collation.getCoercibility()));
+            }
+        }
+        return type;
+    }
+
+    @Override public boolean validRexOperands(int count, Litmus litmus) {
+        if (count != 1) {
+            return litmus.fail("wrong operand count {} for {}", count, this);
+        }
+        return litmus.succeed();
+    }
 }
 
 // End SqlPostfixOperator.java

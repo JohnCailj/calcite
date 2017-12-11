@@ -24,11 +24,11 @@ import org.apache.calcite.sql.type.ReturnTypes;
  * "CURRENT_PATH".
  */
 public class SqlStringContextVariable extends SqlBaseContextVariable {
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  protected SqlStringContextVariable(String name) {
-    super(name, ReturnTypes.VARCHAR_2000, SqlFunctionCategory.SYSTEM);
-  }
+    protected SqlStringContextVariable(String name) {
+        super(name, ReturnTypes.VARCHAR_2000, SqlFunctionCategory.SYSTEM);
+    }
 }
 
 // End SqlStringContextVariable.java

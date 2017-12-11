@@ -28,29 +28,23 @@ import org.apache.calcite.rel.logical.LogicalAggregate;
  * to an {@link EnumerableAggregate}.
  */
 class EnumerableAggregateRule extends ConverterRule {
-  EnumerableAggregateRule() {
-    super(LogicalAggregate.class, Convention.NONE,
-        EnumerableConvention.INSTANCE, "EnumerableAggregateRule");
-  }
 
-  public RelNode convert(RelNode rel) {
-    final LogicalAggregate agg = (LogicalAggregate) rel;
-    final RelTraitSet traitSet =
-        agg.getTraitSet().replace(EnumerableConvention.INSTANCE);
-    try {
-      return new EnumerableAggregate(
-          rel.getCluster(),
-          traitSet,
-          convert(agg.getInput(), EnumerableConvention.INSTANCE),
-          agg.indicator,
-          agg.getGroupSet(),
-          agg.getGroupSets(),
-          agg.getAggCallList());
-    } catch (InvalidRelException e) {
-      EnumerableRules.LOGGER.debug(e.toString());
-      return null;
+    EnumerableAggregateRule() {
+        super(LogicalAggregate.class, Convention.NONE, EnumerableConvention.INSTANCE, "EnumerableAggregateRule");
     }
-  }
+
+    public RelNode convert(RelNode rel) {
+        final LogicalAggregate agg = (LogicalAggregate) rel;
+        final RelTraitSet traitSet = agg.getTraitSet().replace(EnumerableConvention.INSTANCE);
+        try {
+            return new EnumerableAggregate(rel.getCluster(), traitSet,
+                                           convert(agg.getInput(), EnumerableConvention.INSTANCE), agg.indicator,
+                                           agg.getGroupSet(), agg.getGroupSets(), agg.getAggCallList());
+        } catch (InvalidRelException e) {
+            EnumerableRules.LOGGER.debug(e.toString());
+            return null;
+        }
+    }
 }
 
 // End EnumerableAggregateRule.java

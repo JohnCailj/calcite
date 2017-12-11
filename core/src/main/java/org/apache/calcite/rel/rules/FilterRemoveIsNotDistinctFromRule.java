@@ -22,11 +22,7 @@ import org.apache.calcite.plan.RelOptUtil;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.core.RelFactories;
 import org.apache.calcite.rel.logical.LogicalFilter;
-import org.apache.calcite.rex.RexBuilder;
-import org.apache.calcite.rex.RexCall;
-import org.apache.calcite.rex.RexNode;
-import org.apache.calcite.rex.RexShuttle;
-import org.apache.calcite.rex.RexUtil;
+import org.apache.calcite.rex.*;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 
 /**
@@ -37,78 +33,68 @@ import org.apache.calcite.sql.fun.SqlStdOperatorTable;
  * @see org.apache.calcite.sql.fun.SqlStdOperatorTable#IS_NOT_DISTINCT_FROM
  */
 public final class FilterRemoveIsNotDistinctFromRule extends RelOptRule {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  /** The singleton. */
-  public static final FilterRemoveIsNotDistinctFromRule INSTANCE =
-      new FilterRemoveIsNotDistinctFromRule();
+    /**
+     * The singleton.
+     */
+    public static final FilterRemoveIsNotDistinctFromRule INSTANCE = new FilterRemoveIsNotDistinctFromRule();
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  private FilterRemoveIsNotDistinctFromRule() {
-    super(operand(LogicalFilter.class, any()));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    LogicalFilter oldFilter = call.rel(0);
-    RexNode oldFilterCond = oldFilter.getCondition();
-
-    if (RexUtil.findOperatorCall(
-        SqlStdOperatorTable.IS_NOT_DISTINCT_FROM,
-        oldFilterCond)
-        == null) {
-      // no longer contains isNotDistinctFromOperator
-      return;
+    private FilterRemoveIsNotDistinctFromRule() {
+        super(operand(LogicalFilter.class, any()));
     }
 
-    // Now replace all the "a isNotDistinctFrom b"
-    // with the RexNode given by RelOptUtil.isDistinctFrom() method
+    //~ Methods ----------------------------------------------------------------
 
-    RemoveIsNotDistinctFromRexShuttle rewriteShuttle =
-        new RemoveIsNotDistinctFromRexShuttle(
-            oldFilter.getCluster().getRexBuilder());
+    public void onMatch(RelOptRuleCall call) {
+        LogicalFilter oldFilter = call.rel(0);
+        RexNode oldFilterCond = oldFilter.getCondition();
 
-    final RelFactories.FilterFactory factory =
-        RelFactories.DEFAULT_FILTER_FACTORY;
-    RelNode newFilterRel =
-        factory.createFilter(oldFilter.getInput(),
-            oldFilterCond.accept(rewriteShuttle));
+        if (RexUtil.findOperatorCall(SqlStdOperatorTable.IS_NOT_DISTINCT_FROM, oldFilterCond) == null) {
+            // no longer contains isNotDistinctFromOperator
+            return;
+        }
 
-    call.transformTo(newFilterRel);
-  }
+        // Now replace all the "a isNotDistinctFrom b"
+        // with the RexNode given by RelOptUtil.isDistinctFrom() method
 
-  //~ Inner Classes ----------------------------------------------------------
+        RemoveIsNotDistinctFromRexShuttle rewriteShuttle = new RemoveIsNotDistinctFromRexShuttle(
+                oldFilter.getCluster().getRexBuilder());
 
-  /** Shuttle that removes 'x IS NOT DISTINCT FROM y' and converts it
-   * to 'CASE WHEN x IS NULL THEN y IS NULL WHEN y IS NULL THEN x IS
-   * NULL ELSE x = y END'. */
-  private class RemoveIsNotDistinctFromRexShuttle extends RexShuttle {
-    RexBuilder rexBuilder;
+        final RelFactories.FilterFactory factory = RelFactories.DEFAULT_FILTER_FACTORY;
+        RelNode newFilterRel = factory.createFilter(oldFilter.getInput(), oldFilterCond.accept(rewriteShuttle));
 
-    RemoveIsNotDistinctFromRexShuttle(
-        RexBuilder rexBuilder) {
-      this.rexBuilder = rexBuilder;
+        call.transformTo(newFilterRel);
     }
 
-    // override RexShuttle
-    public RexNode visitCall(RexCall call) {
-      RexNode newCall = super.visitCall(call);
+    //~ Inner Classes ----------------------------------------------------------
 
-      if (call.getOperator()
-          == SqlStdOperatorTable.IS_NOT_DISTINCT_FROM) {
-        RexCall tmpCall = (RexCall) newCall;
-        newCall =
-            RelOptUtil.isDistinctFrom(
-                rexBuilder,
-                tmpCall.operands.get(0),
-                tmpCall.operands.get(1),
-                true);
-      }
-      return newCall;
+    /**
+     * Shuttle that removes 'x IS NOT DISTINCT FROM y' and converts it
+     * to 'CASE WHEN x IS NULL THEN y IS NULL WHEN y IS NULL THEN x IS
+     * NULL ELSE x = y END'.
+     */
+    private class RemoveIsNotDistinctFromRexShuttle extends RexShuttle {
+
+        RexBuilder rexBuilder;
+
+        RemoveIsNotDistinctFromRexShuttle(RexBuilder rexBuilder) {
+            this.rexBuilder = rexBuilder;
+        }
+
+        // override RexShuttle
+        public RexNode visitCall(RexCall call) {
+            RexNode newCall = super.visitCall(call);
+
+            if (call.getOperator() == SqlStdOperatorTable.IS_NOT_DISTINCT_FROM) {
+                RexCall tmpCall = (RexCall) newCall;
+                newCall = RelOptUtil.isDistinctFrom(rexBuilder, tmpCall.operands.get(0), tmpCall.operands.get(1), true);
+            }
+            return newCall;
+        }
     }
-  }
 }
 
 // End FilterRemoveIsNotDistinctFromRule.java

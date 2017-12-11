@@ -16,6 +16,8 @@
  */
 package org.apache.calcite.rel.rules;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.plan.RelOptRule;
 import org.apache.calcite.plan.RelOptRuleCall;
 import org.apache.calcite.rel.core.Aggregate;
@@ -26,9 +28,6 @@ import org.apache.calcite.rex.RexLiteral;
 import org.apache.calcite.tools.RelBuilder;
 import org.apache.calcite.util.Util;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.ImmutableList;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,66 +35,58 @@ import java.util.List;
 /**
  * Rule that applies {@link Aggregate} to a {@link Values} (currently just an
  * empty {@code Value}s).
- *
  * <p>This is still useful because {@link PruneEmptyRules#AGGREGATE_INSTANCE}
  * doesn't handle {@code Aggregate}, which is in turn because {@code Aggregate}
  * of empty relations need some special handling: a single row will be
  * generated, where each column's value depends on the specific aggregate calls
  * (e.g. COUNT is 0, SUM is NULL).
- *
  * <p>Sample query where this matters:
- *
  * <blockquote><code>SELECT COUNT(*) FROM s.foo WHERE 1 = 0</code></blockquote>
- *
  * <p>This rule only applies to "grand totals", that is, {@code GROUP BY ()}.
  * Any non-empty {@code GROUP BY} clause will return one row per group key
  * value, and each group will consist of at least one row.
  */
 public class AggregateValuesRule extends RelOptRule {
-  public static final AggregateValuesRule INSTANCE = new AggregateValuesRule();
 
-  private AggregateValuesRule() {
-    super(
-        operand(Aggregate.class, null, Predicates.not(Aggregate.IS_NOT_GRAND_TOTAL),
-            operand(Values.class, null, Values.IS_EMPTY, none())));
-  }
+    public static final AggregateValuesRule INSTANCE = new AggregateValuesRule();
 
-  @Override public void onMatch(RelOptRuleCall call) {
-    final Aggregate aggregate = call.rel(0);
-    final Values values = call.rel(1);
-    Util.discard(values);
-    final RelBuilder relBuilder = call.builder();
-    final RexBuilder rexBuilder = relBuilder.getRexBuilder();
-
-    final List<RexLiteral> literals = new ArrayList<>();
-    for (final AggregateCall aggregateCall : aggregate.getAggCallList()) {
-      switch (aggregateCall.getAggregation().getKind()) {
-      case COUNT:
-      case SUM0:
-        literals.add((RexLiteral) rexBuilder.makeLiteral(
-            BigDecimal.ZERO, aggregateCall.getType(), false));
-        break;
-
-      case MIN:
-      case MAX:
-      case SUM:
-        literals.add((RexLiteral) rexBuilder.makeCast(
-            aggregateCall.getType(), rexBuilder.constantNull()));
-        break;
-
-      default:
-        // Unknown what this aggregate call should do on empty Values. Bail out to be safe.
-        return;
-      }
+    private AggregateValuesRule() {
+        super(operand(Aggregate.class, null, Predicates.not(Aggregate.IS_NOT_GRAND_TOTAL),
+                      operand(Values.class, null, Values.IS_EMPTY, none())));
     }
 
-    call.transformTo(
-        relBuilder.values(ImmutableList.of(literals), aggregate.getRowType())
-            .build());
+    @Override public void onMatch(RelOptRuleCall call) {
+        final Aggregate aggregate = call.rel(0);
+        final Values values = call.rel(1);
+        Util.discard(values);
+        final RelBuilder relBuilder = call.builder();
+        final RexBuilder rexBuilder = relBuilder.getRexBuilder();
 
-    // New plan is absolutely better than old plan.
-    call.getPlanner().setImportance(aggregate, 0.0);
-  }
+        final List<RexLiteral> literals = new ArrayList<>();
+        for (final AggregateCall aggregateCall : aggregate.getAggCallList()) {
+            switch (aggregateCall.getAggregation().getKind()) {
+                case COUNT:
+                case SUM0:
+                    literals.add((RexLiteral) rexBuilder.makeLiteral(BigDecimal.ZERO, aggregateCall.getType(), false));
+                    break;
+
+                case MIN:
+                case MAX:
+                case SUM:
+                    literals.add((RexLiteral) rexBuilder.makeCast(aggregateCall.getType(), rexBuilder.constantNull()));
+                    break;
+
+                default:
+                    // Unknown what this aggregate call should do on empty Values. Bail out to be safe.
+                    return;
+            }
+        }
+
+        call.transformTo(relBuilder.values(ImmutableList.of(literals), aggregate.getRowType()).build());
+
+        // New plan is absolutely better than old plan.
+        call.getPlanner().setImportance(aggregate, 0.0);
+    }
 }
 
 // End AggregateValuesRule.java

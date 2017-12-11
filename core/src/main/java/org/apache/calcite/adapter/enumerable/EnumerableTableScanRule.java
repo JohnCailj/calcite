@@ -24,29 +24,31 @@ import org.apache.calcite.rel.convert.ConverterRule;
 import org.apache.calcite.rel.logical.LogicalTableScan;
 import org.apache.calcite.schema.Table;
 
-/** Planner rule that converts a
+/**
+ * Planner rule that converts a
  * {@link org.apache.calcite.rel.logical.LogicalTableFunctionScan}
  * relational expression
- * {@link EnumerableConvention enumerable calling convention}. */
+ * {@link EnumerableConvention enumerable calling convention}.
+ */
 public class EnumerableTableScanRule extends ConverterRule {
-  public EnumerableTableScanRule() {
-    super(LogicalTableScan.class, Convention.NONE,
-        EnumerableConvention.INSTANCE, "EnumerableTableScanRule");
-  }
 
-  @Override public RelNode convert(RelNode rel) {
-    LogicalTableScan scan = (LogicalTableScan) rel;
-    final RelOptTable relOptTable = scan.getTable();
-    final Table table = relOptTable.unwrap(Table.class);
-    if (!EnumerableTableScan.canHandle(table)) {
-      return null;
+    public EnumerableTableScanRule() {
+        super(LogicalTableScan.class, Convention.NONE, EnumerableConvention.INSTANCE, "EnumerableTableScanRule");
     }
-    final Expression expression = relOptTable.getExpression(Object.class);
-    if (expression == null) {
-      return null;
+
+    @Override public RelNode convert(RelNode rel) {
+        LogicalTableScan scan = (LogicalTableScan) rel;
+        final RelOptTable relOptTable = scan.getTable();
+        final Table table = relOptTable.unwrap(Table.class);
+        if (!EnumerableTableScan.canHandle(table)) {
+            return null;
+        }
+        final Expression expression = relOptTable.getExpression(Object.class);
+        if (expression == null) {
+            return null;
+        }
+        return EnumerableTableScan.create(scan.getCluster(), relOptTable);
     }
-    return EnumerableTableScan.create(scan.getCluster(), relOptTable);
-  }
 }
 
 // End EnumerableTableScanRule.java

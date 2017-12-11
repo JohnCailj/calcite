@@ -25,29 +25,38 @@ import java.util.List;
 
 /**
  * Statistics about a {@link Table}.
- *
  * <p>Each of the methods may return {@code null} meaning "not known".</p>
  *
  * @see Statistics
  */
 public interface Statistic {
-  /** Returns the approximate number of rows in the table. */
-  Double getRowCount();
 
-  /** Returns whether the given set of columns is a unique key, or a superset
-   * of a unique key, of the table.
-   */
-  boolean isKey(ImmutableBitSet columns);
+    /**
+     * Returns the approximate number of rows in the table.
+     */
+    Double getRowCount();
 
-  /** Returns the collection of referential constraints (foreign-keys)
-   * for this table. */
-  List<RelReferentialConstraint> getReferentialConstraints();
+    /**
+     * Returns whether the given set of columns is a unique key, or a superset
+     * of a unique key, of the table.
+     */
+    boolean isKey(ImmutableBitSet columns);
 
-  /** Returns the collections of columns on which this table is sorted. */
-  List<RelCollation> getCollations();
+    /**
+     * Returns the collection of referential constraints (foreign-keys)
+     * for this table.
+     */
+    List<RelReferentialConstraint> getReferentialConstraints();
 
-  /** Returns the distribution of the data in this table. */
-  RelDistribution getDistribution();
+    /**
+     * Returns the collections of columns on which this table is sorted.
+     */
+    List<RelCollation> getCollations();
+
+    /**
+     * Returns the distribution of the data in this table.
+     */
+    RelDistribution getDistribution();
 }
 
 // End Statistic.java

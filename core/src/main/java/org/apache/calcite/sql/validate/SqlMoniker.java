@@ -16,9 +16,8 @@
  */
 package org.apache.calcite.sql.validate;
 
-import org.apache.calcite.sql.SqlIdentifier;
-
 import com.google.common.collect.Ordering;
+import org.apache.calcite.sql.SqlIdentifier;
 
 import java.util.Comparator;
 import java.util.List;
@@ -27,39 +26,38 @@ import java.util.List;
  * An interface of an object identifier that represents a SqlIdentifier
  */
 public interface SqlMoniker {
-  Comparator<SqlMoniker> COMPARATOR =
-      new Comparator<SqlMoniker>() {
-        final Ordering<Iterable<String>> listOrdering =
-            Ordering.<String>natural().lexicographical();
+
+    Comparator<SqlMoniker> COMPARATOR = new Comparator<SqlMoniker>() {
+
+        final Ordering<Iterable<String>> listOrdering = Ordering.<String>natural().lexicographical();
 
         public int compare(SqlMoniker o1, SqlMoniker o2) {
-          int c = o1.getType().compareTo(o2.getType());
-          if (c == 0) {
-            c = listOrdering.compare(o1.getFullyQualifiedNames(),
-                o2.getFullyQualifiedNames());
-          }
-          return c;
+            int c = o1.getType().compareTo(o2.getType());
+            if (c == 0) {
+                c = listOrdering.compare(o1.getFullyQualifiedNames(), o2.getFullyQualifiedNames());
+            }
+            return c;
         }
-      };
+    };
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Returns the type of object referred to by this moniker. Never null.
-   */
-  SqlMonikerType getType();
+    /**
+     * Returns the type of object referred to by this moniker. Never null.
+     */
+    SqlMonikerType getType();
 
-  /**
-   * Returns the array of component names.
-   */
-  List<String> getFullyQualifiedNames();
+    /**
+     * Returns the array of component names.
+     */
+    List<String> getFullyQualifiedNames();
 
-  /**
-   * Creates a {@link SqlIdentifier} containing the fully-qualified name.
-   */
-  SqlIdentifier toIdentifier();
+    /**
+     * Creates a {@link SqlIdentifier} containing the fully-qualified name.
+     */
+    SqlIdentifier toIdentifier();
 
-  String id();
+    String id();
 }
 
 // End SqlMoniker.java

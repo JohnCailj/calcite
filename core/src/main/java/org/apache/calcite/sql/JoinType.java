@@ -24,49 +24,51 @@ import java.util.Locale;
  * Enumerates the types of join.
  */
 public enum JoinType {
-  /**
-   * Inner join.
-   */
-  INNER,
+    /**
+     * Inner join.
+     */
+    INNER,
 
-  /**
-   * Full outer join.
-   */
-  FULL,
+    /**
+     * Full outer join.
+     */
+    FULL,
 
-  /**
-   * Cross join (also known as Cartesian product).
-   */
-  CROSS,
+    /**
+     * Cross join (also known as Cartesian product).
+     */
+    CROSS,
 
-  /**
-   * Left outer join.
-   */
-  LEFT,
+    /**
+     * Left outer join.
+     */
+    LEFT,
 
-  /**
-   * Right outer join.
-   */
-  RIGHT,
+    /**
+     * Right outer join.
+     */
+    RIGHT,
 
-  /**
-   * Comma join: the good old-fashioned SQL <code>FROM</code> clause,
-   * where table expressions are specified with commas between them, and
-   * join conditions are specified in the <code>WHERE</code> clause.
-   */
-  COMMA;
+    /**
+     * Comma join: the good old-fashioned SQL <code>FROM</code> clause,
+     * where table expressions are specified with commas between them, and
+     * join conditions are specified in the <code>WHERE</code> clause.
+     */
+    COMMA;
 
-  /** Lower-case name. */
-  public final String lowerName = name().toLowerCase(Locale.ROOT);
+    /**
+     * Lower-case name.
+     */
+    public final String lowerName = name().toLowerCase(Locale.ROOT);
 
-  /**
-   * Creates a parse-tree node representing an occurrence of this
-   * condition type keyword at a particular position in the parsed
-   * text.
-   */
-  public SqlLiteral symbol(SqlParserPos pos) {
-    return SqlLiteral.createSymbol(this, pos);
-  }
+    /**
+     * Creates a parse-tree node representing an occurrence of this
+     * condition type keyword at a particular position in the parsed
+     * text.
+     */
+    public SqlLiteral symbol(SqlParserPos pos) {
+        return SqlLiteral.createSymbol(this, pos);
+    }
 }
 
 // End JoinType.java

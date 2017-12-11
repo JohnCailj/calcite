@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.rel;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelOptTable;
 import org.apache.calcite.plan.RelTraitSet;
@@ -25,8 +26,6 @@ import org.apache.calcite.rex.RexLiteral;
 import org.apache.calcite.rex.RexNode;
 import org.apache.calcite.util.ImmutableBitSet;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 
 /**
@@ -34,67 +33,68 @@ import java.util.List;
  * reading from a serialized form of the relational expression.
  */
 public interface RelInput {
-  RelOptCluster getCluster();
 
-  RelTraitSet getTraitSet();
+    RelOptCluster getCluster();
 
-  RelOptTable getTable(String table);
+    RelTraitSet getTraitSet();
 
-  /**
-   * Returns the input relational expression. Throws if there is not precisely
-   * one input.
-   */
-  RelNode getInput();
+    RelOptTable getTable(String table);
 
-  List<RelNode> getInputs();
+    /**
+     * Returns the input relational expression. Throws if there is not precisely
+     * one input.
+     */
+    RelNode getInput();
 
-  /**
-   * Returns an expression.
-   */
-  RexNode getExpression(String tag);
+    List<RelNode> getInputs();
 
-  ImmutableBitSet getBitSet(String tag);
+    /**
+     * Returns an expression.
+     */
+    RexNode getExpression(String tag);
 
-  List<ImmutableBitSet> getBitSetList(String tag);
+    ImmutableBitSet getBitSet(String tag);
 
-  List<AggregateCall> getAggregateCalls(String tag);
+    List<ImmutableBitSet> getBitSetList(String tag);
 
-  Object get(String tag);
+    List<AggregateCall> getAggregateCalls(String tag);
 
-  /**
-   * Returns a {@code float} value. Throws if wrong type.
-   */
-  String getString(String tag);
+    Object get(String tag);
 
-  /**
-   * Returns a {@code float} value. Throws if not present or wrong type.
-   */
-  float getFloat(String tag);
+    /**
+     * Returns a {@code float} value. Throws if wrong type.
+     */
+    String getString(String tag);
 
-  /**
-   * Returns an enum value. Throws if not a valid member.
-   */
-  <E extends Enum<E>> E getEnum(String tag, Class<E> enumClass);
+    /**
+     * Returns a {@code float} value. Throws if not present or wrong type.
+     */
+    float getFloat(String tag);
 
-  List<RexNode> getExpressionList(String tag);
+    /**
+     * Returns an enum value. Throws if not a valid member.
+     */
+    <E extends Enum<E>> E getEnum(String tag, Class<E> enumClass);
 
-  List<String> getStringList(String tag);
+    List<RexNode> getExpressionList(String tag);
 
-  List<Integer> getIntegerList(String tag);
+    List<String> getStringList(String tag);
 
-  List<List<Integer>> getIntegerListList(String tag);
+    List<Integer> getIntegerList(String tag);
 
-  RelDataType getRowType(String tag);
+    List<List<Integer>> getIntegerListList(String tag);
 
-  RelDataType getRowType(String expressionsTag, String fieldsTag);
+    RelDataType getRowType(String tag);
 
-  RelCollation getCollation();
+    RelDataType getRowType(String expressionsTag, String fieldsTag);
 
-  RelDistribution getDistribution();
+    RelCollation getCollation();
 
-  ImmutableList<ImmutableList<RexLiteral>> getTuples(String tag);
+    RelDistribution getDistribution();
 
-  boolean getBoolean(String tag, boolean default_);
+    ImmutableList<ImmutableList<RexLiteral>> getTuples(String tag);
+
+    boolean getBoolean(String tag, boolean default_);
 }
 
 // End RelInput.java

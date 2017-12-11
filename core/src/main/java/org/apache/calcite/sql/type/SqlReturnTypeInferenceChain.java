@@ -16,10 +16,9 @@
  */
 package org.apache.calcite.sql.type;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlOperatorBinding;
-
-import com.google.common.collect.ImmutableList;
 
 /**
  * Strategy to infer the type of an operator call from the type of the operands
@@ -28,38 +27,37 @@ import com.google.common.collect.ImmutableList;
  * until there are no more rules in which case NULL will be returned.
  */
 public class SqlReturnTypeInferenceChain implements SqlReturnTypeInference {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final ImmutableList<SqlReturnTypeInference> rules;
+    private final ImmutableList<SqlReturnTypeInference> rules;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a SqlReturnTypeInferenceChain from an array of rules.
-   *
-   * <p>Package-protected.
-   * Use {@link org.apache.calcite.sql.type.ReturnTypes#chain}.</p>
-   */
-  SqlReturnTypeInferenceChain(SqlReturnTypeInference... rules) {
-    assert rules != null;
-    assert rules.length > 1;
-    for (SqlReturnTypeInference rule : rules) {
-      assert rule != null;
+    /**
+     * Creates a SqlReturnTypeInferenceChain from an array of rules.
+     * <p>Package-protected.
+     * Use {@link org.apache.calcite.sql.type.ReturnTypes#chain}.</p>
+     */
+    SqlReturnTypeInferenceChain(SqlReturnTypeInference... rules) {
+        assert rules != null;
+        assert rules.length > 1;
+        for (SqlReturnTypeInference rule : rules) {
+            assert rule != null;
+        }
+        this.rules = ImmutableList.copyOf(rules);
     }
-    this.rules = ImmutableList.copyOf(rules);
-  }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
-    for (SqlReturnTypeInference rule : rules) {
-      RelDataType ret = rule.inferReturnType(opBinding);
-      if (ret != null) {
-        return ret;
-      }
+    public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+        for (SqlReturnTypeInference rule : rules) {
+            RelDataType ret = rule.inferReturnType(opBinding);
+            if (ret != null) {
+                return ret;
+            }
+        }
+        return null;
     }
-    return null;
-  }
 }
 
 // End SqlReturnTypeInferenceChain.java

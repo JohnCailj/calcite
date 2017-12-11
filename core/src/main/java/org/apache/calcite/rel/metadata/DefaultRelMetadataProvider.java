@@ -25,44 +25,27 @@ import com.google.common.collect.ImmutableList;
  * the methods declared in {@link RelMetadataQuery}.
  */
 public class DefaultRelMetadataProvider extends ChainedRelMetadataProvider {
-  public static final DefaultRelMetadataProvider INSTANCE =
-      new DefaultRelMetadataProvider();
 
-  //~ Constructors -----------------------------------------------------------
+    public static final DefaultRelMetadataProvider INSTANCE = new DefaultRelMetadataProvider();
 
-  /**
-   * Creates a new default provider. This provider defines "catch-all"
-   * handlers for generic RelNodes, so it should always be given lowest
-   * priority when chaining.
-   *
-   * <p>Use this constructor only from a sub-class. Otherwise use the singleton
-   * instance, {@link #INSTANCE}.
-   */
-  protected DefaultRelMetadataProvider() {
-    super(
-        ImmutableList.of(
-            RelMdPercentageOriginalRows.SOURCE,
-            RelMdColumnOrigins.SOURCE,
-            RelMdExpressionLineage.SOURCE,
-            RelMdTableReferences.SOURCE,
-            RelMdNodeTypes.SOURCE,
-            RelMdRowCount.SOURCE,
-            RelMdMaxRowCount.SOURCE,
-            RelMdMinRowCount.SOURCE,
-            RelMdUniqueKeys.SOURCE,
-            RelMdColumnUniqueness.SOURCE,
-            RelMdPopulationSize.SOURCE,
-            RelMdSize.SOURCE,
-            RelMdParallelism.SOURCE,
-            RelMdDistribution.SOURCE,
-            RelMdMemory.SOURCE,
-            RelMdDistinctRowCount.SOURCE,
-            RelMdSelectivity.SOURCE,
-            RelMdExplainVisibility.SOURCE,
-            RelMdPredicates.SOURCE,
-            RelMdAllPredicates.SOURCE,
-            RelMdCollation.SOURCE));
-  }
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new default provider. This provider defines "catch-all"
+     * handlers for generic RelNodes, so it should always be given lowest
+     * priority when chaining.
+     * <p>Use this constructor only from a sub-class. Otherwise use the singleton
+     * instance, {@link #INSTANCE}.
+     */
+    protected DefaultRelMetadataProvider() {
+        super(ImmutableList.of(RelMdPercentageOriginalRows.SOURCE, RelMdColumnOrigins.SOURCE,
+                               RelMdExpressionLineage.SOURCE, RelMdTableReferences.SOURCE, RelMdNodeTypes.SOURCE,
+                               RelMdRowCount.SOURCE, RelMdMaxRowCount.SOURCE, RelMdMinRowCount.SOURCE,
+                               RelMdUniqueKeys.SOURCE, RelMdColumnUniqueness.SOURCE, RelMdPopulationSize.SOURCE,
+                               RelMdSize.SOURCE, RelMdParallelism.SOURCE, RelMdDistribution.SOURCE, RelMdMemory.SOURCE,
+                               RelMdDistinctRowCount.SOURCE, RelMdSelectivity.SOURCE, RelMdExplainVisibility.SOURCE,
+                               RelMdPredicates.SOURCE, RelMdAllPredicates.SOURCE, RelMdCollation.SOURCE));
+    }
 }
 
 // End DefaultRelMetadataProvider.java

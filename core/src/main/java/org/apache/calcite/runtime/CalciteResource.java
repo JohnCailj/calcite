@@ -18,709 +18,537 @@ package org.apache.calcite.runtime;
 
 import org.apache.calcite.sql.validate.SqlValidatorException;
 
-import static org.apache.calcite.runtime.Resources.BaseMessage;
-import static org.apache.calcite.runtime.Resources.ExInst;
-import static org.apache.calcite.runtime.Resources.ExInstWithCause;
-import static org.apache.calcite.runtime.Resources.Inst;
-import static org.apache.calcite.runtime.Resources.Property;
+import static org.apache.calcite.runtime.Resources.*;
 
 /**
  * Compiler-checked resources for the Calcite project.
  */
 public interface CalciteResource {
-  @BaseMessage("line {0,number,#}, column {1,number,#}")
-  Inst parserContext(int a0, int a1);
 
-  @BaseMessage("Bang equal ''!='' is not allowed under the current SQL conformance level")
-  ExInst<CalciteException> bangEqualNotAllowed();
+    @BaseMessage("line {0,number,#}, column {1,number,#}") Inst parserContext(int a0, int a1);
 
-  @BaseMessage("Percent remainder ''%'' is not allowed under the current SQL conformance level")
-  ExInst<CalciteException> percentRemainderNotAllowed();
+    @BaseMessage("Bang equal ''!='' is not allowed under the current SQL conformance level") ExInst<CalciteException> bangEqualNotAllowed();
 
-  @BaseMessage("''LIMIT start, count'' is not allowed under the current SQL conformance level")
-  ExInst<CalciteException> limitStartCountNotAllowed();
+    @BaseMessage("Percent remainder ''%'' is not allowed under the current SQL conformance level") ExInst<CalciteException> percentRemainderNotAllowed();
 
-  @BaseMessage("APPLY operator is not allowed under the current SQL conformance level")
-  ExInst<CalciteException> applyNotAllowed();
+    @BaseMessage("''LIMIT start, count'' is not allowed under the current SQL conformance level") ExInst<CalciteException> limitStartCountNotAllowed();
 
-  @BaseMessage("Illegal {0} literal {1}: {2}")
-  ExInst<CalciteException> illegalLiteral(String a0, String a1, String a2);
+    @BaseMessage("APPLY operator is not allowed under the current SQL conformance level") ExInst<CalciteException> applyNotAllowed();
 
-  @BaseMessage("Length of identifier ''{0}'' must be less than or equal to {1,number,#} characters")
-  ExInst<CalciteException> identifierTooLong(String a0, int a1);
+    @BaseMessage("Illegal {0} literal {1}: {2}") ExInst<CalciteException> illegalLiteral(String a0, String a1,
+                                                                                         String a2);
 
-  @BaseMessage("not in format ''{0}''")
-  Inst badFormat(String a0);
+    @BaseMessage("Length of identifier ''{0}'' must be less than or equal to {1,number,#} characters") ExInst<CalciteException> identifierTooLong(
+            String a0, int a1);
 
-  @BaseMessage("BETWEEN operator has no terminating AND")
-  ExInst<SqlValidatorException> betweenWithoutAnd();
+    @BaseMessage("not in format ''{0}''") Inst badFormat(String a0);
 
-  @BaseMessage("Geo-spatial extensions and the GEOMETRY data type are not enabled")
-  ExInst<SqlValidatorException> geometryDisabled();
+    @BaseMessage("BETWEEN operator has no terminating AND") ExInst<SqlValidatorException> betweenWithoutAnd();
 
-  @BaseMessage("Illegal INTERVAL literal {0}; at {1}")
-  @Property(name = "SQLSTATE", value = "42000")
-  ExInst<CalciteException> illegalIntervalLiteral(String a0, String a1);
+    @BaseMessage("Geo-spatial extensions and the GEOMETRY data type are not enabled") ExInst<SqlValidatorException> geometryDisabled();
 
-  @BaseMessage("Illegal expression. Was expecting \"(DATETIME - DATETIME) INTERVALQUALIFIER\"")
-  ExInst<CalciteException> illegalMinusDate();
+    @BaseMessage("Illegal INTERVAL literal {0}; at {1}") @Property(name = "SQLSTATE", value = "42000") ExInst<CalciteException> illegalIntervalLiteral(
+            String a0, String a1);
 
-  @BaseMessage("Illegal overlaps expression. Was expecting expression on the form \"(DATETIME, EXPRESSION) OVERLAPS (DATETIME, EXPRESSION)\"")
-  ExInst<CalciteException> illegalOverlaps();
+    @BaseMessage("Illegal expression. Was expecting \"(DATETIME - DATETIME) INTERVALQUALIFIER\"") ExInst<CalciteException> illegalMinusDate();
 
-  @BaseMessage("Non-query expression encountered in illegal context")
-  ExInst<CalciteException> illegalNonQueryExpression();
+    @BaseMessage("Illegal overlaps expression. Was expecting expression on the form \"(DATETIME, EXPRESSION) OVERLAPS (DATETIME, EXPRESSION)\"") ExInst<CalciteException> illegalOverlaps();
 
-  @BaseMessage("Query expression encountered in illegal context")
-  ExInst<CalciteException> illegalQueryExpression();
+    @BaseMessage("Non-query expression encountered in illegal context") ExInst<CalciteException> illegalNonQueryExpression();
 
-  @BaseMessage("CURSOR expression encountered in illegal context")
-  ExInst<CalciteException> illegalCursorExpression();
+    @BaseMessage("Query expression encountered in illegal context") ExInst<CalciteException> illegalQueryExpression();
 
-  @BaseMessage("ORDER BY unexpected")
-  ExInst<CalciteException> illegalOrderBy();
+    @BaseMessage("CURSOR expression encountered in illegal context") ExInst<CalciteException> illegalCursorExpression();
 
-  @BaseMessage("Illegal binary string {0}")
-  ExInst<CalciteException> illegalBinaryString(String a0);
+    @BaseMessage("ORDER BY unexpected") ExInst<CalciteException> illegalOrderBy();
 
-  @BaseMessage("''FROM'' without operands preceding it is illegal")
-  ExInst<CalciteException> illegalFromEmpty();
+    @BaseMessage("Illegal binary string {0}") ExInst<CalciteException> illegalBinaryString(String a0);
 
-  @BaseMessage("ROW expression encountered in illegal context")
-  ExInst<CalciteException> illegalRowExpression();
+    @BaseMessage("''FROM'' without operands preceding it is illegal") ExInst<CalciteException> illegalFromEmpty();
 
-  @BaseMessage("TABLESAMPLE percentage must be between 0 and 100, inclusive")
-  @Property(name = "SQLSTATE", value = "2202H")
-  ExInst<CalciteException> invalidSampleSize();
+    @BaseMessage("ROW expression encountered in illegal context") ExInst<CalciteException> illegalRowExpression();
 
-  @BaseMessage("Unknown character set ''{0}''")
-  ExInst<CalciteException> unknownCharacterSet(String a0);
+    @BaseMessage("TABLESAMPLE percentage must be between 0 and 100, inclusive") @Property(name = "SQLSTATE", value = "2202H") ExInst<CalciteException> invalidSampleSize();
 
-  @BaseMessage("Failed to encode ''{0}'' in character set ''{1}''")
-  ExInst<CalciteException> charsetEncoding(String a0, String a1);
+    @BaseMessage("Unknown character set ''{0}''") ExInst<CalciteException> unknownCharacterSet(String a0);
 
-  @BaseMessage("UESCAPE ''{0}'' must be exactly one character")
-  ExInst<CalciteException> unicodeEscapeCharLength(String a0);
+    @BaseMessage("Failed to encode ''{0}'' in character set ''{1}''") ExInst<CalciteException> charsetEncoding(
+            String a0, String a1);
 
-  @BaseMessage("UESCAPE ''{0}'' may not be hex digit, whitespace, plus sign, or double quote")
-  ExInst<CalciteException> unicodeEscapeCharIllegal(String a0);
+    @BaseMessage("UESCAPE ''{0}'' must be exactly one character") ExInst<CalciteException> unicodeEscapeCharLength(
+            String a0);
 
-  @BaseMessage("UESCAPE cannot be specified without Unicode literal introducer")
-  ExInst<CalciteException> unicodeEscapeUnexpected();
+    @BaseMessage("UESCAPE ''{0}'' may not be hex digit, whitespace, plus sign, or double quote") ExInst<CalciteException> unicodeEscapeCharIllegal(
+            String a0);
 
-  @BaseMessage("Unicode escape sequence starting at character {0,number,#} is not exactly four hex digits")
-  ExInst<SqlValidatorException> unicodeEscapeMalformed(int a0);
+    @BaseMessage("UESCAPE cannot be specified without Unicode literal introducer") ExInst<CalciteException> unicodeEscapeUnexpected();
 
-  @BaseMessage("No match found for function signature {0}")
-  ExInst<SqlValidatorException> validatorUnknownFunction(String a0);
+    @BaseMessage("Unicode escape sequence starting at character {0,number,#} is not exactly four hex digits") ExInst<SqlValidatorException> unicodeEscapeMalformed(
+            int a0);
 
-  @BaseMessage("Invalid number of arguments to function ''{0}''. Was expecting {1,number,#} arguments")
-  ExInst<SqlValidatorException> invalidArgCount(String a0, int a1);
+    @BaseMessage("No match found for function signature {0}") ExInst<SqlValidatorException> validatorUnknownFunction(
+            String a0);
 
-  @BaseMessage("At line {0,number,#}, column {1,number,#}")
-  ExInstWithCause<CalciteContextException> validatorContextPoint(int a0,
-      int a1);
+    @BaseMessage("Invalid number of arguments to function ''{0}''. Was expecting {1,number,#} arguments") ExInst<SqlValidatorException> invalidArgCount(
+            String a0, int a1);
 
-  @BaseMessage("From line {0,number,#}, column {1,number,#} to line {2,number,#}, column {3,number,#}")
-  ExInstWithCause<CalciteContextException> validatorContext(int a0, int a1,
-      int a2,
-      int a3);
+    @BaseMessage("At line {0,number,#}, column {1,number,#}") ExInstWithCause<CalciteContextException> validatorContextPoint(
+            int a0, int a1);
 
-  @BaseMessage("Cast function cannot convert value of type {0} to type {1}")
-  ExInst<SqlValidatorException> cannotCastValue(String a0, String a1);
+    @BaseMessage("From line {0,number,#}, column {1,number,#} to line {2,number,#}, column {3,number,#}") ExInstWithCause<CalciteContextException> validatorContext(
+            int a0, int a1, int a2, int a3);
 
-  @BaseMessage("Unknown datatype name ''{0}''")
-  ExInst<SqlValidatorException> unknownDatatypeName(String a0);
+    @BaseMessage("Cast function cannot convert value of type {0} to type {1}") ExInst<SqlValidatorException> cannotCastValue(
+            String a0, String a1);
 
-  @BaseMessage("Values passed to {0} operator must have compatible types")
-  ExInst<SqlValidatorException> incompatibleValueType(String a0);
+    @BaseMessage("Unknown datatype name ''{0}''") ExInst<SqlValidatorException> unknownDatatypeName(String a0);
 
-  @BaseMessage("Values in expression list must have compatible types")
-  ExInst<SqlValidatorException> incompatibleTypesInList();
+    @BaseMessage("Values passed to {0} operator must have compatible types") ExInst<SqlValidatorException> incompatibleValueType(
+            String a0);
 
-  @BaseMessage("Cannot apply {0} to the two different charsets {1} and {2}")
-  ExInst<SqlValidatorException> incompatibleCharset(String a0, String a1,
-      String a2);
+    @BaseMessage("Values in expression list must have compatible types") ExInst<SqlValidatorException> incompatibleTypesInList();
 
-  @BaseMessage("ORDER BY is only allowed on top-level SELECT")
-  ExInst<SqlValidatorException> invalidOrderByPos();
+    @BaseMessage("Cannot apply {0} to the two different charsets {1} and {2}") ExInst<SqlValidatorException> incompatibleCharset(
+            String a0, String a1, String a2);
 
-  @BaseMessage("Unknown identifier ''{0}''")
-  ExInst<SqlValidatorException> unknownIdentifier(String a0);
+    @BaseMessage("ORDER BY is only allowed on top-level SELECT") ExInst<SqlValidatorException> invalidOrderByPos();
 
-  @BaseMessage("Unknown field ''{0}''")
-  ExInst<SqlValidatorException> unknownField(String a0);
+    @BaseMessage("Unknown identifier ''{0}''") ExInst<SqlValidatorException> unknownIdentifier(String a0);
 
-  @BaseMessage("Unknown target column ''{0}''")
-  ExInst<SqlValidatorException> unknownTargetColumn(String a0);
+    @BaseMessage("Unknown field ''{0}''") ExInst<SqlValidatorException> unknownField(String a0);
 
-  @BaseMessage("Target column ''{0}'' is assigned more than once")
-  ExInst<SqlValidatorException> duplicateTargetColumn(String a0);
+    @BaseMessage("Unknown target column ''{0}''") ExInst<SqlValidatorException> unknownTargetColumn(String a0);
 
-  @BaseMessage("Number of INSERT target columns ({0,number}) does not equal number of source items ({1,number})")
-  ExInst<SqlValidatorException> unmatchInsertColumn(int a0, int a1);
+    @BaseMessage("Target column ''{0}'' is assigned more than once") ExInst<SqlValidatorException> duplicateTargetColumn(
+            String a0);
 
-  @BaseMessage("Column ''{0}'' has no default value and does not allow NULLs")
-  ExInst<SqlValidatorException> columnNotNullable(String a0);
+    @BaseMessage("Number of INSERT target columns ({0,number}) does not equal number of source items ({1,number})") ExInst<SqlValidatorException> unmatchInsertColumn(
+            int a0, int a1);
 
-  @BaseMessage("Cannot assign to target field ''{0}'' of type {1} from source field ''{2}'' of type {3}")
-  ExInst<SqlValidatorException> typeNotAssignable(String a0, String a1,
-      String a2, String a3);
+    @BaseMessage("Column ''{0}'' has no default value and does not allow NULLs") ExInst<SqlValidatorException> columnNotNullable(
+            String a0);
 
-  @BaseMessage("Table ''{0}'' not found")
-  ExInst<SqlValidatorException> tableNameNotFound(String a0);
+    @BaseMessage("Cannot assign to target field ''{0}'' of type {1} from source field ''{2}'' of type {3}") ExInst<SqlValidatorException> typeNotAssignable(
+            String a0, String a1, String a2, String a3);
 
-  @BaseMessage("Table ''{0}'' not found; did you mean ''{1}''?")
-  ExInst<SqlValidatorException> tableNameNotFoundDidYouMean(String a0,
-      String a1);
+    @BaseMessage("Table ''{0}'' not found") ExInst<SqlValidatorException> tableNameNotFound(String a0);
 
-  /** Same message as {@link #tableNameNotFound(String)} but a different kind
-   * of exception, so it can be used in {@code RelBuilder}. */
-  @BaseMessage("Table ''{0}'' not found")
-  ExInst<CalciteException> tableNotFound(String tableName);
+    @BaseMessage("Table ''{0}'' not found; did you mean ''{1}''?") ExInst<SqlValidatorException> tableNameNotFoundDidYouMean(
+            String a0, String a1);
 
-  @BaseMessage("Object ''{0}'' not found")
-  ExInst<SqlValidatorException> objectNotFound(String a0);
+    /**
+     * Same message as {@link #tableNameNotFound(String)} but a different kind
+     * of exception, so it can be used in {@code RelBuilder}.
+     */
+    @BaseMessage("Table ''{0}'' not found") ExInst<CalciteException> tableNotFound(String tableName);
 
-  @BaseMessage("Object ''{0}'' not found within ''{1}''")
-  ExInst<SqlValidatorException> objectNotFoundWithin(String a0, String a1);
+    @BaseMessage("Object ''{0}'' not found") ExInst<SqlValidatorException> objectNotFound(String a0);
 
-  @BaseMessage("Object ''{0}'' not found; did you mean ''{1}''?")
-  ExInst<SqlValidatorException> objectNotFoundDidYouMean(String a0, String a1);
+    @BaseMessage("Object ''{0}'' not found within ''{1}''") ExInst<SqlValidatorException> objectNotFoundWithin(
+            String a0, String a1);
 
-  @BaseMessage("Object ''{0}'' not found within ''{1}''; did you mean ''{2}''?")
-  ExInst<SqlValidatorException> objectNotFoundWithinDidYouMean(String a0,
-      String a1, String a2);
+    @BaseMessage("Object ''{0}'' not found; did you mean ''{1}''?") ExInst<SqlValidatorException> objectNotFoundDidYouMean(
+            String a0, String a1);
 
-  @BaseMessage("Table ''{0}'' is not a sequence")
-  ExInst<SqlValidatorException> notASequence(String a0);
+    @BaseMessage("Object ''{0}'' not found within ''{1}''; did you mean ''{2}''?") ExInst<SqlValidatorException> objectNotFoundWithinDidYouMean(
+            String a0, String a1, String a2);
 
-  @BaseMessage("Column ''{0}'' not found in any table")
-  ExInst<SqlValidatorException> columnNotFound(String a0);
+    @BaseMessage("Table ''{0}'' is not a sequence") ExInst<SqlValidatorException> notASequence(String a0);
 
-  @BaseMessage("Column ''{0}'' not found in any table; did you mean ''{1}''?")
-  ExInst<SqlValidatorException> columnNotFoundDidYouMean(String a0, String a1);
+    @BaseMessage("Column ''{0}'' not found in any table") ExInst<SqlValidatorException> columnNotFound(String a0);
 
-  @BaseMessage("Column ''{0}'' not found in table ''{1}''")
-  ExInst<SqlValidatorException> columnNotFoundInTable(String a0, String a1);
+    @BaseMessage("Column ''{0}'' not found in any table; did you mean ''{1}''?") ExInst<SqlValidatorException> columnNotFoundDidYouMean(
+            String a0, String a1);
 
-  @BaseMessage("Column ''{0}'' not found in table ''{1}''; did you mean ''{2}''?")
-  ExInst<SqlValidatorException> columnNotFoundInTableDidYouMean(String a0,
-      String a1, String a2);
+    @BaseMessage("Column ''{0}'' not found in table ''{1}''") ExInst<SqlValidatorException> columnNotFoundInTable(
+            String a0, String a1);
 
-  @BaseMessage("Column ''{0}'' is ambiguous")
-  ExInst<SqlValidatorException> columnAmbiguous(String a0);
+    @BaseMessage("Column ''{0}'' not found in table ''{1}''; did you mean ''{2}''?") ExInst<SqlValidatorException> columnNotFoundInTableDidYouMean(
+            String a0, String a1, String a2);
 
-  @BaseMessage("Operand {0} must be a query")
-  ExInst<SqlValidatorException> needQueryOp(String a0);
+    @BaseMessage("Column ''{0}'' is ambiguous") ExInst<SqlValidatorException> columnAmbiguous(String a0);
 
-  @BaseMessage("Parameters must be of the same type")
-  ExInst<SqlValidatorException> needSameTypeParameter();
+    @BaseMessage("Operand {0} must be a query") ExInst<SqlValidatorException> needQueryOp(String a0);
 
-  @BaseMessage("Cannot apply ''{0}'' to arguments of type {1}. Supported form(s): {2}")
-  ExInst<SqlValidatorException> canNotApplyOp2Type(String a0, String a1,
-      String a2);
+    @BaseMessage("Parameters must be of the same type") ExInst<SqlValidatorException> needSameTypeParameter();
 
-  @BaseMessage("Expected a boolean type")
-  ExInst<SqlValidatorException> expectedBoolean();
+    @BaseMessage("Cannot apply ''{0}'' to arguments of type {1}. Supported form(s): {2}") ExInst<SqlValidatorException> canNotApplyOp2Type(
+            String a0, String a1, String a2);
 
-  @BaseMessage("ELSE clause or at least one THEN clause must be non-NULL")
-  ExInst<SqlValidatorException> mustNotNullInElse();
+    @BaseMessage("Expected a boolean type") ExInst<SqlValidatorException> expectedBoolean();
 
-  @BaseMessage("Function ''{0}'' is not defined")
-  ExInst<SqlValidatorException> functionUndefined(String a0);
+    @BaseMessage("ELSE clause or at least one THEN clause must be non-NULL") ExInst<SqlValidatorException> mustNotNullInElse();
 
-  @BaseMessage("Encountered {0} with {1,number} parameter(s); was expecting {2}")
-  ExInst<SqlValidatorException> wrongNumberOfParam(String a0, int a1,
-      String a2);
+    @BaseMessage("Function ''{0}'' is not defined") ExInst<SqlValidatorException> functionUndefined(String a0);
 
-  @BaseMessage("Illegal mixing of types in CASE or COALESCE statement")
-  ExInst<SqlValidatorException> illegalMixingOfTypes();
+    @BaseMessage("Encountered {0} with {1,number} parameter(s); was expecting {2}") ExInst<SqlValidatorException> wrongNumberOfParam(
+            String a0, int a1, String a2);
 
-  @BaseMessage("Invalid compare. Comparing (collation, coercibility): ({0}, {1} with ({2}, {3}) is illegal")
-  ExInst<CalciteException> invalidCompare(String a0, String a1, String a2,
-      String a3);
+    @BaseMessage("Illegal mixing of types in CASE or COALESCE statement") ExInst<SqlValidatorException> illegalMixingOfTypes();
 
-  @BaseMessage("Invalid syntax. Two explicit different collations ({0}, {1}) are illegal")
-  ExInst<CalciteException> differentCollations(String a0, String a1);
+    @BaseMessage("Invalid compare. Comparing (collation, coercibility): ({0}, {1} with ({2}, {3}) is illegal") ExInst<CalciteException> invalidCompare(
+            String a0, String a1, String a2, String a3);
 
-  @BaseMessage("{0} is not comparable to {1}")
-  ExInst<SqlValidatorException> typeNotComparable(String a0, String a1);
+    @BaseMessage("Invalid syntax. Two explicit different collations ({0}, {1}) are illegal") ExInst<CalciteException> differentCollations(
+            String a0, String a1);
 
-  @BaseMessage("Cannot compare values of types ''{0}'', ''{1}''")
-  ExInst<SqlValidatorException> typeNotComparableNear(String a0, String a1);
+    @BaseMessage("{0} is not comparable to {1}") ExInst<SqlValidatorException> typeNotComparable(String a0, String a1);
 
-  @BaseMessage("Wrong number of arguments to expression")
-  ExInst<SqlValidatorException> wrongNumOfArguments();
+    @BaseMessage("Cannot compare values of types ''{0}'', ''{1}''") ExInst<SqlValidatorException> typeNotComparableNear(
+            String a0, String a1);
 
-  @BaseMessage("Operands {0} not comparable to each other")
-  ExInst<SqlValidatorException> operandNotComparable(String a0);
+    @BaseMessage("Wrong number of arguments to expression") ExInst<SqlValidatorException> wrongNumOfArguments();
 
-  @BaseMessage("Types {0} not comparable to each other")
-  ExInst<SqlValidatorException> typeNotComparableEachOther(String a0);
+    @BaseMessage("Operands {0} not comparable to each other") ExInst<SqlValidatorException> operandNotComparable(
+            String a0);
 
-  @BaseMessage("Numeric literal ''{0}'' out of range")
-  ExInst<SqlValidatorException> numberLiteralOutOfRange(String a0);
+    @BaseMessage("Types {0} not comparable to each other") ExInst<SqlValidatorException> typeNotComparableEachOther(
+            String a0);
 
-  @BaseMessage("Date literal ''{0}'' out of range")
-  ExInst<SqlValidatorException> dateLiteralOutOfRange(String a0);
+    @BaseMessage("Numeric literal ''{0}'' out of range") ExInst<SqlValidatorException> numberLiteralOutOfRange(
+            String a0);
 
-  @BaseMessage("String literal continued on same line")
-  ExInst<SqlValidatorException> stringFragsOnSameLine();
+    @BaseMessage("Date literal ''{0}'' out of range") ExInst<SqlValidatorException> dateLiteralOutOfRange(String a0);
 
-  @BaseMessage("Table or column alias must be a simple identifier")
-  ExInst<SqlValidatorException> aliasMustBeSimpleIdentifier();
+    @BaseMessage("String literal continued on same line") ExInst<SqlValidatorException> stringFragsOnSameLine();
 
-  @BaseMessage("List of column aliases must have same degree as table; table has {0,number,#} columns {1}, whereas alias list has {2,number,#} columns")
-  ExInst<SqlValidatorException> aliasListDegree(int a0, String a1, int a2);
+    @BaseMessage("Table or column alias must be a simple identifier") ExInst<SqlValidatorException> aliasMustBeSimpleIdentifier();
 
-  @BaseMessage("Duplicate name ''{0}'' in column alias list")
-  ExInst<SqlValidatorException> aliasListDuplicate(String a0);
+    @BaseMessage("List of column aliases must have same degree as table; table has {0,number,#} columns {1}, whereas alias list has {2,number,#} columns") ExInst<SqlValidatorException> aliasListDegree(
+            int a0, String a1, int a2);
 
-  @BaseMessage("INNER, LEFT, RIGHT or FULL join requires a condition (NATURAL keyword or ON or USING clause)")
-  ExInst<SqlValidatorException> joinRequiresCondition();
+    @BaseMessage("Duplicate name ''{0}'' in column alias list") ExInst<SqlValidatorException> aliasListDuplicate(
+            String a0);
 
-  @BaseMessage("Cannot specify condition (NATURAL keyword, or ON or USING clause) following CROSS JOIN")
-  ExInst<SqlValidatorException> crossJoinDisallowsCondition();
+    @BaseMessage("INNER, LEFT, RIGHT or FULL join requires a condition (NATURAL keyword or ON or USING clause)") ExInst<SqlValidatorException> joinRequiresCondition();
 
-  @BaseMessage("Cannot specify NATURAL keyword with ON or USING clause")
-  ExInst<SqlValidatorException> naturalDisallowsOnOrUsing();
+    @BaseMessage("Cannot specify condition (NATURAL keyword, or ON or USING clause) following CROSS JOIN") ExInst<SqlValidatorException> crossJoinDisallowsCondition();
 
-  @BaseMessage("Column name ''{0}'' in USING clause is not unique on one side of join")
-  ExInst<SqlValidatorException> columnInUsingNotUnique(String a0);
+    @BaseMessage("Cannot specify NATURAL keyword with ON or USING clause") ExInst<SqlValidatorException> naturalDisallowsOnOrUsing();
 
-  @BaseMessage("Column ''{0}'' matched using NATURAL keyword or USING clause has incompatible types: cannot compare ''{1}'' to ''{2}''")
-  ExInst<SqlValidatorException> naturalOrUsingColumnNotCompatible(String a0,
-      String a1, String a2);
+    @BaseMessage("Column name ''{0}'' in USING clause is not unique on one side of join") ExInst<SqlValidatorException> columnInUsingNotUnique(
+            String a0);
 
-  @BaseMessage("OVER clause is necessary for window functions")
-  ExInst<SqlValidatorException> absentOverClause();
+    @BaseMessage("Column ''{0}'' matched using NATURAL keyword or USING clause has incompatible types: cannot compare ''{1}'' to ''{2}''") ExInst<SqlValidatorException> naturalOrUsingColumnNotCompatible(
+            String a0, String a1, String a2);
 
-  @BaseMessage("Window ''{0}'' not found")
-  ExInst<SqlValidatorException> windowNotFound(String a0);
+    @BaseMessage("OVER clause is necessary for window functions") ExInst<SqlValidatorException> absentOverClause();
 
-  @BaseMessage("Expression ''{0}'' is not being grouped")
-  ExInst<SqlValidatorException> notGroupExpr(String a0);
+    @BaseMessage("Window ''{0}'' not found") ExInst<SqlValidatorException> windowNotFound(String a0);
 
-  @BaseMessage("Argument to {0} operator must be a grouped expression")
-  ExInst<SqlValidatorException> groupingArgument(String a0);
+    @BaseMessage("Expression ''{0}'' is not being grouped") ExInst<SqlValidatorException> notGroupExpr(String a0);
 
-  @BaseMessage("{0} operator may only occur in an aggregate query")
-  ExInst<SqlValidatorException> groupingInAggregate(String a0);
+    @BaseMessage("Argument to {0} operator must be a grouped expression") ExInst<SqlValidatorException> groupingArgument(
+            String a0);
 
-  @BaseMessage("{0} operator may only occur in SELECT, HAVING or ORDER BY clause")
-  ExInst<SqlValidatorException> groupingInWrongClause(String a0);
+    @BaseMessage("{0} operator may only occur in an aggregate query") ExInst<SqlValidatorException> groupingInAggregate(
+            String a0);
 
-  @BaseMessage("Expression ''{0}'' is not in the select clause")
-  ExInst<SqlValidatorException> notSelectDistinctExpr(String a0);
+    @BaseMessage("{0} operator may only occur in SELECT, HAVING or ORDER BY clause") ExInst<SqlValidatorException> groupingInWrongClause(
+            String a0);
 
-  @BaseMessage("Aggregate expression is illegal in {0} clause")
-  ExInst<SqlValidatorException> aggregateIllegalInClause(String a0);
+    @BaseMessage("Expression ''{0}'' is not in the select clause") ExInst<SqlValidatorException> notSelectDistinctExpr(
+            String a0);
 
-  @BaseMessage("Windowed aggregate expression is illegal in {0} clause")
-  ExInst<SqlValidatorException> windowedAggregateIllegalInClause(String a0);
+    @BaseMessage("Aggregate expression is illegal in {0} clause") ExInst<SqlValidatorException> aggregateIllegalInClause(
+            String a0);
 
-  @BaseMessage("Aggregate expressions cannot be nested")
-  ExInst<SqlValidatorException> nestedAggIllegal();
+    @BaseMessage("Windowed aggregate expression is illegal in {0} clause") ExInst<SqlValidatorException> windowedAggregateIllegalInClause(
+            String a0);
 
-  @BaseMessage("FILTER must not contain aggregate expression")
-  ExInst<SqlValidatorException> aggregateInFilterIllegal();
+    @BaseMessage("Aggregate expressions cannot be nested") ExInst<SqlValidatorException> nestedAggIllegal();
 
-  @BaseMessage("Aggregate expression is illegal in ORDER BY clause of non-aggregating SELECT")
-  ExInst<SqlValidatorException> aggregateIllegalInOrderBy();
+    @BaseMessage("FILTER must not contain aggregate expression") ExInst<SqlValidatorException> aggregateInFilterIllegal();
 
-  @BaseMessage("{0} clause must be a condition")
-  ExInst<SqlValidatorException> condMustBeBoolean(String a0);
+    @BaseMessage("Aggregate expression is illegal in ORDER BY clause of non-aggregating SELECT") ExInst<SqlValidatorException> aggregateIllegalInOrderBy();
 
-  @BaseMessage("HAVING clause must be a condition")
-  ExInst<SqlValidatorException> havingMustBeBoolean();
+    @BaseMessage("{0} clause must be a condition") ExInst<SqlValidatorException> condMustBeBoolean(String a0);
 
-  @BaseMessage("OVER must be applied to aggregate function")
-  ExInst<SqlValidatorException> overNonAggregate();
+    @BaseMessage("HAVING clause must be a condition") ExInst<SqlValidatorException> havingMustBeBoolean();
 
-  @BaseMessage("FILTER must be applied to aggregate function")
-  ExInst<SqlValidatorException> filterNonAggregate();
+    @BaseMessage("OVER must be applied to aggregate function") ExInst<SqlValidatorException> overNonAggregate();
 
-  @BaseMessage("Cannot override window attribute")
-  ExInst<SqlValidatorException> cannotOverrideWindowAttribute();
+    @BaseMessage("FILTER must be applied to aggregate function") ExInst<SqlValidatorException> filterNonAggregate();
 
-  @BaseMessage("Column count mismatch in {0}")
-  ExInst<SqlValidatorException> columnCountMismatchInSetop(String a0);
+    @BaseMessage("Cannot override window attribute") ExInst<SqlValidatorException> cannotOverrideWindowAttribute();
 
-  @BaseMessage("Type mismatch in column {0,number} of {1}")
-  ExInst<SqlValidatorException> columnTypeMismatchInSetop(int a0, String a1);
+    @BaseMessage("Column count mismatch in {0}") ExInst<SqlValidatorException> columnCountMismatchInSetop(String a0);
 
-  @BaseMessage("Binary literal string must contain an even number of hexits")
-  ExInst<SqlValidatorException> binaryLiteralOdd();
+    @BaseMessage("Type mismatch in column {0,number} of {1}") ExInst<SqlValidatorException> columnTypeMismatchInSetop(
+            int a0, String a1);
 
-  @BaseMessage("Binary literal string must contain only characters ''0'' - ''9'', ''A'' - ''F''")
-  ExInst<SqlValidatorException> binaryLiteralInvalid();
+    @BaseMessage("Binary literal string must contain an even number of hexits") ExInst<SqlValidatorException> binaryLiteralOdd();
 
-  @BaseMessage("Illegal interval literal format {0} for {1}")
-  ExInst<SqlValidatorException> unsupportedIntervalLiteral(String a0,
-      String a1);
+    @BaseMessage("Binary literal string must contain only characters ''0'' - ''9'', ''A'' - ''F''") ExInst<SqlValidatorException> binaryLiteralInvalid();
 
-  @BaseMessage("Interval field value {0,number} exceeds precision of {1} field")
-  ExInst<SqlValidatorException> intervalFieldExceedsPrecision(Number a0,
-      String a1);
+    @BaseMessage("Illegal interval literal format {0} for {1}") ExInst<SqlValidatorException> unsupportedIntervalLiteral(
+            String a0, String a1);
 
-  @BaseMessage("RANGE clause cannot be used with compound ORDER BY clause")
-  ExInst<SqlValidatorException> compoundOrderByProhibitsRange();
+    @BaseMessage("Interval field value {0,number} exceeds precision of {1} field") ExInst<SqlValidatorException> intervalFieldExceedsPrecision(
+            Number a0, String a1);
 
-  @BaseMessage("Data type of ORDER BY prohibits use of RANGE clause")
-  ExInst<SqlValidatorException> orderByDataTypeProhibitsRange();
+    @BaseMessage("RANGE clause cannot be used with compound ORDER BY clause") ExInst<SqlValidatorException> compoundOrderByProhibitsRange();
 
-  @BaseMessage("Data Type mismatch between ORDER BY and RANGE clause")
-  ExInst<SqlValidatorException> orderByRangeMismatch();
+    @BaseMessage("Data type of ORDER BY prohibits use of RANGE clause") ExInst<SqlValidatorException> orderByDataTypeProhibitsRange();
 
-  @BaseMessage("Window ORDER BY expression of type DATE requires range of type INTERVAL")
-  ExInst<SqlValidatorException> dateRequiresInterval();
+    @BaseMessage("Data Type mismatch between ORDER BY and RANGE clause") ExInst<SqlValidatorException> orderByRangeMismatch();
 
-  @BaseMessage("ROWS value must be a non-negative integral constant")
-  ExInst<SqlValidatorException> rowMustBeNonNegativeIntegral();
+    @BaseMessage("Window ORDER BY expression of type DATE requires range of type INTERVAL") ExInst<SqlValidatorException> dateRequiresInterval();
 
-  @BaseMessage("Window specification must contain an ORDER BY clause")
-  ExInst<SqlValidatorException> overMissingOrderBy();
+    @BaseMessage("ROWS value must be a non-negative integral constant") ExInst<SqlValidatorException> rowMustBeNonNegativeIntegral();
 
-  @BaseMessage("PARTITION BY expression should not contain OVER clause")
-  ExInst<SqlValidatorException> partitionbyShouldNotContainOver();
+    @BaseMessage("Window specification must contain an ORDER BY clause") ExInst<SqlValidatorException> overMissingOrderBy();
 
-  @BaseMessage("ORDER BY expression should not contain OVER clause")
-  ExInst<SqlValidatorException> orderbyShouldNotContainOver();
+    @BaseMessage("PARTITION BY expression should not contain OVER clause") ExInst<SqlValidatorException> partitionbyShouldNotContainOver();
 
-  @BaseMessage("UNBOUNDED FOLLOWING cannot be specified for the lower frame boundary")
-  ExInst<SqlValidatorException> badLowerBoundary();
+    @BaseMessage("ORDER BY expression should not contain OVER clause") ExInst<SqlValidatorException> orderbyShouldNotContainOver();
 
-  @BaseMessage("UNBOUNDED PRECEDING cannot be specified for the upper frame boundary")
-  ExInst<SqlValidatorException> badUpperBoundary();
+    @BaseMessage("UNBOUNDED FOLLOWING cannot be specified for the lower frame boundary") ExInst<SqlValidatorException> badLowerBoundary();
 
-  @BaseMessage("Upper frame boundary cannot be PRECEDING when lower boundary is CURRENT ROW")
-  ExInst<SqlValidatorException> currentRowPrecedingError();
+    @BaseMessage("UNBOUNDED PRECEDING cannot be specified for the upper frame boundary") ExInst<SqlValidatorException> badUpperBoundary();
 
-  @BaseMessage("Upper frame boundary cannot be CURRENT ROW when lower boundary is FOLLOWING")
-  ExInst<SqlValidatorException> currentRowFollowingError();
+    @BaseMessage("Upper frame boundary cannot be PRECEDING when lower boundary is CURRENT ROW") ExInst<SqlValidatorException> currentRowPrecedingError();
 
-  @BaseMessage("Upper frame boundary cannot be PRECEDING when lower boundary is FOLLOWING")
-  ExInst<SqlValidatorException> followingBeforePrecedingError();
+    @BaseMessage("Upper frame boundary cannot be CURRENT ROW when lower boundary is FOLLOWING") ExInst<SqlValidatorException> currentRowFollowingError();
 
-  @BaseMessage("Window name must be a simple identifier")
-  ExInst<SqlValidatorException> windowNameMustBeSimple();
+    @BaseMessage("Upper frame boundary cannot be PRECEDING when lower boundary is FOLLOWING") ExInst<SqlValidatorException> followingBeforePrecedingError();
 
-  @BaseMessage("Duplicate window names not allowed")
-  ExInst<SqlValidatorException> duplicateWindowName();
+    @BaseMessage("Window name must be a simple identifier") ExInst<SqlValidatorException> windowNameMustBeSimple();
 
-  @BaseMessage("Empty window specification not allowed")
-  ExInst<SqlValidatorException> emptyWindowSpec();
+    @BaseMessage("Duplicate window names not allowed") ExInst<SqlValidatorException> duplicateWindowName();
 
-  @BaseMessage("Duplicate window specification not allowed in the same window clause")
-  ExInst<SqlValidatorException> dupWindowSpec();
+    @BaseMessage("Empty window specification not allowed") ExInst<SqlValidatorException> emptyWindowSpec();
 
-  @BaseMessage("ROW/RANGE not allowed with RANK, DENSE_RANK or ROW_NUMBER functions")
-  ExInst<SqlValidatorException> rankWithFrame();
+    @BaseMessage("Duplicate window specification not allowed in the same window clause") ExInst<SqlValidatorException> dupWindowSpec();
 
-  @BaseMessage("RANK or DENSE_RANK functions require ORDER BY clause in window specification")
-  ExInst<SqlValidatorException> funcNeedsOrderBy();
+    @BaseMessage("ROW/RANGE not allowed with RANK, DENSE_RANK or ROW_NUMBER functions") ExInst<SqlValidatorException> rankWithFrame();
 
-  @BaseMessage("PARTITION BY not allowed with existing window reference")
-  ExInst<SqlValidatorException> partitionNotAllowed();
+    @BaseMessage("RANK or DENSE_RANK functions require ORDER BY clause in window specification") ExInst<SqlValidatorException> funcNeedsOrderBy();
 
-  @BaseMessage("ORDER BY not allowed in both base and referenced windows")
-  ExInst<SqlValidatorException> orderByOverlap();
+    @BaseMessage("PARTITION BY not allowed with existing window reference") ExInst<SqlValidatorException> partitionNotAllowed();
 
-  @BaseMessage("Referenced window cannot have framing declarations")
-  ExInst<SqlValidatorException> refWindowWithFrame();
+    @BaseMessage("ORDER BY not allowed in both base and referenced windows") ExInst<SqlValidatorException> orderByOverlap();
 
-  @BaseMessage("Type ''{0}'' is not supported")
-  ExInst<SqlValidatorException> typeNotSupported(String a0);
+    @BaseMessage("Referenced window cannot have framing declarations") ExInst<SqlValidatorException> refWindowWithFrame();
 
-  @BaseMessage("DISTINCT/ALL not allowed with {0} function")
-  ExInst<SqlValidatorException> functionQuantifierNotAllowed(String a0);
+    @BaseMessage("Type ''{0}'' is not supported") ExInst<SqlValidatorException> typeNotSupported(String a0);
 
-  @BaseMessage("Some but not all arguments are named")
-  ExInst<SqlValidatorException> someButNotAllArgumentsAreNamed();
+    @BaseMessage("DISTINCT/ALL not allowed with {0} function") ExInst<SqlValidatorException> functionQuantifierNotAllowed(
+            String a0);
 
-  @BaseMessage("Duplicate argument name ''{0}''")
-  ExInst<SqlValidatorException> duplicateArgumentName(String name);
+    @BaseMessage("Some but not all arguments are named") ExInst<SqlValidatorException> someButNotAllArgumentsAreNamed();
 
-  @BaseMessage("DEFAULT is only allowed for optional parameters")
-  ExInst<SqlValidatorException> defaultForOptionalParameter();
+    @BaseMessage("Duplicate argument name ''{0}''") ExInst<SqlValidatorException> duplicateArgumentName(String name);
 
-  @BaseMessage("Not allowed to perform {0} on {1}")
-  ExInst<SqlValidatorException> accessNotAllowed(String a0, String a1);
+    @BaseMessage("DEFAULT is only allowed for optional parameters") ExInst<SqlValidatorException> defaultForOptionalParameter();
 
-  @BaseMessage("The {0} function does not support the {1} data type.")
-  ExInst<SqlValidatorException> minMaxBadType(String a0, String a1);
+    @BaseMessage("Not allowed to perform {0} on {1}") ExInst<SqlValidatorException> accessNotAllowed(String a0,
+                                                                                                     String a1);
 
-  @BaseMessage("Only scalar sub-queries allowed in select list.")
-  ExInst<SqlValidatorException> onlyScalarSubQueryAllowed();
+    @BaseMessage("The {0} function does not support the {1} data type.") ExInst<SqlValidatorException> minMaxBadType(
+            String a0, String a1);
 
-  @BaseMessage("Ordinal out of range")
-  ExInst<SqlValidatorException> orderByOrdinalOutOfRange();
+    @BaseMessage("Only scalar sub-queries allowed in select list.") ExInst<SqlValidatorException> onlyScalarSubQueryAllowed();
 
-  @BaseMessage("Window has negative size")
-  ExInst<SqlValidatorException> windowHasNegativeSize();
+    @BaseMessage("Ordinal out of range") ExInst<SqlValidatorException> orderByOrdinalOutOfRange();
 
-  @BaseMessage("UNBOUNDED FOLLOWING window not supported")
-  ExInst<SqlValidatorException> unboundedFollowingWindowNotSupported();
+    @BaseMessage("Window has negative size") ExInst<SqlValidatorException> windowHasNegativeSize();
 
-  @BaseMessage("Cannot use DISALLOW PARTIAL with window based on RANGE")
-  ExInst<SqlValidatorException> cannotUseDisallowPartialWithRange();
+    @BaseMessage("UNBOUNDED FOLLOWING window not supported") ExInst<SqlValidatorException> unboundedFollowingWindowNotSupported();
 
-  @BaseMessage("Interval leading field precision ''{0,number,#}'' out of range for {1}")
-  ExInst<SqlValidatorException> intervalStartPrecisionOutOfRange(int a0,
-      String a1);
+    @BaseMessage("Cannot use DISALLOW PARTIAL with window based on RANGE") ExInst<SqlValidatorException> cannotUseDisallowPartialWithRange();
 
-  @BaseMessage("Interval fractional second precision ''{0,number,#}'' out of range for {1}")
-  ExInst<SqlValidatorException> intervalFractionalSecondPrecisionOutOfRange(
-      int a0, String a1);
+    @BaseMessage("Interval leading field precision ''{0,number,#}'' out of range for {1}") ExInst<SqlValidatorException> intervalStartPrecisionOutOfRange(
+            int a0, String a1);
 
-  @BaseMessage("Duplicate relation name ''{0}'' in FROM clause")
-  ExInst<SqlValidatorException> fromAliasDuplicate(String a0);
+    @BaseMessage("Interval fractional second precision ''{0,number,#}'' out of range for {1}") ExInst<SqlValidatorException> intervalFractionalSecondPrecisionOutOfRange(
+            int a0, String a1);
 
-  @BaseMessage("Duplicate column name ''{0}'' in output")
-  ExInst<SqlValidatorException> duplicateColumnName(String a0);
+    @BaseMessage("Duplicate relation name ''{0}'' in FROM clause") ExInst<SqlValidatorException> fromAliasDuplicate(
+            String a0);
 
-  @BaseMessage("Duplicate name ''{0}'' in column list")
-  ExInst<SqlValidatorException> duplicateNameInColumnList(String a0);
+    @BaseMessage("Duplicate column name ''{0}'' in output") ExInst<SqlValidatorException> duplicateColumnName(
+            String a0);
 
-  @BaseMessage("Internal error: {0}")
-  ExInst<CalciteException> internal(String a0);
+    @BaseMessage("Duplicate name ''{0}'' in column list") ExInst<SqlValidatorException> duplicateNameInColumnList(
+            String a0);
 
-  @BaseMessage("Argument to function ''{0}'' must be a literal")
-  ExInst<SqlValidatorException> argumentMustBeLiteral(String a0);
+    @BaseMessage("Internal error: {0}") ExInst<CalciteException> internal(String a0);
 
-  @BaseMessage("Argument to function ''{0}'' must be a positive integer literal")
-  ExInst<SqlValidatorException> argumentMustBePositiveInteger(String a0);
+    @BaseMessage("Argument to function ''{0}'' must be a literal") ExInst<SqlValidatorException> argumentMustBeLiteral(
+            String a0);
 
-  @BaseMessage("Validation Error: {0}")
-  ExInst<CalciteException> validationError(String a0);
+    @BaseMessage("Argument to function ''{0}'' must be a positive integer literal") ExInst<SqlValidatorException> argumentMustBePositiveInteger(
+            String a0);
 
-  @BaseMessage("Locale ''{0}'' in an illegal format")
-  ExInst<CalciteException> illegalLocaleFormat(String a0);
+    @BaseMessage("Validation Error: {0}") ExInst<CalciteException> validationError(String a0);
 
-  @BaseMessage("Argument to function ''{0}'' must not be NULL")
-  ExInst<SqlValidatorException> argumentMustNotBeNull(String a0);
+    @BaseMessage("Locale ''{0}'' in an illegal format") ExInst<CalciteException> illegalLocaleFormat(String a0);
 
-  @BaseMessage("Illegal use of ''NULL''")
-  ExInst<SqlValidatorException> nullIllegal();
+    @BaseMessage("Argument to function ''{0}'' must not be NULL") ExInst<SqlValidatorException> argumentMustNotBeNull(
+            String a0);
 
-  @BaseMessage("Illegal use of dynamic parameter")
-  ExInst<SqlValidatorException> dynamicParamIllegal();
+    @BaseMessage("Illegal use of ''NULL''") ExInst<SqlValidatorException> nullIllegal();
 
-  @BaseMessage("''{0}'' is not a valid boolean value")
-  ExInst<CalciteException> invalidBoolean(String a0);
+    @BaseMessage("Illegal use of dynamic parameter") ExInst<SqlValidatorException> dynamicParamIllegal();
 
-  @BaseMessage("Argument to function ''{0}'' must be a valid precision between ''{1,number,#}'' and ''{2,number,#}''")
-  ExInst<SqlValidatorException> argumentMustBeValidPrecision(String a0, int a1,
-      int a2);
+    @BaseMessage("''{0}'' is not a valid boolean value") ExInst<CalciteException> invalidBoolean(String a0);
 
-  @BaseMessage("Wrong arguments for table function ''{0}'' call. Expected ''{1}'', actual ''{2}''")
-  ExInst<CalciteException> illegalArgumentForTableFunctionCall(String a0,
-      String a1, String a2);
+    @BaseMessage("Argument to function ''{0}'' must be a valid precision between ''{1,number,#}'' and ''{2,number,#}''") ExInst<SqlValidatorException> argumentMustBeValidPrecision(
+            String a0, int a1, int a2);
 
-  @BaseMessage("''{0}'' is not a valid datetime format")
-  ExInst<CalciteException> invalidDatetimeFormat(String a0);
+    @BaseMessage("Wrong arguments for table function ''{0}'' call. Expected ''{1}'', actual ''{2}''") ExInst<CalciteException> illegalArgumentForTableFunctionCall(
+            String a0, String a1, String a2);
 
-  @BaseMessage("Cannot explicitly insert value into IDENTITY column ''{0}'' which is ALWAYS GENERATED")
-  ExInst<CalciteException> insertIntoAlwaysGenerated(String a0);
+    @BaseMessage("''{0}'' is not a valid datetime format") ExInst<CalciteException> invalidDatetimeFormat(String a0);
 
-  @BaseMessage("Argument to function ''{0}'' must have a scale of 0")
-  ExInst<CalciteException> argumentMustHaveScaleZero(String a0);
+    @BaseMessage("Cannot explicitly insert value into IDENTITY column ''{0}'' which is ALWAYS GENERATED") ExInst<CalciteException> insertIntoAlwaysGenerated(
+            String a0);
 
-  @BaseMessage("Statement preparation aborted")
-  ExInst<CalciteException> preparationAborted();
+    @BaseMessage("Argument to function ''{0}'' must have a scale of 0") ExInst<CalciteException> argumentMustHaveScaleZero(
+            String a0);
 
-  @BaseMessage("SELECT DISTINCT not supported")
-  @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F")
-  Feature sQLFeature_E051_01();
+    @BaseMessage("Statement preparation aborted") ExInst<CalciteException> preparationAborted();
 
-  @BaseMessage("EXCEPT not supported")
-  @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F")
-  Feature sQLFeature_E071_03();
+    @BaseMessage("SELECT DISTINCT not supported") @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F") Feature sQLFeature_E051_01();
 
-  @BaseMessage("UPDATE not supported")
-  @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F")
-  Feature sQLFeature_E101_03();
+    @BaseMessage("EXCEPT not supported") @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F") Feature sQLFeature_E071_03();
 
-  @BaseMessage("Transactions not supported")
-  @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F")
-  Feature sQLFeature_E151();
+    @BaseMessage("UPDATE not supported") @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F") Feature sQLFeature_E101_03();
 
-  @BaseMessage("INTERSECT not supported")
-  @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F")
-  Feature sQLFeature_F302();
+    @BaseMessage("Transactions not supported") @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F") Feature sQLFeature_E151();
 
-  @BaseMessage("MERGE not supported")
-  @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F")
-  Feature sQLFeature_F312();
+    @BaseMessage("INTERSECT not supported") @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F") Feature sQLFeature_F302();
 
-  @BaseMessage("Basic multiset not supported")
-  @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F")
-  Feature sQLFeature_S271();
+    @BaseMessage("MERGE not supported") @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F") Feature sQLFeature_F312();
 
-  @BaseMessage("TABLESAMPLE not supported")
-  @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F")
-  Feature sQLFeature_T613();
+    @BaseMessage("Basic multiset not supported") @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F") Feature sQLFeature_S271();
 
-  @BaseMessage("Execution of a new autocommit statement while a cursor is still open on same connection is not supported")
-  @Property(name = "FeatureDefinition", value = "Eigenbase-defined")
-  ExInst<CalciteException> sQLConformance_MultipleActiveAutocommitStatements();
+    @BaseMessage("TABLESAMPLE not supported") @Property(name = "FeatureDefinition", value = "SQL:2003 Part 2 Annex F") Feature sQLFeature_T613();
 
-  @BaseMessage("Descending sort (ORDER BY DESC) not supported")
-  @Property(name = "FeatureDefinition", value = "Eigenbase-defined")
-  Feature sQLConformance_OrderByDesc();
+    @BaseMessage("Execution of a new autocommit statement while a cursor is still open on same connection is not supported") @Property(name = "FeatureDefinition", value = "Eigenbase-defined") ExInst<CalciteException> sQLConformance_MultipleActiveAutocommitStatements();
 
-  @BaseMessage("Sharing of cached statement plans not supported")
-  @Property(name = "FeatureDefinition", value = "Eigenbase-defined")
-  ExInst<CalciteException> sharedStatementPlans();
+    @BaseMessage("Descending sort (ORDER BY DESC) not supported") @Property(name = "FeatureDefinition", value = "Eigenbase-defined") Feature sQLConformance_OrderByDesc();
 
-  @BaseMessage("TABLESAMPLE SUBSTITUTE not supported")
-  @Property(name = "FeatureDefinition", value = "Eigenbase-defined")
-  Feature sQLFeatureExt_T613_Substitution();
+    @BaseMessage("Sharing of cached statement plans not supported") @Property(name = "FeatureDefinition", value = "Eigenbase-defined") ExInst<CalciteException> sharedStatementPlans();
 
-  @BaseMessage("Personality does not maintain table''s row count in the catalog")
-  @Property(name = "FeatureDefinition", value = "Eigenbase-defined")
-  ExInst<CalciteException> personalityManagesRowCount();
+    @BaseMessage("TABLESAMPLE SUBSTITUTE not supported") @Property(name = "FeatureDefinition", value = "Eigenbase-defined") Feature sQLFeatureExt_T613_Substitution();
 
-  @BaseMessage("Personality does not support snapshot reads")
-  @Property(name = "FeatureDefinition", value = "Eigenbase-defined")
-  ExInst<CalciteException> personalitySupportsSnapshots();
+    @BaseMessage("Personality does not maintain table''s row count in the catalog") @Property(name = "FeatureDefinition", value = "Eigenbase-defined") ExInst<CalciteException> personalityManagesRowCount();
 
-  @BaseMessage("Personality does not support labels")
-  @Property(name = "FeatureDefinition", value = "Eigenbase-defined")
-  ExInst<CalciteException> personalitySupportsLabels();
+    @BaseMessage("Personality does not support snapshot reads") @Property(name = "FeatureDefinition", value = "Eigenbase-defined") ExInst<CalciteException> personalitySupportsSnapshots();
 
-  @BaseMessage("Require at least 1 argument")
-  ExInst<SqlValidatorException> requireAtLeastOneArg();
+    @BaseMessage("Personality does not support labels") @Property(name = "FeatureDefinition", value = "Eigenbase-defined") ExInst<CalciteException> personalitySupportsLabels();
 
-  @BaseMessage("Map requires at least 2 arguments")
-  ExInst<SqlValidatorException> mapRequiresTwoOrMoreArgs();
+    @BaseMessage("Require at least 1 argument") ExInst<SqlValidatorException> requireAtLeastOneArg();
 
-  @BaseMessage("Map requires an even number of arguments")
-  ExInst<SqlValidatorException> mapRequiresEvenArgCount();
+    @BaseMessage("Map requires at least 2 arguments") ExInst<SqlValidatorException> mapRequiresTwoOrMoreArgs();
 
-  @BaseMessage("Incompatible types")
-  ExInst<SqlValidatorException> incompatibleTypes();
+    @BaseMessage("Map requires an even number of arguments") ExInst<SqlValidatorException> mapRequiresEvenArgCount();
 
-  @BaseMessage("Number of columns must match number of query columns")
-  ExInst<SqlValidatorException> columnCountMismatch();
+    @BaseMessage("Incompatible types") ExInst<SqlValidatorException> incompatibleTypes();
 
-  @BaseMessage("Column has duplicate column name ''{0}'' and no column list specified")
-  ExInst<SqlValidatorException> duplicateColumnAndNoColumnList(String s);
+    @BaseMessage("Number of columns must match number of query columns") ExInst<SqlValidatorException> columnCountMismatch();
 
-  @BaseMessage("Declaring class ''{0}'' of non-static user-defined function must have a public constructor with zero parameters")
-  ExInst<RuntimeException> requireDefaultConstructor(String className);
+    @BaseMessage("Column has duplicate column name ''{0}'' and no column list specified") ExInst<SqlValidatorException> duplicateColumnAndNoColumnList(
+            String s);
 
-  @BaseMessage("In user-defined aggregate class ''{0}'', first parameter to ''add'' method must be the accumulator (the return type of the ''init'' method)")
-  ExInst<RuntimeException> firstParameterOfAdd(String className);
+    @BaseMessage("Declaring class ''{0}'' of non-static user-defined function must have a public constructor with zero parameters") ExInst<RuntimeException> requireDefaultConstructor(
+            String className);
 
-  @BaseMessage("FilterableTable.scan returned a filter that was not in the original list: {0}")
-  ExInst<CalciteException> filterableTableInventedFilter(String s);
+    @BaseMessage("In user-defined aggregate class ''{0}'', first parameter to ''add'' method must be the accumulator (the return type of the ''init'' method)") ExInst<RuntimeException> firstParameterOfAdd(
+            String className);
 
-  @BaseMessage("FilterableTable.scan must not return null")
-  ExInst<CalciteException> filterableTableScanReturnedNull();
+    @BaseMessage("FilterableTable.scan returned a filter that was not in the original list: {0}") ExInst<CalciteException> filterableTableInventedFilter(
+            String s);
 
-  @BaseMessage("Cannot convert table ''{0}'' to stream")
-  ExInst<SqlValidatorException> cannotConvertToStream(String tableName);
+    @BaseMessage("FilterableTable.scan must not return null") ExInst<CalciteException> filterableTableScanReturnedNull();
 
-  @BaseMessage("Cannot convert stream ''{0}'' to relation")
-  ExInst<SqlValidatorException> cannotConvertToRelation(String tableName);
+    @BaseMessage("Cannot convert table ''{0}'' to stream") ExInst<SqlValidatorException> cannotConvertToStream(
+            String tableName);
 
-  @BaseMessage("Streaming aggregation requires at least one monotonic expression in GROUP BY clause")
-  ExInst<SqlValidatorException> streamMustGroupByMonotonic();
+    @BaseMessage("Cannot convert stream ''{0}'' to relation") ExInst<SqlValidatorException> cannotConvertToRelation(
+            String tableName);
 
-  @BaseMessage("Streaming ORDER BY must start with monotonic expression")
-  ExInst<SqlValidatorException> streamMustOrderByMonotonic();
+    @BaseMessage("Streaming aggregation requires at least one monotonic expression in GROUP BY clause") ExInst<SqlValidatorException> streamMustGroupByMonotonic();
 
-  @BaseMessage("Set operator cannot combine streaming and non-streaming inputs")
-  ExInst<SqlValidatorException> streamSetOpInconsistentInputs();
+    @BaseMessage("Streaming ORDER BY must start with monotonic expression") ExInst<SqlValidatorException> streamMustOrderByMonotonic();
 
-  @BaseMessage("Cannot stream VALUES")
-  ExInst<SqlValidatorException> cannotStreamValues();
+    @BaseMessage("Set operator cannot combine streaming and non-streaming inputs") ExInst<SqlValidatorException> streamSetOpInconsistentInputs();
 
-  @BaseMessage("Cannot resolve ''{0}''; it references view ''{1}'', whose definition is cyclic")
-  ExInst<SqlValidatorException> cyclicDefinition(String id, String view);
+    @BaseMessage("Cannot stream VALUES") ExInst<SqlValidatorException> cannotStreamValues();
 
-  @BaseMessage("Modifiable view must be based on a single table")
-  ExInst<SqlValidatorException> modifiableViewMustBeBasedOnSingleTable();
+    @BaseMessage("Cannot resolve ''{0}''; it references view ''{1}'', whose definition is cyclic") ExInst<SqlValidatorException> cyclicDefinition(
+            String id, String view);
 
-  @BaseMessage("Modifiable view must be predicated only on equality expressions")
-  ExInst<SqlValidatorException> modifiableViewMustHaveOnlyEqualityPredicates();
+    @BaseMessage("Modifiable view must be based on a single table") ExInst<SqlValidatorException> modifiableViewMustBeBasedOnSingleTable();
 
-  @BaseMessage("View is not modifiable. More than one expression maps to column ''{0}'' of base table ''{1}''")
-  ExInst<SqlValidatorException> moreThanOneMappedColumn(String columnName, String tableName);
+    @BaseMessage("Modifiable view must be predicated only on equality expressions") ExInst<SqlValidatorException> modifiableViewMustHaveOnlyEqualityPredicates();
 
-  @BaseMessage("View is not modifiable. No value is supplied for NOT NULL column ''{0}'' of base table ''{1}''")
-  ExInst<SqlValidatorException> noValueSuppliedForViewColumn(String columnName, String tableName);
+    @BaseMessage("View is not modifiable. More than one expression maps to column ''{0}'' of base table ''{1}''") ExInst<SqlValidatorException> moreThanOneMappedColumn(
+            String columnName, String tableName);
 
-  @BaseMessage("Modifiable view constraint is not satisfied for column ''{0}'' of base table ''{1}''")
-  ExInst<SqlValidatorException> viewConstraintNotSatisfied(String columnName, String tableName);
+    @BaseMessage("View is not modifiable. No value is supplied for NOT NULL column ''{0}'' of base table ''{1}''") ExInst<SqlValidatorException> noValueSuppliedForViewColumn(
+            String columnName, String tableName);
 
-  @BaseMessage("Not a record type. The ''*'' operator requires a record")
-  ExInst<SqlValidatorException> starRequiresRecordType();
+    @BaseMessage("Modifiable view constraint is not satisfied for column ''{0}'' of base table ''{1}''") ExInst<SqlValidatorException> viewConstraintNotSatisfied(
+            String columnName, String tableName);
 
-  @BaseMessage("FILTER expression must be of type BOOLEAN")
-  ExInst<CalciteException> filterMustBeBoolean();
+    @BaseMessage("Not a record type. The ''*'' operator requires a record") ExInst<SqlValidatorException> starRequiresRecordType();
 
-  @BaseMessage("Cannot stream results of a query with no streaming inputs: ''{0}''. At least one input should be convertible to a stream")
-  ExInst<SqlValidatorException> cannotStreamResultsForNonStreamingInputs(String inputs);
+    @BaseMessage("FILTER expression must be of type BOOLEAN") ExInst<CalciteException> filterMustBeBoolean();
 
-  @BaseMessage("MINUS is not allowed under the current SQL conformance level")
-  ExInst<CalciteException> minusNotAllowed();
+    @BaseMessage("Cannot stream results of a query with no streaming inputs: ''{0}''. At least one input should be convertible to a stream") ExInst<SqlValidatorException> cannotStreamResultsForNonStreamingInputs(
+            String inputs);
 
-  @BaseMessage("SELECT must have a FROM clause")
-  ExInst<SqlValidatorException> selectMissingFrom();
+    @BaseMessage("MINUS is not allowed under the current SQL conformance level") ExInst<CalciteException> minusNotAllowed();
 
-  @BaseMessage("Group function ''{0}'' can only appear in GROUP BY clause")
-  ExInst<SqlValidatorException> groupFunctionMustAppearInGroupByClause(String funcName);
+    @BaseMessage("SELECT must have a FROM clause") ExInst<SqlValidatorException> selectMissingFrom();
 
-  @BaseMessage("Call to auxiliary group function ''{0}'' must have matching call to group function ''{1}'' in GROUP BY clause")
-  ExInst<SqlValidatorException> auxiliaryWithoutMatchingGroupCall(String func1, String func2);
+    @BaseMessage("Group function ''{0}'' can only appear in GROUP BY clause") ExInst<SqlValidatorException> groupFunctionMustAppearInGroupByClause(
+            String funcName);
 
-  @BaseMessage("Pattern variable ''{0}'' has already been defined")
-  ExInst<SqlValidatorException> patternVarAlreadyDefined(String varName);
+    @BaseMessage("Call to auxiliary group function ''{0}'' must have matching call to group function ''{1}'' in GROUP BY clause") ExInst<SqlValidatorException> auxiliaryWithoutMatchingGroupCall(
+            String func1, String func2);
 
-  @BaseMessage("Cannot use PREV/NEXT in MEASURE ''{0}''")
-  ExInst<SqlValidatorException> patternPrevFunctionInMeasure(String call);
+    @BaseMessage("Pattern variable ''{0}'' has already been defined") ExInst<SqlValidatorException> patternVarAlreadyDefined(
+            String varName);
 
-  @BaseMessage("Cannot nest PREV/NEXT under LAST/FIRST ''{0}''")
-  ExInst<SqlValidatorException> patternPrevFunctionOrder(String call);
+    @BaseMessage("Cannot use PREV/NEXT in MEASURE ''{0}''") ExInst<SqlValidatorException> patternPrevFunctionInMeasure(
+            String call);
 
-  @BaseMessage("Cannot use aggregation in navigation ''{0}''")
-  ExInst<SqlValidatorException> patternAggregationInNavigation(String call);
+    @BaseMessage("Cannot nest PREV/NEXT under LAST/FIRST ''{0}''") ExInst<SqlValidatorException> patternPrevFunctionOrder(
+            String call);
 
-  @BaseMessage("Invalid number of parameters to COUNT method")
-  ExInst<SqlValidatorException> patternCountFunctionArg();
+    @BaseMessage("Cannot use aggregation in navigation ''{0}''") ExInst<SqlValidatorException> patternAggregationInNavigation(
+            String call);
 
-  @BaseMessage("Cannot use RUNNING/FINAL in DEFINE ''{0}''")
-  ExInst<SqlValidatorException> patternRunningFunctionInDefine(String call);
+    @BaseMessage("Invalid number of parameters to COUNT method") ExInst<SqlValidatorException> patternCountFunctionArg();
 
-  @BaseMessage("Multiple pattern variables in ''{0}''")
-  ExInst<SqlValidatorException> patternFunctionVariableCheck(String call);
+    @BaseMessage("Cannot use RUNNING/FINAL in DEFINE ''{0}''") ExInst<SqlValidatorException> patternRunningFunctionInDefine(
+            String call);
 
-  @BaseMessage("Function ''{0}'' can only be used in MATCH_RECOGNIZE")
-  ExInst<SqlValidatorException> functionMatchRecognizeOnly(String call);
+    @BaseMessage("Multiple pattern variables in ''{0}''") ExInst<SqlValidatorException> patternFunctionVariableCheck(
+            String call);
 
-  @BaseMessage("Null parameters in ''{0}''")
-  ExInst<SqlValidatorException> patternFunctionNullCheck(String call);
+    @BaseMessage("Function ''{0}'' can only be used in MATCH_RECOGNIZE") ExInst<SqlValidatorException> functionMatchRecognizeOnly(
+            String call);
 
-  @BaseMessage("Unknown pattern ''{0}''")
-  ExInst<SqlValidatorException> unknownPattern(String call);
+    @BaseMessage("Null parameters in ''{0}''") ExInst<SqlValidatorException> patternFunctionNullCheck(String call);
 
-  @BaseMessage("Interval must be non-negative ''{0}''")
-  ExInst<SqlValidatorException> intervalMustBeNonNegative(String call);
+    @BaseMessage("Unknown pattern ''{0}''") ExInst<SqlValidatorException> unknownPattern(String call);
 
-  @BaseMessage("Must contain an ORDER BY clause when WITHIN is used")
-  ExInst<SqlValidatorException> cannotUseWithinWithoutOrderBy();
+    @BaseMessage("Interval must be non-negative ''{0}''") ExInst<SqlValidatorException> intervalMustBeNonNegative(
+            String call);
 
-  @BaseMessage("First column of ORDER BY must be of type TIMESTAMP")
-  ExInst<SqlValidatorException> firstColumnOfOrderByMustBeTimestamp();
+    @BaseMessage("Must contain an ORDER BY clause when WITHIN is used") ExInst<SqlValidatorException> cannotUseWithinWithoutOrderBy();
 
-  @BaseMessage("Extended columns not allowed under the current SQL conformance level")
-  ExInst<SqlValidatorException> extendNotAllowed();
+    @BaseMessage("First column of ORDER BY must be of type TIMESTAMP") ExInst<SqlValidatorException> firstColumnOfOrderByMustBeTimestamp();
 
-  @BaseMessage("Rolled up column ''{0}'' is not allowed in {1}")
-  ExInst<SqlValidatorException> rolledUpNotAllowed(String column, String context);
+    @BaseMessage("Extended columns not allowed under the current SQL conformance level") ExInst<SqlValidatorException> extendNotAllowed();
+
+    @BaseMessage("Rolled up column ''{0}'' is not allowed in {1}") ExInst<SqlValidatorException> rolledUpNotAllowed(
+            String column, String context);
 }
 
 // End CalciteResource.java

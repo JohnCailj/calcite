@@ -25,11 +25,9 @@ import org.apache.calcite.sql.SqlNode;
  * expression.
  */
 public interface SqlRexConvertlet {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  RexNode convertCall(
-      SqlRexContext cx,
-      SqlCall call);
+    RexNode convertCall(SqlRexContext cx, SqlCall call);
 }
 
 // End SqlRexConvertlet.java

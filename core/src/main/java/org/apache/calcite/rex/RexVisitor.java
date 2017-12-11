@@ -19,38 +19,37 @@ package org.apache.calcite.rex;
 /**
  * Visitor pattern for traversing a tree of {@link RexNode} objects.
  *
+ * @param <R> Return type
  * @see org.apache.calcite.util.Glossary#VISITOR_PATTERN
  * @see RexShuttle
  * @see RexVisitorImpl
- *
- * @param <R> Return type
  */
 public interface RexVisitor<R> {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  R visitInputRef(RexInputRef inputRef);
+    R visitInputRef(RexInputRef inputRef);
 
-  R visitLocalRef(RexLocalRef localRef);
+    R visitLocalRef(RexLocalRef localRef);
 
-  R visitLiteral(RexLiteral literal);
+    R visitLiteral(RexLiteral literal);
 
-  R visitCall(RexCall call);
+    R visitCall(RexCall call);
 
-  R visitOver(RexOver over);
+    R visitOver(RexOver over);
 
-  R visitCorrelVariable(RexCorrelVariable correlVariable);
+    R visitCorrelVariable(RexCorrelVariable correlVariable);
 
-  R visitDynamicParam(RexDynamicParam dynamicParam);
+    R visitDynamicParam(RexDynamicParam dynamicParam);
 
-  R visitRangeRef(RexRangeRef rangeRef);
+    R visitRangeRef(RexRangeRef rangeRef);
 
-  R visitFieldAccess(RexFieldAccess fieldAccess);
+    R visitFieldAccess(RexFieldAccess fieldAccess);
 
-  R visitSubQuery(RexSubQuery subQuery);
+    R visitSubQuery(RexSubQuery subQuery);
 
-  R visitTableInputRef(RexTableInputRef fieldRef);
+    R visitTableInputRef(RexTableInputRef fieldRef);
 
-  R visitPatternFieldRef(RexPatternFieldRef fieldRef);
+    R visitPatternFieldRef(RexPatternFieldRef fieldRef);
 }
 
 // End RexVisitor.java

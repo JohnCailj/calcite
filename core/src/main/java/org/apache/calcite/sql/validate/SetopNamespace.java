@@ -27,88 +27,80 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * Namespace based upon a set operation (UNION, INTERSECT, EXCEPT).
  */
 public class SetopNamespace extends AbstractNamespace {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlCall call;
+    private final SqlCall call;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a <code>SetopNamespace</code>.
-   *
-   * @param validator     Validator
-   * @param call          Call to set operator
-   * @param enclosingNode Enclosing node
-   */
-  protected SetopNamespace(
-      SqlValidatorImpl validator,
-      SqlCall call,
-      SqlNode enclosingNode) {
-    super(validator, enclosingNode);
-    this.call = call;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public SqlNode getNode() {
-    return call;
-  }
-
-  @Override public SqlMonotonicity getMonotonicity(String columnName) {
-    SqlMonotonicity monotonicity = null;
-    int index = getRowType().getFieldNames().indexOf(columnName);
-    if (index < 0) {
-      return SqlMonotonicity.NOT_MONOTONIC;
+    /**
+     * Creates a <code>SetopNamespace</code>.
+     *
+     * @param validator     Validator
+     * @param call          Call to set operator
+     * @param enclosingNode Enclosing node
+     */
+    protected SetopNamespace(SqlValidatorImpl validator, SqlCall call, SqlNode enclosingNode) {
+        super(validator, enclosingNode);
+        this.call = call;
     }
-    for (SqlNode operand : call.getOperandList()) {
-      final SqlValidatorNamespace namespace = validator.getNamespace(operand);
-      monotonicity = combine(monotonicity,
-          namespace.getMonotonicity(
-              namespace.getRowType().getFieldNames().get(index)));
-    }
-    return monotonicity;
-  }
 
-  private SqlMonotonicity combine(SqlMonotonicity m0, SqlMonotonicity m1) {
-    if (m0 == null) {
-      return m1;
-    }
-    if (m1 == null) {
-      return m0;
-    }
-    if (m0 == m1) {
-      return m0;
-    }
-    if (m0.unstrict() == m1) {
-      return m1;
-    }
-    if (m1.unstrict() == m0) {
-      return m0;
-    }
-    return SqlMonotonicity.NOT_MONOTONIC;
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  public RelDataType validateImpl(RelDataType targetRowType) {
-    switch (call.getKind()) {
-    case UNION:
-    case INTERSECT:
-    case EXCEPT:
-      final SqlValidatorScope scope = validator.scopes.get(call);
-      for (SqlNode operand : call.getOperandList()) {
-        if (!(operand.isA(SqlKind.QUERY))) {
-          throw validator.newValidationError(operand,
-              RESOURCE.needQueryOp(operand.toString()));
+    public SqlNode getNode() {
+        return call;
+    }
+
+    @Override public SqlMonotonicity getMonotonicity(String columnName) {
+        SqlMonotonicity monotonicity = null;
+        int index = getRowType().getFieldNames().indexOf(columnName);
+        if (index < 0) {
+            return SqlMonotonicity.NOT_MONOTONIC;
         }
-        validator.validateQuery(operand, scope, targetRowType);
-      }
-      return call.getOperator().deriveType(
-          validator,
-          scope,
-          call);
-    default:
-      throw new AssertionError("Not a query: " + call.getKind());
+        for (SqlNode operand : call.getOperandList()) {
+            final SqlValidatorNamespace namespace = validator.getNamespace(operand);
+            monotonicity = combine(monotonicity,
+                                   namespace.getMonotonicity(namespace.getRowType().getFieldNames().get(index)));
+        }
+        return monotonicity;
     }
-  }
+
+    private SqlMonotonicity combine(SqlMonotonicity m0, SqlMonotonicity m1) {
+        if (m0 == null) {
+            return m1;
+        }
+        if (m1 == null) {
+            return m0;
+        }
+        if (m0 == m1) {
+            return m0;
+        }
+        if (m0.unstrict() == m1) {
+            return m1;
+        }
+        if (m1.unstrict() == m0) {
+            return m0;
+        }
+        return SqlMonotonicity.NOT_MONOTONIC;
+    }
+
+    public RelDataType validateImpl(RelDataType targetRowType) {
+        switch (call.getKind()) {
+            case UNION:
+            case INTERSECT:
+            case EXCEPT:
+                final SqlValidatorScope scope = validator.scopes.get(call);
+                for (SqlNode operand : call.getOperandList()) {
+                    if (!(operand.isA(SqlKind.QUERY))) {
+                        throw validator.newValidationError(operand, RESOURCE.needQueryOp(operand.toString()));
+                    }
+                    validator.validateQuery(operand, scope, targetRowType);
+                }
+                return call.getOperator().deriveType(validator, scope, call);
+            default:
+                throw new AssertionError("Not a query: " + call.getKind());
+        }
+    }
 }
 
 // End SetopNamespace.java

@@ -18,22 +18,22 @@ package org.apache.calcite.runtime;
 
 /**
  * Synthetic record with zero fields.
- *
  * <p>Since all instances are identical, {@code Unit} is a singleton.</p>
  */
 public class Unit implements Comparable<Unit> {
-  public static final Unit INSTANCE = new Unit();
 
-  private Unit() {
-  }
+    public static final Unit INSTANCE = new Unit();
 
-  public int compareTo(Unit that) {
-    return 0;
-  }
+    private Unit() {
+    }
 
-  public String toString() {
-    return "{}";
-  }
+    public int compareTo(Unit that) {
+        return 0;
+    }
+
+    public String toString() {
+        return "{}";
+    }
 }
 
 // End Unit.java

@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.rel.rules;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.plan.RelOptRule;
 import org.apache.calcite.plan.RelOptRuleCall;
 import org.apache.calcite.plan.RelOptUtil;
@@ -30,8 +31,6 @@ import org.apache.calcite.rex.RexUtil;
 import org.apache.calcite.tools.RelBuilder;
 import org.apache.calcite.tools.RelBuilderFactory;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,93 +40,76 @@ import java.util.List;
  */
 public class FilterCorrelateRule extends RelOptRule {
 
-  public static final FilterCorrelateRule INSTANCE =
-      new FilterCorrelateRule(RelFactories.LOGICAL_BUILDER);
+    public static final FilterCorrelateRule INSTANCE = new FilterCorrelateRule(RelFactories.LOGICAL_BUILDER);
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a FilterCorrelateRule.
-   */
-  public FilterCorrelateRule(RelBuilderFactory builderFactory) {
-    super(
-        operand(Filter.class,
-            operand(Correlate.class, RelOptRule.any())),
-        builderFactory, "FilterCorrelateRule");
-  }
-
-  /**
-   * Creates a FilterCorrelateRule with an explicit root operand and
-   * factories.
-   */
-  @Deprecated // to be removed before 2.0
-  public FilterCorrelateRule(RelFactories.FilterFactory filterFactory,
-      RelFactories.ProjectFactory projectFactory) {
-    this(RelBuilder.proto(filterFactory, projectFactory));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(RelOptRuleCall call) {
-    final Filter filter = call.rel(0);
-    final Correlate corr = call.rel(1);
-
-    final List<RexNode> aboveFilters =
-        RelOptUtil.conjunctions(filter.getCondition());
-
-    final List<RexNode> leftFilters = new ArrayList<>();
-    final List<RexNode> rightFilters = new ArrayList<>();
-
-    // Try to push down above filters. These are typically where clause
-    // filters. They can be pushed down if they are not on the NULL
-    // generating side.
-    RelOptUtil.classifyFilters(
-        corr,
-        aboveFilters,
-        JoinRelType.INNER,
-        false,
-        !corr.getJoinType().toJoinType().generatesNullsOnLeft(),
-        !corr.getJoinType().toJoinType().generatesNullsOnRight(),
-        aboveFilters,
-        leftFilters,
-        rightFilters);
-
-    if (leftFilters.isEmpty()
-        && rightFilters.isEmpty()) {
-      // no filters got pushed
-      return;
+    /**
+     * Creates a FilterCorrelateRule.
+     */
+    public FilterCorrelateRule(RelBuilderFactory builderFactory) {
+        super(operand(Filter.class, operand(Correlate.class, RelOptRule.any())), builderFactory, "FilterCorrelateRule");
     }
 
-    // Create Filters on top of the children if any filters were
-    // pushed to them.
-    final RexBuilder rexBuilder = corr.getCluster().getRexBuilder();
-    final RelBuilder relBuilder = call.builder();
-    final RelNode leftRel =
-        relBuilder.push(corr.getLeft()).filter(leftFilters).build();
-    final RelNode rightRel =
-        relBuilder.push(corr.getRight()).filter(rightFilters).build();
-
-    // Create the new Correlate
-    RelNode newCorrRel =
-        corr.copy(corr.getTraitSet(), ImmutableList.of(leftRel, rightRel));
-
-    call.getPlanner().onCopy(corr, newCorrRel);
-
-    if (!leftFilters.isEmpty()) {
-      call.getPlanner().onCopy(filter, leftRel);
-    }
-    if (!rightFilters.isEmpty()) {
-      call.getPlanner().onCopy(filter, rightRel);
+    /**
+     * Creates a FilterCorrelateRule with an explicit root operand and
+     * factories.
+     */
+    @Deprecated // to be removed before 2.0
+    public FilterCorrelateRule(RelFactories.FilterFactory filterFactory, RelFactories.ProjectFactory projectFactory) {
+        this(RelBuilder.proto(filterFactory, projectFactory));
     }
 
-    // Create a Filter on top of the join if needed
-    relBuilder.push(newCorrRel);
-    relBuilder.filter(
-        RexUtil.fixUp(rexBuilder, aboveFilters,
-            RelOptUtil.getFieldTypeList(relBuilder.peek().getRowType())));
+    //~ Methods ----------------------------------------------------------------
 
-    call.transformTo(relBuilder.build());
-  }
+    public void onMatch(RelOptRuleCall call) {
+        final Filter filter = call.rel(0);
+        final Correlate corr = call.rel(1);
+
+        final List<RexNode> aboveFilters = RelOptUtil.conjunctions(filter.getCondition());
+
+        final List<RexNode> leftFilters = new ArrayList<>();
+        final List<RexNode> rightFilters = new ArrayList<>();
+
+        // Try to push down above filters. These are typically where clause
+        // filters. They can be pushed down if they are not on the NULL
+        // generating side.
+        RelOptUtil.classifyFilters(corr, aboveFilters, JoinRelType.INNER, false,
+                                   !corr.getJoinType().toJoinType().generatesNullsOnLeft(),
+                                   !corr.getJoinType().toJoinType().generatesNullsOnRight(), aboveFilters, leftFilters,
+                                   rightFilters);
+
+        if (leftFilters.isEmpty() && rightFilters.isEmpty()) {
+            // no filters got pushed
+            return;
+        }
+
+        // Create Filters on top of the children if any filters were
+        // pushed to them.
+        final RexBuilder rexBuilder = corr.getCluster().getRexBuilder();
+        final RelBuilder relBuilder = call.builder();
+        final RelNode leftRel = relBuilder.push(corr.getLeft()).filter(leftFilters).build();
+        final RelNode rightRel = relBuilder.push(corr.getRight()).filter(rightFilters).build();
+
+        // Create the new Correlate
+        RelNode newCorrRel = corr.copy(corr.getTraitSet(), ImmutableList.of(leftRel, rightRel));
+
+        call.getPlanner().onCopy(corr, newCorrRel);
+
+        if (!leftFilters.isEmpty()) {
+            call.getPlanner().onCopy(filter, leftRel);
+        }
+        if (!rightFilters.isEmpty()) {
+            call.getPlanner().onCopy(filter, rightRel);
+        }
+
+        // Create a Filter on top of the join if needed
+        relBuilder.push(newCorrRel);
+        relBuilder.filter(
+                RexUtil.fixUp(rexBuilder, aboveFilters, RelOptUtil.getFieldTypeList(relBuilder.peek().getRowType())));
+
+        call.transformTo(relBuilder.build());
+    }
 }
 
 // End FilterCorrelateRule.java

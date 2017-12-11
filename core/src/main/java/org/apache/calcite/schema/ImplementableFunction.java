@@ -25,11 +25,13 @@ import org.apache.calcite.adapter.enumerable.CallImplementor;
  * @see TableFunction
  */
 public interface ImplementableFunction extends Function {
-  /**
-   * Returns implementor that translates the function to linq4j expression.
-   * @return implementor that translates the function to linq4j expression.
-   */
-  CallImplementor getImplementor();
+
+    /**
+     * Returns implementor that translates the function to linq4j expression.
+     *
+     * @return implementor that translates the function to linq4j expression.
+     */
+    CallImplementor getImplementor();
 }
 
 // End ImplementableFunction.java

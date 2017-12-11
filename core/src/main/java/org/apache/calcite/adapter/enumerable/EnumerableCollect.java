@@ -25,47 +25,36 @@ import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.core.Collect;
 import org.apache.calcite.util.BuiltInMethod;
 
-/** Implementation of {@link org.apache.calcite.rel.core.Collect} in
- * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}. */
+/**
+ * Implementation of {@link org.apache.calcite.rel.core.Collect} in
+ * {@link org.apache.calcite.adapter.enumerable.EnumerableConvention enumerable calling convention}.
+ */
 public class EnumerableCollect extends Collect implements EnumerableRel {
-  public EnumerableCollect(RelOptCluster cluster, RelTraitSet traitSet,
-      RelNode child, String fieldName) {
-    super(cluster, traitSet, child, fieldName);
-    assert getConvention() instanceof EnumerableConvention;
-    assert getConvention() == child.getConvention();
-  }
 
-  @Override public EnumerableCollect copy(RelTraitSet traitSet,
-      RelNode newInput) {
-    return new EnumerableCollect(getCluster(), traitSet, newInput, fieldName);
-  }
+    public EnumerableCollect(RelOptCluster cluster, RelTraitSet traitSet, RelNode child, String fieldName) {
+        super(cluster, traitSet, child, fieldName);
+        assert getConvention() instanceof EnumerableConvention;
+        assert getConvention() == child.getConvention();
+    }
 
-  public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
-    final BlockBuilder builder = new BlockBuilder();
-    final EnumerableRel child = (EnumerableRel) getInput();
-    final Result result = implementor.visitChild(this, 0, child, Prefer.ARRAY);
-    final PhysType physType =
-        PhysTypeImpl.of(
-            implementor.getTypeFactory(),
-            getRowType(),
-            JavaRowFormat.LIST);
+    @Override public EnumerableCollect copy(RelTraitSet traitSet, RelNode newInput) {
+        return new EnumerableCollect(getCluster(), traitSet, newInput, fieldName);
+    }
 
-    // final Enumerable<Employee> child = <<child adapter>>;
-    // final List<Employee> list = child.toList();
-    Expression child_ =
-        builder.append(
-            "child", result.block);
-    Expression list_ =
-        builder.append("list",
-            Expressions.call(child_,
-                BuiltInMethod.ENUMERABLE_TO_LIST.method));
+    public Result implement(EnumerableRelImplementor implementor, Prefer pref) {
+        final BlockBuilder builder = new BlockBuilder();
+        final EnumerableRel child = (EnumerableRel) getInput();
+        final Result result = implementor.visitChild(this, 0, child, Prefer.ARRAY);
+        final PhysType physType = PhysTypeImpl.of(implementor.getTypeFactory(), getRowType(), JavaRowFormat.LIST);
 
-    builder.add(
-        Expressions.return_(null,
-            Expressions.call(
-                BuiltInMethod.SINGLETON_ENUMERABLE.method, list_)));
-    return implementor.result(physType, builder.toBlock());
-  }
+        // final Enumerable<Employee> child = <<child adapter>>;
+        // final List<Employee> list = child.toList();
+        Expression child_ = builder.append("child", result.block);
+        Expression list_ = builder.append("list", Expressions.call(child_, BuiltInMethod.ENUMERABLE_TO_LIST.method));
+
+        builder.add(Expressions.return_(null, Expressions.call(BuiltInMethod.SINGLETON_ENUMERABLE.method, list_)));
+        return implementor.result(physType, builder.toBlock());
+    }
 }
 
 // End EnumerableCollect.java

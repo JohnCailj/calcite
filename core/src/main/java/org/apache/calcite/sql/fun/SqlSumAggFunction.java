@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql.fun;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.sql.SqlAggFunction;
@@ -24,8 +25,6 @@ import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlSplittableAggFunction;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
-
-import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
@@ -37,50 +36,40 @@ import java.util.List;
  */
 public class SqlSumAggFunction extends SqlAggFunction {
 
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  @Deprecated // to be removed before 2.0
-  private final RelDataType type;
+    @Deprecated // to be removed before 2.0
+    private final RelDataType type;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  public SqlSumAggFunction(RelDataType type) {
-    super(
-        "SUM",
-        null,
-        SqlKind.SUM,
-        ReturnTypes.AGG_SUM,
-        null,
-        OperandTypes.NUMERIC,
-        SqlFunctionCategory.NUMERIC,
-        false,
-        false);
-    this.type = type;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  @SuppressWarnings("deprecation")
-  public List<RelDataType> getParameterTypes(RelDataTypeFactory typeFactory) {
-    return ImmutableList.of(type);
-  }
-
-  @Deprecated // to be removed before 2.0
-  public RelDataType getType() {
-    return type;
-  }
-
-  @SuppressWarnings("deprecation")
-  public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
-    return type;
-  }
-
-  @Override public <T> T unwrap(Class<T> clazz) {
-    if (clazz == SqlSplittableAggFunction.class) {
-      return clazz.cast(SqlSplittableAggFunction.SumSplitter.INSTANCE);
+    public SqlSumAggFunction(RelDataType type) {
+        super("SUM", null, SqlKind.SUM, ReturnTypes.AGG_SUM, null, OperandTypes.NUMERIC, SqlFunctionCategory.NUMERIC,
+              false, false);
+        this.type = type;
     }
-    return super.unwrap(clazz);
-  }
+
+    //~ Methods ----------------------------------------------------------------
+
+    @SuppressWarnings("deprecation") public List<RelDataType> getParameterTypes(RelDataTypeFactory typeFactory) {
+        return ImmutableList.of(type);
+    }
+
+    @Deprecated // to be removed before 2.0
+    public RelDataType getType() {
+        return type;
+    }
+
+    @SuppressWarnings("deprecation") public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
+        return type;
+    }
+
+    @Override public <T> T unwrap(Class<T> clazz) {
+        if (clazz == SqlSplittableAggFunction.class) {
+            return clazz.cast(SqlSplittableAggFunction.SumSplitter.INSTANCE);
+        }
+        return super.unwrap(clazz);
+    }
 }
 
 // End SqlSumAggFunction.java

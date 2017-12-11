@@ -23,79 +23,75 @@ import java.util.Collection;
 
 /**
  * Row expression.
- *
  * <p>Every row-expression has a type.
  * (Compare with {@link org.apache.calcite.sql.SqlNode}, which is created before
  * validation, and therefore types may not be available.)
- *
  * <p>Some common row-expressions are: {@link RexLiteral} (constant value),
  * {@link RexVariable} (variable), {@link RexCall} (call to operator with
  * operands). Expressions are generally created using a {@link RexBuilder}
  * factory.</p>
- *
  * <p>All sub-classes of RexNode are immutable.</p>
  */
 public abstract class RexNode {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  // Effectively final. Set in each sub-class constructor, and never re-set.
-  protected String digest;
+    // Effectively final. Set in each sub-class constructor, and never re-set.
+    protected String digest;
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public abstract RelDataType getType();
+    public abstract RelDataType getType();
 
-  /**
-   * Returns whether this expression always returns true. (Such as if this
-   * expression is equal to the literal <code>TRUE</code>.)
-   */
-  public boolean isAlwaysTrue() {
-    return false;
-  }
+    /**
+     * Returns whether this expression always returns true. (Such as if this
+     * expression is equal to the literal <code>TRUE</code>.)
+     */
+    public boolean isAlwaysTrue() {
+        return false;
+    }
 
-  /**
-   * Returns whether this expression always returns false. (Such as if this
-   * expression is equal to the literal <code>FALSE</code>.)
-   */
-  public boolean isAlwaysFalse() {
-    return false;
-  }
+    /**
+     * Returns whether this expression always returns false. (Such as if this
+     * expression is equal to the literal <code>FALSE</code>.)
+     */
+    public boolean isAlwaysFalse() {
+        return false;
+    }
 
-  public boolean isA(SqlKind kind) {
-    return getKind() == kind;
-  }
+    public boolean isA(SqlKind kind) {
+        return getKind() == kind;
+    }
 
-  public boolean isA(Collection<SqlKind> kinds) {
-    return getKind().belongsTo(kinds);
-  }
+    public boolean isA(Collection<SqlKind> kinds) {
+        return getKind().belongsTo(kinds);
+    }
 
-  /**
-   * Returns the kind of node this is.
-   *
-   * @return Node kind, never null
-   */
-  public SqlKind getKind() {
-    return SqlKind.OTHER;
-  }
+    /**
+     * Returns the kind of node this is.
+     *
+     * @return Node kind, never null
+     */
+    public SqlKind getKind() {
+        return SqlKind.OTHER;
+    }
 
-  public String toString() {
-    return digest;
-  }
+    public String toString() {
+        return digest;
+    }
 
-  /**
-   * Accepts a visitor, dispatching to the right overloaded
-   * {@link RexVisitor#visitInputRef visitXxx} method.
-   *
-   * <p>Also see {@link RexUtil#apply(RexVisitor, java.util.List, RexNode)},
-   * which applies a visitor to several expressions simultaneously.
-   */
-  public abstract <R> R accept(RexVisitor<R> visitor);
+    /**
+     * Accepts a visitor, dispatching to the right overloaded
+     * {@link RexVisitor#visitInputRef visitXxx} method.
+     * <p>Also see {@link RexUtil#apply(RexVisitor, java.util.List, RexNode)},
+     * which applies a visitor to several expressions simultaneously.
+     */
+    public abstract <R> R accept(RexVisitor<R> visitor);
 
-  /**
-   * Accepts a visitor with a payload, dispatching to the right overloaded
-   * {@link RexBiVisitor#visitInputRef(RexInputRef, Object)} visitXxx} method.
-   */
-  public abstract <R, P> R accept(RexBiVisitor<R, P> visitor, P arg);
+    /**
+     * Accepts a visitor with a payload, dispatching to the right overloaded
+     * {@link RexBiVisitor#visitInputRef(RexInputRef, Object)} visitXxx} method.
+     */
+    public abstract <R, P> R accept(RexBiVisitor<R, P> visitor, P arg);
 }
 
 // End RexNode.java

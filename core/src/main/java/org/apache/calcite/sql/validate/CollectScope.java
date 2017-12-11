@@ -27,27 +27,24 @@ import org.apache.calcite.sql.SqlNode;
  * @see CollectNamespace
  */
 class CollectScope extends ListScope {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlValidatorScope usingScope;
-  private final SqlCall child;
+    private final SqlValidatorScope usingScope;
+    private final SqlCall           child;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  CollectScope(
-      SqlValidatorScope parent,
-      SqlValidatorScope usingScope,
-      SqlCall child) {
-    super(parent);
-    this.usingScope = usingScope;
-    this.child = child;
-  }
+    CollectScope(SqlValidatorScope parent, SqlValidatorScope usingScope, SqlCall child) {
+        super(parent);
+        this.usingScope = usingScope;
+        this.child = child;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public SqlNode getNode() {
-    return child;
-  }
+    public SqlNode getNode() {
+        return child;
+    }
 }
 
 // End CollectScope.java

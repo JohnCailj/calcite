@@ -18,74 +18,74 @@ package org.apache.calcite.sql.validate;
 
 /**
  * Abstract base class for implementing {@link SqlConformance}.
- *
  * <p>Every method in {@code SqlConformance} is implemented,
  * and behaves the same as in {@link SqlConformanceEnum#DEFAULT}.
  */
 public abstract class SqlAbstractConformance implements SqlConformance {
-  public boolean isGroupByAlias() {
-    return SqlConformanceEnum.DEFAULT.isGroupByAlias();
-  }
 
-  public boolean isGroupByOrdinal() {
-    return SqlConformanceEnum.DEFAULT.isGroupByOrdinal();
-  }
+    public boolean isGroupByAlias() {
+        return SqlConformanceEnum.DEFAULT.isGroupByAlias();
+    }
 
-  public boolean isHavingAlias() {
-    return SqlConformanceEnum.DEFAULT.isHavingAlias();
-  }
+    public boolean isGroupByOrdinal() {
+        return SqlConformanceEnum.DEFAULT.isGroupByOrdinal();
+    }
 
-  public boolean isSortByOrdinal() {
-    return SqlConformanceEnum.DEFAULT.isSortByOrdinal();
-  }
+    public boolean isHavingAlias() {
+        return SqlConformanceEnum.DEFAULT.isHavingAlias();
+    }
 
-  public boolean isSortByAlias() {
-    return SqlConformanceEnum.DEFAULT.isSortByAlias();
-  }
+    public boolean isSortByOrdinal() {
+        return SqlConformanceEnum.DEFAULT.isSortByOrdinal();
+    }
 
-  public boolean isSortByAliasObscures() {
-    return SqlConformanceEnum.DEFAULT.isSortByAliasObscures();
-  }
+    public boolean isSortByAlias() {
+        return SqlConformanceEnum.DEFAULT.isSortByAlias();
+    }
 
-  public boolean isFromRequired() {
-    return SqlConformanceEnum.DEFAULT.isFromRequired();
-  }
+    public boolean isSortByAliasObscures() {
+        return SqlConformanceEnum.DEFAULT.isSortByAliasObscures();
+    }
 
-  public boolean isBangEqualAllowed() {
-    return SqlConformanceEnum.DEFAULT.isBangEqualAllowed();
-  }
+    public boolean isFromRequired() {
+        return SqlConformanceEnum.DEFAULT.isFromRequired();
+    }
 
-  public boolean isMinusAllowed() {
-    return SqlConformanceEnum.DEFAULT.isMinusAllowed();
-  }
+    public boolean isBangEqualAllowed() {
+        return SqlConformanceEnum.DEFAULT.isBangEqualAllowed();
+    }
 
-  public boolean isApplyAllowed() {
-    return SqlConformanceEnum.DEFAULT.isApplyAllowed();
-  }
+    public boolean isMinusAllowed() {
+        return SqlConformanceEnum.DEFAULT.isMinusAllowed();
+    }
 
-  public boolean isInsertSubsetColumnsAllowed() {
-    return SqlConformanceEnum.DEFAULT.isInsertSubsetColumnsAllowed();
-  }
+    public boolean isApplyAllowed() {
+        return SqlConformanceEnum.DEFAULT.isApplyAllowed();
+    }
 
-  public boolean allowNiladicParentheses() {
-    return SqlConformanceEnum.DEFAULT.allowNiladicParentheses();
-  }
+    public boolean isInsertSubsetColumnsAllowed() {
+        return SqlConformanceEnum.DEFAULT.isInsertSubsetColumnsAllowed();
+    }
 
-  public boolean allowExtend() {
-    return SqlConformanceEnum.DEFAULT.allowExtend();
-  }
+    public boolean allowNiladicParentheses() {
+        return SqlConformanceEnum.DEFAULT.allowNiladicParentheses();
+    }
 
-  public boolean isLimitStartCountAllowed() {
-    return SqlConformanceEnum.DEFAULT.isLimitStartCountAllowed();
-  }
+    public boolean allowExtend() {
+        return SqlConformanceEnum.DEFAULT.allowExtend();
+    }
 
-  public boolean isPercentRemainderAllowed() {
-    return SqlConformanceEnum.DEFAULT.isPercentRemainderAllowed();
-  }
+    public boolean isLimitStartCountAllowed() {
+        return SqlConformanceEnum.DEFAULT.isLimitStartCountAllowed();
+    }
 
-  public boolean allowGeometry() {
-    return SqlConformanceEnum.DEFAULT.allowGeometry();
-  }
+    public boolean isPercentRemainderAllowed() {
+        return SqlConformanceEnum.DEFAULT.isPercentRemainderAllowed();
+    }
+
+    public boolean allowGeometry() {
+        return SqlConformanceEnum.DEFAULT.allowGeometry();
+    }
 }
 
 // End SqlAbstractConformance.java

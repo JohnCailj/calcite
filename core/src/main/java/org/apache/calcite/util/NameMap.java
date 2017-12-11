@@ -25,59 +25,73 @@ import java.util.TreeMap;
 
 import static org.apache.calcite.util.NameSet.COMPARATOR;
 
-/** Map whose keys are names and can be accessed with and without case
+/**
+ * Map whose keys are names and can be accessed with and without case
  * sensitivity.
  *
- * @param <V> Value type */
+ * @param <V> Value type
+ */
 public class NameMap<V> {
-  private final NavigableMap<String, V> map;
 
-  /** Creates a NameSet based on an existing set. */
-  private NameMap(NavigableMap<String, V> map) {
-    this.map = map;
-    assert this.map.comparator() == COMPARATOR;
-  }
+    private final NavigableMap<String, V> map;
 
-  /** Creates a NameMap, initially empty. */
-  public NameMap() {
-    this(new TreeMap<String, V>(COMPARATOR));
-  }
-
-  /** Creates a NameMap that is an immutable copy of a given map. */
-  public static <V> NameMap immutableCopyOf(Map<String, V> names) {
-    return new NameMap<>(ImmutableSortedMap.copyOf(names, COMPARATOR));
-  }
-
-  public void put(String name, V v) {
-    map.put(name, v);
-  }
-
-  /** Returns a map containing all the entries in the map that match the given
-   * name. If case-sensitive, that map will have 0 or 1 elements; if
-   * case-insensitive, it may have 0 or more. */
-  public NavigableMap<String, V> range(String name, boolean caseSensitive) {
-    if (caseSensitive) {
-      if (map.containsKey(name)) {
-        return ImmutableSortedMap.of(name, map.get(name));
-      } else {
-        return ImmutableSortedMap.of();
-      }
-    } else {
-      return map.subMap(name.toUpperCase(Locale.ROOT), true,
-          name.toLowerCase(Locale.ROOT), true);
+    /**
+     * Creates a NameSet based on an existing set.
+     */
+    private NameMap(NavigableMap<String, V> map) {
+        this.map = map;
+        assert this.map.comparator() == COMPARATOR;
     }
-  }
 
-  /** Returns whether this map contains a given key, with a given
-   * case-sensitivity. */
-  public boolean containsKey(String name, boolean caseSensitive) {
-    return !range(name, caseSensitive).isEmpty();
-  }
+    /**
+     * Creates a NameMap, initially empty.
+     */
+    public NameMap() {
+        this(new TreeMap<String, V>(COMPARATOR));
+    }
 
-  /** Returns the underlying map. */
-  public NavigableMap<String, V> map() {
-    return map;
-  }
+    /**
+     * Creates a NameMap that is an immutable copy of a given map.
+     */
+    public static <V> NameMap immutableCopyOf(Map<String, V> names) {
+        return new NameMap<>(ImmutableSortedMap.copyOf(names, COMPARATOR));
+    }
+
+    public void put(String name, V v) {
+        map.put(name, v);
+    }
+
+    /**
+     * Returns a map containing all the entries in the map that match the given
+     * name. If case-sensitive, that map will have 0 or 1 elements; if
+     * case-insensitive, it may have 0 or more.
+     */
+    public NavigableMap<String, V> range(String name, boolean caseSensitive) {
+        if (caseSensitive) {
+            if (map.containsKey(name)) {
+                return ImmutableSortedMap.of(name, map.get(name));
+            } else {
+                return ImmutableSortedMap.of();
+            }
+        } else {
+            return map.subMap(name.toUpperCase(Locale.ROOT), true, name.toLowerCase(Locale.ROOT), true);
+        }
+    }
+
+    /**
+     * Returns whether this map contains a given key, with a given
+     * case-sensitivity.
+     */
+    public boolean containsKey(String name, boolean caseSensitive) {
+        return !range(name, caseSensitive).isEmpty();
+    }
+
+    /**
+     * Returns the underlying map.
+     */
+    public NavigableMap<String, V> map() {
+        return map;
+    }
 }
 
 // End NameMap.java

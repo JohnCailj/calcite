@@ -16,10 +16,11 @@
  */
 package org.apache.calcite.sql.validate;
 
-/** Relational or streaming. */
+/**
+ * Relational or streaming.
+ */
 public enum SqlModality {
-  RELATION,
-  STREAM
+    RELATION, STREAM
 }
 
 // End SqlModality.java

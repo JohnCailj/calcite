@@ -18,14 +18,16 @@ package org.apache.calcite.interpreter;
 
 /**
  * Source of rows.
- *
  * <p>Corresponds to an input of a relational expression.
  */
 public interface Source extends AutoCloseable {
-  /** Reads a row. Null means end of data. */
-  Row receive();
 
-  void close();
+    /**
+     * Reads a row. Null means end of data.
+     */
+    Row receive();
+
+    void close();
 }
 
 // End Source.java

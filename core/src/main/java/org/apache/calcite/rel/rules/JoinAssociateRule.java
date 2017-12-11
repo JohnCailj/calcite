@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.rel.rules;
 
+import com.google.common.collect.Lists;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelOptRule;
 import org.apache.calcite.plan.RelOptRuleCall;
@@ -30,15 +31,11 @@ import org.apache.calcite.rex.RexUtil;
 import org.apache.calcite.util.ImmutableBitSet;
 import org.apache.calcite.util.mapping.Mappings;
 
-import com.google.common.collect.Lists;
-
 import java.util.List;
 
 /**
  * Planner rule that changes a join based on the associativity rule.
- *
  * <p>((a JOIN b) JOIN c) &rarr; (a JOIN (b JOIN c))</p>
- *
  * <p>We do not need a rule to convert (a JOIN (b JOIN c)) &rarr;
  * ((a JOIN b) JOIN c) because we have
  * {@link JoinCommuteRule}.
@@ -46,110 +43,99 @@ import java.util.List;
  * @see JoinCommuteRule
  */
 public class JoinAssociateRule extends RelOptRule {
-  //~ Static fields/initializers ---------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-  /** The singleton. */
-  public static final JoinAssociateRule INSTANCE = new JoinAssociateRule();
+    /**
+     * The singleton.
+     */
+    public static final JoinAssociateRule INSTANCE = new JoinAssociateRule();
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a JoinAssociateRule.
-   */
-  private JoinAssociateRule() {
-    super(
-        operand(Join.class,
-            operand(Join.class, any()),
-            operand(RelSubset.class, any())));
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-  public void onMatch(final RelOptRuleCall call) {
-    final Join topJoin = call.rel(0);
-    final Join bottomJoin = call.rel(1);
-    final RelNode relA = bottomJoin.getLeft();
-    final RelNode relB = bottomJoin.getRight();
-    final RelSubset relC = call.rel(2);
-    final RelOptCluster cluster = topJoin.getCluster();
-    final RexBuilder rexBuilder = cluster.getRexBuilder();
-
-    if (relC.getConvention() != relA.getConvention()) {
-      // relC could have any trait-set. But if we're matching say
-      // EnumerableConvention, we're only interested in enumerable subsets.
-      return;
+    /**
+     * Creates a JoinAssociateRule.
+     */
+    private JoinAssociateRule() {
+        super(operand(Join.class, operand(Join.class, any()), operand(RelSubset.class, any())));
     }
 
-    //        topJoin
-    //        /     \
-    //   bottomJoin  C
-    //    /    \
-    //   A      B
+    //~ Methods ----------------------------------------------------------------
 
-    final int aCount = relA.getRowType().getFieldCount();
-    final int bCount = relB.getRowType().getFieldCount();
-    final int cCount = relC.getRowType().getFieldCount();
-    final ImmutableBitSet aBitSet = ImmutableBitSet.range(0, aCount);
-    final ImmutableBitSet bBitSet =
-        ImmutableBitSet.range(aCount, aCount + bCount);
+    public void onMatch(final RelOptRuleCall call) {
+        final Join topJoin = call.rel(0);
+        final Join bottomJoin = call.rel(1);
+        final RelNode relA = bottomJoin.getLeft();
+        final RelNode relB = bottomJoin.getRight();
+        final RelSubset relC = call.rel(2);
+        final RelOptCluster cluster = topJoin.getCluster();
+        final RexBuilder rexBuilder = cluster.getRexBuilder();
 
-    if (!topJoin.getSystemFieldList().isEmpty()) {
-      // FIXME Enable this rule for joins with system fields
-      return;
+        if (relC.getConvention() != relA.getConvention()) {
+            // relC could have any trait-set. But if we're matching say
+            // EnumerableConvention, we're only interested in enumerable subsets.
+            return;
+        }
+
+        //        topJoin
+        //        /     \
+        //   bottomJoin  C
+        //    /    \
+        //   A      B
+
+        final int aCount = relA.getRowType().getFieldCount();
+        final int bCount = relB.getRowType().getFieldCount();
+        final int cCount = relC.getRowType().getFieldCount();
+        final ImmutableBitSet aBitSet = ImmutableBitSet.range(0, aCount);
+        final ImmutableBitSet bBitSet = ImmutableBitSet.range(aCount, aCount + bCount);
+
+        if (!topJoin.getSystemFieldList().isEmpty()) {
+            // FIXME Enable this rule for joins with system fields
+            return;
+        }
+
+        // If either join is not inner, we cannot proceed.
+        // (Is this too strict?)
+        if (topJoin.getJoinType() != JoinRelType.INNER || bottomJoin.getJoinType() != JoinRelType.INNER) {
+            return;
+        }
+
+        // Goal is to transform to
+        //
+        //       newTopJoin
+        //        /     \
+        //       A   newBottomJoin
+        //               /    \
+        //              B      C
+
+        // Split the condition of topJoin and bottomJoin into a conjunctions. A
+        // condition can be pushed down if it does not use columns from A.
+        final List<RexNode> top = Lists.newArrayList();
+        final List<RexNode> bottom = Lists.newArrayList();
+        JoinPushThroughJoinRule.split(topJoin.getCondition(), aBitSet, top, bottom);
+        JoinPushThroughJoinRule.split(bottomJoin.getCondition(), aBitSet, top, bottom);
+
+        // Mapping for moving conditions from topJoin or bottomJoin to
+        // newBottomJoin.
+        // target: | B | C      |
+        // source: | A       | B | C      |
+        final Mappings.TargetMapping bottomMapping = Mappings.createShiftMapping(aCount + bCount + cCount, 0, aCount,
+                                                                                 bCount, bCount, aCount + bCount,
+                                                                                 cCount);
+        final List<RexNode> newBottomList = Lists.newArrayList();
+        new RexPermuteInputsShuttle(bottomMapping, relB, relC).visitList(bottom, newBottomList);
+        RexNode newBottomCondition = RexUtil.composeConjunction(rexBuilder, newBottomList, false);
+
+        final Join newBottomJoin = bottomJoin.copy(bottomJoin.getTraitSet(), newBottomCondition, relB, relC,
+                                                   JoinRelType.INNER, false);
+
+        // Condition for newTopJoin consists of pieces from bottomJoin and topJoin.
+        // Field ordinals do not need to be changed.
+        RexNode newTopCondition = RexUtil.composeConjunction(rexBuilder, top, false);
+        final Join newTopJoin = topJoin.copy(topJoin.getTraitSet(), newTopCondition, relA, newBottomJoin,
+                                             JoinRelType.INNER, false);
+
+        call.transformTo(newTopJoin);
     }
-
-    // If either join is not inner, we cannot proceed.
-    // (Is this too strict?)
-    if (topJoin.getJoinType() != JoinRelType.INNER
-        || bottomJoin.getJoinType() != JoinRelType.INNER) {
-      return;
-    }
-
-    // Goal is to transform to
-    //
-    //       newTopJoin
-    //        /     \
-    //       A   newBottomJoin
-    //               /    \
-    //              B      C
-
-    // Split the condition of topJoin and bottomJoin into a conjunctions. A
-    // condition can be pushed down if it does not use columns from A.
-    final List<RexNode> top = Lists.newArrayList();
-    final List<RexNode> bottom = Lists.newArrayList();
-    JoinPushThroughJoinRule.split(topJoin.getCondition(), aBitSet, top, bottom);
-    JoinPushThroughJoinRule.split(bottomJoin.getCondition(), aBitSet, top,
-        bottom);
-
-    // Mapping for moving conditions from topJoin or bottomJoin to
-    // newBottomJoin.
-    // target: | B | C      |
-    // source: | A       | B | C      |
-    final Mappings.TargetMapping bottomMapping =
-        Mappings.createShiftMapping(
-            aCount + bCount + cCount,
-            0, aCount, bCount,
-            bCount, aCount + bCount, cCount);
-    final List<RexNode> newBottomList = Lists.newArrayList();
-    new RexPermuteInputsShuttle(bottomMapping, relB, relC)
-        .visitList(bottom, newBottomList);
-    RexNode newBottomCondition =
-        RexUtil.composeConjunction(rexBuilder, newBottomList, false);
-
-    final Join newBottomJoin =
-        bottomJoin.copy(bottomJoin.getTraitSet(), newBottomCondition, relB,
-            relC, JoinRelType.INNER, false);
-
-    // Condition for newTopJoin consists of pieces from bottomJoin and topJoin.
-    // Field ordinals do not need to be changed.
-    RexNode newTopCondition =
-        RexUtil.composeConjunction(rexBuilder, top, false);
-    final Join newTopJoin =
-        topJoin.copy(topJoin.getTraitSet(), newTopCondition, relA,
-            newBottomJoin, JoinRelType.INNER, false);
-
-    call.transformTo(newTopJoin);
-  }
 }
 
 // End JoinAssociateRule.java

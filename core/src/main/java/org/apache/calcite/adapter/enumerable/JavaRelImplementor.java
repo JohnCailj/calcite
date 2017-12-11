@@ -27,31 +27,31 @@ import org.apache.calcite.rex.RexBuilder;
  * that generate java code.
  */
 public abstract class JavaRelImplementor implements RelImplementor {
-  private final RexBuilder rexBuilder;
 
-  public JavaRelImplementor(RexBuilder rexBuilder) {
-    this.rexBuilder = rexBuilder;
-    assert rexBuilder.getTypeFactory() instanceof JavaTypeFactory
-        : "Type factory of rexBuilder should be a JavaTypeFactory";
-  }
+    private final RexBuilder rexBuilder;
 
-  public RexBuilder getRexBuilder() {
-    return rexBuilder;
-  }
+    public JavaRelImplementor(RexBuilder rexBuilder) {
+        this.rexBuilder = rexBuilder;
+        assert rexBuilder.getTypeFactory() instanceof JavaTypeFactory : "Type factory of rexBuilder should be a JavaTypeFactory";
+    }
 
-  public JavaTypeFactory getTypeFactory() {
-    return (JavaTypeFactory) rexBuilder.getTypeFactory();
-  }
+    public RexBuilder getRexBuilder() {
+        return rexBuilder;
+    }
 
-  /**
-   * Returns the expression used to access
-   * {@link org.apache.calcite.DataContext}.
-   *
-   * @return expression used to access {@link org.apache.calcite.DataContext}.
-   */
-  public ParameterExpression getRootExpression() {
-    return DataContext.ROOT;
-  }
+    public JavaTypeFactory getTypeFactory() {
+        return (JavaTypeFactory) rexBuilder.getTypeFactory();
+    }
+
+    /**
+     * Returns the expression used to access
+     * {@link org.apache.calcite.DataContext}.
+     *
+     * @return expression used to access {@link org.apache.calcite.DataContext}.
+     */
+    public ParameterExpression getRootExpression() {
+        return DataContext.ROOT;
+    }
 }
 
 // End JavaRelImplementor.java

@@ -22,45 +22,39 @@ import org.apache.calcite.sql.SqlSelect;
 
 /**
  * Represents the name-resolution context for expressions in an GROUP BY clause.
- *
  * <p>In some dialects of SQL, the GROUP BY clause can reference column aliases
  * in the SELECT clause. For example, the query</p>
- *
  * <blockquote><code>SELECT empno AS x<br>
  * FROM emp<br>
  * GROUP BY x</code></blockquote>
- *
  * <p>is valid.</p>
  */
 public class GroupByScope extends DelegatingScope {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlNodeList groupByList;
-  private final SqlSelect select;
+    private final SqlNodeList groupByList;
+    private final SqlSelect   select;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  GroupByScope(
-      SqlValidatorScope parent,
-      SqlNodeList groupByList,
-      SqlSelect select) {
-    super(parent);
-    this.groupByList = groupByList;
-    this.select = select;
-  }
+    GroupByScope(SqlValidatorScope parent, SqlNodeList groupByList, SqlSelect select) {
+        super(parent);
+        this.groupByList = groupByList;
+        this.select = select;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public SqlNode getNode() {
-    return groupByList;
-  }
+    public SqlNode getNode() {
+        return groupByList;
+    }
 
-  public void validateExpr(SqlNode expr) {
-    SqlNode expanded = validator.expandGroupByOrHavingExpr(expr, this, select, false);
+    public void validateExpr(SqlNode expr) {
+        SqlNode expanded = validator.expandGroupByOrHavingExpr(expr, this, select, false);
 
-    // expression needs to be valid in parent scope too
-    parent.validateExpr(expanded);
-  }
+        // expression needs to be valid in parent scope too
+        parent.validateExpr(expanded);
+    }
 }
 
 // End GroupByScope.java

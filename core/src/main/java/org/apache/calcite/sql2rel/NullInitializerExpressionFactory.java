@@ -28,23 +28,21 @@ import java.util.List;
  */
 public class NullInitializerExpressionFactory implements InitializerExpressionFactory {
 
-  public NullInitializerExpressionFactory() {
-  }
+    public NullInitializerExpressionFactory() {
+    }
 
-  public boolean isGeneratedAlways(RelOptTable table, int iColumn) {
-    return false;
-  }
+    public boolean isGeneratedAlways(RelOptTable table, int iColumn) {
+        return false;
+    }
 
-  public RexNode newColumnDefaultValue(RelOptTable table, int iColumn,
-      InitializerContext context) {
-    return context.getRexBuilder().constantNull();
-  }
+    public RexNode newColumnDefaultValue(RelOptTable table, int iColumn, InitializerContext context) {
+        return context.getRexBuilder().constantNull();
+    }
 
-  public RexNode newAttributeInitializer(RelDataType type,
-      SqlFunction constructor, int iAttribute, List<RexNode> constructorArgs,
-      InitializerContext context) {
-    return context.getRexBuilder().constantNull();
-  }
+    public RexNode newAttributeInitializer(RelDataType type, SqlFunction constructor, int iAttribute,
+                                           List<RexNode> constructorArgs, InitializerContext context) {
+        return context.getRexBuilder().constantNull();
+    }
 }
 
 // End NullInitializerExpressionFactory.java

@@ -22,20 +22,16 @@ import org.apache.calcite.sql.SqlKind;
 
 /**
  * Access to a field of a row-expression.
- *
  * <p>You might expect to use a <code>RexFieldAccess</code> to access columns of
  * relational tables, for example, the expression <code>emp.empno</code> in the
  * query
- *
  * <blockquote>
  * <pre>SELECT emp.empno FROM emp</pre>
  * </blockquote>
- *
  * <p>but there is a specialized expression {@link RexInputRef} for this
  * purpose. So in practice, <code>RexFieldAccess</code> is usually used to
  * access fields of correlating variables, for example the expression
  * <code>emp.deptno</code> in
- *
  * <blockquote>
  * <pre>SELECT ename
  * FROM dept
@@ -47,50 +43,48 @@ import org.apache.calcite.sql.SqlKind;
  * </blockquote>
  */
 public class RexFieldAccess extends RexNode {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final RexNode expr;
-  private final RelDataTypeField field;
+    private final RexNode          expr;
+    private final RelDataTypeField field;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  RexFieldAccess(
-      RexNode expr,
-      RelDataTypeField field) {
-    this.expr = expr;
-    this.field = field;
-    this.digest = expr + "." + field.getName();
-    assert expr.getType().getFieldList().get(field.getIndex()) == field;
-  }
+    RexFieldAccess(RexNode expr, RelDataTypeField field) {
+        this.expr = expr;
+        this.field = field;
+        this.digest = expr + "." + field.getName();
+        assert expr.getType().getFieldList().get(field.getIndex()) == field;
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  public RelDataTypeField getField() {
-    return field;
-  }
+    public RelDataTypeField getField() {
+        return field;
+    }
 
-  public RelDataType getType() {
-    return field.getType();
-  }
+    public RelDataType getType() {
+        return field.getType();
+    }
 
-  public SqlKind getKind() {
-    return SqlKind.FIELD_ACCESS;
-  }
+    public SqlKind getKind() {
+        return SqlKind.FIELD_ACCESS;
+    }
 
-  public <R> R accept(RexVisitor<R> visitor) {
-    return visitor.visitFieldAccess(this);
-  }
+    public <R> R accept(RexVisitor<R> visitor) {
+        return visitor.visitFieldAccess(this);
+    }
 
-  public <R, P> R accept(RexBiVisitor<R, P> visitor, P arg) {
-    return visitor.visitFieldAccess(this, arg);
-  }
+    public <R, P> R accept(RexBiVisitor<R, P> visitor, P arg) {
+        return visitor.visitFieldAccess(this, arg);
+    }
 
-  /**
-   * Returns the expression whose field is being accessed.
-   */
-  public RexNode getReferenceExpr() {
-    return expr;
-  }
+    /**
+     * Returns the expression whose field is being accessed.
+     */
+    public RexNode getReferenceExpr() {
+        return expr;
+    }
 }
 
 // End RexFieldAccess.java

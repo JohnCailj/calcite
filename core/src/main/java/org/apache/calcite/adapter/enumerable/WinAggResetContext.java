@@ -19,17 +19,15 @@ package org.apache.calcite.adapter.enumerable;
 /**
  * Information for a call to
  * {@link AggImplementor#implementReset(AggContext, AggResetContext)}.
- *
  * <p>The {@link AggResetContext} provides access to the accumulator variables
  * that should be reset.
- *
  * <p>Note: the very first reset of windowed aggregates is performed with null
  * knowledge of indices and row count in the partition.
  * In other words, the implementation should treat indices and partition row
  * count as a hint to pre-size the collections.
  */
-public interface WinAggResetContext
-    extends AggResetContext, WinAggFrameContext {
+public interface WinAggResetContext extends AggResetContext, WinAggFrameContext {
+
 }
 
 // End WinAggResetContext.java

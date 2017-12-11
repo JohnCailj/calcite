@@ -20,50 +20,46 @@ import org.apache.calcite.plan.RelOptSamplingParameters;
 
 import java.util.Objects;
 
-/** Mutable equivalent of {@link org.apache.calcite.rel.core.Sample}. */
+/**
+ * Mutable equivalent of {@link org.apache.calcite.rel.core.Sample}.
+ */
 public class MutableSample extends MutableSingleRel {
-  public final RelOptSamplingParameters params;
 
-  private MutableSample(MutableRel input, RelOptSamplingParameters params) {
-    super(MutableRelType.SAMPLE, input.rowType, input);
-    this.params = params;
-  }
+    public final RelOptSamplingParameters params;
 
-  /**
-   * Creates a MutableSample.
-   *
-   * @param input   Input relational expression
-   * @param params  parameters necessary to produce a sample of a relation
-   */
-  public static MutableSample of(
-      MutableRel input, RelOptSamplingParameters params) {
-    return new MutableSample(input, params);
-  }
+    private MutableSample(MutableRel input, RelOptSamplingParameters params) {
+        super(MutableRelType.SAMPLE, input.rowType, input);
+        this.params = params;
+    }
 
-  @Override public boolean equals(Object obj) {
-    return obj == this
-        || obj instanceof MutableSample
-        && params.equals(((MutableSample) obj).params)
-        && input.equals(((MutableSample) obj).input);
-  }
+    /**
+     * Creates a MutableSample.
+     *
+     * @param input  Input relational expression
+     * @param params parameters necessary to produce a sample of a relation
+     */
+    public static MutableSample of(MutableRel input, RelOptSamplingParameters params) {
+        return new MutableSample(input, params);
+    }
 
-  @Override public int hashCode() {
-    return Objects.hash(input, params);
-  }
+    @Override public boolean equals(Object obj) {
+        return obj == this || obj instanceof MutableSample && params.equals(((MutableSample) obj).params)
+                              && input.equals(((MutableSample) obj).input);
+    }
 
-  @Override public StringBuilder digest(StringBuilder buf) {
-    return buf.append("Sample(mode: ")
-        .append(params.isBernoulli() ? "bernoulli" : "system")
-        .append("rate")
-        .append(params.getSamplingPercentage())
-        .append("repeatableSeed")
-        .append(params.isRepeatable() ? params.getRepeatableSeed() : "-")
-        .append(")");
-  }
+    @Override public int hashCode() {
+        return Objects.hash(input, params);
+    }
 
-  @Override public MutableRel clone() {
-    return MutableSample.of(input.clone(), params);
-  }
+    @Override public StringBuilder digest(StringBuilder buf) {
+        return buf.append("Sample(mode: ").append(params.isBernoulli() ? "bernoulli" : "system").append("rate").append(
+                params.getSamplingPercentage()).append("repeatableSeed").append(
+                params.isRepeatable() ? params.getRepeatableSeed() : "-").append(")");
+    }
+
+    @Override public MutableRel clone() {
+        return MutableSample.of(input.clone(), params);
+    }
 }
 
 // End MutableSample.java

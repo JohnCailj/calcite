@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql.validate;
 
+import com.google.common.collect.Lists;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.schema.Function;
 import org.apache.calcite.schema.FunctionParameter;
@@ -28,55 +29,52 @@ import org.apache.calcite.sql.type.SqlOperandTypeInference;
 import org.apache.calcite.sql.type.SqlReturnTypeInference;
 import org.apache.calcite.util.Util;
 
-import com.google.common.collect.Lists;
-
 import java.util.List;
 
 /**
-* User-defined scalar function.
- *
+ * User-defined scalar function.
  * <p>Created by the validator, after resolving a function call to a function
  * defined in a Calcite schema.</p>
-*/
+ */
 public class SqlUserDefinedFunction extends SqlFunction {
-  public final Function function;
 
-  /** Creates a {@link SqlUserDefinedFunction}. */
-  public SqlUserDefinedFunction(SqlIdentifier opName,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker,
-      List<RelDataType> paramTypes,
-      Function function) {
-    this(opName, returnTypeInference, operandTypeInference, operandTypeChecker,
-        paramTypes, function, SqlFunctionCategory.USER_DEFINED_FUNCTION);
-  }
+    public final Function function;
 
-  /** Constructor used internally and by derived classes. */
-  protected SqlUserDefinedFunction(SqlIdentifier opName,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker,
-      List<RelDataType> paramTypes,
-      Function function,
-      SqlFunctionCategory category) {
-    super(Util.last(opName.names), opName, SqlKind.OTHER_FUNCTION,
-        returnTypeInference, operandTypeInference, operandTypeChecker,
-        paramTypes, category);
-    this.function = function;
-  }
+    /**
+     * Creates a {@link SqlUserDefinedFunction}.
+     */
+    public SqlUserDefinedFunction(SqlIdentifier opName, SqlReturnTypeInference returnTypeInference,
+                                  SqlOperandTypeInference operandTypeInference,
+                                  SqlOperandTypeChecker operandTypeChecker, List<RelDataType> paramTypes,
+                                  Function function) {
+        this(opName, returnTypeInference, operandTypeInference, operandTypeChecker, paramTypes, function,
+             SqlFunctionCategory.USER_DEFINED_FUNCTION);
+    }
 
-  /**
-   * Returns function that implements given operator call.
-   * @return function that implements given operator call
-   */
-  public Function getFunction() {
-    return function;
-  }
+    /**
+     * Constructor used internally and by derived classes.
+     */
+    protected SqlUserDefinedFunction(SqlIdentifier opName, SqlReturnTypeInference returnTypeInference,
+                                     SqlOperandTypeInference operandTypeInference,
+                                     SqlOperandTypeChecker operandTypeChecker, List<RelDataType> paramTypes,
+                                     Function function, SqlFunctionCategory category) {
+        super(Util.last(opName.names), opName, SqlKind.OTHER_FUNCTION, returnTypeInference, operandTypeInference,
+              operandTypeChecker, paramTypes, category);
+        this.function = function;
+    }
 
-  @Override public List<String> getParamNames() {
-    return Lists.transform(function.getParameters(), FunctionParameter.NAME_FN);
-  }
+    /**
+     * Returns function that implements given operator call.
+     *
+     * @return function that implements given operator call
+     */
+    public Function getFunction() {
+        return function;
+    }
+
+    @Override public List<String> getParamNames() {
+        return Lists.transform(function.getParameters(), FunctionParameter.NAME_FN);
+    }
 }
 
 // End SqlUserDefinedFunction.java

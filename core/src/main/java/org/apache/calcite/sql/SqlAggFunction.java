@@ -32,105 +32,93 @@ import java.util.List;
  * which aggregates sets of values into a result.
  */
 public abstract class SqlAggFunction extends SqlFunction implements Context {
-  private final boolean requiresOrder;
-  private final boolean requiresOver;
 
-  //~ Constructors -----------------------------------------------------------
+    private final boolean requiresOrder;
+    private final boolean requiresOver;
 
-  /** Creates a built-in SqlAggFunction. */
-  @Deprecated // to be removed before 2.0
-  protected SqlAggFunction(
-      String name,
-      SqlKind kind,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker,
-      SqlFunctionCategory funcType) {
-    // We leave sqlIdentifier as null to indicate that this is a builtin.
-    this(name, null, kind, returnTypeInference, operandTypeInference,
-        operandTypeChecker, funcType, false, false);
-  }
+    //~ Constructors -----------------------------------------------------------
 
-  /** Creates a user-defined SqlAggFunction. */
-  @Deprecated // to be removed before 2.0
-  protected SqlAggFunction(
-      String name,
-      SqlIdentifier sqlIdentifier,
-      SqlKind kind,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker,
-      SqlFunctionCategory funcType) {
-    this(name, sqlIdentifier, kind, returnTypeInference, operandTypeInference,
-        operandTypeChecker, funcType, false, false);
-  }
+    /**
+     * Creates a built-in SqlAggFunction.
+     */
+    @Deprecated // to be removed before 2.0
+    protected SqlAggFunction(String name, SqlKind kind, SqlReturnTypeInference returnTypeInference,
+                             SqlOperandTypeInference operandTypeInference, SqlOperandTypeChecker operandTypeChecker,
+                             SqlFunctionCategory funcType) {
+        // We leave sqlIdentifier as null to indicate that this is a builtin.
+        this(name, null, kind, returnTypeInference, operandTypeInference, operandTypeChecker, funcType, false, false);
+    }
 
-  /** Creates a built-in or user-defined SqlAggFunction or window function.
-   *
-   * <p>A user-defined function will have a value for {@code sqlIdentifier}; for
-   * a built-in function it will be null. */
-  protected SqlAggFunction(
-      String name,
-      SqlIdentifier sqlIdentifier,
-      SqlKind kind,
-      SqlReturnTypeInference returnTypeInference,
-      SqlOperandTypeInference operandTypeInference,
-      SqlOperandTypeChecker operandTypeChecker,
-      SqlFunctionCategory funcType,
-      boolean requiresOrder,
-      boolean requiresOver) {
-    super(name, sqlIdentifier, kind, returnTypeInference, operandTypeInference,
-        operandTypeChecker, null, funcType);
-    this.requiresOrder = requiresOrder;
-    this.requiresOver = requiresOver;
-  }
+    /**
+     * Creates a user-defined SqlAggFunction.
+     */
+    @Deprecated // to be removed before 2.0
+    protected SqlAggFunction(String name, SqlIdentifier sqlIdentifier, SqlKind kind,
+                             SqlReturnTypeInference returnTypeInference, SqlOperandTypeInference operandTypeInference,
+                             SqlOperandTypeChecker operandTypeChecker, SqlFunctionCategory funcType) {
+        this(name, sqlIdentifier, kind, returnTypeInference, operandTypeInference, operandTypeChecker, funcType, false,
+             false);
+    }
 
-  //~ Methods ----------------------------------------------------------------
+    /**
+     * Creates a built-in or user-defined SqlAggFunction or window function.
+     * <p>A user-defined function will have a value for {@code sqlIdentifier}; for
+     * a built-in function it will be null.
+     */
+    protected SqlAggFunction(String name, SqlIdentifier sqlIdentifier, SqlKind kind,
+                             SqlReturnTypeInference returnTypeInference, SqlOperandTypeInference operandTypeInference,
+                             SqlOperandTypeChecker operandTypeChecker, SqlFunctionCategory funcType,
+                             boolean requiresOrder, boolean requiresOver) {
+        super(name, sqlIdentifier, kind, returnTypeInference, operandTypeInference, operandTypeChecker, null, funcType);
+        this.requiresOrder = requiresOrder;
+        this.requiresOver = requiresOver;
+    }
 
-  public <T> T unwrap(Class<T> clazz) {
-    return clazz.isInstance(this) ? clazz.cast(this) : null;
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public boolean isAggregator() {
-    return true;
-  }
+    public <T> T unwrap(Class<T> clazz) {
+        return clazz.isInstance(this) ? clazz.cast(this) : null;
+    }
 
-  @Override public boolean isQuantifierAllowed() {
-    return true;
-  }
+    @Override public boolean isAggregator() {
+        return true;
+    }
 
-  @Override public void validateCall(
-      SqlCall call,
-      SqlValidator validator,
-      SqlValidatorScope scope,
-      SqlValidatorScope operandScope) {
-    super.validateCall(call, validator, scope, operandScope);
-    validator.validateAggregateParams(call, null, scope);
-  }
+    @Override public boolean isQuantifierAllowed() {
+        return true;
+    }
 
-  @Override public final boolean requiresOrder() {
-    return requiresOrder;
-  }
+    @Override public void validateCall(SqlCall call, SqlValidator validator, SqlValidatorScope scope,
+                                       SqlValidatorScope operandScope) {
+        super.validateCall(call, validator, scope, operandScope);
+        validator.validateAggregateParams(call, null, scope);
+    }
 
-  @Override public final boolean requiresOver() {
-    return requiresOver;
-  }
+    @Override public final boolean requiresOrder() {
+        return requiresOrder;
+    }
 
-  @Deprecated // to be removed before 2.0
-  public List<RelDataType> getParameterTypes(RelDataTypeFactory typeFactory) {
-    throw new UnsupportedOperationException("remove before calcite-2.0");
-  }
+    @Override public final boolean requiresOver() {
+        return requiresOver;
+    }
 
-  @Deprecated // to be removed before 2.0
-  public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
-    throw new UnsupportedOperationException("remove before calcite-2.0");
-  }
+    @Deprecated // to be removed before 2.0
+    public List<RelDataType> getParameterTypes(RelDataTypeFactory typeFactory) {
+        throw new UnsupportedOperationException("remove before calcite-2.0");
+    }
 
-  /** Whether this aggregate function allows a {@code FILTER (WHERE ...)}
-   * clause. */
-  public boolean allowsFilter() {
-    return true;
-  }
+    @Deprecated // to be removed before 2.0
+    public RelDataType getReturnType(RelDataTypeFactory typeFactory) {
+        throw new UnsupportedOperationException("remove before calcite-2.0");
+    }
+
+    /**
+     * Whether this aggregate function allows a {@code FILTER (WHERE ...)}
+     * clause.
+     */
+    public boolean allowsFilter() {
+        return true;
+    }
 }
 
 // End SqlAggFunction.java

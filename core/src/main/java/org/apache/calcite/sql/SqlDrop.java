@@ -25,9 +25,9 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public abstract class SqlDrop extends SqlCall {
 
-  public SqlDrop(SqlParserPos pos) {
-    super(pos);
-  }
+    public SqlDrop(SqlParserPos pos) {
+        super(pos);
+    }
 
 }
 

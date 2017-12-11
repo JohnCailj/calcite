@@ -20,49 +20,46 @@ import org.apache.calcite.sql.SqlNode;
 
 /**
  * The name-resolution scope of a LATERAL TABLE clause.
- *
  * <p>The objects visible are those in the parameters found on the left side of
  * the LATERAL TABLE clause, and objects inherited from the parent scope.
  */
 class TableScope extends ListScope {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  private final SqlNode node;
+    private final SqlNode node;
 
-  // The expression inside the LATERAL can only see tables before it in the FROM clause.
-  // We use this flag to indicate whether current table is before LATERAL.
-  private boolean beforeLateral;
+    // The expression inside the LATERAL can only see tables before it in the FROM clause.
+    // We use this flag to indicate whether current table is before LATERAL.
+    private boolean beforeLateral;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a scope corresponding to a LATERAL TABLE clause.
-   *
-   * @param parent   Parent scope, or null
-   */
-  TableScope(SqlValidatorScope parent, SqlNode node) {
-    super(parent);
-    this.node = node;
-    this.beforeLateral = true;
-  }
-
-  //~ Methods ----------------------------------------------------------------
-
-
-  @Override public void addChild(SqlValidatorNamespace ns, String alias,
-      boolean nullable) {
-    if (beforeLateral) {
-      super.addChild(ns, alias, nullable);
+    /**
+     * Creates a scope corresponding to a LATERAL TABLE clause.
+     *
+     * @param parent Parent scope, or null
+     */
+    TableScope(SqlValidatorScope parent, SqlNode node) {
+        super(parent);
+        this.node = node;
+        this.beforeLateral = true;
     }
-  }
 
-  public SqlNode getNode() {
-    return node;
-  }
+    //~ Methods ----------------------------------------------------------------
 
-  public void meetLateral() {
-    this.beforeLateral = false;
-  }
+    @Override public void addChild(SqlValidatorNamespace ns, String alias, boolean nullable) {
+        if (beforeLateral) {
+            super.addChild(ns, alias, nullable);
+        }
+    }
+
+    public SqlNode getNode() {
+        return node;
+    }
+
+    public void meetLateral() {
+        this.beforeLateral = false;
+    }
 }
 
 // End TableScope.java

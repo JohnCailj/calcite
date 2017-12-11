@@ -20,12 +20,12 @@ package org.apache.calcite.rex;
  * Collection of {@link RexSqlConvertlet}s.
  */
 public interface RexSqlConvertletTable {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Returns the convertlet applicable to a given expression.
-   */
-  RexSqlConvertlet get(RexCall call);
+    /**
+     * Returns the convertlet applicable to a given expression.
+     */
+    RexSqlConvertlet get(RexCall call);
 }
 
 // End RexSqlConvertletTable.java

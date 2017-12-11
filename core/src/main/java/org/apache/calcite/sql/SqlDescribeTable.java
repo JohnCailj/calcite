@@ -27,64 +27,62 @@ import java.util.List;
  */
 public class SqlDescribeTable extends SqlCall {
 
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("DESCRIBE_TABLE", SqlKind.DESCRIBE_TABLE) {
-        @Override public SqlCall createCall(SqlLiteral functionQualifier,
-            SqlParserPos pos, SqlNode... operands) {
-          return new SqlDescribeTable(pos, (SqlIdentifier) operands[0],
-              (SqlIdentifier) operands[1]);
+    public static final SqlSpecialOperator OPERATOR = new SqlSpecialOperator("DESCRIBE_TABLE", SqlKind.DESCRIBE_TABLE) {
+
+        @Override public SqlCall createCall(SqlLiteral functionQualifier, SqlParserPos pos, SqlNode... operands) {
+            return new SqlDescribeTable(pos, (SqlIdentifier) operands[0], (SqlIdentifier) operands[1]);
         }
-      };
+    };
 
-  SqlIdentifier table;
-  SqlIdentifier column;
+    SqlIdentifier table;
+    SqlIdentifier column;
 
-  /** Creates a SqlDescribeTable. */
-  public SqlDescribeTable(SqlParserPos pos,
-      SqlIdentifier table,
-      SqlIdentifier column) {
-    super(pos);
-    this.table = table;
-    this.column = column;
-  }
-
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("DESCRIBE");
-    writer.keyword("TABLE");
-    table.unparse(writer, leftPrec, rightPrec);
-    if (column != null) {
-      column.unparse(writer, leftPrec, rightPrec);
+    /**
+     * Creates a SqlDescribeTable.
+     */
+    public SqlDescribeTable(SqlParserPos pos, SqlIdentifier table, SqlIdentifier column) {
+        super(pos);
+        this.table = table;
+        this.column = column;
     }
-  }
 
-  @Override public void setOperand(int i, SqlNode operand) {
-    switch (i) {
-    case 0:
-      table = (SqlIdentifier) operand;
-      break;
-    case 1:
-      column = (SqlIdentifier) operand;
-      break;
-    default:
-      throw new AssertionError(i);
+    @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+        writer.keyword("DESCRIBE");
+        writer.keyword("TABLE");
+        table.unparse(writer, leftPrec, rightPrec);
+        if (column != null) {
+            column.unparse(writer, leftPrec, rightPrec);
+        }
     }
-  }
 
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
-  }
+    @Override public void setOperand(int i, SqlNode operand) {
+        switch (i) {
+            case 0:
+                table = (SqlIdentifier) operand;
+                break;
+            case 1:
+                column = (SqlIdentifier) operand;
+                break;
+            default:
+                throw new AssertionError(i);
+        }
+    }
 
-  @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.<SqlNode>of(table, column);
-  }
+    @Override public SqlOperator getOperator() {
+        return OPERATOR;
+    }
 
-  public SqlIdentifier getTable() {
-    return table;
-  }
+    @Override public List<SqlNode> getOperandList() {
+        return ImmutableNullableList.<SqlNode>of(table, column);
+    }
 
-  public SqlIdentifier getColumn() {
-    return column;
-  }
+    public SqlIdentifier getTable() {
+        return table;
+    }
+
+    public SqlIdentifier getColumn() {
+        return column;
+    }
 }
 
 // End SqlDescribeTable.java

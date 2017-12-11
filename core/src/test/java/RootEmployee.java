@@ -15,18 +15,23 @@
  * limitations under the License.
  */
 
-/** Equivalent to
+/**
+ * Equivalent to
  * {@link org.apache.calcite.examples.foodmart.java.JdbcExample.Employee}, but
- * belongs to the unnamed (root) package. */
+ * belongs to the unnamed (root) package.
+ */
 public class RootEmployee {
-  public final int empid;
-  public final String name;
 
-  /** Creates a RootEmployee. */
-  public RootEmployee(int empid, String name) {
-    this.empid = empid;
-    this.name = name;
-  }
+    public final int    empid;
+    public final String name;
+
+    /**
+     * Creates a RootEmployee.
+     */
+    public RootEmployee(int empid, String name) {
+        this.empid = empid;
+        this.name = name;
+    }
 }
 
 // End RootEmployee.java

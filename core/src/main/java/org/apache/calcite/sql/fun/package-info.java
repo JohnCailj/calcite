@@ -18,7 +18,6 @@
 /**
  * Defines the set of standard SQL row-level functions and
  * operators.
- *
  * <p>The standard set of row-level functions and operators are declared in
  * class {@link org.apache.calcite.sql.fun.SqlStdOperatorTable}. Anonymous inner
  * classes within that table are allowed only for specifying an operator's test

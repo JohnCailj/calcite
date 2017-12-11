@@ -23,37 +23,38 @@ import org.apache.calcite.sql.SqlKind;
  * Variable which references a field of an input relational expression
  */
 public class RexPatternFieldRef extends RexInputRef {
-  private final String alpha;
 
-  public RexPatternFieldRef(String alpha, int index, RelDataType type) {
-    super(index, type);
-    this.alpha = alpha;
-    digest = alpha + ".$" + index;
-  }
+    private final String alpha;
 
-  public String getAlpha() {
-    return alpha;
-  }
+    public RexPatternFieldRef(String alpha, int index, RelDataType type) {
+        super(index, type);
+        this.alpha = alpha;
+        digest = alpha + ".$" + index;
+    }
 
-  public static RexPatternFieldRef of(String alpha, int index, RelDataType type) {
-    return new RexPatternFieldRef(alpha, index, type);
-  }
+    public String getAlpha() {
+        return alpha;
+    }
 
-  public static RexPatternFieldRef of(String alpha, RexInputRef ref) {
-    return new RexPatternFieldRef(alpha, ref.getIndex(), ref.getType());
-  }
+    public static RexPatternFieldRef of(String alpha, int index, RelDataType type) {
+        return new RexPatternFieldRef(alpha, index, type);
+    }
 
-  @Override public <R> R accept(RexVisitor<R> visitor) {
-    return visitor.visitPatternFieldRef(this);
-  }
+    public static RexPatternFieldRef of(String alpha, RexInputRef ref) {
+        return new RexPatternFieldRef(alpha, ref.getIndex(), ref.getType());
+    }
 
-  @Override public <R, P> R accept(RexBiVisitor<R, P> visitor, P arg) {
-    return visitor.visitPatternFieldRef(this, arg);
-  }
+    @Override public <R> R accept(RexVisitor<R> visitor) {
+        return visitor.visitPatternFieldRef(this);
+    }
 
-  @Override public SqlKind getKind() {
-    return SqlKind.PATTERN_INPUT_REF;
-  }
+    @Override public <R, P> R accept(RexBiVisitor<R, P> visitor, P arg) {
+        return visitor.visitPatternFieldRef(this, arg);
+    }
+
+    @Override public SqlKind getKind() {
+        return SqlKind.PATTERN_INPUT_REF;
+    }
 }
 
 // End RexPatternFieldRef.java

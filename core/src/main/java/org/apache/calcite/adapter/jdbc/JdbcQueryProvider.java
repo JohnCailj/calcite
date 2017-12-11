@@ -25,14 +25,15 @@ import org.apache.calcite.linq4j.Queryable;
  * Implementation of {@link QueryProvider} that talks to JDBC databases.
  */
 public final class JdbcQueryProvider extends QueryProviderImpl {
-  public static final JdbcQueryProvider INSTANCE = new JdbcQueryProvider();
 
-  private JdbcQueryProvider() {
-  }
+    public static final JdbcQueryProvider INSTANCE = new JdbcQueryProvider();
 
-  public <T> Enumerator<T> executeQuery(Queryable<T> queryable) {
-    return null;
-  }
+    private JdbcQueryProvider() {
+    }
+
+    public <T> Enumerator<T> executeQuery(Queryable<T> queryable) {
+        return null;
+    }
 }
 
 // End JdbcQueryProvider.java

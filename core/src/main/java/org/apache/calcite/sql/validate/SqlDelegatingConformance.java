@@ -22,56 +22,59 @@ package org.apache.calcite.sql.validate;
  * methods.
  */
 public class SqlDelegatingConformance extends SqlAbstractConformance {
-  private final SqlConformance delegate;
 
-  /** Creates a SqlDelegatingConformance. */
-  protected SqlDelegatingConformance(SqlConformance delegate) {
-    this.delegate = delegate;
-  }
+    private final SqlConformance delegate;
 
-  @Override public boolean isGroupByAlias() {
-    return delegate.isGroupByAlias();
-  }
+    /**
+     * Creates a SqlDelegatingConformance.
+     */
+    protected SqlDelegatingConformance(SqlConformance delegate) {
+        this.delegate = delegate;
+    }
 
-  @Override public boolean isGroupByOrdinal() {
-    return delegate.isGroupByOrdinal();
-  }
+    @Override public boolean isGroupByAlias() {
+        return delegate.isGroupByAlias();
+    }
 
-  @Override public boolean isHavingAlias() {
-    return delegate.isGroupByAlias();
-  }
+    @Override public boolean isGroupByOrdinal() {
+        return delegate.isGroupByOrdinal();
+    }
 
-  @Override public boolean isSortByOrdinal() {
-    return delegate.isSortByOrdinal();
-  }
+    @Override public boolean isHavingAlias() {
+        return delegate.isGroupByAlias();
+    }
 
-  @Override public boolean isSortByAlias() {
-    return delegate.isSortByAlias();
-  }
+    @Override public boolean isSortByOrdinal() {
+        return delegate.isSortByOrdinal();
+    }
 
-  @Override public boolean isSortByAliasObscures() {
-    return delegate.isSortByAliasObscures();
-  }
+    @Override public boolean isSortByAlias() {
+        return delegate.isSortByAlias();
+    }
 
-  @Override public boolean isFromRequired() {
-    return delegate.isFromRequired();
-  }
+    @Override public boolean isSortByAliasObscures() {
+        return delegate.isSortByAliasObscures();
+    }
 
-  @Override public boolean isBangEqualAllowed() {
-    return delegate.isBangEqualAllowed();
-  }
+    @Override public boolean isFromRequired() {
+        return delegate.isFromRequired();
+    }
 
-  @Override public boolean isMinusAllowed() {
-    return delegate.isMinusAllowed();
-  }
+    @Override public boolean isBangEqualAllowed() {
+        return delegate.isBangEqualAllowed();
+    }
 
-  @Override public boolean isInsertSubsetColumnsAllowed() {
-    return delegate.isInsertSubsetColumnsAllowed();
-  }
+    @Override public boolean isMinusAllowed() {
+        return delegate.isMinusAllowed();
+    }
 
-  @Override public boolean allowNiladicParentheses() {
-    return delegate.allowNiladicParentheses();
-  }
+    @Override public boolean isInsertSubsetColumnsAllowed() {
+        return delegate.isInsertSubsetColumnsAllowed();
+    }
+
+    @Override public boolean allowNiladicParentheses() {
+        return delegate.allowNiladicParentheses();
+    }
 
 }
 

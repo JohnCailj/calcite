@@ -21,15 +21,13 @@ package org.apache.calcite.rex;
  * {@link #match} method tests whether a given expression matches the pattern.
  */
 public interface RexPattern {
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  /**
-   * Calls <code>action</code> for every combination of tokens for which this
-   * pattern matches.
-   */
-  void match(
-      RexNode ptree,
-      RexAction action);
+    /**
+     * Calls <code>action</code> for every combination of tokens for which this
+     * pattern matches.
+     */
+    void match(RexNode ptree, RexAction action);
 }
 
 // End RexPattern.java

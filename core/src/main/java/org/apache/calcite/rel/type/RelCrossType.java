@@ -16,65 +16,61 @@
  */
 package org.apache.calcite.rel.type;
 
-import org.apache.calcite.linq4j.Ord;
-
 import com.google.common.collect.ImmutableList;
+import org.apache.calcite.linq4j.Ord;
 
 import java.util.List;
 
 /**
  * Type of the cartesian product of two or more sets of records.
- *
  * <p>Its fields are those of its constituent records, but unlike a
  * {@link RelRecordType}, those fields' names are not necessarily distinct.</p>
  */
 public class RelCrossType extends RelDataTypeImpl {
-  //~ Instance fields --------------------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
-  public final ImmutableList<RelDataType> types;
+    public final ImmutableList<RelDataType> types;
 
-  //~ Constructors -----------------------------------------------------------
+    //~ Constructors -----------------------------------------------------------
 
-  /**
-   * Creates a cartesian product type. This should only be called from a
-   * factory method.
-   */
-  public RelCrossType(
-      List<RelDataType> types,
-      List<RelDataTypeField> fields) {
-    super(fields);
-    this.types = ImmutableList.copyOf(types);
-    assert types.size() >= 1;
-    for (RelDataType type : types) {
-      assert !(type instanceof RelCrossType);
+    /**
+     * Creates a cartesian product type. This should only be called from a
+     * factory method.
+     */
+    public RelCrossType(List<RelDataType> types, List<RelDataTypeField> fields) {
+        super(fields);
+        this.types = ImmutableList.copyOf(types);
+        assert types.size() >= 1;
+        for (RelDataType type : types) {
+            assert !(type instanceof RelCrossType);
+        }
+        computeDigest();
     }
-    computeDigest();
-  }
 
-  //~ Methods ----------------------------------------------------------------
+    //~ Methods ----------------------------------------------------------------
 
-  @Override public boolean isStruct() {
-    return false;
-  }
-
-  @Override public List<RelDataTypeField> getFieldList() {
-    return fieldList;
-  }
-
-  protected void generateTypeString(StringBuilder sb, boolean withDetail) {
-    sb.append("CrossType(");
-    for (Ord<RelDataType> type : Ord.zip(types)) {
-      if (type.i > 0) {
-        sb.append(", ");
-      }
-      if (withDetail) {
-        sb.append(type.e.getFullTypeString());
-      } else {
-        sb.append(type.e.toString());
-      }
+    @Override public boolean isStruct() {
+        return false;
     }
-    sb.append(")");
-  }
+
+    @Override public List<RelDataTypeField> getFieldList() {
+        return fieldList;
+    }
+
+    protected void generateTypeString(StringBuilder sb, boolean withDetail) {
+        sb.append("CrossType(");
+        for (Ord<RelDataType> type : Ord.zip(types)) {
+            if (type.i > 0) {
+                sb.append(", ");
+            }
+            if (withDetail) {
+                sb.append(type.e.getFullTypeString());
+            } else {
+                sb.append(type.e.toString());
+            }
+        }
+        sb.append(")");
+    }
 }
 
 // End RelCrossType.java

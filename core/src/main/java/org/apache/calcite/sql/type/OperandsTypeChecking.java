@@ -20,6 +20,7 @@ package org.apache.calcite.sql.type;
  * Strategies to check for allowed operand types of an operator call.
  */
 public abstract class OperandsTypeChecking {
+
 }
 
 // End OperandsTypeChecking.java

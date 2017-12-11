@@ -21,35 +21,35 @@ package org.apache.calcite.rel.metadata;
  * one of its output columns.
  */
 public class RelColumnMapping {
-  public RelColumnMapping(
-      int iOutputColumn, int iInputRel, int iInputColumn, boolean derived) {
-    this.iOutputColumn = iOutputColumn;
-    this.iInputRel = iInputRel;
-    this.iInputColumn = iInputColumn;
-    this.derived = derived;
-  }
 
-  //~ Instance fields --------------------------------------------------------
+    public RelColumnMapping(int iOutputColumn, int iInputRel, int iInputColumn, boolean derived) {
+        this.iOutputColumn = iOutputColumn;
+        this.iInputRel = iInputRel;
+        this.iInputColumn = iInputColumn;
+        this.derived = derived;
+    }
 
-  /**
-   * 0-based ordinal of mapped output column.
-   */
-  public final int iOutputColumn;
+    //~ Instance fields --------------------------------------------------------
 
-  /**
-   * 0-based ordinal of mapped input rel.
-   */
-  public final int iInputRel;
+    /**
+     * 0-based ordinal of mapped output column.
+     */
+    public final int iOutputColumn;
 
-  /**
-   * 0-based ordinal of mapped column within input rel.
-   */
-  public final int iInputColumn;
+    /**
+     * 0-based ordinal of mapped input rel.
+     */
+    public final int iInputRel;
 
-  /**
-   * Whether the column mapping transforms the input.
-   */
-  public final boolean derived;
+    /**
+     * 0-based ordinal of mapped column within input rel.
+     */
+    public final int iInputColumn;
+
+    /**
+     * Whether the column mapping transforms the input.
+     */
+    public final boolean derived;
 }
 
 // End RelColumnMapping.java

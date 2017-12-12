@@ -143,7 +143,7 @@ limitations under the License.
     <!--<module>druid</module>-->
     <!--<module>elasticsearch2</module>-->
     <!--<module>elasticsearch5</module>-->
-    <!--<module>example</module>-->
+    <module>example</module>
     <!--<module>file</module>-->
     <!--<module>linq4j</module>-->
     <!--<module>mongodb</module>-->
